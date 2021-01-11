@@ -21,6 +21,8 @@
 package org.oransc.enrichment.repository;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.Getter;
 
@@ -36,6 +38,8 @@ public class EiProducer {
 
     @Getter
     private final String producerSupervisionCallbackUrl;
+
+    private final Set<String> enabledJobs = new HashSet<>();
 
     private int unresponsiveCounter = 0;
 
@@ -61,6 +65,18 @@ public class EiProducer {
 
     public synchronized boolean isAvailable() {
         return this.unresponsiveCounter == 0;
+    }
+
+    public synchronized void setJobEnabled(EiJob job) {
+        this.enabledJobs.add(job.getId());
+    }
+
+    public synchronized void setJobDisabled(EiJob job) {
+        this.enabledJobs.remove(job.getId());
+    }
+
+    synchronized boolean isJobEnabled(EiJob job) {
+        return this.enabledJobs.contains(job.getId());
     }
 
 }

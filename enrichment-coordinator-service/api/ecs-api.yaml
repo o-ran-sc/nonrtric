@@ -8,7 +8,7 @@ servers:
 tags:
 - name: A1-EI (enrichment information)
   description: Consumer Controller
-- name: Consumer Callbacks
+- name: A1-EI (enrichment information) callbacks
   description: Consumer Simulator Controller
 - name: Enrichment Data Producer API
   description: Producer Controller
@@ -83,7 +83,7 @@ paths:
   /consumer_simulator/eijobs/{eiJobId}/status:
     post:
       tags:
-      - Consumer Callbacks
+      - A1-EI (enrichment information) callbacks
       summary: Callback for EI job status
       operationId: jobStatusCallbackUsingPOST
       parameters:
@@ -280,6 +280,83 @@ paths:
           content: {}
         404:
           description: Enrichment Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+      deprecated: false
+    put:
+      tags:
+      - Enrichment Data Producer API
+      summary: Individual EI type
+      operationId: putEiTypeUsingPUT
+      parameters:
+      - name: eiTypeId
+        in: path
+        description: eiTypeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: registrationInfo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/producer_ei_type_info'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        201:
+          description: Created
+          content: {}
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not Found
+          content: {}
+      deprecated: false
+    delete:
+      tags:
+      - Enrichment Data Producer API
+      summary: Individual EI type
+      operationId: deleteEiTypeUsingDELETE
+      parameters:
+      - name: eiTypeId
+        in: path
+        description: eiTypeId
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Not used
+          content: {}
+        204:
+          description: Producer deleted
+          content: {}
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Enrichment Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        406:
+          description: The Enrichment Information type has one or several active producers
           content:
             application/json:
               schema:
@@ -676,20 +753,6 @@ components:
       title: EiTypeObject
       type: object
       description: Information for an EI type
-    producer_ei_type_registration_info:
-      title: producer_ei_type_registration_info
-      required:
-      - ei_type_identity
-      type: object
-      properties:
-        ei_type_identity:
-          type: string
-          description: EI type identity
-        ei_job_data_schema:
-          type: object
-          properties: {}
-          description: Json schema for the job data
-      description: Information for an EI type
     status_info:
       title: status_info
       type: object
@@ -716,11 +779,6 @@ components:
       title: producer_ei_type_info
       type: object
       properties:
-        ei_producer_ids:
-          type: array
-          description: Registered producers
-          items:
-            type: string
         ei_job_data_schema:
           type: object
           properties: {}
@@ -736,9 +794,9 @@ components:
       properties:
         supported_ei_types:
           type: array
-          description: Supported EI types
+          description: Supported EI type IDs
           items:
-            $ref: '#/components/schemas/producer_ei_type_registration_info'
+            type: string
         ei_producer_supervision_callback_url:
           type: string
           description: callback for producer supervision

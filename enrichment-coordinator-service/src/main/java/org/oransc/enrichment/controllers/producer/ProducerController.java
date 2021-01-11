@@ -28,14 +28,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
-import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
+import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
@@ -43,9 +42,6 @@ import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.oransc.enrichment.repository.ImmutableEiProducerRegistrationInfo;
-import org.oransc.enrichment.repository.ImmutableEiTypeRegistrationInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,8 +57,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("ProducerController")
 @Api(tags = {ProducerConsts.PRODUCER_API_NAME})
 public class ProducerController {
-
-    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static Gson gson = new GsonBuilder().create();
 
@@ -113,6 +107,45 @@ public class ProducerController {
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PutMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Individual EI type", notes = "")
+    public ResponseEntity<Object> putEiType( //
+        @PathVariable("eiTypeId") String eiTypeId, @RequestBody ProducerEiTypeInfo registrationInfo) {
+
+        EiType previousDefinition = this.eiTypes.get(eiTypeId);
+        this.eiTypes.put(new EiType(eiTypeId, registrationInfo.jobDataSchema));
+        return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Individual EI type", notes = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
+            @ApiResponse(code = 204, message = "Producer deleted", response = VoidResponse.class),
+            @ApiResponse(
+                code = 404,
+                message = "Enrichment Information type is not found",
+                response = ErrorResponse.ErrorInfo.class),
+            @ApiResponse(
+                code = 406,
+                message = "The Enrichment Information type has one or several active producers",
+                response = ErrorResponse.ErrorInfo.class)})
+    public ResponseEntity<Object> deleteEiType( //
+        @PathVariable("eiTypeId") String eiTypeId) {
+
+        EiType type = this.eiTypes.get(eiTypeId);
+        if (type == null) {
+            return ErrorResponse.create("EI type not found", HttpStatus.NOT_FOUND);
+        }
+        if (!this.eiProducers.getProducersForType(type).isEmpty()) {
+            String firstProducerId = this.eiProducers.getProducersForType(type).iterator().next().getId();
+            return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.NOT_ACCEPTABLE);
+        }
+        this.eiTypes.remove(type);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eiproducers", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -247,7 +280,7 @@ public class ProducerController {
     public ResponseEntity<Object> deleteEiProducer(@PathVariable("eiProducerId") String eiProducerId) {
         try {
             final EiProducer producer = this.eiProducers.getProducer(eiProducerId);
-            this.eiProducers.deregisterProducer(producer, this.eiTypes);
+            this.eiProducers.deregisterProducer(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -255,32 +288,25 @@ public class ProducerController {
     }
 
     private ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
-        Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
+        Collection<String> types = new ArrayList<>();
         for (EiType type : p.getEiTypes()) {
-            types.add(toEiTypeRegistrationInfo(type));
+            types.add(type.getId());
         }
         return new ProducerRegistrationInfo(types, p.getJobCallbackUrl(), p.getProducerSupervisionCallbackUrl());
     }
 
-    private ProducerEiTypeRegistrationInfo toEiTypeRegistrationInfo(EiType type) {
-        return new ProducerEiTypeRegistrationInfo(type.getJobDataSchema(), type.getId());
-    }
-
     private ProducerEiTypeInfo toEiTypeInfo(EiType t) {
-        Collection<String> producerIds = this.eiProducers.getProducerIdsForType(t.getId());
-        return new ProducerEiTypeInfo(t.getJobDataSchema(), producerIds);
+        return new ProducerEiTypeInfo(t.getJobDataSchema());
     }
 
     private EiProducers.EiProducerRegistrationInfo toEiProducerRegistrationInfo(String eiProducerId,
-        ProducerRegistrationInfo info) {
-        Collection<EiProducers.EiTypeRegistrationInfo> supportedTypes = new ArrayList<>();
-        for (ProducerEiTypeRegistrationInfo typeInfo : info.types) {
-            EiProducers.EiTypeRegistrationInfo i = ImmutableEiTypeRegistrationInfo.builder() //
-                .id(typeInfo.eiTypeId) //
-                .jobDataSchema(typeInfo.jobDataSchema) //
-                .build();
-            supportedTypes.add(i);
+        ProducerRegistrationInfo info) throws ServiceException {
+        Collection<EiType> supportedTypes = new ArrayList<>();
+        for (String typeId : info.supportedTypeIds) {
+            EiType type = this.eiTypes.getType(typeId);
+            supportedTypes.add(type);
         }
+
         return ImmutableEiProducerRegistrationInfo.builder() //
             .id(eiProducerId) //
             .jobCallbackUrl(info.jobCallbackUrl) //

@@ -26,8 +26,6 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Collection;
-
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
@@ -39,14 +37,8 @@ public class ProducerEiTypeInfo {
     @JsonProperty("ei_job_data_schema")
     public Object jobDataSchema;
 
-    @ApiModelProperty(value = "Registered producers")
-    @SerializedName("ei_producer_ids")
-    @JsonProperty(value = "ei_producer_ids", required = true)
-    public Collection<String> producerIds;
-
-    public ProducerEiTypeInfo(Object jobDataSchema, Collection<String> producers) {
+    public ProducerEiTypeInfo(Object jobDataSchema) {
         this.jobDataSchema = jobDataSchema;
-        this.producerIds = producers;
     }
 
     public ProducerEiTypeInfo() {
