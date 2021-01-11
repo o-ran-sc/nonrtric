@@ -23,11 +23,8 @@ package org.oransc.enrichment.tasks;
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
-import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
-import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,20 +45,13 @@ public class ProducerSupervision {
     private static final Logger logger = LoggerFactory.getLogger(ProducerSupervision.class);
 
     private final EiProducers eiProducers;
-    private final EiJobs eiJobs;
-    private final EiTypes eiTypes;
     private final AsyncRestClient restClient;
-    private final ConsumerCallbacks consumerCallbacks;
 
     @Autowired
-    public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers, EiJobs eiJobs,
-        EiTypes eiTypes, ConsumerCallbacks consumerCallbacks) {
+    public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientNoHttpProxy("");
-        this.eiJobs = eiJobs;
         this.eiProducers = eiProducers;
-        this.eiTypes = eiTypes;
-        this.consumerCallbacks = consumerCallbacks;
     }
 
     @Scheduled(fixedRate = 1000 * 60 * 5)
@@ -89,8 +79,7 @@ public class ProducerSupervision {
         logger.warn("Unresponsive producer: {} exception: {}", producer.getId(), throwable.getMessage());
         producer.setAliveStatus(false);
         if (producer.isDead()) {
-            this.eiProducers.deregisterProducer(producer, this.eiTypes);
-            this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
+            this.eiProducers.deregisterProducer(producer);
         }
     }
 
