@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ConsumerSimulatorController")
-@Api(tags = {"Consumer Callbacks"})
+@Api(tags = {"A1-EI (enrichment information) callbacks"})
 public class ConsumerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

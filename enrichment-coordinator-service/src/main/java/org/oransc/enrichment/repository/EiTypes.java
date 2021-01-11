@@ -84,7 +84,7 @@ public class EiTypes {
     public synchronized EiType getType(String id) throws ServiceException {
         EiType type = allEiTypes.get(id);
         if (type == null) {
-            throw new ServiceException("Could not find EI type: " + id);
+            throw new ServiceException("EI type not found: " + id);
         }
         return type;
     }

@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ProducerSimulatorController")
-@Api(tags = {"Producer Callbacks"})
+@Api(tags = {"Data Producer Callbacks"})
 public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
