@@ -29,6 +29,6 @@ services:
         aliases:
           - r-app-catalogue
     ports:
-      - 8080:8080
-      - 8433:8433
+      - 8680:8680
+      - 8633:8633
 

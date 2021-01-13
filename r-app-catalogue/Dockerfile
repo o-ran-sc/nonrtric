@@ -23,10 +23,12 @@ ARG JAR
 
 WORKDIR /opt/app/r-app-catalogue
 RUN mkdir -p /var/log/r-app-catalogue
+RUN mkdir -p /opt/app/r-app-catalogue/etc/cert/
 
-EXPOSE 8081 8433
+EXPOSE 8680 8633
 
 ADD /config/application.yaml /opt/app/r-app-catalogue/config/application.yaml
+ADD /config/r-app-catalogue-keystore.jks /opt/app/r-app-catalogue/etc/cert/keystore.jks
 ADD target/${JAR} /opt/app/r-app-catalogue/r-app-catalogue.jar
 
 
