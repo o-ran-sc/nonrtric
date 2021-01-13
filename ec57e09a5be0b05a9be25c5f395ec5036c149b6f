@@ -70,6 +70,30 @@
       "revId": "ec57e09a5be0b05a9be25c5f395ec5036c149b6f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8357d15_6d8d9889",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/producer/ProducerEiTypeInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-13T19:11:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44bc9e7b_4b9c5993",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 38
+      },
+      "revId": "ec57e09a5be0b05a9be25c5f395ec5036c149b6f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
