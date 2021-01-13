@@ -22,6 +22,30 @@
       "revId": "ec57e09a5be0b05a9be25c5f395ec5036c149b6f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3bb2706_c4e134a4",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/producer/ProducerEiTypeInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-13T07:51:03Z",
+      "side": 1,
+      "message": "It is possible to retrieve the producers and that info contains the supported types for each producer. \nI removed it from here because after this change this info can also be PUT.\nIf it will be necessary to quickly get a list of producers for a type, it is easy to add a query parameter to the \"GET producer IDs primitive\".",
+      "parentUuid": "7493e4f5_21ef78b0",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 38
+      },
+      "revId": "ec57e09a5be0b05a9be25c5f395ec5036c149b6f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
