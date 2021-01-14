@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adfab69d_20091fff",
+        "filename": "r-app-catalogue/config/application.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-01-14T15:52:05Z",
+      "side": 1,
+      "message": "Please remove ONAP here.",
+      "revId": "3f27cbca6a63f38cffcc324a586d0eb641632e1d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
