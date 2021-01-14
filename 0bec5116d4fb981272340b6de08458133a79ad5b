@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2fc7d339_e51c34eb",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-14T13:56:16Z",
+      "side": 1,
+      "message": "Thanks for the comment, I pushed a new patch using only keystore from the server",
+      "parentUuid": "9a122ad8_27e5b940",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 71
+      },
+      "revId": "0bec5116d4fb981272340b6de08458133a79ad5b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a20ffb9a_e0f116ac",
         "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f1523ede_f2e4416a",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-14T13:56:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a20ffb9a_e0f116ac",
+      "range": {
+        "startLine": 99,
+        "startChar": 7,
+        "endLine": 101,
+        "endChar": 73
+      },
+      "revId": "0bec5116d4fb981272340b6de08458133a79ad5b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2991ec9_bedab1dd",
         "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "0bec5116d4fb981272340b6de08458133a79ad5b",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e60b459a_ec6ed94e",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-14T13:56:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2991ec9_bedab1dd",
+      "range": {
+        "startLine": 104,
+        "startChar": 11,
+        "endLine": 107,
+        "endChar": 46
+      },
+      "revId": "0bec5116d4fb981272340b6de08458133a79ad5b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
