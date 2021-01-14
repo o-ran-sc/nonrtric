@@ -22,7 +22,7 @@ networks:
 
 services:
   a1-sim-OSC:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
     container_name: a1-sim-OSC
     networks:
       - default
@@ -35,7 +35,7 @@ services:
       - ALLOW_HTTP=true
 
   a1-sim-STD:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
     container_name: a1-sim-STD
     networks:
       - default
