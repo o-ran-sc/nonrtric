@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "2963698d_3e3e2e08",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-15T14:24:54Z",
+      "side": 1,
+      "message": "Thanks for the comment,\nHowever I cannot us @LocalServerPort for both httpPort(http) and port(https) variable, so I think in that case I will only be able to start Tomcat for HTTPS on the random port, and testcase rest_OverPlainHttp_GetsExpectedResponse() needs to be modify or remove. Is that ok with you?",
+      "parentUuid": "5ad55ad5_d2a2a541",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6de3caf_defd6de5",
         "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
         "patchSetId": 5
@@ -82,6 +106,30 @@
       "writtenOn": "2021-01-15T10:30:59Z",
       "side": 1,
       "message": "There are tabs here. \nYou can format the code like this: \n\u003emvn formatter:format spotless:apply process-sources",
+      "range": {
+        "startLine": 68,
+        "startChar": 2,
+        "endLine": 74,
+        "endChar": 2
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e24a3ee0_34126bff",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-15T14:24:54Z",
+      "side": 1,
+      "message": "thanks I will use that!",
+      "parentUuid": "e6de3caf_defd6de5",
       "range": {
         "startLine": 68,
         "startChar": 2,
