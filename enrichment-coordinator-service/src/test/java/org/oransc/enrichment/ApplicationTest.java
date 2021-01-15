@@ -64,6 +64,7 @@ import org.oransc.enrichment.controllers.producer.ProducerStatusInfo;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
+import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
@@ -561,6 +562,8 @@ class ApplicationTest {
 
     @Test
     void testProducerSupervision() throws JsonMappingException, JsonProcessingException, ServiceException {
+
+        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
         putEiProducerWithOneTypeRejecting("simulateProducerError", EI_TYPE_ID);
 
         {
@@ -569,13 +572,11 @@ class ApplicationTest {
             putEiJob(EI_TYPE_ID, EI_JOB_ID);
             verifyJobStatus(EI_JOB_ID, "ENABLED");
             deleteEiProducer(EI_PRODUCER_ID);
+            // A Job disabled status notification shall now be received
+            await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
+            assertThat(consumerResults.status.get(0).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
             verifyJobStatus(EI_JOB_ID, "DISABLED");
         }
-
-        // Job disabled status notification shall be received
-        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
-        assertThat(consumerResults.status.get(0).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
 
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertThat(this.eiTypes.size()).isEqualTo(1);
@@ -588,11 +589,41 @@ class ApplicationTest {
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertProducerOpState("simulateProducerError", ProducerStatusInfo.OperationalState.DISABLED);
 
-        // After 3 failed checks, the producer and the type shall be deregisterred
+        // After 3 failed checks, the producer shall be deregisterred
         this.producerSupervision.createTask().blockLast();
         assertThat(this.eiProducers.size()).isEqualTo(0); // The producer is removed
         assertThat(this.eiTypes.size()).isEqualTo(1); // The type remains
 
+        // Now we have one disabled job, and no producer.
+        // PUT a producer, then a Job ENABLED status notification shall be received
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(2));
+        assertThat(consumerResults.status.get(1).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
+        verifyJobStatus(EI_JOB_ID, "ENABLED");
+    }
+
+    @Test
+    void testProducerSupervision2() throws JsonMappingException, JsonProcessingException, ServiceException {
+        // Test that supervision enables not enabled jobs and sends a notification when
+        // suceeded
+
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        putEiJob(EI_TYPE_ID, EI_JOB_ID);
+
+        EiProducer producer = this.eiProducers.getProducer(EI_PRODUCER_ID);
+        EiJob job = this.eiJobs.getJob(EI_JOB_ID);
+        // Pretend that the producer did reject the job and the a DISABLED notification
+        // is sent for the job
+        producer.setJobDisabled(job);
+        job.setLastReportedStatus(false);
+        verifyJobStatus(EI_JOB_ID, "DISABLED");
+
+        // Run the supervision and wait for the job to get started in the producer
+        this.producerSupervision.createTask().blockLast();
+        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
+        assertThat(consumerResults.status.get(0).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
+        verifyJobStatus(EI_JOB_ID, "ENABLED");
     }
 
     @Test
@@ -614,10 +645,15 @@ class ApplicationTest {
         assertThat(this.eiJobs.size()).isEqualTo(2);
 
         {
+            EiJob savedJob = this.eiJobs.getJob("jobId1");
             // Restore the jobs
             EiJobs jobs = new EiJobs(this.applicationConfig, this.producerCallbacks);
             jobs.restoreJobsFromDatabase();
             assertThat(jobs.size()).isEqualTo(2);
+            EiJob restoredJob = jobs.getJob("jobId1");
+            assertThat(restoredJob.getId()).isEqualTo("jobId1");
+            assertThat(restoredJob.getLastUpdated()).isEqualTo(savedJob.getLastUpdated());
+
             jobs.remove("jobId1", this.eiProducers);
             jobs.remove("jobId2", this.eiProducers);
         }

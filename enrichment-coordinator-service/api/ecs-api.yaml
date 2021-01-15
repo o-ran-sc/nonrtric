@@ -745,6 +745,9 @@ components:
         ei_job_identity:
           type: string
           description: Idenitity of the EI job
+        last_updated:
+          type: string
+          description: The time when the job was last updated or created (ISO-8601)
         ei_job_data:
           type: object
           properties: {}

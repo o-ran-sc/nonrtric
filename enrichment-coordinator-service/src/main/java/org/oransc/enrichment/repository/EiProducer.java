@@ -75,7 +75,10 @@ public class EiProducer {
         this.enabledJobs.remove(job.getId());
     }
 
-    synchronized boolean isJobEnabled(EiJob job) {
+    /**
+     * Is the job enabled for this producer?
+     */
+    public synchronized boolean isJobEnabled(EiJob job) {
         return this.enabledJobs.contains(job.getId());
     }
 

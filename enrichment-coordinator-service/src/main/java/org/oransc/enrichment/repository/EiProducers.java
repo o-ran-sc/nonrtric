@@ -85,7 +85,7 @@ public class EiProducers {
         Collection<EiType> previousTypes =
             previousDefinition != null ? previousDefinition.getEiTypes() : new ArrayList<>();
 
-        producerCallbacks.restartEiJobs(producer, this.eiJobs) //
+        producerCallbacks.startEiJobs(producer, this.eiJobs) //
             .collectList() //
             .flatMapMany(list -> consumerCallbacks.notifyJobStatus(producer.getEiTypes())) //
             .collectList() //

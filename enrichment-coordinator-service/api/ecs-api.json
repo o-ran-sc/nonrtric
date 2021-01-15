@@ -595,6 +595,10 @@
                     "description": "Idenitity of the EI job",
                     "type": "string"
                 },
+                "last_updated": {
+                    "description": "The time when the job was last updated or created (ISO-8601)",
+                    "type": "string"
+                },
                 "ei_job_data": {
                     "description": "Json for the job data",
                     "type": "object"
