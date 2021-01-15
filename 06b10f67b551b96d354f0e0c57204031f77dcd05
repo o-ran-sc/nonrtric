@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed27bc8f_7af6fa53",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/configuration/TomcatConfig.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-15T10:30:59Z",
+      "side": 1,
+      "message": "if (httpPort !\u003d 0) {\n    tomcat.addAdditionalTomcatConnectors(getHttpConnector(httpPort));\n}",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 73
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efbcb759_ab7cda69",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-15T10:30:59Z",
+      "side": 1,
+      "message": "I realized that the test should only open generated ports, otherwise there will be problems when more than one unit test is run concurrently. \n\nYou can override the server.http-port and set it to 0 here. See also comment in the Tomcat component.\n\nThat will skip opening http port here.",
+      "range": {
+        "startLine": 53,
+        "startChar": 19,
+        "endLine": 53,
+        "endChar": 79
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ad55ad5_d2a2a541",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-15T10:30:59Z",
+      "side": 1,
+      "message": "The WebEnvironment.RANDOM_PORT makes the server pick a free port and @LocalServerPort can be used like this:\n\n@LocalServerPort\nprivate int httpPort;\n\nI am not 100% sure if \"${server.http-port}\") is the same. The doc says:\n\"Provides a convenient alternative for @Value(\"${local.server.port}\").\" \n\nMaybe it is safest to use that.",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6de3caf_defd6de5",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-15T10:30:59Z",
+      "side": 1,
+      "message": "There are tabs here. \nYou can format the code like this: \n\u003emvn formatter:format spotless:apply process-sources",
+      "range": {
+        "startLine": 68,
+        "startChar": 2,
+        "endLine": 74,
+        "endChar": 2
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
