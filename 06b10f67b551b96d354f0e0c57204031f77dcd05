@@ -95,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "c5471edd_f153f666",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-15T14:33:02Z",
+      "side": 1,
+      "message": "OK,that is fine. You can rename the test to \nrest_OverPlainHttps...\n\nNo need to use http",
+      "parentUuid": "2963698d_3e3e2e08",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "06b10f67b551b96d354f0e0c57204031f77dcd05",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6de3caf_defd6de5",
         "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
         "patchSetId": 5
