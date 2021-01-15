@@ -53,28 +53,17 @@ public class EiProducers {
     private ConsumerCallbacks consumerCallbacks;
 
     @Autowired
-    private EiTypes eiTypes;
-
-    @Autowired
     private EiJobs eiJobs;
-
-    @Immutable
-    public interface EiTypeRegistrationInfo {
-        String id();
-
-        Object jobDataSchema();
-    }
 
     @Immutable
     public interface EiProducerRegistrationInfo {
         String id();
 
-        Collection<EiTypeRegistrationInfo> supportedTypes();
+        Collection<EiType> supportedTypes();
 
         String jobCallbackUrl();
 
         String producerSupervisionCallbackUrl();
-
     }
 
     public EiProducer registerProducer(EiProducerRegistrationInfo producerInfo) {
@@ -93,45 +82,22 @@ public class EiProducers {
             producersByType.put(type.getId(), producer.getId(), producer);
         }
 
-        if (previousDefinition != null) {
-            purgeTypes(previousDefinition.getEiTypes());
-            this.consumerCallbacks.notifyConsumersProducerDeleted(previousDefinition);
-        }
+        Collection<EiType> previousTypes =
+            previousDefinition != null ? previousDefinition.getEiTypes() : new ArrayList<>();
 
-        producerCallbacks.restartEiJobs(producer, this.eiJobs);
-        consumerCallbacks.notifyConsumersProducerAdded(producer);
+        producerCallbacks.restartEiJobs(producer, this.eiJobs) //
+            .collectList() //
+            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(producer.getEiTypes())) //
+            .collectList() //
+            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(previousTypes)) //
+            .subscribe();
+
         return producer;
-    }
-
-    private void purgeTypes(Collection<EiType> types) {
-        for (EiType type : types) {
-            if (getProducersForType(type.getId()).isEmpty()) {
-                this.eiTypes.remove(type);
-            }
-        }
-    }
-
-    private EiType getType(EiTypeRegistrationInfo typeInfo) {
-        EiType type = this.eiTypes.get(typeInfo.id());
-        if (type == null) {
-            type = new EiType(typeInfo.id(), typeInfo.jobDataSchema());
-            this.eiTypes.put(type);
-            this.consumerCallbacks.notifyConsumersTypeAdded(type);
-        }
-        return type;
     }
 
     private EiProducer createProducer(EiProducerRegistrationInfo producerInfo) {
-        ArrayList<EiType> types = new ArrayList<>();
-
-        EiProducer producer = new EiProducer(producerInfo.id(), types, producerInfo.jobCallbackUrl(),
+        return new EiProducer(producerInfo.id(), producerInfo.supportedTypes(), producerInfo.jobCallbackUrl(),
             producerInfo.producerSupervisionCallbackUrl());
-
-        for (EiTypeRegistrationInfo typeInfo : producerInfo.supportedTypes()) {
-            EiType type = getType(typeInfo);
-            types.add(type);
-        }
-        return producer;
     }
 
     public synchronized Collection<EiProducer> getAllProducers() {
@@ -159,17 +125,15 @@ public class EiProducers {
         this.producersByType.clear();
     }
 
-    public void deregisterProducer(EiProducer producer, EiTypes eiTypes) {
+    public void deregisterProducer(EiProducer producer) {
         allEiProducers.remove(producer.getId());
         for (EiType type : producer.getEiTypes()) {
             if (producersByType.remove(type.getId(), producer.getId()) == null) {
                 this.logger.error("Bug, no producer found");
             }
-            if (this.producersByType.get(type.getId()).isEmpty()) {
-                eiTypes.remove(type);
-            }
         }
-        this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
+        this.consumerCallbacks.notifyJobStatus(producer.getEiTypes()) //
+            .subscribe();
     }
 
     public synchronized Collection<EiProducer> getProducersForType(EiType type) {
@@ -186,6 +150,15 @@ public class EiProducers {
             producerIds.add(p.getId());
         }
         return producerIds;
+    }
+
+    public synchronized boolean isJobEnabled(EiJob job) {
+        for (EiProducer producer : this.producersByType.get(job.getTypeId())) {
+            if (producer.isJobEnabled(job)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
