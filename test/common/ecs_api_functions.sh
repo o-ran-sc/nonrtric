@@ -17,9 +17,275 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains specific test functions for ECS NB/SB API
+# This is a script that contains container/service management functions and test functions for ECS
 
-. ../common/api_curl.sh
+## Access to ECS
+# Host name may be changed if app started by kube
+# Direct access
+ECS_HTTPX="http"
+ECS_HOST_NAME=$LOCALHOST_NAME
+ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_PORT
+
+# ECS_ADAPTER used for switch between REST and DMAAP (only REST supported currently)
+ECS_ADAPTER_TYPE="REST"
+ECS_ADAPTER=$ECS_PATH
+
+# Make curl retries towards ECS for http response codes set in this env var, space separated list of codes
+ECS_RETRY_CODES=""
+
+###########################
+### ECS functions
+###########################
+
+# All calls to ECS will be directed to the ECS REST interface from now on
+# args: -
+# (Function for test scripts)
+use_ecs_rest_http() {
+	echo -e $BOLD"ECS protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards ECS"
+	ECS_HTTPX="http"
+	ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_PORT
+
+	ECS_ADAPTER_TYPE="REST"
+	ECS_ADAPTER=$ECS_PATH
+	echo ""
+}
+
+# All calls to ECS will be directed to the ECS REST interface from now on
+# args: -
+# (Function for test scripts)
+use_ecs_rest_https() {
+	echo -e $BOLD"ECS protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
+	ECS_HTTPX="https"
+	ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_SECURE_PORT
+
+	ECS_ADAPTER_TYPE="REST"
+	ECS_ADAPTER=$ECS_PATH
+	echo ""
+}
+
+# All calls to ECS will be directed to the ECS dmaap interface over http from now on
+# args: -
+# (Function for test scripts)
+use_ecs_dmaap_http() {
+	echo -e $BOLD"ECS dmaap protocol setting"$EBOLD
+	echo -e $RED" - NOT SUPPORTED - "$ERED
+	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ECS"
+	ECS_ADAPTER_TYPE="MR-HTTP"
+	echo ""
+}
+
+# All calls to ECS will be directed to the ECS dmaap interface over https from now on
+# args: -
+# (Function for test scripts)
+use_ecs_dmaap_https() {
+	echo -e $BOLD"RICSIM protocol setting"$EBOLD
+	echo -e $RED" - NOT SUPPORTED - "$ERED
+	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
+	ECS_ADAPTER_TYPE="MR-HTTPS"
+	echo ""
+}
+
+# Start the ECS
+# args: -
+# (Function for test scripts)
+start_ecs() {
+
+	echo -e $BOLD"Starting $ECS_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+
+		# Check if app shall be fully managed by the test script
+		__check_included_image "ECS"
+		retcode_i=$?
+
+		# Check if app shall only be used by the testscipt
+		__check_prestarted_image "ECS"
+		retcode_p=$?
+
+		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
+			echo -e $RED"The $ECS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $ECS_APP_NAME will not be started"$ERED
+			exit
+		fi
+		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
+			echo -e $RED"The $ECS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $ECS_APP_NAME will not be started"$ERED
+			exit
+		fi
+
+
+		if [ $retcode_p -eq 0 ]; then
+			echo -e " Using existing $ECS_APP_NAME deployment and service"
+			echo " Setting ECS replicas=1"
+			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+		fi
+
+		# Check if app shall be fully managed by the test script
+		if [ $retcode_i -eq 0 ]; then
+			echo -e " Creating $ECS_APP_NAME app and expose service"
+
+			#Check if nonrtric namespace exists, if not create it
+			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
+
+			export ECS_APP_NAME
+			export KUBE_NONRTRIC_NAMESPACE
+			export ECS_IMAGE
+			export ECS_INTERNAL_PORT
+			export ECS_INTERNAL_SECURE_PORT
+			export ECS_EXTERNAL_PORT
+			export ECS_EXTERNAL_SECURE_PORT
+			export ECS_CONFIG_MOUNT_PATH
+			export ECS_CONFIG_CONFIGMAP_NAME=$ECS_APP_NAME"-config"
+			export ECS_DATA_CONFIGMAP_NAME=$ECS_APP_NAME"-data"
+			export ECS_CONTAINER_MNT_DIR
+
+			# Create config map for config
+			datafile=$PWD/tmp/$ECS_CONFIG_FILE
+			cp $1 $datafile
+			output_yaml=$PWD/tmp/ecs_cfc.yaml
+			__kube_create_configmap $ECS_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest ECS $datafile $output_yaml
+
+			# Create pvc
+			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"pvc.yaml
+			output_yaml=$PWD/tmp/ecs_pvc.yaml
+			__kube_create_instance pvc $ECS_APP_NAME $input_yaml $output_yaml
+
+			# Create service
+			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"svc.yaml
+			output_yaml=$PWD/tmp/ecs_svc.yaml
+			__kube_create_instance service $ECS_APP_NAME $input_yaml $output_yaml
+
+			# Create app
+			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"app.yaml
+			output_yaml=$PWD/tmp/ecs_app.yaml
+			__kube_create_instance app $ECS_APP_NAME $input_yaml $output_yaml
+		fi
+
+		echo " Retrieving host and ports for service..."
+		ECS_HOST_NAME=$(__kube_get_service_host $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+		ECS_EXTERNAL_PORT=$(__kube_get_service_port $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
+		ECS_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
+
+		echo " Host IP, http port, https port: $ECS_HOST_NAME $ECS_EXTERNAL_PORT $ECS_EXTERNAL_SECURE_PORT"
+
+		if [ $ECS_HTTPX == "http" ]; then
+			ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_PORT
+		else
+			ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_SECURE_PORT
+		fi
+
+		__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+
+		if [ $ECS_ADAPTER_TYPE == "REST" ]; then
+			ECS_ADAPTER=$ECS_PATH
+		fi
+	else
+		__check_included_image 'ECS'
+		if [ $? -eq 1 ]; then
+			echo -e $RED"The ECS app is not included in this test script"$ERED
+			echo -e $RED"ECS will not be started"$ERED
+			exit 1
+		fi
+
+		curdir=$PWD
+		cd $SIM_GROUP
+		cd ecs
+		cd $ECS_HOST_MNT_DIR
+		cd ..
+		if [ -d db ]; then
+			if [ "$(ls -A $DIR)" ]; then
+				echo -e $BOLD" Cleaning files in mounted dir: $PWD/db"$EBOLD
+				rm -rf db/*  &> /dev/null
+				if [ $? -ne 0 ]; then
+					echo -e $RED" Cannot remove database files in: $PWD"$ERED
+					exit 1
+				fi
+			fi
+		else
+			echo " No files in mounted dir or dir does not exists"
+		fi
+		cd $curdir
+
+		export ECS_APP_NAME
+		export ECS_APP_NAME_ALIAS
+		export ECS_HOST_MNT_DIR
+		export ECS_CONTAINER_MNT_DIR
+		export ECS_INTERNAL_PORT
+		export ECS_EXTERNAL_PORT
+		export ECS_INTERNAL_SECURE_PORT
+		export ECS_EXTERNAL_SECURE_PORT
+		export DOCKER_SIM_NWNAME
+
+		__start_container $ECS_COMPOSE_DIR NODOCKERARGS 1 $ECS_APP_NAME
+
+		__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+	fi
+	echo ""
+	return 0
+}
+
+# Restart ECS
+# args: -
+# (Function for test scripts)
+restart_ecs() {
+	echo -e $BOLD"Re-starting ECS"$EBOLD
+	docker restart $ECS_APP_NAME &> ./tmp/.dockererr
+	if [ $? -ne 0 ]; then
+		__print_err "Could not restart $ECS_APP_NAME" $@
+		cat ./tmp/.dockererr
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+
+	__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+	echo ""
+	return 0
+}
+
+# Turn on debug level tracing in ECS
+# args: -
+# (Function for test scripts)
+set_ecs_debug() {
+	echo -e $BOLD"Setting ecs debug logging"$EBOLD
+	curlString="$ECS_PATH$ECS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	result=$(__do_curl "$curlString")
+	if [ $? -ne 0 ]; then
+		__print_err "Could not set debug mode" $@
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# Turn on trace level tracing in ECS
+# args: -
+# (Function for test scripts)
+set_ecs_trace() {
+	echo -e $BOLD"Setting ecs trace logging"$EBOLD
+	curlString="$ECS_PATH/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	result=$(__do_curl "$curlString")
+	if [ $? -ne 0 ]; then
+		__print_err "Could not set trace mode" $@
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# Perform curl retries when making direct call to ECS for the specified http response codes
+# Speace separated list of http response codes
+# args: [<response-code>]*
+use_agent_retries() {
+	echo -e $BOLD"Do curl retries to the ECS REST inteface for these response codes:$@"$EBOLD
+	ECS_AGENT_RETRY_CODES=$@
+	echo ""
+	return 0
+}
+
 
 # Tests if a variable value in the ECS is equal to a target value and and optional timeout.
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
@@ -30,7 +296,7 @@
 # (Function for test scripts)
 ecs_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test ECS "$LOCALHOST$ECS_EXTERNAL_PORT/" $1 "=" $2 $3
+		__var_test ECS "$ECS_PATH/" $1 "=" $2 $3
 	else
 		__print_err "Wrong args to ecs_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
@@ -891,6 +1157,58 @@ ecs_api_service_status() {
 		__log_test_fail_status_code $1 $status
 		return 1
 	fi
+	__log_test_pass
+	return 0
+}
+
+
+##########################################
+####          Reset jobs              ####
+##########################################
+# Function prefix: ecs_api_admin
+
+# Admin to remove all jobs
+# args:
+# (Function for test scripts)
+
+ecs_api_admin_reset() {
+	__log_test_start $@
+
+	if [  -z "$FLAT_A1_EI" ]; then
+		query="/A1-EI/v1/eitypes/$2/eijobs"
+	else
+		query="/A1-EI/v1/eijobs"
+	fi
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne 200 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	#Remove brackets and response code
+	body=${res:1:${#res}-4}
+	list=$(echo ${body//,/ })
+	list=$(echo ${list//[/})
+	list=$(echo ${list//]/})
+	list=$(echo ${list//\"/})
+	list=$list" "
+	for job in $list; do
+		if [  -z "$FLAT_A1_EI" ]; then
+			echo "Not supported for non-flat EI api"
+		else
+			query="/A1-EI/v1/eijobs/$job"
+			res="$(__do_curl_to_api ECS DELETE $query)"
+			status=${res:${#res}-3}
+			if [ $status -ne 204 ]; then
+				__log_test_fail_status_code $1 $status
+				return 1
+			fi
+			echo " Deleted job: "$job
+		fi
+	done
+
 	__log_test_pass
 	return 0
 }

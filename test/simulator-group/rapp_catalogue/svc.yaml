@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $RAPP_CAT_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $RAPP_CAT_APP_NAME
+    autotest: RC
+spec:
+  type: ClusterIP
+  ports:
+  - port: $RAPP_CAT_EXTERNAL_PORT
+    targetPort: $RAPP_CAT_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $RAPP_CAT_EXTERNAL_SECURE_PORT
+    targetPort: $RAPP_CAT_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $RAPP_CAT_APP_NAME

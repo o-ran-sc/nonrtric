@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $PROD_STUB_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $PROD_STUB_APP_NAME
+    autotest: PROD_STUB
+spec:
+  type: ClusterIP
+  ports:
+  - port: $PROD_STUB_EXTERNAL_PORT
+    targetPort: $PROD_STUB_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $PROD_STUB_EXTERNAL_SECURE_PORT
+    targetPort: $PROD_STUB_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $PROD_STUB_APP_NAME

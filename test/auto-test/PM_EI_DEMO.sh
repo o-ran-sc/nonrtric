@@ -19,11 +19,18 @@
 
 TC_ONELINE_DESCR="Preparation demo setup  - policy management and enrichment information"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB RC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB RC HTTPPROXY"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES=" MR CR PA RC PRODSTUB RICSIM CP ECS SDNC HTTPPROXY"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -32,6 +39,11 @@ SUPPORTED_PROFILES="ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
 . ../common/prodstub_api_functions.sh
 . ../common/cr_api_functions.sh
 . ../common/rapp_catalogue_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
+. ../common/consul_cbs_functions.sh
+. ../common/http_proxy_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -47,13 +59,13 @@ use_prod_stub_https
 use_rapp_catalogue_http # https not yet supported
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_PATH"/test"
+    notificationurl=$CR_SERVICE_PATH"/test"
 else
    echo "PMS VERSION 2 (V2) is required"
    exit 1
 fi
 
-clean_containers
+clean_environment
 
 STD_NUM_RICS=2
 
@@ -61,29 +73,35 @@ start_ric_simulators $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
 
 start_mr #Just to prevent errors in the agent log...
 
-start_control_panel
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
 start_sdnc
 
-start_consul_cbs
+start_policy_agent PROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+
+if [ $RUNMODE == "DOCKER" ]; then
+    start_consul_cbs
+fi
 
 prepare_consul_config      SDNC  ".consul_config.json"
-consul_config_app                  ".consul_config.json"
 
-start_policy_agent
+if [ $RUNMODE == "KUBE" ]; then
+    agent_load_config                       ".consul_config.json"
+else
+    consul_config_app                      ".consul_config.json"
+fi
 
 start_cr
 
 start_prod_stub
 
-start_ecs
+start_ecs $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
 
 start_rapp_catalogue
 
 set_agent_trace
 
 set_ecs_trace
-
 
 rapp_cat_api_get_services 200 EMPTY
 
@@ -121,9 +139,9 @@ do
 done
 
 #Check the number of types
-api_equal json:policy-types 2 120
+api_equal json:policy-types 2 300
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/1"
 
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
@@ -141,28 +159,35 @@ do
     sim_equal $RIC_SIM_PREFIX"_g3_"$i num_instances 2
 done
 
-
+# Print calling hosts STD 2.X
+for ((i=1; i<=$STD_NUM_RICS; i++))
+do
+    sim_print $RIC_SIM_PREFIX"_g3_"$i remote_hosts
+done
 
 FLAT_A1_EI="1"
 
-CB_JOB="$PROD_STUB_HTTPX://$PROD_STUB_APP_NAME:$PROD_STUB_PORT/callbacks/job"
-CB_SV="$PROD_STUB_HTTPX://$PROD_STUB_APP_NAME:$PROD_STUB_PORT/callbacks/supervision"
-TARGET1="$RIC_SIM_HTTPX://ricsim_g3_1:$RIC_SIM_PORT/datadelivery"
-TARGET2="$RIC_SIM_HTTPX://ricsim_g3_2:$RIC_SIM_PORT/datadelivery"
+CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
+CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
+RIC_G1_1=$RIC_SIM_PREFIX"_g3_1"
+RIC_G1_2=$RIC_SIM_PREFIX"_g3_2"
+if [ $RUNMODE == "KUBE" ]; then
+    RIC_G1_1=$(get_kube_sim_host $RIC_G1_1)
+    RIC_G1_2=$(get_kube_sim_host $RIC_G1_2)
+fi
+TARGET1="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
+TARGET2="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job1-status"
-STATUS2="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job2-status"
+STATUS1="$CR_SERVICE_PATH/callbacks/job1-status"
+STATUS2="$CR_SERVICE_PATH/callbacks/job2-status"
 
 prodstub_arm_producer 200 prod-a
 prodstub_arm_type 200 prod-a type1
 prodstub_arm_job_create 200 prod-a job1
 prodstub_arm_job_create 200 prod-a job2
 
-
 ### ecs status
 ecs_api_service_status 200
-
-
 
 ## Setup prod-a
 ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
@@ -194,9 +219,6 @@ fi
 
 # Check the job data in the producer
 prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
-
-
-
 
 check_policy_agent_logs
 check_ecs_logs

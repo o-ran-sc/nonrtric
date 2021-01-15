@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $POLICY_AGENT_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $POLICY_AGENT_APP_NAME
+    autotest: PA
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $POLICY_AGENT_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $POLICY_AGENT_APP_NAME
+        autotest: PA
+    spec:
+      containers:
+      - name: $POLICY_AGENT_APP_NAME
+        image: $POLICY_AGENT_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $POLICY_AGENT_INTERNAL_PORT
+        - name: https
+          containerPort: $POLICY_AGENT_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $POLICY_AGENT_CONFIG_MOUNT_PATH
+          name: pa-conf-name
+        - mountPath: $POLICY_AGENT_DATA_MOUNT_PATH
+          name: pa-data-name
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $POLICY_AGENT_CONFIG_CONFIGMAP_NAME
+        name: pa-conf-name
+      - configMap:
+          defaultMode: 420
+          name: $POLICY_AGENT_DATA_CONFIGMAP_NAME
+        name: pa-data-name
