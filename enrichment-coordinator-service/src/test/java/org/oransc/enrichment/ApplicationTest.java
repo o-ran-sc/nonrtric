@@ -198,6 +198,13 @@ class ApplicationTest {
     }
 
     @Test
+    void testPutEiType_noSchema() {
+        String url = ProducerConsts.API_ROOT + "/eitypes/" + EI_TYPE_ID;
+        String body = "{}";
+        testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST, "No schema provided");
+    }
+
+    @Test
     void testGetEiType() throws Exception {
         putEiProducerWithOneType(EI_PRODUCER_ID, "test");
         String url = ConsumerConsts.API_ROOT + "/eitypes/test";
@@ -427,6 +434,13 @@ class ApplicationTest {
         await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(2));
         ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
         assertThat(request.id).isEqualTo("jobId");
+    }
+
+    @Test
+    void testPutEiProducer_noType() throws Exception {
+        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
+        String body = gson.toJson(producerEiRegistratioInfo(EI_TYPE_ID));
+        testErrorCode(restClient().put(url, body), HttpStatus.NOT_FOUND, "EI type not found");
     }
 
     @Test
