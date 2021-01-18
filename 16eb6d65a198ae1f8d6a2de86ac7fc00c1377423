@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bf2da14_e1ddfb73",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-01-18T08:30:36Z",
+      "side": 1,
+      "message": "So, you now just need to overide the port value in the application.yaml, then the httpport should not be opened. \n\n\"server.http-port\u003d0\"",
+      "revId": "16eb6d65a198ae1f8d6a2de86ac7fc00c1377423",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
