@@ -32,9 +32,9 @@ services:
       - 8081:8081
       - 8433:8433
     volumes:
-      - ./config/application_configuration.json:/opt/app/policy-agent/data/application_configuration.json:ro
+      - ./policy-service/config/application_configuration.json:/opt/app/policy-agent/data/application_configuration.json:ro
     # For using own certs instead of the default ones (built into the container),
     # place them in config/ directory, update the application-policyagent.yaml file, and uncomment the following lines
-    #  - ./config/keystore-policyagent.jks:/opt/app/policy-agent/etc/cert/keystore.jks:ro
-    #  - ./config/truststore-policyagent.jks:/opt/app/policy-agent/etc/cert/truststore.jks:ro
-    #  - ./config/application-policyagent.yaml:/opt/app/policy-agent/config/application.yaml:ro
+    #  - ./policy-service/config/keystore-policyagent.jks:/opt/app/policy-agent/etc/cert/keystore.jks:ro
+    #  - ./policy-service/config/truststore-policyagent.jks:/opt/app/policy-agent/etc/cert/truststore.jks:ro
+    #  - ./policy-service/config/application-policyagent.yaml:/opt/app/policy-agent/config/application.yaml:ro
