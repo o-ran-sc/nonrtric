@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e056bac1_1ea64196",
+        "filename": "r-app-catalogue/src/test/java/org/oransc/rappcatalogue/HttpsRequestTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-18T10:46:46Z",
+      "side": 1,
+      "message": "I added http-port\u003d0 as a property and now when Tomcat starts it just open port for https: \"Tomcat started on port(s): 44771 (https) with context path \u0027\u0027\".\n\nBut it was indeed missing, and it was starting for both http and https without this.",
+      "range": {
+        "startLine": 55,
+        "startChar": 9,
+        "endLine": 55,
+        "endChar": 27
+      },
+      "revId": "132dcaf425bc2ce6f13b0725f11a9dd99a08eccb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
