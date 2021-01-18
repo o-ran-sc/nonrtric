@@ -46,6 +46,30 @@
       "revId": "fed5fc967794cb3d9d9abf3d48283908eff36cc9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f043adc_e431e99b",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-01-18T16:17:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a78f5460_ed9aa01b",
+      "range": {
+        "startLine": 255,
+        "startChar": 30,
+        "endLine": 255,
+        "endChar": 31
+      },
+      "revId": "fed5fc967794cb3d9d9abf3d48283908eff36cc9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
