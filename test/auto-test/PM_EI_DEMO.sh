@@ -190,9 +190,17 @@ prodstub_arm_job_create 200 prod-a job2
 ecs_api_service_status 200
 
 ## Setup prod-a
-ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
 
-ecs_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+    ecs_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+else
+    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
+
+    ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+
+    ecs_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+fi
 
 ecs_api_edp_get_producer_status 200 prod-a ENABLED
 
