@@ -252,11 +252,12 @@
                 "produces": ["application/json"],
                 "operationId": "putEiTypeUsingPUT",
                 "responses": {
-                    "200": {
-                        "schema": {"type": "object"},
-                        "description": "OK"
-                    },
+                    "200": {"description": "OK"},
                     "201": {"description": "Created"},
+                    "400": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Bad request"
+                    },
                     "401": {"description": "Unauthorized"},
                     "403": {"description": "Forbidden"},
                     "404": {"description": "Not Found"}
@@ -651,6 +652,7 @@
             "description": "Information for an EI type",
             "type": "object",
             "title": "producer_ei_type_info",
+            "required": ["ei_job_data_schema"],
             "properties": {"ei_job_data_schema": {
                 "description": "Json schema for the job data",
                 "type": "object"

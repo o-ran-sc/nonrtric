@@ -112,11 +112,20 @@ public class ProducerController {
     }
 
     @PutMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class), @ApiResponse(
+                code = 400, //
+                message = "Bad request",
+                response = ErrorResponse.ErrorInfo.class)})
     @ApiOperation(value = "Individual EI type", notes = "")
     public ResponseEntity<Object> putEiType( //
         @PathVariable("eiTypeId") String eiTypeId, @RequestBody ProducerEiTypeInfo registrationInfo) {
 
         EiType previousDefinition = this.eiTypes.get(eiTypeId);
+        if (registrationInfo.jobDataSchema == null) {
+            return ErrorResponse.create("No schema provided", HttpStatus.BAD_REQUEST);
+        }
         this.eiTypes.put(new EiType(eiTypeId, registrationInfo.jobDataSchema));
         return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
     }
