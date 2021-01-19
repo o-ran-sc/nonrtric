@@ -220,7 +220,7 @@ ECS_ALIVE_URL="/status"                                  # Base path for alive c
 ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
-
+ECS_VERSION="V1-1"                                       # Version where the types are added in the producer registration
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub

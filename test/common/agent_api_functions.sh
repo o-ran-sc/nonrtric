@@ -308,7 +308,7 @@ api_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
 		if [[ $1 == "json:"* ]]; then
 			if [ "$PMS_VERSION" == "V2" ]; then
-				__var_test "Policy Agent" $PA_PATH"/v2/" $1 "=" $2 $3
+				__var_test "Policy Agent" $PA_PATH$PMS_API_PREFIX"/v2/" $1 "=" $2 $3
 			else
 				__var_test "Policy Agent" $PA_PATH"/" $1 "=" $2 $3
 			fi

@@ -176,7 +176,7 @@ POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent containe
 POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
 POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
 PMS_VERSION="V2"                                         # Tested version of northbound API
-PMS_API_PREFIX=""                                        # api url prefix, only for V2
+PMS_API_PREFIX="/a1-policy"                               # api url prefix, only for V2. Shall contain leading "/"
 
 POLICY_AGENT_APP_NAME="policymanagementservice"          # Name for Policy Agent container
 POLICY_AGENT_DISPLAY_NAME="Policy Management Service"
@@ -186,7 +186,7 @@ POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used
 POLICY_AGENT_CONFIG_KEY="policy-agent"                   # Key for consul config
 POLICY_AGENT_PKG_NAME="org.onap.ccsdk.oran.a1policymanagementservice"  # Java base package name
 POLICY_AGENT_ACTUATOR="/actuator/loggers/$POLICY_AGENT_PKG_NAME" # Url for trace/debug
-POLICY_AGENT_ALIVE_URL="/v2/status"                         # Base path for alive check
+POLICY_AGENT_ALIVE_URL="$PMS_API_PREFIX/v2/status"       # Base path for alive check
 POLICY_AGENT_COMPOSE_DIR="policy_agent"                  # Dir in simulator_group for docker-compose
 POLICY_AGENT_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config" # Path in container for config file
 POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container for data file
@@ -210,6 +210,7 @@ ECS_ALIVE_URL="/status"                                  # Base path for alive c
 ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
+ECS_VERSION="V1-1"                                       # Version where the types are added in the producer registration
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub

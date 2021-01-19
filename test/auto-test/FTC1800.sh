@@ -38,6 +38,7 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/prodstub_api_functions.sh
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -105,13 +106,32 @@ do
     fi
 done
 
-ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+if [ $ECS_VERSION == "V1-1" ]; then
 
-ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json
+    ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
 
-ecs_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json type3 testdata/ecs/ei-type-3.json
+    ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json
 
-ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json type5 testdata/ecs/ei-type-5.json
+    ecs_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json type3 testdata/ecs/ei-type-3.json
+
+    ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json type5 testdata/ecs/ei-type-5.json
+
+else
+
+    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
+    ecs_api_edp_put_type_2 201 type2 testdata/ecs/ei-type-2.json
+    ecs_api_edp_put_type_2 201 type3 testdata/ecs/ei-type-3.json
+    ecs_api_edp_put_type_2 201 type4 testdata/ecs/ei-type-4.json
+    ecs_api_edp_put_type_2 201 type5 testdata/ecs/ei-type-5.json
+
+    ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+
+    ecs_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2
+
+    ecs_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3
+
+    ecs_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5
+fi
 
 ecs_equal json:ei-producer/v1/eiproducers 4
 
@@ -127,7 +147,7 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type1 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
@@ -135,7 +155,7 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type2 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
@@ -143,7 +163,7 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type3 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
@@ -151,7 +171,7 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type4 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
@@ -159,7 +179,7 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type5 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
 done
@@ -215,47 +235,59 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type1 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED
+            ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type2 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED
+            ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type3 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED
+            ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type4 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED
+            ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type5 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED
+            ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
     fi
 done
 
+if [ $ECS_VERSION == "V1-1" ]; then
 
-ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+    ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
 
-ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json
+    ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json
 
-ecs_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json type3 testdata/ecs/ei-type-3.json
+    ecs_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json type3 testdata/ecs/ei-type-3.json
 
-ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json type5 testdata/ecs/ei-type-5.json
+    ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json type5 testdata/ecs/ei-type-5.json
+
+else
+    ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+
+    ecs_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2
+
+    ecs_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3
+
+    ecs_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5
+
+fi
 
 ecs_equal json:ei-producer/v1/eiproducers 4
 
@@ -270,35 +302,35 @@ do
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type1 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type2 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type3 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type4 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type5 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED
+            ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
     fi
 done
