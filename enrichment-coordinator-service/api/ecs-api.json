@@ -126,7 +126,7 @@
             "responses": {
                 "200": {
                     "schema": {"$ref": "#/definitions/producer_status"},
-                    "description": "EI jobs"
+                    "description": "EI producer status"
                 },
                 "401": {"description": "Unauthorized"},
                 "403": {"description": "Forbidden"},
@@ -252,8 +252,8 @@
                 "produces": ["application/json"],
                 "operationId": "putEiTypeUsingPUT",
                 "responses": {
-                    "200": {"description": "OK"},
-                    "201": {"description": "Created"},
+                    "200": {"description": "Type updated"},
+                    "201": {"description": "Type created"},
                     "400": {
                         "schema": {"$ref": "#/definitions/ProblemDetails"},
                         "description": "Bad request"
@@ -393,7 +393,7 @@
                 "responses": {
                     "200": {
                         "schema": {"$ref": "#/definitions/producer_registration_info"},
-                        "description": "EI jobs"
+                        "description": "EI producer"
                     },
                     "401": {"description": "Unauthorized"},
                     "403": {"description": "Forbidden"},
@@ -495,7 +495,7 @@
                         "type": "array",
                         "items": {"$ref": "#/definitions/producer_ei_job_request"}
                     },
-                    "description": "EI jobs"
+                    "description": "EI producer"
                 },
                 "401": {"description": "Unauthorized"},
                 "403": {"description": "Forbidden"},
@@ -644,10 +644,6 @@
                 }
             }
         },
-        "Mono«ResponseEntity«object»»": {
-            "type": "object",
-            "title": "Mono«ResponseEntity«object»»"
-        },
         "producer_ei_type_info": {
             "description": "Information for an EI type",
             "type": "object",
@@ -714,11 +710,6 @@
                     "example": 404
                 }
             }
-        },
-        "Void": {
-            "description": "Void/empty",
-            "type": "object",
-            "title": "Void"
         },
         "EiJobStatusObject": {
             "description": "Status for an EI job",

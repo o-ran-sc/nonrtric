@@ -170,6 +170,8 @@ class ApplicationTest {
 
         JSONObject jsonObj = new JSONObject(resp.getBody());
         jsonObj.remove("host");
+        assertThat(jsonObj.getJSONObject("definitions").remove("Mono«ResponseEntity«object»»")).isNotNull();
+        assertThat(jsonObj.getJSONObject("definitions").remove("Void")).isNotNull();
         String indented = jsonObj.toString(4);
         try (PrintStream out = new PrintStream(new FileOutputStream("api/ecs-api.json"))) {
             out.print(indented);
