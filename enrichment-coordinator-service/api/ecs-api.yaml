@@ -182,7 +182,7 @@ paths:
           type: string
       responses:
         200:
-          description: EI jobs
+          description: EI producer status
           content:
             application/json:
               schema:
@@ -313,10 +313,10 @@ paths:
         required: true
       responses:
         200:
-          description: OK
+          description: Type updated
           content: {}
         201:
-          description: Created
+          description: Type created
           content: {}
         400:
           description: Bad request
@@ -514,7 +514,7 @@ paths:
           type: string
       responses:
         200:
-          description: EI jobs
+          description: EI producer
           content:
             application/json:
               schema:
@@ -639,7 +639,7 @@ paths:
           type: string
       responses:
         200:
-          description: EI jobs
+          description: EI producer
           content:
             application/json:
               schema:
@@ -785,9 +785,6 @@ components:
         status:
           type: string
           description: status text
-    Mono«ResponseEntity«object»»:
-      title: Mono«ResponseEntity«object»»
-      type: object
     producer_ei_type_info:
       title: producer_ei_type_info
       required:
@@ -852,10 +849,6 @@ components:
           example: 404
       description: A problem detail to carry details in a HTTP response according
         to RFC 7807
-    Void:
-      title: Void
-      type: object
-      description: Void/empty
     EiJobStatusObject:
       title: EiJobStatusObject
       required:
