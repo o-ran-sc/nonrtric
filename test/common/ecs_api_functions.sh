@@ -473,7 +473,7 @@ ecs_api_a1_get_type_ids() {
 
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}​/status
 # args: <response-code> <type-id> <job-id> [<status>]
-# args (flat uri structure): <response-code> <job-id> [<status>]
+# args (flat uri structure): <response-code> <job-id> [<status> [<timeout>]]
 # (Function for test scripts)
 ecs_api_a1_get_job_status() {
 	__log_test_start $@
@@ -506,36 +506,120 @@ ecs_api_a1_get_job_status() {
 		fi
 	else
 		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
-		if [ $# -ne 2 ] && [ $# -ne 3 ]; then
-			__print_err "<response-code> <job-id> [<status>]" $@
+		if [ $# -lt 2 ] && [ $# -gt 4 ]; then
+			__print_err "<response-code> <job-id> [<status> [<timeout>]]" $@
 			return 1
 		fi
 
 		query="/A1-EI/v1/eijobs/$2/status"
 
-		res="$(__do_curl_to_api ECS GET $query)"
-		status=${res:${#res}-3}
+		start=$SECONDS
+		for (( ; ; )); do
+			res="$(__do_curl_to_api ECS GET $query)"
+			status=${res:${#res}-3}
 
-		if [ $status -ne $1 ]; then
-			__log_test_fail_status_code $1 $status
-			return 1
-		fi
-		if [ $# -eq 3 ]; then
-			body=${res:0:${#res}-3}
-			targetJson="{\"eiJobStatus\": \"$3\"}"
-			echo " TARGET JSON: $targetJson" >> $HTTPLOG
-			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-
-			if [ $res -ne 0 ]; then
-				__log_test_fail_body
-				return 1
+			if [ $# -eq 4 ]; then
+				duration=$((SECONDS-start))
+				echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
+				if [ $duration -gt $4 ]; then
+					echo ""
+					duration=-1  #Last iteration
+				fi
+			else
+				duration=-1 #single test, no wait
 			fi
-		fi
+
+			if [ $status -ne $1 ]; then
+				if [ $duration -eq -1 ]; then
+					__log_test_fail_status_code $1 $status
+					return 1
+				fi
+			fi
+			if [ $# -ge 3 ] && [ $status -eq $1 ]; then
+				body=${res:0:${#res}-3}
+				targetJson="{\"eiJobStatus\": \"$3\"}"
+				echo " TARGET JSON: $targetJson" >> $HTTPLOG
+				res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+				if [ $res -ne 0 ]; then
+					if [ $duration -eq -1 ]; then
+						__log_test_fail_body
+						return 1
+					fi
+				else
+					duration=-1  #Goto pass
+				fi
+			fi
+			if [ $duration -eq -1 ]; then
+				if [ $# -eq 4 ]; then
+					echo ""
+				fi
+				__log_test_pass
+				return 0
+			else
+				sleep 1
+			fi
+		done
 	fi
 
 	__log_test_pass
 	return 0
 }
+
+
+
+	# query="/ei-producer/v1/eiproducers/$2/status"
+	# start=$SECONDS
+	# for (( ; ; )); do
+	# 	res="$(__do_curl_to_api ECS GET $query)"
+	# 	status=${res:${#res}-3}
+
+	# 	if [ $# -eq 4 ]; then
+	# 		duration=$((SECONDS-start))
+	# 		echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
+	# 		if [ $duration -gt $4 ]; then
+	# 			echo ""
+	# 			duration=-1  #Last iteration
+	# 		fi
+	# 	else
+	# 		duration=-1 #single test, no wait
+	# 	fi
+
+	# 	if [ $status -ne $1 ]; then
+	# 		if [ $duration -eq -1 ]; then
+	# 			__log_test_fail_status_code $1 $status
+	# 			return 1
+	# 		fi
+	# 	fi
+	# 	if [ $# -ge 3 ] && [ $status -eq $1 ]; then
+	# 		body=${res:0:${#res}-3}
+	# 		targetJson="{\"operational_state\": \"$3\"}"
+	# 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+	# 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+	# 		if [ $res -ne 0 ]; then
+	# 			if [ $duration -eq -1 ]; then
+	# 				__log_test_fail_body
+	# 				return 1
+	# 			fi
+	# 		else
+	# 			duration=-1  #Goto pass
+	# 		fi
+	# 	fi
+	# 	if [ $duration -eq -1 ]; then
+	# 		if [ $# -eq 4 ]; then
+	# 			echo ""
+	# 		fi
+	# 		__log_test_pass
+	# 		return 0
+	# 	else
+	# 		sleep 1
+	# 	fi
+	# done
+
+
+
+
 
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
 # args: <response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]
@@ -818,7 +902,7 @@ ecs_api_edp_get_producer_status() {
 
 
 # API Test function: GET /ei-producer/v1/eiproducers
-# args: <response-code> [ EMPTY | <producer-id>+]
+# args (v1_1): <response-code> [ EMPTY | <producer-id>+]
 # (Function for test scripts)
 ecs_api_edp_get_producer_ids() {
 	__log_test_start $@
@@ -864,8 +948,58 @@ ecs_api_edp_get_producer_ids() {
 	return 0
 }
 
+# API Test function: GET /ei-producer/v1/eiproducers
+# args (v1_2): <response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]
+# (Function for test scripts)
+ecs_api_edp_get_producer_ids_2() {
+	__log_test_start $@
+
+    if [ $# -lt 1 ]; then
+		__print_err "<response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]" $@
+		return 1
+	fi
+
+	query="/ei-producer/v1/eiproducers"
+	if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
+		query=$query"?ei_type_id=$2"
+	fi
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+
+		for pid in ${@:3} ; do
+			if [ "$targetJson" != "[" ]; then
+				targetJson=$targetJson","
+			fi
+			if [ $pid != "EMPTY" ]; then
+				targetJson=$targetJson"\"$pid\""
+			fi
+		done
+
+		targetJson=$targetJson"]"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
 # API Test function: GET /ei-producer/v1/eitypes/{eiTypeId}
-# args: <response-code> <type-id> [<job-schema-file> (EMPTY | [<producer-id>]+)]
+# args: (v1_1) <response-code> <type-id> [<job-schema-file> (EMPTY | [<producer-id>]+)]
 # (Function for test scripts)
 ecs_api_edp_get_type() {
 	__log_test_start $@
@@ -923,8 +1057,115 @@ ecs_api_edp_get_type() {
 	return 0
 }
 
+# API Test function: GET /ei-producer/v1/eitypes/{eiTypeId}
+# args: (v1_2) <response-code> <type-id> [<job-schema-file> ]
+# (Function for test scripts)
+ecs_api_edp_get_type_2() {
+	__log_test_start $@
+
+	paramError=1
+	if [ $# -eq 2 ]; then
+		paramError=0
+	fi
+	if [ $# -eq 3 ]; then
+		paramError=0
+	fi
+    if [ $paramError -ne 0 ]; then
+		__print_err "<response-code> <type-id> [<job-schema-file> ]" $@
+		return 1
+	fi
+
+	query="/ei-producer/v1/eitypes/$2"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	if [ $# -eq 3 ]; then
+		body=${res:0:${#res}-3}
+
+		if [ -f $3 ]; then
+			schema=$(cat $3)
+		else
+			__log_test_fail_general "Job template file "$3", does not exist"
+			return 1
+		fi
+
+		targetJson="{\"ei_job_data_schema\":$schema}"
+
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+	__log_test_pass
+	return 0
+}
+
+# API Test function: PUT /ei-producer/v1/eitypes/{eiTypeId}
+# args: (v1_2) <response-code> <type-id> <job-schema-file>
+# (Function for test scripts)
+ecs_api_edp_put_type_2() {
+	__log_test_start $@
+
+    if [ $# -ne 3 ]; then
+		__print_err "<response-code> <type-id> <job-schema-file>" $@
+		return 1
+	fi
+
+	if [ ! -f $3 ]; then
+		__log_test_fail_general "Job schema file "$3", does not exist"
+		return 1
+	fi
+	schema=$(cat $3)
+	input_json="{\"ei_job_data_schema\":$schema}"
+	file="./tmp/put_type.json"
+	echo $input_json > $file
+
+	query="/ei-producer/v1/eitypes/$2"
+    res="$(__do_curl_to_api ECS PUT $query $file)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: DELETE /ei-producer/v1/eitypes/{eiTypeId}
+# args: (v1_2) <response-code> <type-id>
+# (Function for test scripts)
+ecs_api_edp_delete_type_2() {
+	__log_test_start $@
+
+    if [ $# -ne 2 ]; then
+		__print_err "<response-code> <type-id>" $@
+		return 1
+	fi
+
+	query="/ei-producer/v1/eitypes/$2"
+    res="$(__do_curl_to_api ECS DELETE $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}
-# args: <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+) ]
+# args: (v1_1) <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+) ]
 # (Function for test scripts)
 ecs_api_edp_get_producer() {
 	__log_test_start $@
@@ -992,6 +1233,67 @@ ecs_api_edp_get_producer() {
 	return 0
 }
 
+# API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}
+# args (v1_2): <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]
+# (Function for test scripts)
+ecs_api_edp_get_producer_2() {
+	__log_test_start $@
+
+	#Possible arg count: 2, 5, 6, 7, 8 etc
+	paramError=1
+	if [ $# -eq 2 ]; then
+		paramError=0
+	fi
+	if [ $# -eq 5 ] && [ "$5" == "EMPTY" ]; then
+		paramError=0
+	fi
+	if [ $# -ge 5 ]; then
+		paramError=0
+	fi
+
+    if [ $paramError -ne 0 ]; then
+		__print_err "<response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]" $@
+		return 1
+	fi
+
+	query="/ei-producer/v1/eiproducers/$2"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+		if [ $# -gt 4 ] && [ "$5" != "EMPTY" ]; then
+			arr=(${@:5})
+			for ((i=0; i<$(($#-4)); i=i+1)); do
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				targetJson=$targetJson"\"${arr[$i]}\""
+			done
+		fi
+		targetJson=$targetJson"]"
+		if [ $# -gt 4 ]; then
+			targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\"}"
+		fi
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
 # API Test function: DELETE /ei-producer/v1/eiproducers/{eiProducerId}
 # args: <response-code> <producer-id>
 # (Function for test scripts)
@@ -1017,7 +1319,7 @@ ecs_api_edp_delete_producer() {
 }
 
 # API Test function: PUT /ei-producer/v1/eiproducers/{eiProducerId}
-# args: <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id> <schema-file>]+
+# args: (v1_1) <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id> <schema-file>]+
 # (Function for test scripts)
 ecs_api_edp_put_producer() {
 	__log_test_start $@
@@ -1048,6 +1350,55 @@ ecs_api_edp_put_producer() {
 				return 1
 			fi
 			inputJson=$inputJson"{\"ei_type_identity\":\"${arr[$i]}\",\"ei_job_data_schema\":$schema}"
+		done
+	fi
+	inputJson="\"supported_ei_types\":"$inputJson"]"
+
+	inputJson=$inputJson",\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\""
+
+	inputJson="{"$inputJson"}"
+
+	file="./tmp/.p.json"
+	echo "$inputJson" > $file
+	query="/ei-producer/v1/eiproducers/$2"
+    res="$(__do_curl_to_api ECS PUT $query $file)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: PUT /ei-producer/v1/eiproducers/{eiProducerId}
+# args: (v1_2) <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id>+]
+# (Function for test scripts)
+ecs_api_edp_put_producer_2() {
+	__log_test_start $@
+
+	#Valid number of parametrer 5,6,8,10,
+	paramError=1
+	if  [ $# -eq 5 ] && [ "$5" == "NOTYPE" ]; then
+		paramError=0
+	elif [ $# -ge 5 ]; then
+		paramError=0
+	fi
+	if [ $paramError -ne 0 ]; then
+		__print_err "<response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id>+]" $@
+		return 1
+	fi
+
+	inputJson="["
+	if [ $# -gt 4 ] && [ "$5" != "NOTYPE" ]; then
+		arr=(${@:5})
+		for ((i=0; i<$(($#-4)); i=i+1)); do
+			if [ "$inputJson" != "[" ]; then
+				inputJson=$inputJson","
+			fi
+			inputJson=$inputJson"\""${arr[$i]}"\""
 		done
 	fi
 	inputJson="\"supported_ei_types\":"$inputJson"]"
