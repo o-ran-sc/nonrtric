@@ -38,6 +38,8 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/mr_api_functions.sh
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
+. ../common/consul_cbs_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
