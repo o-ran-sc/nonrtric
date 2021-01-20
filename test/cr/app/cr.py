@@ -58,6 +58,23 @@ CAUGHT_EXCEPTION="Caught exception: "
 SERVER_ERROR="Server error :"
 TIME_STAMP="cr-timestamp"
 
+# Remote host lookup and print host name
+def remote_host_logging(request):
+
+    if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+        host_ip=str(request.environ['REMOTE_ADDR'])
+    else:
+        host_ip=str(request.environ['HTTP_X_FORWARDED_FOR'])
+    prefix='::ffff:'
+    if (host_ip.startswith('::ffff:')):
+        host_ip=host_ip[len(prefix):]
+    try:
+        name, alias, addresslist = socket.gethostbyaddr(host_ip)
+        print("Calling host: "+str(name))
+    except Exception:
+        print("Calling host not possible to retrieve IP: "+str(host_ip))
+
+
 #I'm alive function
 @app.route('/',
     methods=['GET'])
@@ -131,6 +148,7 @@ def events_write(id):
 
     try:
         print("Received callback for id: "+id +", content-type="+request.content_type)
+        remote_host_logging(request)
         try:
             if (request.content_type == MIME_JSON):
                 data = request.data

@@ -52,7 +52,11 @@ use_sdnc_https
 use_simulator_https
 use_ecs_rest_https
 use_prod_stub_https
-use_rapp_catalogue_http
+if [ $ECS_VERSION == "V1-1" ]; then
+    use_rapp_catalogue_http # https not yet supported
+else
+    use_rapp_catalogue_https
+fi
 
 echo -e "$RED CHECK WHY RC HTTPS DOES NOT WORK $ERED"
 
@@ -92,7 +96,7 @@ start_cr
 
 start_prod_stub
 
-start_ecs
+start_ecs NOPROXY
 
 set_ecs_trace
 
@@ -274,8 +278,11 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
-
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+fi
 
 ## Create a second job for prod-a
 ## job2 - prod-a
@@ -286,8 +293,11 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
-
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+fi
 
 echo "ADD EVENT/STATUS CHECK"
 

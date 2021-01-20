@@ -88,7 +88,8 @@ use_agent_dmaap_https() {
 }
 
 # Start the policy agent
-# args: (kube only) PROXY|NOPROXY <config-file> [ <data-file>]
+# args: (docker) PROXY|NOPROXY <config-file>
+# args: (kube) PROXY|NOPROXY <config-file> [ <data-file>]
 # (Function for test scripts)
 start_policy_agent() {
 	echo -e $BOLD"Starting $POLICY_AGENT_DISPLAY_NAME"$EBOLD
@@ -143,9 +144,15 @@ start_policy_agent() {
 			if [ $1 == "PROXY" ]; then
 				AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
 				AGENT_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+				if [ $AGENT_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$AGENT_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+					echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
+				else
+					echo " Configured with http proxy"
+				fi
 			else
 				AGENT_HTTP_PROXY_CONFIG_PORT=0
 				AGENT_HTTP_PROXY_CONFIG_HOST_NAME=""
+				echo " Configured without http proxy"
 			fi
 			export AGENT_HTTP_PROXY_CONFIG_PORT
 			export AGENT_HTTP_PROXY_CONFIG_HOST_NAME
@@ -225,9 +232,15 @@ start_policy_agent() {
 		if [ $1 == "PROXY" ]; then
 			AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
 			AGENT_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+			if [ $AGENT_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$AGENT_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+				echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
+			else
+				echo " Configured with http proxy"
+			fi
 		else
 			AGENT_HTTP_PROXY_CONFIG_PORT=0
 			AGENT_HTTP_PROXY_CONFIG_HOST_NAME=""
+			echo " Configured without http proxy"
 		fi
 		export AGENT_HTTP_PROXY_CONFIG_PORT
 		export AGENT_HTTP_PROXY_CONFIG_HOST_NAME

@@ -21,10 +21,10 @@
 TC_ONELINE_DESCR="ECS full intefaces walkthrough"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP"
+DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP HTTPPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" PRODSTUB CR ECS RICSIM CP "
+KUBE_INCLUDED_IMAGES=" PRODSTUB CR ECS RICSIM CP HTTPPROXY"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" "
 
@@ -40,6 +40,7 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/http_proxy_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -55,7 +56,9 @@ use_simulator_https
 
 use_cr_https
 
-start_ecs $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
+#start_http_proxy
+
+start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
 
 if [ $RUNMODE == "KUBE" ]; then
     ecs_api_admin_reset
@@ -191,7 +194,11 @@ else
     ecs_api_a1_delete_job 404 test-job
 fi
 
-ecs_api_edp_get_producer_jobs 404 test-prod
+if [ $ECS_VERSION == "V1-1" ]; then
+    ecs_api_edp_get_producer_jobs 404 test-prod
+else
+    ecs_api_edp_get_producer_jobs_2 404 test-prod
+fi
 
 if [ $ECS_VERSION == "V1-2" ]; then
     ecs_api_edp_get_type_2 404 test-type
@@ -270,8 +277,11 @@ else
 
     ecs_api_a1_get_job_status 404 test-job
 fi
-
-ecs_api_edp_get_producer_jobs 200 prod-a EMPTY
+if [ $ECS_VERSION == "V1-1" ]; then
+    ecs_api_edp_get_producer_jobs 200 prod-a EMPTY
+else
+    ecs_api_edp_get_producer_jobs_2 200 prod-a EMPTY
+fi
 
 ## Create a job for prod-a
 ## job1 - prod-a
@@ -282,7 +292,11 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+fi
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1
 ecs_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
@@ -303,7 +317,11 @@ fi
 
 prodstub_equal create/prod-a/job1 1
 
-ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+else
+    ecs_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+fi
 
 ## Create a second job for prod-a
 ## job2 - prod-a
@@ -314,8 +332,11 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
-
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+fi
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ecs_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
 ecs_api_a1_get_job_ids 200 type1 ricsim_g3_2 job2
@@ -335,7 +356,11 @@ fi
 
 prodstub_equal create/prod-a/job2 1
 
-ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+else
+    ecs_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+fi
 
 ## Setup prod-b
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -391,7 +416,11 @@ fi
 prodstub_equal create/prod-b/job3 1
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+fi
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ecs_api_a1_get_job_ids 200 type2 NOWNER job3
@@ -409,9 +438,13 @@ else
     ecs_api_a1_get_job_status 200 job3 ENABLED
 fi
 
-ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
-ecs_api_edp_get_producer_jobs 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
-
+if [ $ECS_VERSION == "V1-1" ]; then
+    ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    ecs_api_edp_get_producer_jobs 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+else
+    ecs_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    ecs_api_edp_get_producer_jobs_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+fi
 
 ## Setup prod-c (no types)
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -507,7 +540,11 @@ else
     ecs_api_a1_get_job_status 200 job3 ENABLED
 fi
 
-prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+else
+    prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+fi
 
 ecs_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -564,8 +601,11 @@ cr_equal received_callbacks 2 30
 cr_equal received_callbacks?id=job3-status 2
 cr_api_check_all_ecs_events 200 job3-status ENABLED
 
-prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
-
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+else
+    prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+fi
 
 ## Setup prod-d
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -583,7 +623,11 @@ else
     ecs_api_a1_put_job 201 job8 type4 $TARGET8 ricsim_g3_4 $STATUS8 testdata/ecs/job-template.json
 fi
 
-prodstub_check_jobdata 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
+fi
 
 prodstub_equal create/prod-d/job8 1
 prodstub_equal delete/prod-d/job8 0
@@ -673,7 +717,11 @@ else
     ecs_api_a1_put_job 201 job10 type6 $TARGET10 ricsim_g3_4 $STATUS10 testdata/ecs/job-template.json
 fi
 
-prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+fi
 
 prodstub_equal create/prod-e/job10 1
 prodstub_equal delete/prod-e/job10 0
@@ -696,7 +744,11 @@ fi
 
 ecs_api_a1_get_job_ids 200 type6 NOWNER job10
 
-prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+fi
 
 prodstub_equal create/prod-f/job10 1
 prodstub_equal delete/prod-f/job10 0
@@ -919,7 +971,11 @@ fi
 #Wait for job to be updated
 sleep_wait 120
 
-prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+else
+    prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+fi
 
 prodstub_arm_producer 200 prod-f 400
 

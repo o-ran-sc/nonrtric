@@ -51,4 +51,6 @@ app:
     trust-store-used: false
     trust-store-password: policy_agent
     trust-store: /opt/app/enrichment-coordinator-service/etc/cert/truststore.jks
+    http.proxy-host: $ECS_HTTP_PROXY_CONFIG_HOST_NAME
+    http.proxy-port: $ECS_HTTP_PROXY_CONFIG_PORT
   vardata-directory: /var/enrichment-coordinator-service
