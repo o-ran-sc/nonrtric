@@ -42,4 +42,13 @@ public interface WebClientConfig {
 
     public String trustStore();
 
+    @Value.Immutable
+    public interface HttpProxyConfig {
+        public String httpProxyHost();
+
+        public int httpProxyPort();
+    }
+
+    public HttpProxyConfig httpProxyConfig();
+
 }

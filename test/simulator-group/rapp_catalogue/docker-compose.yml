@@ -18,7 +18,7 @@ version: '3.0'
 networks:
   default:
     external:
-      name: nonrtric-docker-net
+      name: ${DOCKER_SIM_NWNAME}
 services:
   rapp-catalogue:
     image: ${RAPP_CAT_IMAGE}

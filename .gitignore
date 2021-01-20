@@ -3,6 +3,8 @@
 .tox
 docs/_build/
 .DS_STORE
+.swagger*
+docs/offeredapis/swagger/README.md
 
 # Eclipse
 .checkstyle

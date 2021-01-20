@@ -219,6 +219,8 @@ var ricbasename="ricsim"
 
 var rc_services=""
 
+var pmsprefix=""
+
 function fetchAllMetrics_pol() {
 
     console.log("Fetching policy metrics " + refreshCount_pol)
@@ -923,13 +925,16 @@ app.get("/mon",function(req, res){
     refreshCount_rc=5
 
     var bn=req.query.basename
+    pmsprefix=req.query.pmsprefix
 
-    if (bn == undefined) {
+    console.log("PMS"+pmsprefix)
+    if ((bn == undefined) || (pmsprefix == undefined)) {
         getCtr=0
-        return res.redirect('/mon?basename=ricsim');
+        return res.redirect('/mon?basename=ricsim&pmsprefix=/a1-policy/v2');
     } else {
         ricbasename=bn
     }
+
 
     //Build web page
 	var htmlStr = "<!DOCTYPE html>" +
@@ -941,6 +946,7 @@ app.get("/mon",function(req, res){
             "<body>" +
             "<font size=\"-3\" face=\"monospace\">" +
             "<p>Change basename in url if other ric sim prefix is used</p>" +
+            "<p>Change pmsprefix in url if pms with other prefix is used</p>" +
             "</font>" +
             "<h3>Policy agent</h3>" +
             "<font face=\"monospace\">" +

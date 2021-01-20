@@ -15,7 +15,7 @@ The test scripts uses configuration from a single file, found in `../common/test
 ## How to run
 A test script, for example FTC1, is executed from the cmd line using the script filename and one or more parameters:
 
- ./FTC1.sh remote --env-file ../common/test_env-oran-cherry
+ ./FTC1.sh remote --env-file ../common/test_env-oran-cherry.sh
 
 See the README.md in  `../common/` for all details about available parameters and their meaning.
 

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $CONTROL_PANEL_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $CONTROL_PANEL_APP_NAME
+    autotest: CP
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $CONTROL_PANEL_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $CONTROL_PANEL_APP_NAME
+        autotest: CP
+    spec:
+      containers:
+      - name: $CONTROL_PANEL_APP_NAME
+        image: $CONTROL_PANEL_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $CONTROL_PANEL_INTERNAL_PORT
+        - name: https
+          containerPort: $CONTROL_PANEL_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $CONTROL_PANEL_CONFIG_MOUNT_PATH/$CONTROL_PANEL_CONFIG_FILE
+          subPath: $CONTROL_PANEL_CONFIG_FILE
+          name: cp-conf-name
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $CP_CONFIG_CONFIGMAP_NAME
+        name: cp-conf-name

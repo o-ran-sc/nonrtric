@@ -20,17 +20,28 @@
 
 TC_ONELINE_DESCR="Full agent API walkthrough using agent REST/DMAAP and with/without SDNC A1 Controller"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
 
-#SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+#Supported test environment profiles
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
+. ../common/consul_cbs_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/ricsimulator_api_functions.sh
+
 
 #### TEST BEGIN ####
 
@@ -52,7 +63,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
 
         # Clean container and start all needed containers #
-        clean_containers
+        clean_environment
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -62,13 +73,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
             use_cr_http
         fi
 
-        start_policy_agent
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
-        set_agent_trace
+        set_agent_debug
 
         # Create service to be able to receive events when rics becomes available
         # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
+        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
 
 
         if [ $__httpx == "HTTPS" ]; then
@@ -105,9 +116,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr
 
-        start_control_panel
+        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
-        start_consul_cbs
+        if [ $RUNMODE == "DOCKER" ]; then
+            start_consul_cbs
+        fi
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
@@ -116,7 +129,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
 
-        consul_config_app                      ".consul_config.json"
+        if [ $RUNMODE == "KUBE" ]; then
+            agent_load_config                       ".consul_config.json"
+        else
+            consul_config_app                      ".consul_config.json"
+        fi
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
         sim_put_policy_type 201 ricsim_g1_1 2 testdata/OSC/sim_2.json
@@ -125,7 +142,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
             sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
 
-            api_equal json:rics 3 60
+            api_equal json:rics 3 300
 
             api_equal json:policy-types 5 120
 
@@ -133,7 +150,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_equal json:policy-instances 0
         else
-            api_equal json:rics 2 60
+            api_equal json:rics 2 300
 
             api_equal json:policy_schemas 3 120
 
@@ -163,14 +180,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_get_services 404 "service1"
 
-        api_put_service 201 "service1" 1000 "$CR_PATH/1"
+        api_put_service 201 "service1" 1000 "$CR_SERVICE_PATH/1"
 
-        api_put_service 200 "service1" 2000 "$CR_PATH/1"
+        api_put_service 200 "service1" 2000 "$CR_SERVICE_PATH/1"
 
 
-        api_put_service 400 "service2" -1 "$CR_PATH/2"
+        api_put_service 400 "service2" -1 "$CR_SERVICE_PATH/2"
 
-        api_put_service 400 "service2" "wrong" "$CR_PATH/2"
+        api_put_service 400 "service2" "wrong" "$CR_SERVICE_PATH/2"
 
         api_put_service 400 "service2" 100 "/test"
 
@@ -178,20 +195,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_put_service 201 "service2" 300 "ftp://localhost:80/test"
 
-        api_get_services 200 "service1" "service1" 2000 "$CR_PATH/1"
+        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_PATH/1"
 
         api_get_service_ids 200 "service1" "service2" "ric-registration"
 
 
-        api_put_service 201 "service3" 5000 "$CR_PATH/3"
+        api_put_service 201 "service3" 5000 "$CR_SERVICE_PATH/3"
 
 
         api_get_service_ids 200 "service1" "service2" "service3" "ric-registration"
 
 
-        api_get_services 200 "service1" "service1" 2000 "$CR_PATH/1"
+        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_PATH/1"
 
-        api_get_services 200 NOSERVICE "service1" 2000 "$CR_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_PATH/3"  "ric-registration" 0 "$CR_PATH/ric-registration"
+        api_get_services 200 NOSERVICE "service1" 2000 "$CR_SERVICE_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_SERVICE_PATH/3"  "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
 
         api_get_services 200
 
@@ -220,7 +237,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_get_service_ids 200 "service2" "service3" "ric-registration"
 
 
-        api_put_service 201 "service1" 50 "$CR_PATH/1"
+        api_put_service 201 "service1" 50 "$CR_SERVICE_PATH/1"
 
         api_get_service_ids 200 "service1" "service2" "service3"  "ric-registration"
 
@@ -355,10 +372,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
 
 
-        api_put_service 201 "service10" 3600 "$CR_PATH/1"
+        api_put_service 201 "service10" 3600 "$CR_SERVICE_PATH/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_PATH"/test"
+            notificationurl=$CR_SERVICE_PATH"/test"
         else
             notificationurl=""
         fi
@@ -529,16 +546,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [[ $interface = *"SDNC"* ]]; then
-            sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"
-            sim_contains_str ricsim_g2_1 remote_hosts "a1-controller"
+            sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts "a1-controller"
+                sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
             fi
         else
-            sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
-            sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+            sim_contains_str ricsim_g1_1 remote_hosts $POLICY_AGENT_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $POLICY_AGENT_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+                sim_contains_str ricsim_g3_1 remote_hosts $POLICY_AGENT_APP_NAME
             fi
         fi
 
@@ -560,4 +577,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

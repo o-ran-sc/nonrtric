@@ -57,10 +57,10 @@ public class ProducerRegistrationInfo {
         }
     }
 
-    @ApiModelProperty(value = "Supported EI types", required = true)
+    @ApiModelProperty(value = "Supported EI type IDs", required = true)
     @SerializedName("supported_ei_types")
     @JsonProperty(value = "supported_ei_types", required = true)
-    public Collection<ProducerEiTypeRegistrationInfo> types;
+    public Collection<String> supportedTypeIds;
 
     @ApiModelProperty(value = "callback for EI job", required = true)
     @SerializedName("ei_job_callback_url")
@@ -72,9 +72,9 @@ public class ProducerRegistrationInfo {
     @JsonProperty(value = "ei_producer_supervision_callback_url", required = true)
     public String producerSupervisionCallbackUrl;
 
-    public ProducerRegistrationInfo(Collection<ProducerEiTypeRegistrationInfo> types, String jobCallbackUrl,
+    public ProducerRegistrationInfo(Collection<String> types, String jobCallbackUrl,
         String producerSupervisionCallbackUrl) {
-        this.types = types;
+        this.supportedTypeIds = types;
         this.jobCallbackUrl = jobCallbackUrl;
         this.producerSupervisionCallbackUrl = producerSupervisionCallbackUrl;
     }

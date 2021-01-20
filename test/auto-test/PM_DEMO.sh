@@ -19,15 +19,27 @@
 
 TC_ONELINE_DESCR="Preparation demo setup  - populating a number of ric simulators with types and instances"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
+. ../common/cr_api_functions.sh
+. ../common/consul_cbs_functions.sh
 
 #### TEST BEGIN ####
 
@@ -40,12 +52,12 @@ use_sdnc_https
 use_simulator_https
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_PATH"/test"
+    notificationurl=$CR_SERVICE_PATH"/test"
 else
     notificationurl=""
 fi
 
-clean_containers
+clean_environment
 
 OSC_NUM_RICS=6
 STD_NUM_RICS=5
@@ -60,18 +72,25 @@ fi
 
 start_mr #Just to prevent errors in the agent log...
 
-start_control_panel
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
 start_sdnc
 
-start_consul_cbs
-
-prepare_consul_config      SDNC  ".consul_config.json"
-consul_config_app                  ".consul_config.json"
-
-start_policy_agent
+start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
 set_agent_trace
+
+if [ $RUNMODE == "DOCKER" ]; then
+    start_consul_cbs
+fi
+
+prepare_consul_config      SDNC  ".consul_config.json"
+
+if [ $RUNMODE == "KUBE" ]; then
+    agent_load_config                       ".consul_config.json"
+else
+    consul_config_app                      ".consul_config.json"
+fi
 
 api_get_status 200
 
@@ -108,7 +127,7 @@ done
 #Check the number of schemas and the individual schemas in OSC
 if [ "$PMS_VERSION" == "V2" ]; then
 
-    api_equal json:policy-types 3 120
+    api_equal json:policy-types 3 300
 
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
@@ -122,7 +141,7 @@ if [ "$PMS_VERSION" == "V2" ]; then
         api_get_policy_type 200 20008 demo-testdata/OSC/tsa-agent-modified.json
     done
 else
-    api_equal json:policy_types 3 120
+    api_equal json:policy_types 3 300
 
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
@@ -176,7 +195,7 @@ fi
 # Create policies
 use_agent_rest_http
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/1"
 
 # Create policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))

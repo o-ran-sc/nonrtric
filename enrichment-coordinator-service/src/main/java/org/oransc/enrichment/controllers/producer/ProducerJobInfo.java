@@ -60,16 +60,23 @@ public class ProducerJobInfo {
     @JsonProperty("owner")
     public String owner;
 
-    public ProducerJobInfo(Object jobData, String id, String typeId, String targetUri, String owner) {
+    @ApiModelProperty(value = "The time when the job was last updated or created (ISO-8601)")
+    @SerializedName("last_updated")
+    @JsonProperty("last_updated")
+    public String lastUpdated;
+
+    public ProducerJobInfo(Object jobData, String id, String typeId, String targetUri, String owner,
+        String lastUpdated) {
         this.id = id;
         this.jobData = jobData;
         this.typeId = typeId;
         this.targetUri = targetUri;
         this.owner = owner;
+        this.lastUpdated = lastUpdated;
     }
 
     public ProducerJobInfo(EiJob job) {
-        this(job.getJobData(), job.getId(), job.getTypeId(), job.getTargetUrl(), job.getOwner());
+        this(job.getJobData(), job.getId(), job.getTypeId(), job.getTargetUrl(), job.getOwner(), job.getLastUpdated());
     }
 
     public ProducerJobInfo() {

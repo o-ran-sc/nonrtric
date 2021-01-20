@@ -19,15 +19,25 @@
 
 TC_ONELINE_DESCR="Create/delete policies in parallel over a number of rics using a number of child process"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -46,7 +56,7 @@ NUM_POLICIES_PER_RIC=500
 generate_uuid
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_PATH"/test"
+    notificationurl=$CR_SERVICE_PATH"/test"
 else
     notificationurl=""
 fi
@@ -79,11 +89,19 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         # Clean container and start all needed containers #
-        clean_containers
+        clean_environment
 
         start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
-        start_consul_cbs
+        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+
+        set_agent_debug
+
+        if [ $RUNMODE == "DOCKER" ]; then
+            start_consul_cbs
+        fi
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
@@ -92,17 +110,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
 
-        consul_config_app                  ".consul_config.json"
+        if [ $RUNMODE == "KUBE" ]; then
+            agent_load_config                       ".consul_config.json"
+        else
+            consul_config_app                      ".consul_config.json"
+        fi
 
         start_mr # Not used, but removes error messages from the agent log
 
         start_cr
-
-        start_control_panel
-
-        start_policy_agent
-
-        set_agent_debug
 
         api_get_status 200
 
@@ -118,12 +134,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
         done
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-types 1 120  #Wait for the agent to refresh types from the simulator
+            api_equal json:policy-types 1 300  #Wait for the agent to refresh types from the simulator
         else
-            api_equal json:policy_types 1 120  #Wait for the agent to refresh types from the simulator
+            api_equal json:policy_types 1 300  #Wait for the agent to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 600 "$CR_PATH/1"
+        api_put_service 201 "serv1" 600 "$CR_SERVICE_PATH/1"
 
         echo "Check the number of types in the agent for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))
@@ -167,9 +183,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         for ((i=1; i<=$NUM_RICS; i++))
         do
             if [ $interface == "REST+SDNC" ]; then
-                sim_contains_str ricsim_g1_$i remote_hosts "a1-controller"
+                sim_contains_str ricsim_g1_$i remote_hosts $SDNC_APP_NAME
             else
-                sim_contains_str ricsim_g1_$i remote_hosts "policy-agent"
+                sim_contains_str ricsim_g1_$i remote_hosts $POLICY_AGENT_APP_NAME
             fi
         done
 
@@ -189,4 +205,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

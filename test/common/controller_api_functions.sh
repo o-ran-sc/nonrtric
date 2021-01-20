@@ -17,7 +17,178 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains specific test functions for A1 Controller API
+# This is a script that contains container/service management functions and test functions for A1 Controller API
+
+SDNC_HTTPX="http"
+SDNC_HOST_NAME=$LOCALHOST_NAME
+SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT
+SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT$SDNC_API_URL
+#Docker/Kube internal path
+if [ $RUNMODE == "KUBE" ]; then
+	SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_PORT
+    #presume correct
+	SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
+	#test
+	#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
+else
+	SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_INTERNAL_PORT
+fi
+
+use_sdnc_http() {
+	echo -e $BOLD"SDNC NB protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards SDNC"
+	SDNC_HTTPX="http"
+	SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT
+	SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT$SDNC_API_URL
+	if [ $RUNMODE == "KUBE" ]; then
+		#presume correct
+		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
+		#test
+		#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_PORT
+	else
+		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_INTERNAL_PORT
+	fi
+	echo ""
+}
+
+use_sdnc_https() {
+	echo -e $BOLD"SDNC NB protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards SDNC"
+	SDNC_HTTPX="https"
+	SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT
+	SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT$SDNC_API_URL
+	if [ $RUNMODE == "KUBE" ]; then
+		#presume correct
+		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_SECURE_PORT
+		#test
+		#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_SECURE_PORT
+	else
+		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_INTERNAL_SECURE_PORT
+	fi
+	echo ""
+}
+
+##################
+### SDNC functions
+##################
+
+# Start the SDNC A1 Controller
+# args: -
+# (Function for test scripts)
+start_sdnc() {
+
+	echo -e $BOLD"Starting $SDNC_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+
+		# Check if app shall be fully managed by the test script
+		__check_included_image "SDNC"
+		retcode_i=$?
+
+		# Check if app shall only be used by the testscipt
+		__check_prestarted_image "SDNC"
+		retcode_p=$?
+
+		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
+			echo -e $RED"The $SDNC_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $SDNC_APP_NAME will not be started"$ERED
+			exit
+		fi
+		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
+			echo -e $RED"The $SDNC_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $SDNC_APP_NAME will not be started"$ERED
+			exit
+		fi
+
+
+		if [ $retcode_p -eq 0 ]; then
+			echo -e " Using existing $SDNC_APP_NAME deployment and service"
+			echo " Setting SDNC replicas=1"
+			__kube_scale deployment $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+		fi
+
+				# Check if app shall be fully managed by the test script
+		if [ $retcode_i -eq 0 ]; then
+
+			echo -e " Creating $SDNC_APP_NAME app and expose service"
+
+			#Check if nonrtric namespace exists, if not create it
+			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
+
+			export KUBE_NONRTRIC_NAMESPACE
+			export SDNC_APP_NAME
+			export SDNC_A1_CONTROLLER_IMAGE
+			export SDNC_INTERNAL_PORT
+			export SDNC_EXTERNAL_PORT
+			export SDNC_INTERNAL_SECURE_PORT
+			export SDNC_EXTERNAL_SECURE_PORT
+			export SDNC_A1_TRUSTSTORE_PASSWORD
+			export SDNC_DB_APP_NAME
+			export SDNC_DB_IMAGE
+
+			# Create service
+			input_yaml=$SIM_GROUP"/"$SDNC_COMPOSE_DIR"/"svc.yaml
+			output_yaml=$PWD/tmp/sdnc_svc.yaml
+			__kube_create_instance service $SDNC_APP_NAME $input_yaml $output_yaml
+
+			# Create app
+			input_yaml=$SIM_GROUP"/"$SDNC_COMPOSE_DIR"/"app.yaml
+			output_yaml=$PWD/tmp/sdnc_app.yaml
+			__kube_create_instance app $SDNC_APP_NAME $input_yaml $output_yaml
+
+		fi
+
+        echo " Retrieving host and ports for service..."
+		SDNC_HOST_NAME=$(__kube_get_service_host $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+		SDNC_EXTERNAL_PORT=$(__kube_get_service_port $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
+		SDNC_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
+
+		echo " Host IP, http port, https port: $SDNC_HOST_NAME $SDNC_EXTERNAL_PORT $SDNC_EXTERNAL_SECURE_PORT"
+
+        if [ $SDNC_HTTPX == "http" ]; then
+			SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT
+			SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT$SDNC_API_URL
+            #presume correct
+			SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
+			#test
+			#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_PORT
+		else
+			SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT
+			SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT$SDNC_API_URL
+            #presume correct
+			SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_SECURE_PORT
+			#test
+			#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_SECURE_PORT
+		fi
+
+		__check_service_start $SDNC_APP_NAME $SDNC_PATH$SDNC_ALIVE_URL
+	else
+
+		__check_included_image 'SDNC'
+		if [ $? -eq 1 ]; then
+			echo -e $RED"The SDNC A1 Controller app is not included in this test script"$ERED
+			echo -e $RED"The Policy Agent will not be started"$ERED
+			exit
+		fi
+
+		export SDNC_DB_APP_NAME
+        export SDNC_APP_NAME
+        export SDNC_INTERNAL_PORT
+        export SDNC_EXTERNAL_PORT
+        export SDNC_INTERNAL_SECURE_PORT
+        export SDNC_EXTERNAL_SECURE_PORT
+        export SDNC_A1_TRUSTSTORE_PASSWORD
+        export DOCKER_SIM_NWNAME
+
+		__start_container $SDNC_COMPOSE_DIR NODOCKERARGS 1 $SDNC_APP_NAME
+
+		__check_service_start $SDNC_APP_NAME $SDNC_PATH$SDNC_ALIVE_URL
+	fi
+    echo ""
+    return 0
+}
+
+
 
 # Generic function to query the RICs via the A1-controller API.
 # args: <operation> <url> [<body>]
@@ -44,7 +215,7 @@ __do_curl_to_controller() {
 	payload="./tmp/.sdnc.payload.json"
     echo "$json" > $payload
     echo "  FILE ($payload) : $json"  >> $HTTPLOG
-    curlString="curl -skw %{http_code} -X POST $SDNC_HTTPX://$SDNC_USER:$SDNC_PWD@localhost:$SDNC_LOCAL_PORT$SDNC_API_URL$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"
+    curlString="curl -skw %{http_code} -X POST $SDNC_API_PATH$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"
     echo "  CMD: "$curlString >> $HTTPLOG
     res=$($curlString)
     retcode=$?
@@ -77,12 +248,16 @@ __do_curl_to_controller() {
 controller_api_get_A1_policy_ids() {
 	__log_test_start $@
 
+	ric_id=$3
+	if [ $RUNMODE == "KUBE" ]; then
+		ric_id=$(get_kube_sim_host $3)
+	fi
     paramError=1
     if [ $# -gt 3 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/a1-p/policytypes/$4/policies"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies"
 		paramError=0
     elif [ $# -gt 2 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/A1-P/v1/policies"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies"
         paramError=0
 	fi
 
@@ -139,9 +314,13 @@ controller_api_get_A1_policy_ids() {
 controller_api_get_A1_policy_type() {
 	__log_test_start $@
 
+	ric_id=$3
+	if [ $RUNMODE == "KUBE" ]; then
+		ric_id=$(get_kube_sim_host $3)
+	fi
     paramError=1
     if [ $# -gt 3 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/a1-p/policytypes/$4"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4"
 		paramError=0
 	fi
 
@@ -189,12 +368,16 @@ controller_api_get_A1_policy_type() {
 controller_api_delete_A1_policy() {
 	__log_test_start $@
 
+	ric_id=$3
+	if [ $RUNMODE == "KUBE" ]; then
+		ric_id=$(get_kube_sim_host $3)
+	fi
     paramError=1
     if [ $# -eq 5 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5"
 		paramError=0
     elif [ $# -eq 4 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4"
         paramError=0
 	fi
 
@@ -227,14 +410,18 @@ controller_api_delete_A1_policy() {
 controller_api_put_A1_policy() {
 	__log_test_start $@
 
+	ric_id=$3
+	if [ $RUNMODE == "KUBE" ]; then
+		ric_id=$(get_kube_sim_host $3)
+	fi
     paramError=1
     if [ $# -eq 6 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5"
         body=$(sed 's/XXX/'${5}'/g' $6)
 
 		paramError=0
     elif [ $# -eq 5 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4"
         body=$(sed 's/XXX/'${4}'/g' $5)
         paramError=0
 	fi
@@ -269,10 +456,14 @@ controller_api_put_A1_policy() {
 controller_api_get_A1_policy_status() {
 	__log_test_start $@
 
+	ric_id=$3
+	if [ $RUNMODE == "KUBE" ]; then
+		ric_id=$(get_kube_sim_host $3)
+	fi
     targetJson=""
     paramError=1
     if [ $# -ge 5 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5/status"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5/status"
         if [ $# -gt 5 ]; then
             targetJson="{\"instance_status\":\"$6\""
             targetJson=$targetJson",\"has_been_deleted\":\"$7\""
@@ -280,7 +471,7 @@ controller_api_get_A1_policy_status() {
         fi
 		paramError=0
     elif [ $# -ge 4 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$3:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4/status"
+        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4/status"
         if [ $# -gt 4 ]; then
             targetJson="{\"enforceStatus\":\"$5\""
             if [ $# -eq 6 ]; then

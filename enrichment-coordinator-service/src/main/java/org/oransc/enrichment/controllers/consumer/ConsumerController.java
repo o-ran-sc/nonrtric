@@ -30,10 +30,9 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -45,9 +44,11 @@ import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducer;
+import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,6 +69,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = ConsumerConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsumerController {
 
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     @Autowired
     ApplicationConfig applicationConfig;
 
@@ -76,6 +79,9 @@ public class ConsumerController {
 
     @Autowired
     private EiTypes eiTypes;
+
+    @Autowired
+    private EiProducers eiProducers;
 
     @Autowired
     ProducerCallbacks producerCallbacks;
@@ -205,20 +211,11 @@ public class ConsumerController {
         }
     }
 
-    private Collection<EiProducer> getProducers(EiJob eiJob) {
-        try {
-            return this.eiTypes.getType(eiJob.getTypeId()).getProducers();
-        } catch (Exception e) {
-            return new Vector<>();
-        }
-    }
-
     private ConsumerEiJobStatus toEiJobStatus(EiJob job) {
-        if (getProducers(job).isEmpty()) {
-            return new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
-        } else {
-            return new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
-        }
+        return this.eiProducers.isJobEnabled(job)
+            ? new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED)
+            : new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
+
     }
 
     @DeleteMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -235,8 +232,7 @@ public class ConsumerController {
         @PathVariable("eiJobId") String eiJobId) {
         try {
             EiJob job = this.eiJobs.getJob(eiJobId);
-            this.eiJobs.remove(job);
-            this.producerCallbacks.notifyProducersJobDeleted(job);
+            this.eiJobs.remove(job, this.eiProducers);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -263,21 +259,17 @@ public class ConsumerController {
         final boolean isNewJob = this.eiJobs.get(eiJobId) == null;
 
         return validatePutEiJob(eiJobId, eiJobObject) //
-            .flatMap(this::notifyProducersNewJob) //
+            .flatMap(this::startEiJob) //
             .doOnNext(newEiJob -> this.eiJobs.put(newEiJob)) //
             .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
 
-    private Mono<EiJob> notifyProducersNewJob(EiJob newEiJob) {
-        return this.producerCallbacks.notifyProducersJobStarted(newEiJob) //
-            .flatMap(noOfAcceptingProducers -> {
-                if (noOfAcceptingProducers.intValue() > 0) {
-                    return Mono.just(newEiJob);
-                } else {
-                    return Mono.error(new ServiceException("Job not accepted by any producers", HttpStatus.CONFLICT));
-                }
-            });
+    private Mono<EiJob> startEiJob(EiJob newEiJob) {
+        return this.producerCallbacks.startEiJob(newEiJob, eiProducers) //
+            .doOnNext(noOfAcceptingProducers -> this.logger.debug(
+                "Started EI job {}, number of activated producers: {}", newEiJob.getId(), noOfAcceptingProducers)) //
+            .flatMap(noOfAcceptingProducers -> Mono.just(newEiJob));
     }
 
     private Mono<EiJob> validatePutEiJob(String eiJobId, ConsumerEiJobInfo eiJobInfo) {

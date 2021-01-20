@@ -18,7 +18,7 @@
 
 package org.oransc.rappcatalogue.exception;
 
-public class HeaderException extends RuntimeException {
+public class HeaderException extends Exception {
 
     private static final long serialVersionUID = -7798178963078284655L;
 

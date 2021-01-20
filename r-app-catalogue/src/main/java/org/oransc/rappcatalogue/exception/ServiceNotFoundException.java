@@ -18,7 +18,7 @@
 
 package org.oransc.rappcatalogue.exception;
 
-public class ServiceNotFoundException extends RuntimeException {
+public class ServiceNotFoundException extends Exception {
     private static final long serialVersionUID = 6579271315716003988L;
 
     public ServiceNotFoundException(String serviceName) {

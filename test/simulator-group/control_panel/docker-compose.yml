@@ -18,7 +18,7 @@ version: '3.0'
 networks:
   default:
     external:
-      name: nonrtric-docker-net
+      name: ${DOCKER_SIM_NWNAME}
 services:
   control-panel:
     image: ${CONTROL_PANEL_IMAGE}
@@ -27,6 +27,6 @@ services:
       - default
     ports:
     - ${CONTROL_PANEL_EXTERNAL_PORT}:${CONTROL_PANEL_INTERNAL_PORT}
-
+    - ${CONTROL_PANEL_EXTERNAL_SECURE_PORT}:${CONTROL_PANEL_INTERNAL_SECURE_PORT}
 
 

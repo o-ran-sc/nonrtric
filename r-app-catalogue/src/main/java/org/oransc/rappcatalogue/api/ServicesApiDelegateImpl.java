@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.oransc.rappcatalogue.exception.HeaderException;
 import org.oransc.rappcatalogue.exception.InvalidServiceException;
 import org.oransc.rappcatalogue.exception.ServiceNotFoundException;
@@ -56,7 +58,7 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Service> getIndividualService(String serviceName) {
+    public ResponseEntity<Service> getIndividualService(String serviceName) throws ServiceNotFoundException {
         Service service = registeredServices.get(serviceName);
         if (service != null) {
             return ResponseEntity.ok(service);
@@ -71,12 +73,16 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> putIndividualService(String serviceName, InputService inputService) {
+    public ResponseEntity<Void> putIndividualService(String serviceName, InputService inputService)
+        throws InvalidServiceException, HeaderException {
         if (isServiceValid(inputService)) {
             if (registeredServices.put(serviceName, createService(serviceName, inputService)) == null) {
                 try {
-                    getRequest().ifPresent(request -> addLocationHeaderToResponse(serviceName, request));
-                } catch (Exception e) {
+                    Optional<NativeWebRequest> request = getRequest();
+                    if (request.isPresent()) {
+                        addLocationHeaderToResponse(serviceName, request.get());
+                    }
+                } catch (HeaderException e) {
                     registeredServices.remove(serviceName);
                     throw e;
                 }
@@ -89,7 +95,7 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
         }
     }
 
-    private void addLocationHeaderToResponse(String serviceName, NativeWebRequest request) {
+    private void addLocationHeaderToResponse(String serviceName, NativeWebRequest request) throws HeaderException {
         try {
             HttpServletRequest nativeRequest = request.getNativeRequest(HttpServletRequest.class);
             HttpServletResponse nativeResponse = request.getNativeResponse(HttpServletResponse.class);
@@ -113,9 +119,9 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
     }
 
     /*
-     * java:S2589: Boolean expressions should not be gratuitous.
-     * Even though the version property is marked as @NotNull, it might be null coming from the client, hence the null
-     * check is needed.
+     * java:S2589: Boolean expressions should not be gratuitous. Even though the
+     * version property is marked as @NotNull, it might be null coming from the
+     * client, hence the null check is needed.
      */
     @SuppressWarnings("java:S2589")
     private boolean isServiceValid(InputService service) {
