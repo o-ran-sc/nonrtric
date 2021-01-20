@@ -35,6 +35,7 @@ SUPPORTED_RUNMODES="DOCKER"
 . ../common/mr_api_functions.sh
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
+. ../common/consul_cbs_functions.sh
 
 #### TEST BEGIN ####
 
@@ -50,7 +51,7 @@ for consul_conf in $TESTED_VARIANTS ; do
     # Clean container and start all needed containers #
     clean_environment
 
-    start_policy_agent
+    start_policy_agent NOPROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
     set_agent_trace
 

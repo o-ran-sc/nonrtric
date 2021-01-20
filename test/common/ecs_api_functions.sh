@@ -88,7 +88,7 @@ use_ecs_dmaap_https() {
 }
 
 # Start the ECS
-# args: -
+# args: PROXY|NOPROXY <config-file>
 # (Function for test scripts)
 start_ecs() {
 
@@ -141,9 +141,25 @@ start_ecs() {
 			export ECS_DATA_CONFIGMAP_NAME=$ECS_APP_NAME"-data"
 			export ECS_CONTAINER_MNT_DIR
 
+			if [ $1 == "PROXY" ]; then
+				ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+				ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+				if [ $ECS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ECS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+					echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
+				else
+					echo " Configured with http proxy"
+				fi
+			else
+				ECS_HTTP_PROXY_CONFIG_PORT=0
+				ECS_HTTP_PROXY_CONFIG_HOST_NAME=""
+				echo " Configured without http proxy"
+			fi
+			export ECS_HTTP_PROXY_CONFIG_PORT
+			export ECS_HTTP_PROXY_CONFIG_HOST_NAME
+
 			# Create config map for config
 			datafile=$PWD/tmp/$ECS_CONFIG_FILE
-			cp $1 $datafile
+			cp $2 $datafile
 			output_yaml=$PWD/tmp/ecs_cfc.yaml
 			__kube_create_configmap $ECS_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest ECS $datafile $output_yaml
 
@@ -193,7 +209,7 @@ start_ecs() {
 		cd $SIM_GROUP
 		cd ecs
 		cd $ECS_HOST_MNT_DIR
-		cd ..
+		#cd ..
 		if [ -d db ]; then
 			if [ "$(ls -A $DIR)" ]; then
 				echo -e $BOLD" Cleaning files in mounted dir: $PWD/db"$EBOLD
@@ -212,11 +228,33 @@ start_ecs() {
 		export ECS_APP_NAME_ALIAS
 		export ECS_HOST_MNT_DIR
 		export ECS_CONTAINER_MNT_DIR
+		export ECS_CONFIG_MOUNT_PATH
+		export ECS_CONFIG_FILE
 		export ECS_INTERNAL_PORT
 		export ECS_EXTERNAL_PORT
 		export ECS_INTERNAL_SECURE_PORT
 		export ECS_EXTERNAL_SECURE_PORT
 		export DOCKER_SIM_NWNAME
+
+		if [ $1 == "PROXY" ]; then
+			ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+			ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+			if [ $ECS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ECS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+				echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
+			else
+				echo " Configured with http proxy"
+			fi
+		else
+			ECS_HTTP_PROXY_CONFIG_PORT=0
+			ECS_HTTP_PROXY_CONFIG_HOST_NAME=""
+			echo " Configured without http proxy"
+		fi
+		export ECS_HTTP_PROXY_CONFIG_PORT
+		export ECS_HTTP_PROXY_CONFIG_HOST_NAME
+
+		dest_file=$SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_HOST_MNT_DIR/$ECS_CONFIG_FILE
+
+		envsubst < $2 > $dest_file
 
 		__start_container $ECS_COMPOSE_DIR NODOCKERARGS 1 $ECS_APP_NAME
 
@@ -279,9 +317,9 @@ set_ecs_trace() {
 # Perform curl retries when making direct call to ECS for the specified http response codes
 # Speace separated list of http response codes
 # args: [<response-code>]*
-use_agent_retries() {
+use_ecs_retries() {
 	echo -e $BOLD"Do curl retries to the ECS REST inteface for these response codes:$@"$EBOLD
-	ECS_AGENT_RETRY_CODES=$@
+	ECS_RETRY_CODES=$@
 	echo ""
 	return 0
 }
@@ -1368,7 +1406,7 @@ ecs_api_edp_put_producer_2() {
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/eijobs
-# args: <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
+# args: (V1-1) <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
 # (Function for test scripts)
 ecs_api_edp_get_producer_jobs() {
 	__log_test_start $@
@@ -1431,6 +1469,69 @@ ecs_api_edp_get_producer_jobs() {
 	return 0
 }
 
+# API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/eijobs
+# args: (V1-2) <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
+# (Function for test scripts)
+ecs_api_edp_get_producer_jobs_2() {
+	__log_test_start $@
+
+	#Valid number of parameter 2,3,7,11
+	paramError=1
+	if [ $# -eq 2 ]; then
+		paramError=0
+	fi
+	if [ $# -eq 3 ] && [ "$3" == "EMPTY" ]; then
+		paramError=0
+	fi
+	variablecount=$(($#-2))
+	if [ $# -gt 3 ] && [ $(($variablecount%5)) -eq 0 ]; then
+		paramError=0
+	fi
+	if [ $paramError -eq 1 ]; then
+		__print_err "<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)" $@
+		return 1
+	fi
+
+	query="/ei-producer/v1/eiproducers/$2/eijobs"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+		if [ $# -gt 3 ]; then
+			arr=(${@:3})
+			for ((i=0; i<$(($#-3)); i=i+5)); do
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				if [ -f ${arr[$i+4]} ]; then
+					jobfile=$(cat ${arr[$i+4]})
+					jobfile=$(echo "$jobfile" | sed "s/XXXX/${arr[$i]}/g")
+				else
+					_log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
+					return 1
+				fi
+				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile, \"last_updated\":\"????\"}"
+			done
+		fi
+		targetJson=$targetJson"]"
+
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
 
 ##########################################
 ####          Service status          ####
