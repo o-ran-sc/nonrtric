@@ -165,7 +165,7 @@ public class EiJobs {
                 out.print(gson.toJson(job));
             }
         } catch (Exception e) {
-            logger.warn("Could not save job: {} {}", job.getId(), e.getMessage());
+            logger.warn("Could not store job: {} {}", job.getId(), e.getMessage());
         }
     }
 

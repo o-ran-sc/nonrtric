@@ -23,6 +23,8 @@ package org.oransc.enrichment.configuration;
 import lombok.Getter;
 
 import org.oransc.enrichment.configuration.WebClientConfig.HttpProxyConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,6 +32,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties
 @ConfigurationProperties()
 public class ApplicationConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
 
     @Getter
     @Value("${app.vardata-directory}")
@@ -66,6 +70,11 @@ public class ApplicationConfig {
 
     public WebClientConfig getWebClientConfig() {
         if (this.webClientConfig == null) {
+            if (this.httpProxyPort == 0) {
+                logger.info("Http proxy is not used");
+            } else {
+                logger.info("Http proxy is used for RAN access {}:{}", httpProxyHost, httpProxyPort);
+            }
             HttpProxyConfig httpProxyConfig = ImmutableHttpProxyConfig.builder() //
                 .httpProxyHost(this.httpProxyHost) //
                 .httpProxyPort(this.httpProxyPort) //
