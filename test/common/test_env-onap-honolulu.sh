@@ -80,7 +80,7 @@ SDNC_DB_IMAGE_TAG_REMOTE_PROXY="5.6"
 
 # ECS image and tag - uses cherry release
 ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
+ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
 
 
 # Control Panel image and tag - uses cherry release
@@ -90,7 +90,7 @@ CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.0"
 
 # RAPP Catalogue image and tags - uses cherry release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
 
 
 # Near RT RIC Simulator image and tags - uses cherry release
@@ -202,7 +202,7 @@ ECS_INTERNAL_SECURE_PORT=8434                            # ECS container interna
 
 ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
 ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
-ECS_HOST_MNT_DIR="./mnt/db"                              # Mounted dir, relative to compose file, on the host
+ECS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
 ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
 ECS_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
 ECS_CERT_MOUNT_DIR="./cert"
