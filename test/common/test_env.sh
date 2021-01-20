@@ -25,17 +25,17 @@
 
 # Local Policy Agent image and tag
 POLICY_AGENT_LOCAL_IMAGE="o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_LOCAL_IMAGE_TAG="2.2.0-SNAPSHOT"
+POLICY_AGENT_LOCAL_IMAGE_TAG="2.2.1-SNAPSHOT"
 # Remote Policy Agent image and tag
 POLICY_AGENT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_REMOTE_IMAGE_TAG="2.2.0"
+POLICY_AGENT_REMOTE_IMAGE_TAG="2.2.1"
 
 # Local ECS image and tag
 ECS_LOCAL_IMAGE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_LOCAL_IMAGE_TAG="1.1.0-SNAPSHOT"
+ECS_LOCAL_IMAGE_TAG="1.1.1-SNAPSHOT"
 # Remote ECS image and tag
 ECS_REMOTE_IMAGE="nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_REMOTE_IMAGE_TAG="1.1.0-SNAPSHOT"
+ECS_REMOTE_IMAGE_TAG="1.1.1-SNAPSHOT"
 
 # Control Panel local image and tag
 CONTROL_PANEL_LOCAL_IMAGE="o-ran-sc/nonrtric-controlpanel"
