@@ -20,11 +20,6 @@
 
 package org.oransc.enrichment.repository;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import lombok.Getter;
 
 public class EiType {
@@ -34,26 +29,9 @@ public class EiType {
     @Getter
     private final Object jobDataSchema;
 
-    private final Map<String, EiProducer> producers = new HashMap<>();
-
     public EiType(String id, Object jobDataSchema) {
         this.id = id;
         this.jobDataSchema = jobDataSchema;
     }
 
-    public synchronized Collection<EiProducer> getProducers() {
-        return Collections.unmodifiableCollection(producers.values());
-    }
-
-    public synchronized Collection<String> getProducerIds() {
-        return Collections.unmodifiableCollection(producers.keySet());
-    }
-
-    public synchronized void addProducer(EiProducer producer) {
-        this.producers.put(producer.getId(), producer);
-    }
-
-    public synchronized EiProducer removeProducer(EiProducer producer) {
-        return this.producers.remove(producer.getId());
-    }
 }

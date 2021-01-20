@@ -19,41 +19,46 @@
 
 # Generic function to query the agent/ECS via the REST or DMAAP interface.
 # Used by all other agent/ECS api test functions
-# If operation prefix is '_BATCH' the the send and get response is split in two sequences,
+# If operation sufffix is '_BATCH' the the send and get response is split in two sequences,
 # one for sending the requests and one for receiving the response
 # but only when using the DMAAP interface
-# REST or DMAAP is controlled of the base url of $ADAPTER
-# arg: (PA|ECS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ECS RESPONSE <correlation-id>)
+# REST or DMAAP is controlled of the base url of $XX_ADAPTER
+# arg: (PA|ECS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file>]) | (PA|ECS RESPONSE <correlation-id>)
 # (Not for test scripts)
 __do_curl_to_api() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo " (${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	paramError=0
-
+	input_url=$3
     if [ $# -gt 0 ]; then
         if [ $1 == "PA" ]; then
-            __ADAPTER=$ADAPTER
-            __RESTBASE=$RESTBASE
-            __RESTBASE_SECURE=$RESTBASE_SECURE
+			__ADAPTER=$PA_ADAPTER
+			__ADAPTER_TYPE=$PA_ADAPTER_TYPE
             __RETRY_CODES=$AGENT_RETRY_CODES
+			if [ $PMS_VERSION != "V1" ]; then
+				input_url=$PMS_API_PREFIX$3
+			fi
         elif [ $1 == "ECS" ]; then
-            __ADAPTER=$ECS_ADAPTER
-            __RESTBASE=$ECS_RESTBASE
-            __RESTBASE_SECURE=$ECS_RESTBASE_SECURE
+			__ADAPTER=$ECS_ADAPTER
+			__ADAPTER_TYPE=$ECS_ADAPTER_TYPE
             __RETRY_CODES=$ECS_RETRY_CODES
 		elif [ $1 == "CR" ]; then
-		    __ADAPTER=$CR_ADAPTER
-            __RESTBASE=$CR_RESTBASE
-            __RESTBASE_SECURE=$CR_RESTBASE_SECURE
+			__ADAPTER=$CR_ADAPTER
+			__ADAPTER_TYPE=$CR_ADAPTER_TYPE
             __RETRY_CODES=""
 		elif [ $1 == "RC" ]; then
-		    __ADAPTER=$RC_ADAPTER
-            __RESTBASE=$RC_RESTBASE
-            __RESTBASE_SECURE=$RC_RESTBASE_SECURE
+			__ADAPTER=$RC_ADAPTER
+			__ADAPTER_TYPE=$RC_ADAPTER_TYPE
             __RETRY_CODES=""
         else
             paramError=1
         fi
+		if [ $__ADAPTER_TYPE == "MR-HTTP" ]; then
+			__ADAPTER=$MR_ADAPTER_HTTP
+		fi
+		if [ $__ADAPTER_TYPE == "MR-HTTPS" ]; then
+			__ADAPTER=$MR_ADAPTER_HTTPS
+		fi
     fi
     if [ $# -lt 3 ] || [ $# -gt 4 ]; then
 		paramError=1
@@ -98,7 +103,8 @@ __do_curl_to_api() {
 			if [ $# -ne 3 ]; then
 				paramError=1
 			fi
-			if [ $__ADAPTER == $__RESTBASE ] || [ $__ADAPTER == $__RESTBASE_SECURE ]; then
+			#if [ $__ADAPTER == $__RESTBASE ] || [ $__ADAPTER == $__RESTBASE_SECURE ]; then
+			if [ $__ADAPTER_TYPE == "REST" ]; then
 				paramError=1
 			fi
 		else
@@ -115,8 +121,9 @@ __do_curl_to_api() {
         return 1
     fi
 
-    if [ $__ADAPTER == $__RESTBASE ] || [ $__ADAPTER == $__RESTBASE_SECURE ]; then
-        url=" "${__ADAPTER}${3}
+    #if [ $__ADAPTER == $__RESTBASE ] || [ $__ADAPTER == $__RESTBASE_SECURE ]; then
+	if [ $__ADAPTER_TYPE == "REST" ]; then
+        url=" "${__ADAPTER}${input_url}
         oper=" -X "$oper
         curlString="curl -k "${oper}${timeout}${httpcode}${accept}${content}${url}${file}
         echo " CMD: "$curlString >> $HTTPLOG
@@ -156,7 +163,7 @@ __do_curl_to_api() {
         return 0
     else
 		if [ $oper != "RESPONSE" ]; then
-			requestUrl=$3
+			requestUrl=$input_url
 			if [ $2 == "PUT" ] && [ $# -eq 4 ]; then
 				payload="$(cat $4 | tr -d '\n' | tr -d ' ' )"
 				echo "payload: "$payload >> $HTTPLOG
@@ -165,7 +172,7 @@ __do_curl_to_api() {
 				echo " FILE: $(cat $4)" >> $HTTPLOG
 			fi
 			#urlencode the request url since it will be carried by send-request url
-			requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$3")
+			requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$input_url")
 			url=" "${__ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
 			curlString="curl -k -X POST${timeout}${httpcode}${content}${url}${file}"
 			echo " CMD: "$curlString >> $HTTPLOG

@@ -21,6 +21,7 @@
 package org.oransc.enrichment.repository;
 
 import java.lang.invoke.MethodHandles;
+import java.time.Instant;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -52,6 +53,10 @@ public class EiJob {
 
     @Getter
     private final String jobStatusUrl;
+
+    @Getter
+    @Builder.Default
+    private String lastUpdated = Instant.now().toString();
 
     @Getter
     @Builder.Default

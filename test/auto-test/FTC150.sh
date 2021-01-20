@@ -20,22 +20,23 @@
 
 TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no agent)"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="RICSIM SDNC"
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES=" RICSIM SDNC "
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=" "
 
-#SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+#Supported test environment profiles
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/controller_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
-
-FLAVOUR="ORAN"
-if [[ $SDNC_A1_CONTROLLER_IMAGE == *"onap"* ]]; then
-    FLAVOUR="ONAP"
-fi
 
 generate_uuid
 
@@ -54,7 +55,7 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
 
         # Clean container and start all needed containers #
-        clean_containers
+        clean_environment
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
@@ -141,4 +142,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

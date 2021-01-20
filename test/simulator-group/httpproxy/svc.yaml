@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $HTTP_PROXY_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $HTTP_PROXY_APP_NAME
+    autotest: HTTP_PROXY_APP_NAME
+spec:
+  type: ClusterIP
+  ports:
+  - port: $HTTP_PROXY_EXTERNAL_PORT
+    targetPort: $HTTP_PROXY_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $HTTP_PROXY_WEB_EXTERNAL_PORT
+    targetPort: $HTTP_PROXY_WEB_INTERNAL_PORT
+    protocol: TCP
+    name: web
+  selector:
+    run: $HTTP_PROXY_APP_NAME

@@ -1,0 +1,790 @@
+{
+    "basePath": "/",
+    "paths": {
+        "/producer_simulator/ei_job": {"post": {
+            "summary": "Callback for EI job creation",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "jobCreatedCallbackUsingPOST",
+            "responses": {
+                "200": {"description": "OK"},
+                "201": {"description": "Created"},
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "parameters": [{
+                "schema": {"$ref": "#/definitions/producer_ei_job_request"},
+                "in": "body",
+                "name": "request",
+                "description": "request",
+                "required": true
+            }],
+            "tags": ["Data Producer Job Control (example producer)"],
+            "consumes": ["application/json"]
+        }},
+        "/A1-EI/v1/eitypes/{eiTypeId}": {"get": {
+            "summary": "Individual EI type",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getEiTypeUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"$ref": "#/definitions/EiTypeObject"},
+                    "description": "EI type"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {
+                    "schema": {"$ref": "#/definitions/ProblemDetails"},
+                    "description": "Enrichment Information type is not found"
+                }
+            },
+            "parameters": [{
+                "in": "path",
+                "name": "eiTypeId",
+                "description": "eiTypeId",
+                "type": "string",
+                "required": true
+            }],
+            "tags": ["A1-EI (enrichment information)"]
+        }},
+        "/consumer_simulator/eijobs/{eiJobId}/status": {"post": {
+            "summary": "Callback for EI job status",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "jobStatusCallbackUsingPOST",
+            "responses": {
+                "200": {"description": "OK"},
+                "201": {"description": "Created"},
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "eiJobId",
+                    "description": "eiJobId",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "schema": {"$ref": "#/definitions/EiJobStatusObject"},
+                    "in": "body",
+                    "name": "status",
+                    "description": "status",
+                    "required": true
+                }
+            ],
+            "tags": ["A1-EI (enrichment information) callbacks"],
+            "consumes": ["application/json"]
+        }},
+        "/ei-producer/v1/eitypes": {"get": {
+            "summary": "EI type identifiers",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getEiTypeIdentifiersUsingGET_1",
+            "responses": {
+                "200": {
+                    "schema": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "description": "EI type identifiers"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "tags": ["Data Producer Registry API"]
+        }},
+        "/A1-EI/v1/eitypes": {"get": {
+            "summary": "EI type identifiers",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getEiTypeIdentifiersUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "description": "EI type identifiers"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "tags": ["A1-EI (enrichment information)"]
+        }},
+        "/ei-producer/v1/eiproducers/{eiProducerId}/status": {"get": {
+            "summary": "EI producer status",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getEiProducerStatusUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"$ref": "#/definitions/producer_status"},
+                    "description": "EI producer status"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {
+                    "schema": {"$ref": "#/definitions/ProblemDetails"},
+                    "description": "Enrichment Information producer is not found"
+                }
+            },
+            "parameters": [{
+                "in": "path",
+                "name": "eiProducerId",
+                "description": "eiProducerId",
+                "type": "string",
+                "required": true
+            }],
+            "tags": ["Data Producer Registry API"]
+        }},
+        "/producer_simulator/ei_job/{eiJobId}": {"delete": {
+            "summary": "Callback for EI job deletion",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "jobDeletedCallbackUsingDELETE",
+            "responses": {
+                "200": {"description": "OK"},
+                "401": {"description": "Unauthorized"},
+                "204": {"description": "No Content"},
+                "403": {"description": "Forbidden"}
+            },
+            "parameters": [{
+                "in": "path",
+                "name": "eiJobId",
+                "description": "eiJobId",
+                "type": "string",
+                "required": true
+            }],
+            "tags": ["Data Producer Job Control (example producer)"]
+        }},
+        "/ei-producer/v1/eiproducers": {"get": {
+            "summary": "EI producer identifiers",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getEiProducerIdentifiersUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "description": "EI producer identifiers"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "parameters": [{
+                "in": "query",
+                "allowEmptyValue": false,
+                "name": "ei_type_id",
+                "description": "If given, only the producers for the EI Data type is returned.",
+                "type": "string",
+                "required": false
+            }],
+            "tags": ["Data Producer Registry API"]
+        }},
+        "/ei-producer/v1/eitypes/{eiTypeId}": {
+            "get": {
+                "summary": "Individual EI type",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "getEiTypeUsingGET_1",
+                "responses": {
+                    "200": {
+                        "schema": {"$ref": "#/definitions/producer_ei_type_info"},
+                        "description": "EI type"
+                    },
+                    "401": {"description": "Unauthorized"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Enrichment Information type is not found"
+                    }
+                },
+                "parameters": [{
+                    "in": "path",
+                    "name": "eiTypeId",
+                    "description": "eiTypeId",
+                    "type": "string",
+                    "required": true
+                }],
+                "tags": ["Data Producer Registry API"]
+            },
+            "delete": {
+                "summary": "Individual EI type",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "deleteEiTypeUsingDELETE",
+                "responses": {
+                    "200": {"description": "Not used"},
+                    "401": {"description": "Unauthorized"},
+                    "204": {"description": "Producer deleted"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Enrichment Information type is not found"
+                    },
+                    "406": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "The Enrichment Information type has one or several active producers"
+                    }
+                },
+                "parameters": [{
+                    "in": "path",
+                    "name": "eiTypeId",
+                    "description": "eiTypeId",
+                    "type": "string",
+                    "required": true
+                }],
+                "tags": ["Data Producer Registry API"]
+            },
+            "put": {
+                "summary": "Individual EI type",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "putEiTypeUsingPUT",
+                "responses": {
+                    "200": {"description": "Type updated"},
+                    "201": {"description": "Type created"},
+                    "400": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Bad request"
+                    },
+                    "401": {"description": "Unauthorized"},
+                    "403": {"description": "Forbidden"},
+                    "404": {"description": "Not Found"}
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "eiTypeId",
+                        "description": "eiTypeId",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "schema": {"$ref": "#/definitions/producer_ei_type_info"},
+                        "in": "body",
+                        "name": "registrationInfo",
+                        "description": "registrationInfo",
+                        "required": true
+                    }
+                ],
+                "tags": ["Data Producer Registry API"],
+                "consumes": ["application/json"]
+            }
+        },
+        "/status": {"get": {
+            "summary": "Returns status and statistics of this service",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getStatusUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"$ref": "#/definitions/status_info"},
+                    "description": "Service is living"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "tags": ["Service status"]
+        }},
+        "/A1-EI/v1/eijobs/{eiJobId}": {
+            "get": {
+                "summary": "Individual EI job",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "getIndividualEiJobUsingGET",
+                "responses": {
+                    "200": {
+                        "schema": {"$ref": "#/definitions/EiJobObject"},
+                        "description": "EI job"
+                    },
+                    "401": {"description": "Unauthorized"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Enrichment Information job is not found"
+                    }
+                },
+                "parameters": [{
+                    "in": "path",
+                    "name": "eiJobId",
+                    "description": "eiJobId",
+                    "type": "string",
+                    "required": true
+                }],
+                "tags": ["A1-EI (enrichment information)"]
+            },
+            "delete": {
+                "summary": "Individual EI job",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "deleteIndividualEiJobUsingDELETE",
+                "responses": {
+                    "200": {"description": "Not used"},
+                    "401": {"description": "Unauthorized"},
+                    "204": {"description": "Job deleted"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Enrichment Information job is not found"
+                    }
+                },
+                "parameters": [{
+                    "in": "path",
+                    "name": "eiJobId",
+                    "description": "eiJobId",
+                    "type": "string",
+                    "required": true
+                }],
+                "tags": ["A1-EI (enrichment information)"]
+            },
+            "put": {
+                "summary": "Individual EI job",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "putIndividualEiJobUsingPUT",
+                "responses": {
+                    "200": {"description": "Job updated"},
+                    "201": {"description": "Job created"},
+                    "401": {"description": "Unauthorized"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Enrichment Information type is not found"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "eiJobId",
+                        "description": "eiJobId",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "schema": {"$ref": "#/definitions/EiJobObject"},
+                        "in": "body",
+                        "name": "eiJobObject",
+                        "description": "eiJobObject",
+                        "required": true
+                    }
+                ],
+                "tags": ["A1-EI (enrichment information)"],
+                "consumes": ["application/json"]
+            }
+        },
+        "/ei-producer/v1/eiproducers/{eiProducerId}": {
+            "get": {
+                "summary": "Individual EI producer",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "getEiProducerUsingGET",
+                "responses": {
+                    "200": {
+                        "schema": {"$ref": "#/definitions/producer_registration_info"},
+                        "description": "EI producer"
+                    },
+                    "401": {"description": "Unauthorized"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Enrichment Information producer is not found"
+                    }
+                },
+                "parameters": [{
+                    "in": "path",
+                    "name": "eiProducerId",
+                    "description": "eiProducerId",
+                    "type": "string",
+                    "required": true
+                }],
+                "tags": ["Data Producer Registry API"]
+            },
+            "delete": {
+                "summary": "Individual EI producer",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "deleteEiProducerUsingDELETE",
+                "responses": {
+                    "200": {"description": "Not used"},
+                    "401": {"description": "Unauthorized"},
+                    "204": {"description": "Producer deleted"},
+                    "403": {"description": "Forbidden"},
+                    "404": {
+                        "schema": {"$ref": "#/definitions/ProblemDetails"},
+                        "description": "Producer is not found"
+                    }
+                },
+                "parameters": [{
+                    "in": "path",
+                    "name": "eiProducerId",
+                    "description": "eiProducerId",
+                    "type": "string",
+                    "required": true
+                }],
+                "tags": ["Data Producer Registry API"]
+            },
+            "put": {
+                "summary": "Individual EI producer",
+                "deprecated": false,
+                "produces": ["application/json"],
+                "operationId": "putEiProducerUsingPUT",
+                "responses": {
+                    "200": {"description": "Producer updated"},
+                    "201": {"description": "Producer created"},
+                    "401": {"description": "Unauthorized"},
+                    "403": {"description": "Forbidden"},
+                    "404": {"description": "Not Found"}
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "eiProducerId",
+                        "description": "eiProducerId",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "schema": {"$ref": "#/definitions/producer_registration_info"},
+                        "in": "body",
+                        "name": "registrationInfo",
+                        "description": "registrationInfo",
+                        "required": true
+                    }
+                ],
+                "tags": ["Data Producer Registry API"],
+                "consumes": ["application/json"]
+            }
+        },
+        "/producer_simulator/health_check": {"get": {
+            "summary": "Producer supervision",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "producerSupervisionUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"type": "string"},
+                    "description": "OK"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "tags": ["Data Producer Job Control (example producer)"]
+        }},
+        "/ei-producer/v1/eiproducers/{eiProducerId}/eijobs": {"get": {
+            "summary": "EI job definitions",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "description": "EI job definitions for one EI producer",
+            "operationId": "getEiProducerJobsUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {
+                        "type": "array",
+                        "items": {"$ref": "#/definitions/producer_ei_job_request"}
+                    },
+                    "description": "EI producer"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {
+                    "schema": {"$ref": "#/definitions/ProblemDetails"},
+                    "description": "Enrichment Information producer is not found"
+                }
+            },
+            "parameters": [{
+                "in": "path",
+                "name": "eiProducerId",
+                "description": "eiProducerId",
+                "type": "string",
+                "required": true
+            }],
+            "tags": ["Data Producer Registry API"]
+        }},
+        "/A1-EI/v1/eijobs": {"get": {
+            "summary": "EI job identifiers",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "description": "query for EI job identifiers",
+            "operationId": "getEiJobIdsUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "description": "EI job identifiers"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {
+                    "schema": {"$ref": "#/definitions/ProblemDetails"},
+                    "description": "Enrichment Information type is not found"
+                }
+            },
+            "parameters": [
+                {
+                    "in": "query",
+                    "allowEmptyValue": false,
+                    "name": "eiTypeId",
+                    "description": "selects EI jobs of matching EI type",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "in": "query",
+                    "allowEmptyValue": false,
+                    "name": "owner",
+                    "description": "selects EI jobs for one EI job owner",
+                    "type": "string",
+                    "required": false
+                }
+            ],
+            "tags": ["A1-EI (enrichment information)"]
+        }},
+        "/A1-EI/v1/eijobs/{eiJobId}/status": {"get": {
+            "summary": "EI job status",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getEiJobStatusUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"$ref": "#/definitions/EiJobStatusObject"},
+                    "description": "EI job status"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {
+                    "schema": {"$ref": "#/definitions/ProblemDetails"},
+                    "description": "Enrichment Information job is not found"
+                }
+            },
+            "parameters": [{
+                "in": "path",
+                "name": "eiJobId",
+                "description": "eiJobId",
+                "type": "string",
+                "required": true
+            }],
+            "tags": ["A1-EI (enrichment information)"]
+        }}
+    },
+    "definitions": {
+        "producer_ei_job_request": {
+            "description": "The body of the EI producer callbacks for EI job creation and deletion",
+            "type": "object",
+            "title": "producer_ei_job_request",
+            "required": ["ei_job_identity"],
+            "properties": {
+                "owner": {
+                    "description": "The owner of the job",
+                    "type": "string"
+                },
+                "ei_job_identity": {
+                    "description": "Idenitity of the EI job",
+                    "type": "string"
+                },
+                "last_updated": {
+                    "description": "The time when the job was last updated or created (ISO-8601)",
+                    "type": "string"
+                },
+                "ei_job_data": {
+                    "description": "Json for the job data",
+                    "type": "object"
+                },
+                "target_uri": {
+                    "description": "URI for the target of the EI",
+                    "type": "string"
+                },
+                "ei_type_identity": {
+                    "description": "Type idenitity for the job",
+                    "type": "string"
+                }
+            }
+        },
+        "EiTypeObject": {
+            "description": "Information for an EI type",
+            "type": "object",
+            "title": "EiTypeObject"
+        },
+        "status_info": {
+            "type": "object",
+            "title": "status_info",
+            "properties": {
+                "no_of_producers": {
+                    "format": "int32",
+                    "description": "Number of EI producers",
+                    "type": "integer"
+                },
+                "no_of_jobs": {
+                    "format": "int32",
+                    "description": "Number of EI jobs",
+                    "type": "integer"
+                },
+                "no_of_types": {
+                    "format": "int32",
+                    "description": "Number of EI types",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "status text",
+                    "type": "string"
+                }
+            }
+        },
+        "producer_ei_type_info": {
+            "description": "Information for an EI type",
+            "type": "object",
+            "title": "producer_ei_type_info",
+            "required": ["ei_job_data_schema"],
+            "properties": {"ei_job_data_schema": {
+                "description": "Json schema for the job data",
+                "type": "object"
+            }}
+        },
+        "producer_registration_info": {
+            "description": "Information for an EI producer",
+            "type": "object",
+            "title": "producer_registration_info",
+            "required": [
+                "ei_job_callback_url",
+                "ei_producer_supervision_callback_url",
+                "supported_ei_types"
+            ],
+            "properties": {
+                "supported_ei_types": {
+                    "description": "Supported EI type IDs",
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "ei_producer_supervision_callback_url": {
+                    "description": "callback for producer supervision",
+                    "type": "string"
+                },
+                "ei_job_callback_url": {
+                    "description": "callback for EI job",
+                    "type": "string"
+                }
+            }
+        },
+        "producer_status": {
+            "description": "Status for an EI Producer",
+            "type": "object",
+            "title": "producer_status",
+            "required": ["operational_state"],
+            "properties": {"operational_state": {
+                "description": "Operational state, values:\nENABLED: TBD\nDISABLED: TBD.",
+                "type": "string",
+                "enum": [
+                    "ENABLED",
+                    "DISABLED"
+                ]
+            }}
+        },
+        "ProblemDetails": {
+            "description": "A problem detail to carry details in a HTTP response according to RFC 7807",
+            "type": "object",
+            "title": "ProblemDetails",
+            "properties": {
+                "detail": {
+                    "description": "A human-readable explanation specific to this occurrence of the problem.",
+                    "type": "string",
+                    "example": "EI job type not found"
+                },
+                "status": {
+                    "format": "int32",
+                    "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+                    "type": "integer",
+                    "example": 404
+                }
+            }
+        },
+        "EiJobStatusObject": {
+            "description": "Status for an EI job",
+            "type": "object",
+            "title": "EiJobStatusObject",
+            "required": ["eiJobStatus"],
+            "properties": {"eiJobStatus": {
+                "description": "values:\nENABLED: the A1-EI producer is able to deliver EI result for the EI job\nDISABLED: the A1-EI producer is unable to deliver EI result for the EI job",
+                "type": "string",
+                "enum": [
+                    "ENABLED",
+                    "DISABLED"
+                ]
+            }}
+        },
+        "EiJobObject": {
+            "description": "Information for an Enrichment Information Job",
+            "type": "object",
+            "title": "EiJobObject",
+            "required": [
+                "eiTypeId",
+                "jobDefinition",
+                "jobOwner",
+                "jobResultUri"
+            ],
+            "properties": {
+                "eiTypeId": {
+                    "description": "EI type Idenitifier of the EI job",
+                    "type": "string"
+                },
+                "jobResultUri": {
+                    "description": "The target URI of the EI data",
+                    "type": "string"
+                },
+                "jobOwner": {
+                    "description": "Identity of the owner of the job",
+                    "type": "string"
+                },
+                "jobStatusNotificationUri": {
+                    "description": "The target of EI job status notifications",
+                    "type": "string"
+                },
+                "jobDefinition": {
+                    "description": "EI type specific job data",
+                    "type": "object"
+                }
+            }
+        }
+    },
+    "swagger": "2.0",
+    "info": {
+        "description": "This page lists all the rest apis for the service.",
+        "title": "Enrichment Data service",
+        "version": "1.0"
+    },
+    "tags": [
+        {
+            "name": "A1-EI (enrichment information)",
+            "description": "Consumer Controller"
+        },
+        {
+            "name": "A1-EI (enrichment information) callbacks",
+            "description": "Consumer Simulator Controller"
+        },
+        {
+            "name": "Data Producer Job Control (example producer)",
+            "description": "Producer Simulator Controller"
+        },
+        {
+            "name": "Data Producer Registry API",
+            "description": "Producer Controller"
+        },
+        {
+            "name": "Service status",
+            "description": "Status Controller"
+        }
+    ]
+}

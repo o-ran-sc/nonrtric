@@ -19,14 +19,26 @@
 
 TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
-#SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES=" MR CR PA RICSIM CP"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
+. ../common/consul_cbs_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
+. ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
@@ -38,7 +50,7 @@ use_mr_http
 use_agent_rest_http
 
 
-clean_containers
+clean_environment
 
 start_ric_simulators  ricsim_g1 3 OSC_2.1.0
 
@@ -50,18 +62,27 @@ fi
 
 start_mr
 
-start_consul_cbs
+start_cr
 
-prepare_consul_config      NOSDNC  ".consul_config.json"
-consul_config_app                  ".consul_config.json"
+if [ $RUNMODE == "DOCKER" ]; then
+    start_consul_cbs
+fi
 
-start_control_panel
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
-start_policy_agent
+start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
 set_agent_debug
 
 use_agent_rest_http
+
+prepare_consul_config      NOSDNC  ".consul_config.json"
+
+if [ $RUNMODE == "KUBE" ]; then
+    agent_load_config                       ".consul_config.json"
+else
+    consul_config_app                      ".consul_config.json"
+fi
 
 api_get_status 200
 
@@ -77,22 +98,22 @@ sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
 if [ "$PMS_VERSION" == "V2" ]; then
     sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
-    api_equal json:policy-types 3 60
+    api_equal json:policy-types 3 300
 else
-    api_equal json:policy_types 2 60
+    api_equal json:policy_types 2 300
 fi
 
 # Create policies
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_PATH"/test"
+    notificationurl=$CR_SERVICE_PATH"/test"
 else
     notificationurl=""
 fi
 
 use_agent_rest_http
 
-api_put_service 201 "service1" 3600 "$CR_PATH/1"
+api_put_service 201 "service1" 3600 "$CR_SERVICE_PATH/1"
 
 api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
@@ -137,7 +158,7 @@ fi
 #Update policies
 use_agent_rest_http
 
-api_put_service 200 "service1" 3600 "$CR_PATH/1"
+api_put_service 200 "service1" 3600 "$CR_SERVICE_PATH/1"
 
 api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
@@ -228,10 +249,10 @@ fi
 
 # Check remote host access to simulator
 
-sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
-sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+sim_contains_str ricsim_g1_1 remote_hosts $POLICY_AGENT_APP_NAME
+sim_contains_str ricsim_g2_1 remote_hosts $POLICY_AGENT_APP_NAME
 if [ "$PMS_VERSION" == "V2" ]; then
-    sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+    sim_contains_str ricsim_g3_1 remote_hosts $POLICY_AGENT_APP_NAME
 fi
 
 # Check policy removal
@@ -260,4 +281,4 @@ store_logs          END
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

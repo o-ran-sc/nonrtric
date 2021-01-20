@@ -1,3 +1,4 @@
+
 package org.oransc.rappcatalogue.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,8 +15,10 @@ import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -41,7 +44,7 @@ class ServicesApiDelegateImplTest {
     private static final String SERVICE_DISPLAY_NAME = "Display Name";
 
     @Test
-    void getAddedService_shouldReturnService() {
+    void getAddedService_shouldReturnService() throws Exception {
         ServicesApiDelegateImpl delegateUnderTest = new ServicesApiDelegateImpl(webRequestMock);
 
         InputService service = new InputService();
@@ -74,7 +77,8 @@ class ServicesApiDelegateImplTest {
     }
 
     @Test
-    void putNewValidService_shouldBeCreatedAndRegisteredAndUrlToNewServiceAddedToLocationHeaderInResponse() {
+    void putNewValidService_shouldBeCreatedAndRegisteredAndUrlToNewServiceAddedToLocationHeaderInResponse()
+        throws Exception {
         ServicesApiDelegateImpl delegateUnderTest = new ServicesApiDelegateImpl(webRequestMock);
 
         InputService service = new InputService();
@@ -99,7 +103,7 @@ class ServicesApiDelegateImplTest {
     }
 
     @Test
-    void putModifiedService_shouldBeModified() {
+    void putModifiedService_shouldBeModified() throws Exception {
         ServicesApiDelegateImpl delegateUnderTest = new ServicesApiDelegateImpl(webRequestMock);
 
         InputService service = new InputService();
@@ -211,7 +215,7 @@ class ServicesApiDelegateImplTest {
     }
 
     @Test
-    void deleteService_shouldBeOk() {
+    void deleteService_shouldBeOk() throws Exception {
         ServicesApiDelegateImpl delegateUnderTest = new ServicesApiDelegateImpl(webRequestMock);
 
         InputService service = new InputService();

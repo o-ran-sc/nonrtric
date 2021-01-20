@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $SDNC_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $SDNC_APP_NAME
+    autotest: SDNC
+spec:
+  type: ClusterIP
+  ports:
+  - port: $SDNC_EXTERNAL_PORT
+    targetPort: $SDNC_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $SDNC_EXTERNAL_SECURE_PORT
+    targetPort: $SDNC_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $SDNC_APP_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbhost
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $SDNC_DB_APP_NAME
+    autotest: SDNC
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    targetPort: 3306
+    protocol: TCP
+    name: http
+  selector:
+    run: $SDNC_DB_APP_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sdnctldb01
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $SDNC_DB_APP_NAME
+    autotest: SDNC
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    targetPort: 3306
+    protocol: TCP
+    name: http
+  selector:
+    run: $SDNC_DB_APP_NAME

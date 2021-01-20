@@ -1,0 +1,178 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $MR_DMAAP_KUBE_APP_NAME
+  namespace: $KUBE_ONAP_NAMESPACE
+  labels:
+    run: $MR_DMAAP_KUBE_APP_NAME
+    autotest: DMAAPMR
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $MR_DMAAP_KUBE_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $MR_DMAAP_KUBE_APP_NAME
+        autotest: DMAAPMR
+    spec:
+      containers:
+      - name: $MR_DMAAP_KUBE_APP_NAME
+        image: $ONAP_DMAAPMR_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $MR_INTERNAL_PORT
+        - name: https
+          containerPort: $MR_INTERNAL_SECURE_PORT
+        env:
+        - name: enableCadi
+          value: 'false'
+        volumeMounts:
+        - mountPath: /appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
+          subPath: MsgRtrApi.properties
+          name: dmaapmr-msg-rtr-api
+        volumeMounts:
+        - mountPath: /appl/dmaapMR1/bundleconfig/etc/logback.xml
+          subPath: logback.xml
+          name: dmaapmr-log-back
+        volumeMounts:
+        - mountPath: /appl/dmaapMR1/etc/cadi.properties
+          subPath: cadi.properties
+          name: dmaapmr-cadi
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: dmaapmr-msgrtrapi.properties
+        name: dmaapmr-msg-rtr-api
+      - configMap:
+          defaultMode: 420
+          name: dmaapmr-logback.xml
+        name: dmaapmr-log-back
+      - configMap:
+          defaultMode: 420
+          name: dmaapmr-cadi.properties
+        name: dmaapmr-cadi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $MR_KAFKA_BWDS_NAME
+  namespace: $KUBE_ONAP_NAMESPACE
+  labels:
+    run: $MR_KAFKA_BWDS_NAME
+    autotest: DMAAPMR
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $MR_KAFKA_BWDS_NAME
+  template:
+    metadata:
+      labels:
+        run: $MR_KAFKA_BWDS_NAME
+        autotest: DMAAPMR
+    spec:
+      containers:
+      - name: $MR_KAFKA_BWDS_NAME
+        image: $ONAP_KAFKA_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: 9092
+        env:
+        - name: enableCadi
+          value: 'false'
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: 'zookeeper.onap:2181'
+        - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
+          value: '40000'
+        - name: KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS
+          value: '40000'
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: 'INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT'
+#        - name: KAFKA_ADVERTISED_LISTENERS
+#          value: 'INTERNAL_PLAINTEXT://akfak-bwds.onap:9092'
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: 'INTERNAL_PLAINTEXT://localhost:9092'
+        - name: KAFKA_LISTENERS
+          value: 'INTERNAL_PLAINTEXT://0.0.0.0:9092'
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: INTERNAL_PLAINTEXT
+        - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE
+          value: 'false'
+        - name: KAFKA_OPTS
+          value: '-Djava.security.auth.login.config=/etc/kafka/secrets/jaas/zk_client_jaas.conf'
+        - name: KAFKA_ZOOKEEPER_SET_ACL
+          value: 'true'
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: '1'
+        - name: KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS
+          value: '1'
+        volumeMounts:
+        - mountPath: /etc/kafka/secrets/jaas/zk_client_jaas.conf
+          subPath: zk_client_jaas.conf
+          name: dmaapmr-zk-client-jaas
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: dmaapmr-zk-client-jaas.conf
+        name: dmaapmr-zk-client-jaas
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $MR_ZOOKEEPER_APP_NAME
+  namespace: $KUBE_ONAP_NAMESPACE
+  labels:
+    run: $MR_ZOOKEEPER_APP_NAME
+    autotest: DMAAPMR
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $MR_ZOOKEEPER_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $MR_ZOOKEEPER_APP_NAME
+        autotest: DMAAPMR
+    spec:
+      containers:
+      - name: $MR_ZOOKEEPER_APP_NAME
+        image: $ONAP_ZOOKEEPER_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: 2181
+        env:
+        - name: ZOOKEEPER_REPLICAS
+          value: '1'
+        - name: ZOOKEEPER_TICK_TIME
+          value: '2000'
+        - name: ZOOKEEPER_SYNC_LIMIT
+          value: '5'
+        - name: ZOOKEEPER_INIT_LIMIT
+          value: '10'
+        - name: ZOOKEEPER_MAX_CLIENT_CNXNS
+          value: '200'
+        - name: ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT
+          value: '3'
+        - name: ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL
+          value: '24'
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: '2181'
+        - name: KAFKA_OPTS
+          value: '-Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl'
+        - name: ZOOKEEPER_SERVER_ID
+          value: '1'
+        volumeMounts:
+        - mountPath: /etc/zookeeper/secrets/jaas/zk_server_jaas.conf
+          subPath: zk_server_jaas.conf
+          name: dmaapmr-zk-server-jaas
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: dmaapmr-zk-server-jaas.conf
+        name: dmaapmr-zk-server-jaas

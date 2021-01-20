@@ -31,7 +31,7 @@
     </parent>
     <groupId>org.o-ran-sc.nonrtric</groupId>
     <artifactId>r-app-catalogue</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -45,6 +45,8 @@
         <jackson-databind-nullable.version>0.2.1</jackson-databind-nullable.version>
         <openapi-generator-maven-plugin.version>4.3.1</openapi-generator-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.11</swagger-codegen-maven-plugin.version>
+        <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
+        <spotless-maven-plugin.version>1.24.3</spotless-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
         <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
     </properties>
@@ -155,6 +157,17 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -180,6 +193,7 @@
                             <invokerPackage>org.oransc.rappcatalogue</invokerPackage>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
+                                <unhandledException>true</unhandledException>
                             </configOptions>
                         </configuration>
                     </execution>
@@ -204,6 +218,32 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>${formatter-maven-plugin.version}</version>
+                <configuration>
+                    <configFile>${project.basedir}/eclipse-formatter.xml</configFile>
+                </configuration>
+                <!-- https://code.revelc.net/formatter-maven-plugin/ use mvn formatter:format
+                    spotless:apply process-sources -->
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-maven-plugin.version}</version>
+                <configuration>
+                    <java>
+                        <removeUnusedImports />
+                        <importOrder>
+                            <order>com,java,javax,org</order>
+                        </importOrder>
+                    </java>
+                </configuration>
+                <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven use
+                    mvn spotless:apply to rewrite source files use mvn spotless:check to validate
+                    source files -->
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

@@ -1,0 +1,89 @@
+#  ============LICENSE_START===============================================
+#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+
+version: '3.5'
+networks:
+  default:
+    external:
+      name: ${DOCKER_SIM_NWNAME}
+
+services:
+  zookeeper:
+    image: $ONAP_ZOOKEEPER_IMAGE
+    container_name: $MR_ZOOKEEPER_APP_NAME
+    ports:
+      - "2181:2181"
+    environment:
+     ZOOKEEPER_REPLICAS: 1
+     ZOOKEEPER_TICK_TIME: 2000
+     ZOOKEEPER_SYNC_LIMIT: 5
+     ZOOKEEPER_INIT_LIMIT: 10
+     ZOOKEEPER_MAX_CLIENT_CNXNS: 200
+     ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: 3
+     ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: 24
+     ZOOKEEPER_CLIENT_PORT: 2181
+     KAFKA_OPTS: -Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl
+     ZOOKEEPER_SERVER_ID: 1
+    volumes:
+      -  ./mnt/zk/zk_server_jaas.conf:/etc/zookeeper/secrets/jaas/zk_server_jaas.conf
+    networks:
+      - default
+
+  kafka:
+   image: $ONAP_KAFKA_IMAGE
+   container_name: $MR_KAFKA_APP_NAME
+   ports:
+    - "9092:9092"
+   environment:
+    enableCadi: 'false'
+    KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 40000
+    KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS: 40000
+    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT
+    KAFKA_ADVERTISED_LISTENERS: INTERNAL_PLAINTEXT://kafka:9092
+    KAFKA_LISTENERS: INTERNAL_PLAINTEXT://0.0.0.0:9092
+    KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL_PLAINTEXT
+    KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: 'false'
+    KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/jaas/zk_client_jaas.conf
+    KAFKA_ZOOKEEPER_SET_ACL: 'true'
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    # Reduced the number of partitions only to avoid the timeout error for the first subscribe call in slow environment
+    KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 1
+   volumes:
+     -  ./mnt/kafka/zk_client_jaas.conf:/etc/kafka/secrets/jaas/zk_client_jaas.conf
+   networks:
+      - default
+   depends_on:
+    - zookeeper
+
+  dmaap:
+    image: $ONAP_DMAAPMR_IMAGE
+    container_name: $MR_DMAAP_APP_NAME
+    ports:
+      - ${MR_DMAAP_LOCALHOST_PORT}:${MR_INTERNAL_PORT}
+      - ${MR_DMAAP_LOCALHOST_SECURE_PORT}:${MR_INTERNAL_SECURE_PORT}
+    environment:
+     enableCadi: 'false'
+    volumes:
+      - ./mnt/mr/MsgRtrApi.properties:/appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
+      - ./mnt/mr/logback.xml:/appl/dmaapMR1/bundleconfig/etc/logback.xml
+      - ./mnt/mr/cadi.properties:/appl/dmaapMR1/etc/cadi.properties
+    networks:
+      - default
+    depends_on:
+      - zookeeper
+      - kafka

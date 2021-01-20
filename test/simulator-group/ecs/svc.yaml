@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $ECS_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $ECS_APP_NAME
+    autotest: ECS
+spec:
+  type: ClusterIP
+  ports:
+  - port: $ECS_EXTERNAL_PORT
+    targetPort: $ECS_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $ECS_EXTERNAL_SECURE_PORT
+    targetPort: $ECS_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $ECS_APP_NAME

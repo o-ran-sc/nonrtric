@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $CONTROL_PANEL_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $CONTROL_PANEL_APP_NAME
+    autotest: CP
+spec:
+  type: ClusterIP
+  ports:
+  - port: $CONTROL_PANEL_EXTERNAL_PORT
+    targetPort: $CONTROL_PANEL_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $CONTROL_PANEL_EXTERNAL_SECURE_PORT
+    targetPort: $CONTROL_PANEL_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $CONTROL_PANEL_APP_NAME
