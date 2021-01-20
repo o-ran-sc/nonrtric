@@ -74,11 +74,22 @@ ECS_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 
 # Control Panel image and tags
+# CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
+# CONTROL_PANEL_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT"
+# CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
+# CONTROL_PANEL_IMAGE_TAG_REMOTE="2.2.0"
+# CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
+
+
+###########################################################
+##### Temporarily using cherry as dawn version is currupted
+###########################################################
+# Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE="2.2.0"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
+CONTROL_PANEL_IMAGE_TAG_LOCAL="2.1.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE="2.1.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.1.0"
 
 
 # SDNC A1 Controller image and tags - still using cherry version, no new version for dawn
@@ -193,7 +204,7 @@ POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent containe
 POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
 POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
 PMS_VERSION="V2"                                         # Tested version of northbound API
-PMS_API_PREFIX=""                                        # api url prefix, only for V2
+PMS_API_PREFIX="/a1-policy"                              # api url prefix, only for V2
 
 POLICY_AGENT_APP_NAME="policymanagementservice"          # Name for Policy Agent container
 POLICY_AGENT_DISPLAY_NAME="Policy Management Service"
@@ -203,7 +214,7 @@ POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used
 POLICY_AGENT_CONFIG_KEY="policy-agent"                   # Key for consul config
 POLICY_AGENT_PKG_NAME="org.oransc.policyagent"           # Java base package name
 POLICY_AGENT_ACTUATOR="/actuator/loggers/$POLICY_AGENT_PKG_NAME" # Url for trace/debug
-POLICY_AGENT_ALIVE_URL=$PMS_API_PREFIX"/v2/status"       # Base path for alive check
+POLICY_AGENT_ALIVE_URL="$PMS_API_PREFIX/v2/status"       # Base path for alive check
 POLICY_AGENT_COMPOSE_DIR="policy_agent"                  # Dir in simulator_group for docker-compose
 POLICY_AGENT_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config" # Path in container for config file
 POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container for data file
@@ -219,7 +230,7 @@ ECS_INTERNAL_SECURE_PORT=8434                            # ECS container interna
 
 ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
 ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
-ECS_HOST_MNT_DIR="./mnt/db"                              # Mounted dir, relative to compose file, on the host
+ECS_HOST_MNT_DIR="./mnt"                                 # Mounted db dir, relative to compose file, on the host
 ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
 ECS_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
 ECS_CERT_MOUNT_DIR="./cert"
@@ -322,9 +333,9 @@ SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue"
 RAPP_CAT_EXTERNAL_PORT=8680                              # RAPP Catalogue container external port (host -> container)
-RAPP_CAT_INTERNAL_PORT=8080                              # RAPP Catalogue container internal port (container -> container)
+RAPP_CAT_INTERNAL_PORT=8680                              # RAPP Catalogue container internal port (container -> container)
 RAPP_CAT_EXTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container external secure port (host -> container)
-RAPP_CAT_INTERNAL_SECURE_PORT=8433                       # RAPP Catalogue container internal secure port (container -> container)
+RAPP_CAT_INTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container internal secure port (container -> container)
 RAPP_CAT_ALIVE_URL="/services"                           # Base path for alive check
 RAPP_CAT_COMPOSE_DIR="rapp_catalogue"                    # Dir in simulator_group for docker-compose
 

@@ -50,7 +50,7 @@ use_ecs_rest_http
 
 use_prod_stub_http
 
-start_ecs $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
+start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
 
 start_prod_stub
 
@@ -353,22 +353,46 @@ fi
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        prodstub_check_jobdata 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-        prodstub_check_jobdata 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-        prodstub_check_jobdata 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ECS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            prodstub_check_jobdata 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            prodstub_check_jobdata 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+        else
+            prodstub_check_jobdata_2 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            prodstub_check_jobdata_2 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            prodstub_check_jobdata_2 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+        fi
+
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        prodstub_check_jobdata 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
-        prodstub_check_jobdata 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ECS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+            prodstub_check_jobdata 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+        else
+            prodstub_check_jobdata_2 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+            prodstub_check_jobdata_2 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+        fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        prodstub_check_jobdata 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ECS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+        else
+            prodstub_check_jobdata_2 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+        fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        prodstub_check_jobdata 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ECS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+        else
+            prodstub_check_jobdata_2 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+        fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        prodstub_check_jobdata 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ECS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+        else
+            prodstub_check_jobdata_2 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+        fi
     fi
 done
 
