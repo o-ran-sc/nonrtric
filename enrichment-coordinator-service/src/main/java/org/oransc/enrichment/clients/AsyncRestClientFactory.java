@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import javax.net.ssl.KeyManagerFactory;
 
 import org.oransc.enrichment.configuration.WebClientConfig;
+import org.oransc.enrichment.configuration.WebClientConfig.HttpProxyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
@@ -53,25 +54,38 @@ public class AsyncRestClientFactory {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final SslContextFactory sslContextFactory;
+    private final HttpProxyConfig httpProxyConfig;
 
     public AsyncRestClientFactory(WebClientConfig clientConfig) {
         if (clientConfig != null) {
             this.sslContextFactory = new CachingSslContextFactory(clientConfig);
+            this.httpProxyConfig = clientConfig.httpProxyConfig();
         } else {
+            logger.warn("No configuration for web client defined, HTTPS will not work");
             this.sslContextFactory = null;
+            this.httpProxyConfig = null;
         }
     }
 
-    public AsyncRestClient createRestClient(String baseUrl) {
+    public AsyncRestClient createRestClientNoHttpProxy(String baseUrl) {
+        return createRestClient(baseUrl, false);
+    }
+
+    public AsyncRestClient createRestClientUseHttpProxy(String baseUrl) {
+        return createRestClient(baseUrl, true);
+    }
+
+    private AsyncRestClient createRestClient(String baseUrl, boolean useHttpProxy) {
         if (this.sslContextFactory != null) {
             try {
-                return new AsyncRestClient(baseUrl, this.sslContextFactory.createSslContext());
+                return new AsyncRestClient(baseUrl, this.sslContextFactory.createSslContext(),
+                    useHttpProxy ? httpProxyConfig : null);
             } catch (Exception e) {
                 String exceptionString = e.toString();
                 logger.error("Could not init SSL context, reason: {}", exceptionString);
             }
         }
-        return new AsyncRestClient(baseUrl);
+        return new AsyncRestClient(baseUrl, null, httpProxyConfig);
     }
 
     private class SslContextFactory {
@@ -175,5 +189,4 @@ public class AsyncRestClientFactory {
 
         }
     }
-
 }

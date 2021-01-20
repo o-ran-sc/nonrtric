@@ -20,14 +20,15 @@
 
 package org.oransc.enrichment.tasks;
 
-import org.oransc.enrichment.clients.AsyncRestClient;
-import org.oransc.enrichment.clients.AsyncRestClientFactory;
+import java.time.Duration;
+
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
+import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
+import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 /**
  * Regularly checks the availability of the EI Producers
@@ -49,18 +51,15 @@ public class ProducerSupervision {
 
     private final EiProducers eiProducers;
     private final EiJobs eiJobs;
-    private final EiTypes eiTypes;
-    private final AsyncRestClient restClient;
+    private final ProducerCallbacks producerCallbacks;
     private final ConsumerCallbacks consumerCallbacks;
 
     @Autowired
     public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers, EiJobs eiJobs,
-        EiTypes eiTypes, ConsumerCallbacks consumerCallbacks) {
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
-        this.restClient = restClientFactory.createRestClient("");
-        this.eiJobs = eiJobs;
+        ProducerCallbacks producerCallbacks, ConsumerCallbacks consumerCallbacks) {
         this.eiProducers = eiProducers;
-        this.eiTypes = eiTypes;
+        this.eiJobs = eiJobs;
+        this.producerCallbacks = producerCallbacks;
         this.consumerCallbacks = consumerCallbacks;
     }
 
@@ -76,21 +75,40 @@ public class ProducerSupervision {
     }
 
     private Mono<EiProducer> checkOneProducer(EiProducer producer) {
-        return restClient.get(producer.getProducerSupervisionCallbackUrl()) //
+        return this.producerCallbacks.healthCheck(producer) //
             .onErrorResume(throwable -> {
                 handleNonRespondingProducer(throwable, producer);
                 return Mono.empty();
             })//
             .doOnNext(response -> handleRespondingProducer(response, producer))
-            .flatMap(response -> Mono.just(producer));
+            .flatMap(response -> checkProducerJobs(producer)) //
+            .flatMap(responses -> Mono.just(producer));
+    }
+
+    private Mono<?> checkProducerJobs(EiProducer producer) {
+        return getEiJobs(producer) //
+            .filter(eiJob -> !producer.isJobEnabled(eiJob)) //
+            .flatMap(eiJob -> startEiJob(producer, eiJob), 1) //
+            .collectList() //
+            .flatMapMany(eiJob -> consumerCallbacks.notifyJobStatus(producer.getEiTypes())) //
+            .collectList();
+    }
+
+    private Mono<String> startEiJob(EiProducer producer, EiJob eiJob) {
+        Retry retrySpec = Retry.fixedDelay(1, Duration.ofSeconds(1));
+        return producerCallbacks.startEiJob(producer, eiJob, retrySpec);
+    }
+
+    private Flux<EiJob> getEiJobs(EiProducer producer) {
+        return Flux.fromIterable(producer.getEiTypes()) //
+            .flatMap(eiType -> Flux.fromIterable(eiJobs.getJobsForType(eiType)));
     }
 
     private void handleNonRespondingProducer(Throwable throwable, EiProducer producer) {
         logger.warn("Unresponsive producer: {} exception: {}", producer.getId(), throwable.getMessage());
         producer.setAliveStatus(false);
         if (producer.isDead()) {
-            this.eiProducers.deregisterProducer(producer, this.eiTypes, this.eiJobs);
-            this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
+            this.eiProducers.deregisterProducer(producer);
         }
     }
 

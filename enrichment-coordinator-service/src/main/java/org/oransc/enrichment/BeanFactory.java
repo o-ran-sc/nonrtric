@@ -26,8 +26,8 @@ import java.lang.invoke.MethodHandles;
 
 import org.apache.catalina.connector.Connector;
 import org.oransc.enrichment.configuration.ApplicationConfig;
+import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
 import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +46,10 @@ class BeanFactory {
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private ProducerCallbacks producerCallbacks;
+    private EiTypes eiTypes;
+    private EiJobs eiJobs;
+
     @Bean
     public ObjectMapper mapper() {
         return new ObjectMapper();
@@ -62,23 +66,36 @@ class BeanFactory {
 
     @Bean
     public EiJobs eiJobs() {
-        EiJobs jobs = new EiJobs(getApplicationConfig());
-        try {
-            jobs.restoreJobsFromDatabase();
-        } catch (Exception e) {
-            logger.error("Could not restore jobs from database: {}", e.getMessage());
+        if (eiJobs == null) {
+            eiJobs = new EiJobs(getApplicationConfig(), producerCallbacks());
+            try {
+                eiJobs.restoreJobsFromDatabase();
+            } catch (Exception e) {
+                logger.error("Could not restore jobs from database: {}", e.getMessage());
+            }
         }
-        return jobs;
+        return eiJobs;
     }
 
     @Bean
     public EiTypes eiTypes() {
-        return new EiTypes();
+        if (this.eiTypes == null) {
+            eiTypes = new EiTypes(getApplicationConfig());
+            try {
+                eiTypes.restoreTypesFromDatabase();
+            } catch (Exception e) {
+                logger.error("Could not restore EI types from database: {}", e.getMessage());
+            }
+        }
+        return eiTypes;
     }
 
     @Bean
-    public EiProducers eiProducers() {
-        return new EiProducers();
+    public ProducerCallbacks producerCallbacks() {
+        if (this.producerCallbacks == null) {
+            producerCallbacks = new ProducerCallbacks(getApplicationConfig());
+        }
+        return this.producerCallbacks;
     }
 
     @Bean

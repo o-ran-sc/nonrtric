@@ -25,26 +25,24 @@ import com.google.gson.GsonBuilder;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
-import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
-import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
+import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oransc.enrichment.repository.ImmutableEiProducerRegistrationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,14 +52,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 @RestController("ProducerController")
 @Api(tags = {ProducerConsts.PRODUCER_API_NAME})
 public class ProducerController {
-
-    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static Gson gson = new GsonBuilder().create();
 
@@ -73,12 +70,6 @@ public class ProducerController {
 
     @Autowired
     private EiProducers eiProducers;
-
-    @Autowired
-    ProducerCallbacks producerCallbacks;
-
-    @Autowired
-    ConsumerCallbacks consumerCallbacks;
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI type identifiers", notes = "")
@@ -120,6 +111,54 @@ public class ProducerController {
         }
     }
 
+    @PutMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "Type updated", response = VoidResponse.class), //
+            @ApiResponse(code = 201, message = "Type created", response = VoidResponse.class), //
+            @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.ErrorInfo.class)})
+
+    @ApiOperation(value = "Individual EI type", notes = "")
+    public ResponseEntity<Object> putEiType( //
+        @PathVariable("eiTypeId") String eiTypeId, @RequestBody ProducerEiTypeInfo registrationInfo) {
+
+        EiType previousDefinition = this.eiTypes.get(eiTypeId);
+        if (registrationInfo.jobDataSchema == null) {
+            return ErrorResponse.create("No schema provided", HttpStatus.BAD_REQUEST);
+        }
+        this.eiTypes.put(new EiType(eiTypeId, registrationInfo.jobDataSchema));
+        return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Individual EI type", notes = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
+            @ApiResponse(code = 204, message = "Producer deleted", response = VoidResponse.class),
+            @ApiResponse(
+                code = 404,
+                message = "Enrichment Information type is not found",
+                response = ErrorResponse.ErrorInfo.class),
+            @ApiResponse(
+                code = 406,
+                message = "The Enrichment Information type has one or several active producers",
+                response = ErrorResponse.ErrorInfo.class)})
+    public ResponseEntity<Object> deleteEiType( //
+        @PathVariable("eiTypeId") String eiTypeId) {
+
+        EiType type = this.eiTypes.get(eiTypeId);
+        if (type == null) {
+            return ErrorResponse.create("EI type not found", HttpStatus.NOT_FOUND);
+        }
+        if (!this.eiProducers.getProducersForType(type).isEmpty()) {
+            String firstProducerId = this.eiProducers.getProducersForType(type).iterator().next().getId();
+            return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.NOT_ACCEPTABLE);
+        }
+        this.eiTypes.remove(type);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @GetMapping(path = ProducerConsts.API_ROOT + "/eiproducers", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI producer identifiers", notes = "")
     @ApiResponses(
@@ -131,9 +170,15 @@ public class ProducerController {
                 responseContainer = "List"), //
         })
     public ResponseEntity<Object> getEiProducerIdentifiers( //
+        @ApiParam(
+            name = "ei_type_id",
+            required = false,
+            value = "If given, only the producers for the EI Data type is returned.") //
+        @RequestParam(name = "ei_type_id", required = false) String typeId //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiProducer eiProducer : this.eiProducers.getAllProducers()) {
+        for (EiProducer eiProducer : typeId == null ? this.eiProducers.getAllProducers()
+            : this.eiProducers.getProducersForType(typeId)) {
             result.add(eiProducer.getId());
         }
 
@@ -146,7 +191,7 @@ public class ProducerController {
     @ApiOperation(value = "Individual EI producer", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI jobs", response = ProducerRegistrationInfo.class), //
+            @ApiResponse(code = 200, message = "EI producer", response = ProducerRegistrationInfo.class), //
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information producer is not found",
@@ -168,7 +213,11 @@ public class ProducerController {
     @ApiOperation(value = "EI job definitions", notes = "EI job definitions for one EI producer")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI jobs", response = ProducerJobInfo.class, responseContainer = "List"), //
+            @ApiResponse(
+                code = 200,
+                message = "EI producer",
+                response = ProducerJobInfo.class,
+                responseContainer = "List"), //
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information producer is not found",
@@ -197,7 +246,7 @@ public class ProducerController {
     @ApiOperation(value = "EI producer status")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI jobs", response = ProducerStatusInfo.class), //
+            @ApiResponse(code = 200, message = "EI producer status", response = ProducerStatusInfo.class), //
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information producer is not found",
@@ -220,43 +269,23 @@ public class ProducerController {
     }
 
     @PutMapping(
-        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
+        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}", //
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Individual EI producer", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 201, message = "Producer created", response = VoidResponse.class), //
-            @ApiResponse(code = 200, message = "Producer updated", response = VoidResponse.class)}//
+            @ApiResponse(code = 200, message = "Producer updated", response = VoidResponse.class)} //
     )
     public ResponseEntity<Object> putEiProducer( //
         @PathVariable("eiProducerId") String eiProducerId, //
         @RequestBody ProducerRegistrationInfo registrationInfo) {
         try {
             EiProducer previousDefinition = this.eiProducers.get(eiProducerId);
-            if (previousDefinition != null) {
-                for (EiType type : previousDefinition.getEiTypes()) {
-                    type.removeProducer(previousDefinition);
-                }
-            }
-
-            EiProducer producer = registerProducer(eiProducerId, registrationInfo);
-            if (previousDefinition != null) {
-                purgeTypes(previousDefinition.getEiTypes());
-                this.consumerCallbacks.notifyConsumersProducerDeleted(previousDefinition);
-            }
-            this.consumerCallbacks.notifyConsumersProducerAdded(producer);
-
+            this.eiProducers.registerProducer(toEiProducerRegistrationInfo(eiProducerId, registrationInfo));
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
-        }
-    }
-
-    private void purgeTypes(Collection<EiType> types) {
-        for (EiType type : types) {
-            if (type.getProducerIds().isEmpty()) {
-                this.eiTypes.remove(type);
-            }
         }
     }
 
@@ -272,57 +301,39 @@ public class ProducerController {
     public ResponseEntity<Object> deleteEiProducer(@PathVariable("eiProducerId") String eiProducerId) {
         try {
             final EiProducer producer = this.eiProducers.getProducer(eiProducerId);
-            this.eiProducers.deregisterProducer(producer, this.eiTypes, this.eiJobs);
-            this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
+            this.eiProducers.deregisterProducer(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    private EiType registerType(ProducerEiTypeRegistrationInfo typeInfo) {
-        EiType type = this.eiTypes.get(typeInfo.eiTypeId);
-        if (type == null) {
-            type = new EiType(typeInfo.eiTypeId, typeInfo.jobDataSchema);
-            this.eiTypes.put(type);
-            this.consumerCallbacks.notifyConsumersTypeAdded(type);
-        }
-        return type;
-    }
-
-    EiProducer createProducer(Collection<EiType> types, String producerId, ProducerRegistrationInfo registrationInfo) {
-        return new EiProducer(producerId, types, registrationInfo.jobCallbackUrl,
-            registrationInfo.producerSupervisionCallbackUrl);
-    }
-
-    private EiProducer registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
-        ArrayList<EiType> typesForProducer = new ArrayList<>();
-        EiProducer producer = createProducer(typesForProducer, producerId, registrationInfo);
-        for (ProducerEiTypeRegistrationInfo typeInfo : registrationInfo.types) {
-            EiType type = registerType(typeInfo);
-            typesForProducer.add(type);
-            type.addProducer(producer); //
-        }
-        this.eiProducers.put(producer);
-
-        producerCallbacks.restartJobs(producer, this.eiJobs);
-
-        return producer;
-    }
-
-    ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
-        Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
+    private ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
+        Collection<String> types = new ArrayList<>();
         for (EiType type : p.getEiTypes()) {
-            types.add(toEiTypeRegistrationInfo(type));
+            types.add(type.getId());
         }
         return new ProducerRegistrationInfo(types, p.getJobCallbackUrl(), p.getProducerSupervisionCallbackUrl());
     }
 
-    private ProducerEiTypeRegistrationInfo toEiTypeRegistrationInfo(EiType type) {
-        return new ProducerEiTypeRegistrationInfo(type.getJobDataSchema(), type.getId());
+    private ProducerEiTypeInfo toEiTypeInfo(EiType t) {
+        return new ProducerEiTypeInfo(t.getJobDataSchema());
     }
 
-    private ProducerEiTypeInfo toEiTypeInfo(EiType t) {
-        return new ProducerEiTypeInfo(t.getJobDataSchema(), t.getProducerIds());
+    private EiProducers.EiProducerRegistrationInfo toEiProducerRegistrationInfo(String eiProducerId,
+        ProducerRegistrationInfo info) throws ServiceException {
+        Collection<EiType> supportedTypes = new ArrayList<>();
+        for (String typeId : info.supportedTypeIds) {
+            EiType type = this.eiTypes.getType(typeId);
+            supportedTypes.add(type);
+        }
+
+        return ImmutableEiProducerRegistrationInfo.builder() //
+            .id(eiProducerId) //
+            .jobCallbackUrl(info.jobCallbackUrl) //
+            .producerSupervisionCallbackUrl(info.producerSupervisionCallbackUrl) //
+            .supportedTypes(supportedTypes) //
+            .build();
     }
+
 }

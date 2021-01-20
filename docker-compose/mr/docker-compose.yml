@@ -38,7 +38,7 @@ services:
      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl
      ZOOKEEPER_SERVER_ID: 1
     volumes:
-      -  ./zk/zk_server_jaas.conf:/etc/zookeeper/secrets/jaas/zk_server_jaas.conf
+      -  ./mr/zk/zk_server_jaas.conf:/etc/zookeeper/secrets/jaas/zk_server_jaas.conf
     networks:
       - default
 
@@ -63,7 +63,7 @@ services:
     # Reduced the number of partitions only to avoid the timeout error for the first subscribe call in slow environment
     KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 1
    volumes:
-     -  ./kafka/zk_client_jaas.conf:/etc/kafka/secrets/jaas/zk_client_jaas.conf
+     -  ./mr/kafka/zk_client_jaas.conf:/etc/kafka/secrets/jaas/zk_client_jaas.conf
    networks:
       - default
    depends_on:
@@ -78,9 +78,9 @@ services:
     environment:
      enableCadi: 'false'
     volumes:
-      - ./mr/MsgRtrApi.properties:/appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
-      - ./mr/logback.xml:/appl/dmaapMR1/bundleconfig/etc/logback.xml
-      - ./mr/cadi.properties:/appl/dmaapMR1/etc/cadi.properties
+      - ./mr/mr/MsgRtrApi.properties:/appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
+      - ./mr/mr/logback.xml:/appl/dmaapMR1/bundleconfig/etc/logback.xml
+      - ./mr/mr/cadi.properties:/appl/dmaapMR1/etc/cadi.properties
     networks:
       - default
     depends_on:

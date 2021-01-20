@@ -68,18 +68,22 @@ The script can be started with these arguments
 
 | arg list |
 |--|
-| `local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ]  [--use-local-image <app-nam> [<app-name>]*]` |
+| `remote|remote-remove --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+]` |
 
 | parameter | description |
 |-|-|
-| `local` | only locally built images (in local docker respository) will be used for the Non-RT RIC components. CBS, Consul, DB will still use remote nexus images |
-| `remote` | only remote images from nexus will be used. Images pulled if not present in local docker repository |
-| `remote-remove` | same as remote but all images are removed first so that fresh images are pulled when running |
-| `auto-clean` | all containers will be automatically stopped and removed when the test case is complete. Requires the function 'auto_clean_containers' to be included last in the applicable auto-test script |
-| `--stop-at-error` | intended for debugging and make the script stop at first 'FAIL' and save all logs with a prefix 'STOP_AT_ERROR' |
-| `--ricsim-prefix <prefix>` | use another prefix for the ric simulator container name than the standard 'ricsim'. Note that the testscript has to read and use the env var `$RIC_SIM_PREFIX` instead of a hardcoded name of the ric(s). |
-| `--env-file` | point to a file with environment variables (the previous default, test_env.sh, replaced with one env file for each branch in test/common) |
-| `--use-local-image <app-nam> [<app-name>]*` | only applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC, RC for Policy Agent, Control Panel, A1-controller, Ric simulator, RAPP Catalogue |
+| `remote` | Use images from remote repositories. Can be overridden for individual images using the '--use_xxx' flags |
+| `remote-remove` | Same as 'remote' but will also try to pull fresh images from remote repositories |
+| `--env-file` | The script will use the supplied file to read environment variables from |
+| `release` | If this flag is given the script will use release version of the images |
+| `auto-clean` | If the function 'auto_clean_containers' is present in the end of the test script then all containers will be stopped and removed. If 'auto-clean' is not given then the function has no effect |
+| `--stop-at-error` | The script will stop when the first failed test or configuration |
+| `--ricsim-prefix <prefix>` | The a1 simulator will use the supplied string as container prefix instead of 'ricsim'. Note that the testscript has to read and use the env var `$RIC_SIM_PREFIX` instead of a hardcoded name of the ric(s). |
+| `--use-local-image` | The script will use local images for the supplied apps, space separated list of app short names |
+| `--use-snapshot-image` | The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names |
+| `--use-staging-image` | The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names |
+| `--use-release-image` | The script will use images from the nexus release repo for the supplied apps, space separated list of app short names |
+| `help` | Print this info along with the test script description and the list of app short names supported |
 
 
 ## Function: print_result ##

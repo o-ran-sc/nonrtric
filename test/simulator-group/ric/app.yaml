@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: $RIC_SIM_SET_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $RIC_SIM_SET_NAME
+    autotest: RICSIM
+spec:
+  replicas: $RIC_SIM_COUNT
+  serviceName: $RIC_SIM_SET_NAME
+  selector:
+    matchLabels:
+      run: $RIC_SIM_SET_NAME
+  template:
+    metadata:
+      labels:
+        run: $RIC_SIM_SET_NAME
+        autotest: RICSIM
+    spec:
+      containers:
+      - name: $RIC_SIM_SET_NAME
+        image: $RIC_SIM_IMAGE
+        env:
+        - name: A1_VERSION
+          value: $A1_VERSION
+        - name: REMOTE_HOSTS_LOGGING
+          value: "1"
+        - name: ALLOW_HTTP
+          value: "true"
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $RIC_SIM_INTERNAL_PORT
+        - name: https
+          containerPort: $RIC_SIM_INTERNAL_SECURE_PORT
