@@ -22,7 +22,7 @@ networks:
 
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.2.1
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.1.1
     container_name: policy-agent
     networks:
       default:
