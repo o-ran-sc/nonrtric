@@ -56,7 +56,12 @@ use_sdnc_https
 use_simulator_https
 use_ecs_rest_https
 use_prod_stub_https
-use_rapp_catalogue_http # https not yet supported
+if [ $ECS_VERSION == "V1-1" ]; then
+    use_rapp_catalogue_http # https not yet supported
+else
+    use_rapp_catalogue_https
+fi
+
 
 if [ "$PMS_VERSION" == "V2" ]; then
     notificationurl=$CR_SERVICE_PATH"/test"
@@ -69,13 +74,15 @@ clean_environment
 
 STD_NUM_RICS=2
 
+#start_http_proxy  #Remove the comment on this line, comment out 'start_sdnc' and change SDNC to NOSDNC a few lines below to run with proxy
+
 start_ric_simulators $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
 
 start_mr #Just to prevent errors in the agent log...
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
-start_sdnc
+start_sdnc    # Comment this line to run PMS with proxy
 
 start_policy_agent PROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
@@ -83,7 +90,7 @@ if [ $RUNMODE == "DOCKER" ]; then
     start_consul_cbs
 fi
 
-prepare_consul_config      SDNC  ".consul_config.json"
+prepare_consul_config      SDNC  ".consul_config.json"   #Change to NOSDNC if running PMS with  proxy
 
 if [ $RUNMODE == "KUBE" ]; then
     agent_load_config                       ".consul_config.json"
@@ -95,7 +102,7 @@ start_cr
 
 start_prod_stub
 
-start_ecs $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
+start_ecs PROXY $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
 
 start_rapp_catalogue
 
@@ -214,7 +221,11 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+fi
 
 
 ## Create a second job for prod-a
@@ -226,7 +237,11 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+if [ $ECS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+else
+    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+fi
 
 check_policy_agent_logs
 check_ecs_logs

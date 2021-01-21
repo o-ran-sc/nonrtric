@@ -941,14 +941,14 @@ app.get("/mon",function(req, res){
           "<html>" +
           "<head>" +
             "<meta http-equiv=\"refresh\" content=\"2\">"+  //2 sec auto refresh
-            "<title>Policy Agent and simulator monitor</title>"+
+            "<title>Policy Management Service and simulator monitor</title>"+
             "</head>" +
             "<body>" +
             "<font size=\"-3\" face=\"monospace\">" +
             "<p>Change basename in url if other ric sim prefix is used</p>" +
             "<p>Change pmsprefix in url if pms with other prefix is used</p>" +
             "</font>" +
-            "<h3>Policy agent</h3>" +
+            "<h3>Policy Management Service</h3>" +
             "<font face=\"monospace\">" +
             "Status:..............................." + formatDataRow(ag1) + "<br>" +
             "Services:............................." + formatIdRowCompact(ag2) + "<br>" +
@@ -965,7 +965,7 @@ app.get("/mon",function(req, res){
             "Fetched responses.............................." + formatDataRow(mr5) + "<br>" +
             "Current responses waiting......................" + formatDataRow(mr6) + "<br>" +
             "</font>"+
-            "<h3>Callback receiver</h3>" +
+            "<h3>Callback|Notification receiver</h3>" +
             "<font face=\"monospace\">" +
             "Callbacks received:..................." + formatDataRow(cr1) + "<br>" +
             "Callbacks fetched:...................." + formatDataRow(cr2) + "<br>" +
@@ -975,7 +975,7 @@ app.get("/mon",function(req, res){
             "<font face=\"monospace\">" +
             "Services:............................." + formatIdRowCompact(rc_services) + "<br>" +
             "</font>" +
-            "<h3>Near-RT RIC Simulators</h3>" +
+            "<h3>Near-RT RIC | A1 Simulators</h3>" +
             "<font face=\"monospace\">"
 
             htmlStr=htmlStr+padding("Near-RT RIC Simulator name", 35,"&nbsp;")
