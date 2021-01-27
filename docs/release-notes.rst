@@ -1,6 +1,6 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. Copyright (C) 2020 Nordix
+.. Copyright (C) 2021 Nordix
 
 =============
 Release-Notes
@@ -40,28 +40,6 @@ Version history A1 Policy Management Service
 Summary
 -------
 Introduction of Enrichment Service Coordinator and rAPP Catalogue.
-
-
-Version history SDNC A1 Controller
-==================================
-
-+------------+----------+------------------+--------------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**        |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2019-11-12 | 1.7.3    | Maxime Bonneau   |                    |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2020-02-04 | 1.7.4    | Henrik Andersson | Amber Maintenance  |
-|            |          |                  | Release            |
-+------------+----------+------------------+--------------------+
-| 2020-06-18 | 2.0.0    | Henrik Andersson | Bronze Release     |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2020-07-29 | 2.0.1    | Henrik Andersson | Bronze Maintenance |
-|            |          |                  | Release            |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
 
 
 Release Data
@@ -161,4 +139,24 @@ Cherry
 | **Purpose of the delivery** | Introduction of Enrichment Service Coordinator    |
 |                             | and rAPP Catalogue                                |
 |                             |                                                   |
++-----------------------------+---------------------------------------------------+
+
+Cherry Maintenance
+------------------
++-----------------------------+---------------------------------------------------+
+| **Project**                 | Non-RT RIC                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Repo/commit-ID**          | nonrtric/d8655597cb7236118779c607b78afe4cd2f5fc6a |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release designation**     | Cherry                                            |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release date**            | 2021-01-28                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Purpose of the delivery** | Interface updates for Enrichment information      |
+|                             | Service.                                          |
+|                             | Documentation and general improvements.           | 
 +-----------------------------+---------------------------------------------------+
