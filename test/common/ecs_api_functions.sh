@@ -1565,7 +1565,7 @@ ecs_api_service_status() {
 # Function prefix: ecs_api_admin
 
 # Admin to remove all jobs
-# args:
+# args: <response-code> [ <type> ]
 # (Function for test scripts)
 
 ecs_api_admin_reset() {
