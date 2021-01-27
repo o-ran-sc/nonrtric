@@ -75,10 +75,10 @@ ECS_IMAGE_TAG_REMOTE_RELEASE="1.0.1"
 
 # Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_LOCAL="2.1.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE="2.1.0"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.1.0"
+CONTROL_PANEL_IMAGE_TAG_LOCAL="2.1.1-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.1-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE="2.1.1"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.1.1"
 
 
 # SDNC A1 Controller image and tags
@@ -186,7 +186,7 @@ POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent containe
 POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
 POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
 PMS_VERSION="V2"                                         # Tested version of northbound API
-PMS_API_PREFIX=""                                        # api url prefix, only for V2
+PMS_API_PREFIX="/a1-policy"                              # api url prefix, only for V2
 
 POLICY_AGENT_APP_NAME="policymanagementservice"          # Name for Policy Agent container
 POLICY_AGENT_DISPLAY_NAME="Policy Management Service"
@@ -220,7 +220,7 @@ ECS_ALIVE_URL="/status"                                  # Base path for alive c
 ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
-ECS_VERSION="V1-1"                                       # Version where the types are added in the producer registration
+ECS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -315,9 +315,9 @@ SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue Service"
 RAPP_CAT_EXTERNAL_PORT=8680                              # RAPP Catalogue container external port (host -> container)
-RAPP_CAT_INTERNAL_PORT=8080                              # RAPP Catalogue container internal port (container -> container)
+RAPP_CAT_INTERNAL_PORT=8680                              # RAPP Catalogue container internal port (container -> container)
 RAPP_CAT_EXTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container external secure port (host -> container)
-RAPP_CAT_INTERNAL_SECURE_PORT=8433                       # RAPP Catalogue container internal secure port (container -> container)
+RAPP_CAT_INTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container internal secure port (container -> container)
 RAPP_CAT_ALIVE_URL="/services"                           # Base path for alive check
 RAPP_CAT_COMPOSE_DIR="rapp_catalogue"                    # Dir in simulator_group for docker-compose
 
