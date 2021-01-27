@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bfa06c4_e9b6e1f4",
+        "filename": "docs/api-docs.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-01-27T09:03:50Z",
+      "side": 1,
+      "message": "This is what brakes the build. Either it must be removed, or some other solution used.",
+      "range": {
+        "startLine": 65,
+        "startChar": 111,
+        "endLine": 65,
+        "endChar": 112
+      },
+      "revId": "f79a575a743261aad2e0b4ce18184a0602f4fea8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02bbe3c1_dd3ec605",
+        "filename": "docs/api-docs.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-01-27T09:03:50Z",
+      "side": 1,
+      "message": "This is what brakes the build. Either it must be removed, or some other solution used.",
+      "range": {
+        "startLine": 76,
+        "startChar": 100,
+        "endLine": 76,
+        "endChar": 101
+      },
+      "revId": "f79a575a743261aad2e0b4ce18184a0602f4fea8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
