@@ -257,6 +257,7 @@ start_policy_agent() {
 	return 0
 }
 
+# Load the the appl config for the agent into a config map
 agent_load_config() {
 	echo -e $BOLD"Agent - load config from "$EBOLD$1
 	data_json=$PWD/tmp/$POLICY_AGENT_DATA_FILE

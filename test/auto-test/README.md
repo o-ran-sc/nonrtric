@@ -6,8 +6,8 @@ A few of the bash scripts are so called 'suites', These suite scripts calls a se
 There are two types of scripts, filenames in the format FTCXXX.sh test one or more components of the Non-RT RIC. Filenames in the format SuiteZZZZ.sh tests a number of FTCXXX.sh script as one suite. (XXX is an integer selected from the categories described further below).
 FTC is short for Function Test Case. In addition, there are also other test scripts with other naming format used for demo setup etc (e.g PM_DEMO.sh).
 
-The requirements, in terms of the execution enviroment, to run a script or a suite is to have docker, docker-compose and python3 installed (the scripts warns if not installed).
-The scripts have been tested to work on both MacOS and Ubuntu. They should work also in git bash on windows but not yet verified.
+The requirements, in terms of the execution enviroment, to run a script or a suite is to have docker, docker-compose and python3 installed (the scripts warns if not installed). As an option, the scripts can also be executed in a Minikube installation. However, this feature is still experimental. The additional requirement is to have a clean minikube installation, perferably with the kube dashboard installed in the minikube.
+The scripts have been tested to work on both MacOS and Ubuntu using docker. They should work also in git-bash on windows (for docker) but not yet verified. Running using minikube has only been verified on Ubuntu.
 
 ## Configuration
 The test scripts uses configuration from a single file, found in `../common/test_env.sh`, which contains all needed configuration in terms of image names, image tags, ports, file paths, passwords etc. This file can be modified if needed.  See the README.md in  `../common/` for all details of the config file.
@@ -15,7 +15,7 @@ The test scripts uses configuration from a single file, found in `../common/test
 ## How to run
 A test script, for example FTC1, is executed from the cmd line using the script filename and one or more parameters:
 
- ./FTC1.sh remote --env-file ../common/test_env-oran-cherry.sh
+ ./FTC1.sh remote docker --env-file ../common/test_env-oran-cherry.sh
 
 See the README.md in  `../common/` for all details about available parameters and their meaning.
 
@@ -53,9 +53,14 @@ It is strongly suggested to look at the existing test scripts, it is probably ea
 
 TC_ONELINE_DESCR="<test case description>"
 
-INCLUDED_IMAGES=<list of used app in this test case>
+DOCKER_INCLUDED_IMAGES=<list of used apps in this test case - for docker>
+
+KUBE_INCLUDED_IMAGES=<list of used apps (started by the script) in this test case - for kube>
+KUBE_PRESTARTED_IMAGES=<list of used apps (prestartedd - i.e. not started by the script) in this test case - for kube>
 
 SUPPORTED_PROFILES=<list of supported profile names>
+
+SUPPORTED_RUNMODES=<List of runmodes, DOCKER and/or KUBE>
 
 . ../common/testcase_common.sh  $@
 < other scripts need to be sourced for specific interfaces>

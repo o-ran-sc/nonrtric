@@ -198,6 +198,7 @@ trap trap_fnc ERR
 # Counter for tests
 TEST_SEQUENCE_NR=1
 
+# Function to log the start of a test case
 __log_test_start() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 	echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${FUNCNAME[1]}" $@ $EBOLD
@@ -206,30 +207,35 @@ __log_test_start() {
 	((TEST_SEQUENCE_NR++))
 }
 
+# General function to log a failed test case
 __log_test_fail_general() {
 	echo -e $RED" FAIL."$1 $ERED
 	((RES_FAIL++))
 	__check_stop_at_error
 }
 
+# Function to log a test case failed due to incorrect response code
 __log_test_fail_status_code() {
 	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
 	((RES_FAIL++))
 	__check_stop_at_error
 }
 
+# Function to log a test case failed due to incorrect response body
 __log_test_fail_body() {
 	echo -e $RED" FAIL, returned body not correct"$ERED
 	((RES_FAIL++))
 	__check_stop_at_error
 }
 
+# Function to log a test case that is not supported
 __log_test_fail_not_supported() {
 	echo -e $RED" FAIL, function not supported"$ERED
 	((RES_FAIL++))
 	__check_stop_at_error
 }
 
+# General function to log a passed test case
 __log_test_pass() {
 	if [ $# -gt 0 ]; then
 		echo $@
@@ -240,6 +246,8 @@ __log_test_pass() {
 
 #Counter for configurations
 CONF_SEQUENCE_NR=1
+
+# Function to log the start of a configuration setup
 __log_conf_start() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 	echo -e $BOLD"CONF $CONF_SEQUENCE_NR (${BASH_LINENO[1]}): "${FUNCNAME[1]} $@ $EBOLD
@@ -247,24 +255,28 @@ __log_conf_start() {
 	((CONF_SEQUENCE_NR++))
 }
 
+# Function to log a failed configuration setup
 __log_conf_fail_general() {
 	echo -e $RED" FAIL."$1 $ERED
 	((RES_CONF_FAIL++))
 	__check_stop_at_error
 }
 
+# Function to log a failed configuration setup due to incorrect response code
 __log_conf_fail_status_code() {
 	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
 	((RES_CONF_FAIL++))
 	__check_stop_at_error
 }
 
+# Function to log a failed configuration setup due to incorrect response body
 __log_conf_fail_body() {
 	echo -e $RED" FAIL, returned body not correct"$ERED
 	((RES_CONF_FAIL++))
 	__check_stop_at_error
 }
 
+# Function to log a passed configuration setup
 __log_conf_ok() {
 	if [ $# -gt 0 ]; then
 		echo $@
@@ -965,6 +977,7 @@ __check_and_pull_image() {
 	return 0
 }
 
+# The following sequence pull the configured images
 
 echo -e $BOLD"Pulling configured images, if needed"$EBOLD
 
@@ -1729,7 +1742,6 @@ get_kube_sim_host() {
 	set_name=$(echo $name | rev | cut -d- -f2- | rev) # Cut index part of ric name to get the name of statefulset
 	# example gnb-g1-2 -> gnb-g1 where gnb-g1-2 is the ric name and gnb-g1 is the set name
 	echo $name"."$set_name"."$KUBE_NONRTRIC_NAMESPACE
-
 }
 
 # Find the named port to an app (using the service resource)
@@ -1956,170 +1968,6 @@ __clean_kube() {
 	echo ""
 }
 
-# # This function scales or deletes all resources for app selected by the testcase.
-# # args: -
-# # (Not for test scripts)
-# __clean_kube() {
-# 	echo -e $BOLD"Initialize kube services//pods/statefulsets/replicaset to initial state"$EBOLD
-
-# 	# Clean prestarted apps
-# 	__check_prestarted_image 'RICSIM'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD RICSIM $EBOLD to 0"
-# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-a1simulator
-# 	fi
-
-# 	__check_prestarted_image 'PA'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD PA $EBOLD to 0"
-# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-policymanagementservice
-# 	fi
-
-# 	__check_prestarted_image 'ECS'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD ECS $EBOLD to 0"
-# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-enrichmentservice
-# 	fi
-
-# 	__check_prestarted_image 'RC'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD RC $EBOLD to 0"
-# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-rappcatalogueservice
-# 	fi
-
-# 	__check_prestarted_image 'CP'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " CP replicas kept as is"
-# 	fi
-
-# 	__check_prestarted_image 'SDNC'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " SDNC replicas kept as is"
-# 	fi
-
-# 	__check_prestarted_image 'MR'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " MR replicas kept as is"
-# 	fi
-
-
-# 	# Clean included apps - apps fully managed by the script
-
-# 	## Scale all to zero
-# 	__check_included_image 'RICSIM'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD RICSIM $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
-# 	fi
-
-# 	__check_included_image 'PA'
-# 	if [ $? -eq 0 ]; then
-# 	    echo -e " Scaling all kube resources for app $BOLD PA $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
-# 	fi
-
-# 	__check_included_image 'ECS'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD ECS $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
-# 	fi
-
-# 	__check_included_image 'RC'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD RC $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
-# 	fi
-
-# 	__check_included_image 'CP'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD CP $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest CP
-# 	fi
-
-# 	__check_included_image 'SDNC'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD SDNC $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
-# 	fi
-
-# 	__check_included_image 'CR'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD CR $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest CR
-# 	fi
-
-# 	__check_included_image 'MR'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD MR $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_ONAP_NAMESPACE autotest MR
-# 	fi
-
-# 	__check_included_image 'PRODSTUB'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Scaling all kube resources for app $BOLD PRODSTUB $EBOLD to 0"
-# 		__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
-# 	fi
-
-
-# 	## Remove all resources
-
-# 	__check_included_image 'RICSIM'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD RICSIM $EBOLD"
-# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
-# 	fi
-
-# 	__check_included_image 'PA'
-# 	if [ $? -eq 0 ]; then
-# 	    echo -e " Deleting all kube resources for app $BOLD PA $EBOLD"
-# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
-# 	fi
-
-# 	__check_included_image 'ECS'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD ECS $EBOLD"
-# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
-# 	fi
-
-# 	__check_included_image 'RC'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD RC $EBOLD"
-# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
-# 	fi
-
-# 	__check_included_image 'CP'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD CP $EBOLD"
-# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest CP
-# 	fi
-
-# 	__check_included_image 'SDNC'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD SDNC $EBOLD"
-# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
-# 	fi
-
-# 	__check_included_image 'CR'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD CR $EBOLD"
-# 		__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest CR
-# 	fi
-
-# 	__check_included_image 'MR'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD MR $EBOLD"
-# 		__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest MR
-# 	fi
-
-# 	__check_included_image 'PRODSTUB'
-# 	if [ $? -eq 0 ]; then
-# 		echo -e " Deleting all kube resources for app $BOLD PRODSTUB $EBOLD"
-# 		__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
-# 	fi
-
-# 	echo ""
-# }
-
 # Function stop and remove all containers (docker) and services/deployments etc(kube)
 # args: -
 # Function for test script
@@ -2129,7 +1977,6 @@ clean_environment() {
 	else
 		__clean_containers
 	fi
-
 }
 
 # Function stop and remove all containers (docker) and services/deployments etc(kube) in the end of the test script, if the arg 'auto-clean' is given at test script start
