@@ -1,8 +1,68 @@
 # Introduction #
-This dir contains most scripts needed for the auto-test environment. There are scripts with functions to adapt to the apis of the components of the Non-RT RIC; Policy Agent, A1 Controller and Ric (A1) simulator.
+This dir contains most scripts needed for the auto-test environment. There are scripts with functions to adapt to the apis of the components of the Non-RT RIC; Policy Agent, A1 Controller and Ric (A1) simulator. The test environment supports both test with docker and kubernetes(still experimental)
 Some of the scripts can also be used for other kinds of tests, for example basic tests.
 
 ## Overview for common test scripts and files ##
+
+`agent_api_functions.sh` \
+Contains functions for adapting towards the Policy Management Service (PMS) API, also via dmaap (using a message-router stub interface)
+
+`api_curl.sh` \
+A common curl based function for the agent and ecs apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
+
+`clean-kube.sh` \
+Cleans all services, deployments, pods, replica set etc started by the test environment in kubernetes.
+
+`compare_json.py` \
+A python script to compare two json obects for equality. Note that the comparsion always sort json-arrays before comparing (that is, it does not care about the order of items within the array). In addition, the target json object may specify individual parameter values where equality is 'dont care'.
+
+`consult_cbs_function.sh` \
+Contains functions for managing Consul and CBS as well as create the configuration for the PMS.
+
+`control_panel_api_function.sh` \
+Contains functions for managing Control Panel.
+
+`controller_api_functions.sh` \
+Contains functions for adaping towards the A1-controller API.
+
+`count_json_elements.py` \
+A python script returning the number of items in a json array.
+
+`cr_api_functions.sh` \
+Contains functions for adapting towards the Callback receiver for checking received callback event.
+
+`create_policies_process.py` \
+A python script to create a batch of policies. The script is intended to run in a number of processes to create policies in parallel.
+
+`create_rics_json.py` \
+A python script to create a json file from a formatted string of ric info. Helper for the test enviroment.
+
+`delete_policies_process.py` \
+A python script to delete a batch of policies. The script is intended to run in a number of processes to delete policies in parallel.
+
+`do_curl_function.sh`
+A script for executing a curl call with a specific url and optional payload. It also compare the response with an expected result in terms of response code and optional returned payload. Intended to be used by test script (for example basic test scripts of other components)
+
+`ecs_api_functions.sh` \
+Contains functions for adapting towards the ECS API
+
+`extract_sdnc_reply.py` \
+A python script to extract the information from an sdnc (A1 Controller) reply json. Helper for the test environment.
+
+`http_proxy_api_functions.sh` \
+Contains functions for managing the Http Proxy
+
+`mr_api_functions.sh` \
+Contains functions for managing the MR Stub and the Dmaap Message Router
+
+`prodstub_api_functions.sh` \
+Contains functions for adapting towards the Producer stub interface - simulates a producer.
+
+`rapp_catalogue_api_functions.sh` \
+Contains functions for adapting towards the RAPP Catalogue.
+
+`ricsimulator_api_functions.sh` \
+Contains functions for adapting towards the RIC (A1) simulator admin API.
 
 `test_env*.sh` \
 Common env variables for test in the auto-test dir. All configuration of port numbers, image names and version etc shall be made in this file.
@@ -15,52 +75,6 @@ The included functions are described in detail further below.
 `testsuite_common.sh` \
 Common functions for running two or more auto test scripts as a suite.
 
-`api_curl.sh` \
-A common curl based function for the agent and ecs apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
-
-`agent_api_functions.sh` \
-Contains functions for adapting towards the Policy Agent API, also via dmaap (using a message-router stub interface)
-
-`ecs_api_functions.sh` \
-Contains functions for adapting towards the ECS API
-
-`controller_api_functions.sh` \
-Contains functions for adaping towards the A1-controller API.
-
-`ricsimulator_api_functions.sh` \
-Contains functions for adapting towards the RIC (A1) simulator admin API.
-
-`prodstub_api_functions.sh` \
-Contains functions for adapting towards the Producer stub interface - simulates a producer.
-
-`rapp_catalogue_api_functions.sh` \
-Contains functions for adapting towards the RAPP Catalogue.
-
-`compare_json.py` \
-A python script to compare two json obects for equality. Note that the comparsion always sort json-arrays before comparing (that is, it does not care about the order of items within the array). In addition, the target json object may specify individual parameter values where equality is 'dont care'.
-
-`count_json_elements.py` \
-A python script returning the number of items in a json array.
-
-`create_policies_process.py` \
-A python script to create a batch of policies. The script is intended to run in a number of processes to create policies in parallel.
-
-`create_rics_json.py` \
-A python script to create a json file from a formatted string of ric info. Helper for the test enviroment.
-
-`delete_policies_process.py` \
-A python script to delete a batch of policies. The script is intended to run in a number of processes to delete policies in parallel.
-
-`extract_sdnc_reply.py` \
-A python script to extract the information from an sdnc (A1 Controller) reply json. Helper for the test environment.
-
-`do_curl_function.sh`
-A script for executing a curl call with a specific url and optional payload. It also compare the response with an expected result in terms of response code and optional returned payload. Intended to be used by test script (for example basic test scripts of other components)
-
-`cr_api_functions.sh` \
-Contains functions for adapting towards the Callback receiver for checking received callback event.
-
-
 # Description of functions in testcase_common.sh #
 
 ## Script args ##
@@ -68,12 +82,14 @@ The script can be started with these arguments
 
 | arg list |
 |--|
-| `remote|remote-remove --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+]` |
+| `remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+]` |
 
 | parameter | description |
 |-|-|
 | `remote` | Use images from remote repositories. Can be overridden for individual images using the '--use_xxx' flags |
 | `remote-remove` | Same as 'remote' but will also try to pull fresh images from remote repositories |
+| `docker` | Use docker environment for test |
+| `kuber` | Use kubernetes environment for test. Requires a kubernetes minikube installation |
 | `--env-file` | The script will use the supplied file to read environment variables from |
 | `release` | If this flag is given the script will use release version of the images |
 | `auto-clean` | If the function 'auto_clean_containers' is present in the end of the test script then all containers will be stopped and removed. If 'auto-clean' is not given then the function has no effect |
@@ -85,6 +101,17 @@ The script can be started with these arguments
 | `--use-release-image` | The script will use images from the nexus release repo for the supplied apps, space separated list of app short names |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
+## Function: indent1 ##
+Indent every line of a command output with one space char.
+| arg list |
+|--|
+| None |
+
+## Function: indent2 ##
+Indent every line of a command output with two space chars.
+| arg list |
+|--|
+| None |
 
 ## Function: print_result ##
 Print a test report of an auto-test script.
@@ -128,14 +155,24 @@ Mark a test as a deviation from the requirements. The list of deviations will be
 | --------- | ----------- |
 | `<deviation-message-to-print>` | Any text message describing the deviation. The text will also be printed in the test report. The intention is to mark known deviations, compared to required functionality |
 
-## Function: clean_containers ##
-Stop and remove all containers. Containers not part of the test are not affected.
+## Function: get_kube_sim_host ##
+Translate ric name to kube host name.
+| arg list |
+|--|
+| `<ric-name>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<ric-name>` | The name of the ric to translate into a host name (ip) |
+
+## Function: clean_environment ##
+Stop and remove all containers (docker) or resources (kubernetes). Containers not part of the test are not affected (docker only). Removes all resources started by previous kube tests (kube only).
 | arg list |
 |--|
 | None |
 
 ## Function: auto_clean_containers ##
-Stop and remove all containers. Containers not part of the test are not affected. This function has effect only if the test script is started with arg `auto-clean`. This intention is to use this function as the last step in an auto-test script.
+Same function as 'clean_environment'. This function has effect only if the test script is started with arg `auto-clean`. This intention is to use this function as the last step in an auto-test script.
 | arg list |
 |--|
 | None |
@@ -154,243 +191,6 @@ Make the script sleep for a number of seconds.
 ## Function: generate_uuid ##
 Geneate a UUID prefix to use along with the policy instance number when creating/deleting policies. Sets the env var UUID.
 UUID is then automatically added to the policy id in GET/PUT/DELETE.
-| arg list |
-|--|
-| None |
-
-## Function: consul_config_app ##
-Function to load a json config from a file into consul for the Policy Agent
-
-| arg list |
-|--|
-| `<json-config-file>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<json-config-file>` | The path to the json file to be loaded to Consul/CBS |
-
-## Function: prepare_consul_config ##
-Function to prepare a Consul config based on the previously configured (and started simulators). Note that all simulator must be running and the test script has to configure if http or https shall be used for the components (this is done by the functions 'use_simulator_http', 'use_simulator_https', 'use_sdnc_http', 'use_sdnc_https', 'use_mr_http', 'use_mr_https')
-| arg list |
-|--|
-| `<deviation-message-to-print>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `SDNC|NOSDNC` | Configure based on a1-controller (SNDC) or without a controller/adapter (NOSDNC) |
-| `<output-file>` | The path to the json output file containing the prepared config. This file is used in 'consul_config_app'  |
-
-## Function: start_consul_cbs ##
-Start the Consul and CBS containers
-| arg list |
-|--|
-| None |
-
-## Function: use_simulator_http ##
-Use http for all API calls (A1) toward the simulator. This is the default. Admin API calls to the simulator are not affected. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-## Function: use_simulator_https ##
-Use https for all API calls (A1) toward the simulator. Admin API calls to the simulator are not affected. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-## Function: start_ric_simulators ##
-Start a group of simulator where a group may contain 1 more simulators.
-| arg list |
-|--|
-| `ricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `ricsim_g1|ricsim_g2|ricsim_g3` | Base name of the simulator. Each instance will have an postfix instance id added, starting on '1'. For examplle 'ricsim_g1_1', 'ricsim_g1_2' etc  |
-|`<count>`| And integer, 1 or greater. Specifies the number of simulators to start|
-|`<interface-id>`| Shall be the interface id of the simulator. See the repo 'a1-interface' for the available ids. |
-
-## Function: start_control_panel ##
-Start the Control Panel container
-| arg list |
-|--|
-| None |
-
-## Function: start_sdnc ##
-Start the SDNC A1 Controller container and its database container
-| arg list |
-|--|
-| None |
-
-## Function: use_sdnc_http ##
-Use http for all API calls towards the SDNC A1 Controller. This is the default. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-## Function: use_sdnc_http ##
-Use https for all API calls towards the SDNC A1 Controller. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-## Function: start_mr ##
-Start the Message Router stub interface container
-| arg list |
-|--|
-| None |
-
-## Function: use_mr_http ##
-Use http for all Dmaap calls to the MR. This is the default. The admin API is not affected. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-## Function: use_mr_https ##
-Use https for all Dmaap call to the MR. The admin API is not affected. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-## Function: start_cr ##
-Start the Callback Receiver container
-| arg list |
-|--|
-| None |
-
-## Function: use_cr_http ##
-Use http for getting event from CR.  The admin API is not affected. This is the default.
-| arg list |
-|--|
-| None |
-
-## Function: use_cr_https ##
-Use https for getting event from CR. The admin API is not affected.
-Note: Not yet used as callback event is not fully implemented/deciced.
-| arg list |
-|--|
-| None |
-
-## Function: start_prod_stub ##
-Start the Producer stubb container
-| arg list |
-|--|
-| None |
-
-## Function: use_prod_stub_http ##
-Use http for the API.  The admin API is not affected. This is the default protocol.
-| arg list |
-|--|
-| None |
-
-## Function: use_prod_stub_https ##
-Use https for the API. The admin API is not affected.
-| arg list |
-|--|
-| None |
-
-## Function: start_policy_agent ##
-Start the Policy Agent container. If the test script is configured to use a stand alone Policy Agent (for example other container or stand alone app) the script will prompt for starting the stand alone Policy Agent.
-| arg list |
-|--|
-| None |
-
-## Function: use_agent_stand_alone ##
-Configure to run the Policy Agent as a stand alone container or app. See also 'start_policy_agent'
-| arg list |
-|--|
-| None |
-
-## Function: use_agent_rest_http ##
-Use http for all API calls to the Policy Agent. This is the default.
-| arg list |
-|--|
-| None |
-
-## Function: use_agent_rest_https ##
-Use https for all API calls to the Policy Agent.
-| arg list |
-|--|
-| None |
-
-## Function: use_agent_dmaap_http ##
-Send and recieve all API calls to the Policy Agent over Dmaap via the MR over http.
-| arg list |
-|--|
-| None |
-
-## Function: use_agent_dmaap_https ##
-Send and recieve all API calls to the Policy Agent over Dmaap via the MR over https.
-| arg list |
-|--|
-| None |
-
-## Function: set_agent_debug ##
-Configure the Policy Agent log on debug level. The Policy Agent must be running.
-| arg list |
-|--|
-| None |
-
-## Function: set_agent_trace ##
-Configure the Policy Agent log on trace level. The Policy Agent must be running.
-| arg list |
-|--|
-| None |
-
-## Function: use_agent_retries ##
-Configure the Policy Agent to make upto 5 retries if an API calls return any of the specified http return codes.
-| arg list |
-|--|
-| `[<response-code>]*` |
-
-| parameter | description |
-| --------- | ----------- |
-| `[<response-code>]*` | A space separated list of http response codes, may be empty to reset to 'no codes'.  |
-
-## Function: start_ecs ##
-Start the ECS container.
-| arg list |
-|--|
-| None |
-
-## Function: restart_ecs ##
-Restart the ECS container.
-| arg list |
-|--|
-| None |
-
-## Function: use_ecs_rest_http ##
-Use http for all API calls to the ECS. This is the default protocol.
-| arg list |
-|--|
-| None |
-
-## Function: use_ecs_rest_https ##
-Use https for all API calls to the ECS.
-| arg list |
-|--|
-| None |
-
-## Function: use_ecs_dmaap_http ##
-Send and recieve all API calls to the ECS over Dmaap via the MR using http.
-| arg list |
-|--|
-| None |
-
-## Function: use_ecs_dmaap_https ##
-Send and recieve all API calls to the ECS over Dmaap via the MR using https.
-| arg list |
-|--|
-| None |
-
-## Function: set_ecs_debug ##
-Configure the ECS log on debug level. The ECS must be running.
-| arg list |
-|--|
-| None |
-
-## Function: set_ecs_trace ##
-Configure the ECS log on trace level. The ECS must be running.
 | arg list |
 |--|
 | None |
@@ -430,70 +230,6 @@ Take a snap-shot of all logs for all running containers and stores them in `./lo
 | `<logfile-prefix>` | Log file prefix  |
 
 
-## Function: mr_equal ##
-Tests if a variable value in the Message Router (MR) simulator is equal to a target value.
-Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
-With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
-See the 'mrstub' dir for more details.
-| arg list |
-|--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the MR  |
-| `<target-value>` | Target value for the variable  |
-| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
-
-## Function: mr_greater ##
-Tests if a variable value in the Message Router (MR) simulator is greater than a target value.
-Without the timeout, the test sets pass or fail immediately depending on if the variable is greater than the target or not.
-With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes greater than the target value or not.
-See the 'mrstub' dir for more details.
-| arg list |
-|--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the MR  |
-| `<target-value>` | Target value for the variable  |
-| `<timeout-in-sec>` | Max time to wait for the variable to become grater than the target value  |
-
-## Function: mr_read ##
-Reads the value of a variable in the Message Router (MR) simulator. The value is intended to be passed to a env variable in the test script.
-See the 'mrstub' dir for more details.
-| arg list |
-|--|
-| `<variable-name>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the MR  |
-
-## Function: mr_print ##
-Prints the value of a variable in the Message Router (MR) simulator.
-See the 'mrstub' dir for more details.
-| arg list |
-|--|
-| `<variable-name>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the MR  |
-
-## Function: indent1 ##
-Indent every line of a command output with one space char.
-| arg list |
-|--|
-| None |
-
-## Function: indent2 ##
-Indent every line of a command output with two space chars.
-| arg list |
-|--|
-| None |
-
 # Description of functions in testsuite_common.sh #
 
 ## Function: suite_setup ##
@@ -508,10 +244,74 @@ Print out the overall result of the executed test cases.
 |--|
 | None |
 
-# Description of functions in agent_api_function.sh #
+# Description of functions in agent_api_functions.sh #
 
 ## General ##
 Both PMS version 1 and 2 are supported. The version is controlled by the env variable `$PMS_VERSION` set in the test env file.
+For api function in version 2, an url prefix is added if configured.
+
+## Function: use_agent_rest_http ##
+Use http for all API calls to the Policy Agent. This is the default.
+| arg list |
+|--|
+| None |
+
+## Function: use_agent_rest_https ##
+Use https for all API calls to the Policy Agent.
+| arg list |
+|--|
+| None |
+
+## Function: use_agent_dmaap_http ##
+Send and recieve all API calls to the Policy Agent over Dmaap via the MR over http.
+| arg list |
+|--|
+| None |
+
+## Function: use_agent_dmaap_https ##
+Send and recieve all API calls to the Policy Agent over Dmaap via the MR over https.
+| arg list |
+|--|
+| None |
+
+## Function: start_policy_agent ##
+Start the Policy Agent container or corresponding kube resources depending on docker/kube mode.
+| arg list |
+| `<logfile-prefix>` |
+| (docker) `PROXY|NOPROXY <config-file>` |
+| (kube) `PROXY|NOPROXY <config-file> [ <data-file> ]` |
+| parameter | description |
+| --------- | ----------- |
+| `PROXY` | Configure with http proxy, if proxy is started  |
+| `NOPROXY` | Configure without http proxy  |
+| <config-file>` | Path to application.yaml  |
+|  <data-file>` | Optional path to application_configuration.json  |
+
+## Function: agent_load_config ##
+Load the config into a config map (kubernetes only).
+| arg list |
+|  <data-file> ]` |
+| parameter | description |
+| --------- | ----------- |
+|  <data-file>` | Path to application_configuration.json  |
+
+## Function: set_agent_debug ##
+Configure the Policy Agent log on debug level. The Policy Agent must be running.
+| arg list |
+|--|
+| None |
+
+## Function: set_agent_trace ##
+Configure the Policy Agent log on trace level. The Policy Agent must be running.
+| arg list |
+|--|
+| None |
+
+## Function: use_agent_retries ##
+Configure the Policy Agent to make upto 5 retries if an API calls return any of the specified http return codes.
+| arg list |
+|--|
+| `[<response-code>]*` |
 
 ## Function: api_equal() ##
 
@@ -922,138 +722,82 @@ Test of GET '/v2/configuration'
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<config-file>` |  Path json config file to compare the retrieved config with |
+| parameter | description |
+| --------- | ----------- |
+| `[<response-code>]*` | A space separated list of http response codes, may be empty to reset to 'no codes'.  |
 
-# Description of functions in ricsimulator_api_functions.sh #
-The functions below only use the admin interface of the simulator, no usage of the A1 interface.
 
-## Function: sim_equal ##
-Tests if a variable value in the RIC simulator is equal to a target value.
-Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
-With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
-See the 'a1-interface' repo for more details.
+# Description of functions in consult_cbs_function.sh #
+
+
+## Function: consul_config_app ##
+Function to load a json config from a file into consul for the Policy Agent
 
 | arg list |
 |--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+| `<json-config-file>` |
 
 | parameter | description |
 | --------- | ----------- |
-| `<variable-name>` | Variable name in the ric simulator  |
-| `<target-value>` | Target value for the variable  |
-| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+| `<json-config-file>` | The path to the json file to be loaded to Consul/CBS |
 
-## Function: sim_print ##
-Prints the value of a variable in the RIC simulator.
-See the 'a1-interface' repo for more details.
-
+## Function: prepare_consul_config ##
+Function to prepare a Consul config based on the previously configured (and started simulators). Note that all simulator must be running and the test script has to configure if http or https shall be used for the components (this is done by the functions 'use_simulator_http', 'use_simulator_https', 'use_sdnc_http', 'use_sdnc_https', 'use_mr_http', 'use_mr_https')
 | arg list |
 |--|
-| `<variable-name>` |
+| `<deviation-message-to-print>` |
 
 | parameter | description |
 | --------- | ----------- |
-| `<variable-name>` | Variable name in the RIC simulator  |
+| `SDNC|NOSDNC` | Configure based on a1-controller (SNDC) or without a controller/adapter (NOSDNC) |
+| `<output-file>` | The path to the json output file containing the prepared config. This file is used in 'consul_config_app'  |
 
-
-## Function: sim_contains_str ##
-Tests if a variable value in the RIC simulator contains a target string.
-Without the timeout, the test sets pass or fail immediately depending on if the variable contains the target string or not.
-With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value contains the target string or not.
-See the 'a1-interface' repo for more details.
-
+## Function: start_consul_cbs ##
+Start the Consul and CBS containers
 | arg list |
 |--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+| None |
 
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the ric simulator  |
-| `<target-value>` | Target substring for the variable  |
-| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+# Description of functions in control_panel_api_function.sh #
 
-## Function: sim_put_policy_type ##
-Loads a policy type to the simulator
-
+## Function: use_control_panel_http ##
+Set http as the protocol to use for all communication to the Control Panel
 | arg list |
 |--|
-| `<response-code> <ric-id> <policy-type-id> <policy-type-file>` |
+| None |
 
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<ric-id>` |  Id of the ric |
-| `<policy-type-id>` |  Id of the policy type |
-| `<policy-type-file>` |  Path to the schema file of the policy type |
-
-## Function: sim_delete_policy_type ##
-Deletes a policy type from the simulator
-
+## Function: use_control_panel_https ##
+Set https as the protocol to use for all communication to the Control Panel
 | arg list |
 |--|
-| `<response-code> <ric-id> <policy_type_id>` |
+| None |
 
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<ric-id>` |  Id of the ric |
-| `<policy-type-id>` |  Id of the policy type |
-
-## Function: sim_post_delete_instances ##
-Deletes all instances (and status), for one ric
-
+## Function: start_control_panel ##
+Start the Control Panel container
 | arg list |
 |--|
-| `<response-code> <ric-id>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<ric-id>` |  Id of the ric |
-
-
-## Function: sim_post_delete_all ##
-Deletes all types, instances (and status), for one ric
-
-| arg list |
-|--|
-| `<response-code> <ric-id>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<ric-id>` |  Id of the ric |
-
-## Function: sim_post_forcedresponse ##
-Sets (or resets) response code for next (one) A1 message, for one ric.
-The intention is to simulate error response on the A1 interface.
-
-| arg list |
-|--|
-| `<response-code> <ric-id> [<forced_response_code>]`|
-
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<ric-id>` |  Id of the ric |
-| `<forced_response_code>` |  Http response code to send |
-
-## Function: sim_post_forcedelay ##
-Sets (or resets) A1 response delay, for one ric
-The intention is to delay responses on the A1 interface. Setting remains until removed.
-
-| arg list |
-|--|
-| `<response-code> <ric-id> [<delay-in-seconds>]`|
-
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<ric-id>` |  Id of the ric |
-| `<delay-in-seconds>` |  Delay in seconds. If omitted, the delay is removed |
-
+| None |
 
 # Description of functions in controller_api_functions.sh #
 The file contains a selection of the possible API tests towards the a1-controller
+
+## Function: use_sdnc_http ##
+Use http for all API calls towards the SDNC A1 Controller. This is the default. Note that this function shall be called before preparing the config for Consul.
+| arg list |
+|--|
+| None |
+
+## Function: use_sdnc_http ##
+Use https for all API calls towards the SDNC A1 Controller. Note that this function shall be called before preparing the config for Consul.
+| arg list |
+|--|
+| None |
+
+## Function: start_sdnc ##
+Start the SDNC A1 Controller container and its database container
+| arg list |
+|--|
+| None |
 
 ## Function: controller_api_get_A1_policy_ids ##
 Test of GET policy ids towards OSC or STD type simulator.
@@ -1144,7 +888,105 @@ Checks the status of a policy
 | `<has-been-deleted>` |  Deleted status, true or false |
 
 
+# Description of functions in cr_api_functions.sh #
 
+## Function: use_cr_http ##
+Use http for getting event from CR.  The admin API is not affected. This is the default.
+| arg list |
+|--|
+| None |
+
+## Function: use_cr_https ##
+Use https for getting event from CR. The admin API is not affected.
+Note: Not yet used as callback event is not fully implemented/deciced.
+| arg list |
+|--|
+| None |
+
+## Function: start_cr ##
+Start the Callback Receiver container in docker or kube depending on start mode.
+| arg list |
+|--|
+| None |
+
+## Function: cr_equal ##
+Tests if a variable value in the Callback Receiver (CR) simulator is equal to a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'cr' dir for more details.
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the CR  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: cr_api_check_all_sync_events() ##
+Check the contents of all ric events received for a callback id.
+
+| arg list |
+|--|
+| `<response-code> <id> [ EMPTY | ( <ric-id> )+ ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<id>` | Id of the callback destination  |
+| `EMPTY` | Indicator for an empty list  |
+| `<ric-id>` | Id of the ric  |
+
+# Description of functions in ecs_api_functions.sh #
+
+## Function: use_ecs_rest_http ##
+Use http for all API calls to the ECS. This is the default protocol.
+| arg list |
+|--|
+| None |
+
+## Function: use_ecs_rest_https ##
+Use https for all API calls to the ECS.
+| arg list |
+|--|
+| None |
+
+## Function: use_ecs_dmaap_http ##
+Send and recieve all API calls to the ECS over Dmaap via the MR using http.
+| arg list |
+|--|
+| None |
+
+## Function: use_ecs_dmaap_https ##
+Send and recieve all API calls to the ECS over Dmaap via the MR using https.
+| arg list |
+|--|
+| None |
+
+## Function: start_ecs ##
+Start the ECS container in docker or kube depending on running mode.
+| arg list |
+|--|
+| None |
+
+## Function: restart_ecs ##
+Restart the ECS container.
+| arg list |
+|--|
+| None |
+
+## Function: set_ecs_debug ##
+Configure the ECS log on debug level. The ECS must be running.
+| arg list |
+|--|
+| None |
+
+## Function: set_ecs_trace ##
+Configure the ECS log on trace level. The ECS must be running.
+| arg list |
+|--|
+| None |
 
 # Description of functions in ecs_api_function.sh #
 
@@ -1421,8 +1263,120 @@ Test of GET '/status'.
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 
+## Function: ecs_api_admin_reset() ##
+Test of GET '/status'.
 
-# Description of functions in prodstub_api_function.sh #
+| arg list |
+|--|
+| `<response-code> [ <type> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type>` | Type id, if the interface supports type in url |
+
+
+# Description of functions in http_proxy_api_functions.sh #
+
+## Function: start_http_proxy ##
+Start the http proxy container in docker or kube depending on running mode.
+| arg list |
+|--|
+| None |
+
+# Description of functions in mr_api_functions.sh #
+
+## Function: use_mr_http ##
+Use http for all Dmaap calls to the MR. This is the default. The admin API is not affected. Note that this function shall be called before preparing the config for Consul.
+| arg list |
+|--|
+| None |
+
+## Function: use_mr_https ##
+Use https for all Dmaap call to the MR. The admin API is not affected. Note that this function shall be called before preparing the config for Consul.
+| arg list |
+|--|
+| None |
+
+## Function: start_mr ##
+Start the Message Router stub interface container in docker or kube depending on start mode
+| arg list |
+|--|
+| None |
+
+
+## Function: mr_equal ##
+Tests if a variable value in the Message Router (MR) simulator is equal to a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'mrstub' dir for more details.
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the MR  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: mr_greater ##
+Tests if a variable value in the Message Router (MR) simulator is greater than a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is greater than the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes greater than the target value or not.
+See the 'mrstub' dir for more details.
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the MR  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to become grater than the target value  |
+
+## Function: mr_read ##
+Reads the value of a variable in the Message Router (MR) simulator. The value is intended to be passed to a env variable in the test script.
+See the 'mrstub' dir for more details.
+| arg list |
+|--|
+| `<variable-name>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the MR  |
+
+## Function: mr_print ##
+Prints the value of a variable in the Message Router (MR) simulator.
+See the 'mrstub' dir for more details.
+| arg list |
+|--|
+| `<variable-name>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the MR  |
+
+
+# Description of functions in prodstub_api_functions.sh #
+
+## Function: use_prod_stub_http ##
+Use http for the API.  The admin API is not affected. This is the default protocol.
+| arg list |
+|--|
+| None |
+
+## Function: use_prod_stub_https ##
+Use https for the API. The admin API is not affected.
+| arg list |
+|--|
+| None |
+
+## Function: start_prod_stub ##
+Start the Producer stub container in docker or kube depending on start mode
+| arg list |
+|--|
+| None |
 
 ## Function: prodstub_arm_producer() ##
 Preconfigure the prodstub with a producer. The producer supervision response code is optional, if not given the response code will be set to 200.
@@ -1535,38 +1489,26 @@ With the timeout, the test waits up to the timeout seconds before setting pass o
 | `<target-value>` | Target value for the variable  |
 | `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
 
-# Description of functions in cr_api_function.sh #
-
-## Function: cr_equal ##
-Tests if a variable value in the Callback Receiver (CR) simulator is equal to a target value.
-Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
-With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
-See the 'cr' dir for more details.
-| arg list |
-|--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the CR  |
-| `<target-value>` | Target value for the variable  |
-| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
-
-## Function: cr_api_check_all_sync_events() ##
-Check the contents of all ric events received for a callback id.
-
-| arg list |
-|--|
-| `<response-code> <id> [ EMPTY | ( <ric-id> )+ ]` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<response-code>` | Expected http response code |
-| `<id>` | Id of the callback destination  |
-| `EMPTY` | Indicator for an empty list  |
-| `<ric-id>` | Id of the ric  |
 
 # Description of functions in rapp_catalogue_api_function.sh #
+
+## Function: use_rapp_catalogue_http ##
+Use http for the API. This is the default protocol.
+| arg list |
+|--|
+| None |
+
+## Function: use_rapp_catalogue_https ##
+Use https for the API.
+| arg list |
+|--|
+| None |
+
+## Function: start_rapp_catalogue ##
+Start the rapp catalogue container in docker or kube depending on start mode
+| arg list |
+|--|
+| None |
 
 ## Function: rc_equal ##
 Tests if a variable value in the RAPP Catalogue is equal to a target value.
@@ -1640,6 +1582,160 @@ Check a registered service.
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<service-id>` | Id of the service  |
+
+
+# Description of functions in ricsimulator_api_functions.sh #
+The functions below only use the admin interface of the simulator, no usage of the A1 interface.
+
+
+## Function: use_simulator_http ##
+Use http for all API calls (A1) toward the simulator. This is the default. Admin API calls to the simulator are not affected. Note that this function shall be called before preparing the config for Consul.
+| arg list |
+|--|
+| None |
+
+## Function: use_simulator_https ##
+Use https for all API calls (A1) toward the simulator. Admin API calls to the simulator are not affected. Note that this function shall be called before preparing the config for Consul.
+| arg list |
+|--|
+| None |
+
+## Function: start_ric_simulators ##
+Start a group of simulator where a group may contain 1 more simulators. Started in docker or kube depending on start mode
+| arg list |
+|--|
+| `ricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `ricsim_g1|ricsim_g2|ricsim_g3` | Base name of the simulator. Each instance will have an postfix instance id added, starting on '1'. For examplle 'ricsim_g1_1', 'ricsim_g1_2' etc  |
+|`<count>`| And integer, 1 or greater. Specifies the number of simulators to start|
+|`<interface-id>`| Shall be the interface id of the simulator. See the repo 'a1-interface' for the available ids. |
+
+## Function: sim_equal ##
+Tests if a variable value in the RIC simulator is equal to a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'a1-interface' repo for more details.
+
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the ric simulator  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: sim_print ##
+Prints the value of a variable in the RIC simulator.
+See the 'a1-interface' repo for more details.
+
+| arg list |
+|--|
+| `<variable-name>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the RIC simulator  |
+
+
+## Function: sim_contains_str ##
+Tests if a variable value in the RIC simulator contains a target string.
+Without the timeout, the test sets pass or fail immediately depending on if the variable contains the target string or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value contains the target string or not.
+See the 'a1-interface' repo for more details.
+
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the ric simulator  |
+| `<target-value>` | Target substring for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: sim_put_policy_type ##
+Loads a policy type to the simulator
+
+| arg list |
+|--|
+| `<response-code> <ric-id> <policy-type-id> <policy-type-file>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<ric-id>` |  Id of the ric |
+| `<policy-type-id>` |  Id of the policy type |
+| `<policy-type-file>` |  Path to the schema file of the policy type |
+
+## Function: sim_delete_policy_type ##
+Deletes a policy type from the simulator
+
+| arg list |
+|--|
+| `<response-code> <ric-id> <policy_type_id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<ric-id>` |  Id of the ric |
+| `<policy-type-id>` |  Id of the policy type |
+
+## Function: sim_post_delete_instances ##
+Deletes all instances (and status), for one ric
+
+| arg list |
+|--|
+| `<response-code> <ric-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<ric-id>` |  Id of the ric |
+
+
+## Function: sim_post_delete_all ##
+Deletes all types, instances (and status), for one ric
+
+| arg list |
+|--|
+| `<response-code> <ric-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<ric-id>` |  Id of the ric |
+
+## Function: sim_post_forcedresponse ##
+Sets (or resets) response code for next (one) A1 message, for one ric.
+The intention is to simulate error response on the A1 interface.
+
+| arg list |
+|--|
+| `<response-code> <ric-id> [<forced_response_code>]`|
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<ric-id>` |  Id of the ric |
+| `<forced_response_code>` |  Http response code to send |
+
+## Function: sim_post_forcedelay ##
+Sets (or resets) A1 response delay, for one ric
+The intention is to delay responses on the A1 interface. Setting remains until removed.
+
+| arg list |
+|--|
+| `<response-code> <ric-id> [<delay-in-seconds>]`|
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<ric-id>` |  Id of the ric |
+| `<delay-in-seconds>` |  Delay in seconds. If omitted, the delay is removed |
 
 
 ## License
