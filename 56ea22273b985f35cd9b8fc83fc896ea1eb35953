@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86f73c27_8502ae97",
+        "filename": "docs/api-docs.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2021-01-28T09:04:56Z",
+      "side": 1,
+      "message": "The cherry version is now working, so it can be used here.",
+      "range": {
+        "startLine": 76,
+        "startChar": 140,
+        "endLine": 76,
+        "endChar": 146
+      },
+      "revId": "56ea22273b985f35cd9b8fc83fc896ea1eb35953",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
