@@ -2,4 +2,4 @@
 distribution_type: maven
 version: 1.0.0
 project: enrichment-coordinator-service
-log_dir: nonrtric-enrichment-coordinator-service-maven-stage-master/6/
+log_dir: nonrtric-enrichment-coordinator-service-maven-stage-cherry/1/
