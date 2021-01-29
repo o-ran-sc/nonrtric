@@ -23,44 +23,43 @@ package org.oransc.enrichment.controllers.producer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 import org.oransc.enrichment.repository.EiJob;
 
 @Gson.TypeAdapters
-@ApiModel(
-    value = "producer_ei_job_request",
+@Schema(
+    name = "producer_ei_job_request",
     description = "The body of the EI producer callbacks for EI job creation and deletion")
 public class ProducerJobInfo {
 
-    @ApiModelProperty(value = "Idenitity of the EI job", required = true)
+    @Schema(name = "Idenitity of the EI job", required = true)
     @SerializedName("ei_job_identity")
     @JsonProperty("ei_job_identity")
     public String id;
 
-    @ApiModelProperty(value = "Type idenitity for the job")
+    @Schema(name = "Type idenitity for the job")
     @SerializedName("ei_type_identity")
     @JsonProperty("ei_type_identity")
     public String typeId;
 
-    @ApiModelProperty(value = "Json for the job data")
+    @Schema(name = "Json for the job data")
     @SerializedName("ei_job_data")
     @JsonProperty("ei_job_data")
     public Object jobData;
 
-    @ApiModelProperty(value = "URI for the target of the EI")
+    @Schema(name = "URI for the target of the EI")
     @SerializedName("target_uri")
     @JsonProperty("target_uri")
     public String targetUri;
 
-    @ApiModelProperty(value = "The owner of the job")
+    @Schema(name = "The owner of the job")
     @SerializedName("owner")
     @JsonProperty("owner")
     public String owner;
 
-    @ApiModelProperty(value = "The time when the job was last updated or created (ISO-8601)")
+    @Schema(name = "The time when the job was last updated or created (ISO-8601)")
     @SerializedName("last_updated")
     @JsonProperty("last_updated")
     public String lastUpdated;

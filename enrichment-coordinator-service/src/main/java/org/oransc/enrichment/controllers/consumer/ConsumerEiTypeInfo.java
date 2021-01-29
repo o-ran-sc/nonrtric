@@ -20,12 +20,12 @@
 
 package org.oransc.enrichment.controllers.consumer;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "EiTypeObject", description = "Information for an EI type")
+@Schema(name = "EiTypeObject", description = "Information for an EI type")
 public class ConsumerEiTypeInfo {
 
 }

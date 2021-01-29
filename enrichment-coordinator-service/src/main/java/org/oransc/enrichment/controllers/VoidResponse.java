@@ -20,12 +20,12 @@
 
 package org.oransc.enrichment.controllers;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "Void", description = "Void/empty")
+@Schema(name = "Void", description = "Void/empty ")
 public class VoidResponse {
     private VoidResponse() {
     }

@@ -24,18 +24,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
@@ -64,8 +65,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
-@RestController("ConsumerController")
-@Api(tags = {ConsumerConsts.CONSUMER_API_NAME})
+@RestController("A1-EI")
+@Tag(name = ConsumerConsts.CONSUMER_API_NAME)
 @RequestMapping(path = ConsumerConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsumerController {
 
@@ -89,14 +90,13 @@ public class ConsumerController {
     private static Gson gson = new GsonBuilder().create();
 
     @GetMapping(path = "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI type identifiers", notes = "")
+    @Operation(summary = "EI type identifiers", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
-                code = 200,
-                message = "EI type identifiers",
-                response = String.class,
-                responseContainer = "List"), //
+                responseCode = "200",
+                description = "EI type identifiers", //
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))), //
         })
     public ResponseEntity<Object> getEiTypeIdentifiers( //
     ) {
@@ -109,14 +109,18 @@ public class ConsumerController {
     }
 
     @GetMapping(path = "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI type", notes = "")
+    @Operation(summary = "Individual EI type", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI type", response = ConsumerEiTypeInfo.class), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information type is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI type", //
+                content = @Content(schema = @Schema(implementation = ConsumerEiTypeInfo.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> getEiType( //
         @PathVariable("eiTypeId") String eiTypeId) {
         try {
@@ -129,28 +133,28 @@ public class ConsumerController {
     }
 
     @GetMapping(path = "/eijobs", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI job identifiers", notes = "query for EI job identifiers")
+    @Operation(summary = "EI job identifiers", description = "query for EI job identifiers")
     @ApiResponses(
         value = { //
             @ApiResponse(
-                code = 200,
-                message = "EI job identifiers",
-                response = String.class,
-                responseContainer = "List"), //
+                responseCode = "200",
+                description = "EI job identifiers", //
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information type is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "404",
+                description = "Enrichment Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> getEiJobIds( //
-        @ApiParam(
+        @Parameter(
             name = ConsumerConsts.EI_TYPE_ID_PARAM,
             required = false, //
-            value = ConsumerConsts.EI_TYPE_ID_PARAM_DESCRIPTION) //
+            description = ConsumerConsts.EI_TYPE_ID_PARAM_DESCRIPTION) //
         @RequestParam(name = ConsumerConsts.EI_TYPE_ID_PARAM, required = false) String eiTypeId,
-        @ApiParam(
+        @Parameter(
             name = ConsumerConsts.OWNER_PARAM,
             required = false, //
-            value = ConsumerConsts.OWNER_PARAM_DESCRIPTION) //
+            description = ConsumerConsts.OWNER_PARAM_DESCRIPTION) //
         @RequestParam(name = ConsumerConsts.OWNER_PARAM, required = false) String owner) {
         try {
             List<String> result = new ArrayList<>();
@@ -173,15 +177,19 @@ public class ConsumerController {
         }
     }
 
-    @GetMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI job", notes = "")
+    @GetMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = "Individual EI job", description = "") //
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI job", response = ConsumerEiJobInfo.class), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information job is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI job", //
+                content = @Content(schema = @Schema(implementation = ConsumerEiJobInfo.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information job is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> getIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
@@ -193,14 +201,18 @@ public class ConsumerController {
     }
 
     @GetMapping(path = "/eijobs/{eiJobId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI job status", notes = "")
+    @Operation(summary = "EI job status", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI job status", response = ConsumerEiJobStatus.class), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information job is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI job status", //
+                content = @Content(schema = @Schema(implementation = ConsumerEiJobStatus.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information job is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> getEiJobStatus( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
@@ -219,15 +231,22 @@ public class ConsumerController {
     }
 
     @DeleteMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI job", notes = "")
+    @Operation(summary = "Individual EI job", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
-            @ApiResponse(code = 204, message = "Job deleted", response = VoidResponse.class),
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information job is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "Not used", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))),
+            @ApiResponse(
+                responseCode = "204",
+                description = "Job deleted", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information job is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> deleteIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
@@ -243,15 +262,22 @@ public class ConsumerController {
         path = "/eijobs/{eiJobId}", //
         produces = MediaType.APPLICATION_JSON_VALUE, //
         consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI job", notes = "")
+    @Operation(summary = "Individual EI job", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 201, message = "Job created", response = VoidResponse.class), //
-            @ApiResponse(code = 200, message = "Job updated", response = VoidResponse.class), // ,
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information type is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "201",
+                description = "Job created", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Job updated", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public Mono<ResponseEntity<Object>> putIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId, //
         @RequestBody ConsumerEiJobInfo eiJobObject) {
@@ -294,7 +320,7 @@ public class ConsumerController {
 
                 String schemaAsString = mapper.writeValueAsString(schemaObj);
                 JSONObject schemaJSON = new JSONObject(schemaAsString);
-                Schema schema = SchemaLoader.load(schemaJSON);
+                org.everit.json.schema.Schema schema = org.everit.json.schema.loader.SchemaLoader.load(schemaJSON);
 
                 String objectAsString = mapper.writeValueAsString(object);
                 JSONObject json = new JSONObject(objectAsString);

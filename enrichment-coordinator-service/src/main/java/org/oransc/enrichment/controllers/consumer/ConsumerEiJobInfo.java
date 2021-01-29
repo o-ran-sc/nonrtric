@@ -23,36 +23,35 @@ package org.oransc.enrichment.controllers.consumer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "EiJobObject", description = "Information for an Enrichment Information Job")
+@Schema(name = "EiJobObject", description = "Information for an Enrichment Information Job")
 public class ConsumerEiJobInfo {
 
-    @ApiModelProperty(value = "EI type Idenitifier of the EI job", required = true)
+    @Schema(description = "EI type Idenitifier of the EI job", required = true)
     @SerializedName("eiTypeId")
     @JsonProperty(value = "eiTypeId", required = true)
     public String eiTypeId;
 
-    @ApiModelProperty(value = "Identity of the owner of the job", required = true)
+    @Schema(description = "Identity of the owner of the job", required = true)
     @SerializedName("jobOwner")
     @JsonProperty(value = "jobOwner", required = true)
     public String owner;
 
-    @ApiModelProperty(value = "EI type specific job data", required = true)
+    @Schema(description = "EI type specific job data", required = true)
     @SerializedName("jobDefinition")
     @JsonProperty(value = "jobDefinition", required = true)
     public Object jobData;
 
-    @ApiModelProperty(value = "The target URI of the EI data", required = true)
+    @Schema(description = "The target URI of the EI data", required = true)
     @SerializedName("jobResultUri")
     @JsonProperty(value = "jobResultUri", required = true)
     public String targetUri;
 
-    @ApiModelProperty(value = "The target of EI job status notifications", required = false)
+    @Schema(description = "The target of EI job status notifications", required = false)
     @SerializedName("jobStatusNotificationUri")
     @JsonProperty(value = "jobStatusNotificationUri", required = false)
     public String statusNotificationUri;
