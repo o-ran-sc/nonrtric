@@ -22,6 +22,30 @@
       "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1af1a917_eed3d322",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-29T13:41:22Z",
+      "side": 1,
+      "message": "But image it\u0027s not there in nexus, according to the version we are testing for cherry, a1-controller is 2.0.1. \nI just made the change so it could work when using the docker-compose file.",
+      "parentUuid": "26e35de9_d1df337c",
+      "range": {
+        "startLine": 41,
+        "startChar": 69,
+        "endLine": 41,
+        "endChar": 74
+      },
+      "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
