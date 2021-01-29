@@ -94,6 +94,30 @@
       "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed26de3a_fb87ce57",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-01-29T15:26:23Z",
+      "side": 1,
+      "message": "Ok I see, I was not aware that it was intentionally removed. Since it was agreed in the team, you can proceed with this change.",
+      "parentUuid": "d7b400c2_60a6ceb6",
+      "range": {
+        "startLine": 41,
+        "startChar": 69,
+        "endLine": 41,
+        "endChar": 74
+      },
+      "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
