@@ -70,6 +70,30 @@
       "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7b400c2_60a6ceb6",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-01-29T14:34:37Z",
+      "side": 1,
+      "message": "Thanks for your comment!\nAccording to Patrik, It was removed because it was agreed that we will not keep maintaining it. So there will be no more updates, or releases. \nIf added to the pom file again is a better approach, I say let\u0027s go for it, I just want to have something that works!",
+      "parentUuid": "b4c188d0_6dc5d94c",
+      "range": {
+        "startLine": 41,
+        "startChar": 69,
+        "endLine": 41,
+        "endChar": 74
+      },
+      "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
