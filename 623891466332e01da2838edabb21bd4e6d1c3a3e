@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56182023_ca391d3c",
+        "filename": "docs/developer-guide.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-01-29T12:18:54Z",
+      "side": 1,
+      "message": "suggest replace with gerrit.o-ran-sc.org",
+      "range": {
+        "startLine": 30,
+        "startChar": 157,
+        "endLine": 30,
+        "endChar": 175
+      },
+      "revId": "623891466332e01da2838edabb21bd4e6d1c3a3e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b92caa98_65667732",
+        "filename": "docs/developer-guide.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-01-29T12:18:54Z",
+      "side": 1,
+      "message": "Instructions and helm charts to deploy the Non-RT-RIC functions in OSC\u0027s integrated test environment can be found in the ./nonrtric directory.",
+      "range": {
+        "startLine": 30,
+        "startChar": 204,
+        "endLine": 30,
+        "endChar": 205
+      },
+      "revId": "623891466332e01da2838edabb21bd4e6d1c3a3e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
