@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26e35de9_d1df337c",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-01-29T13:15:23Z",
+      "side": 1,
+      "message": "Why is this change needed?\n\nI see in this pom file (cherry branch):\nhttps://gerrit.o-ran-sc.org/r/gitweb?p\u003dnonrtric.git;a\u003dblob;f\u003dsdnc-a1-controller/oam/installation/sdnc-a1/pom.xml;h\u003d18d94cddf8d6f9c08a3f02429759ede542eb5240;hb\u003drefs/heads/cherry\n\nthere exist the following properties:\n\u003cstandalone.image.name\u003eo-ran-sc/nonrtric-a1-controller\u003c/standalone.image.name\u003e\n\u003cstandalone.image.version\u003e2.1.0-SNAPSHOT\u003c/standalone.image.version\u003e\n\nSo, the image version should be 2.1.0",
+      "range": {
+        "startLine": 41,
+        "startChar": 69,
+        "endLine": 41,
+        "endChar": 74
+      },
+      "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
