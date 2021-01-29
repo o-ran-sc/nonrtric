@@ -20,10 +20,12 @@
 
 package org.oransc.enrichment.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import lombok.Getter;
 
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
+import org.oransc.enrichment.controllers.producer.ProducerConsts;
 import org.oransc.enrichment.controllers.producer.ProducerJobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +51,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ProducerSimulatorController")
-@Api(tags = {"Data Producer Job Control (example producer)"})
+@Tag(name = ProducerConsts.PRODUCER_API_CALLBACKS_NAME)
 public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -83,11 +86,16 @@ public class ProducerSimulatorController {
     private TestResults testResults = new TestResults();
 
     @PostMapping(path = JOB_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job creation", notes = "")
+    @Operation(
+        summary = "Callback for EI job creation/modification",
+        description = "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the EI producer.")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "OK", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
     public ResponseEntity<Object> jobCreatedCallback( //
         @RequestBody ProducerJobInfo request) {
         try {
@@ -104,11 +112,16 @@ public class ProducerSimulatorController {
     }
 
     @DeleteMapping(path = "/producer_simulator/ei_job/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job deletion", notes = "")
+    @Operation(
+        summary = "Callback for EI job deletion",
+        description = "The call is invoked to terminate a data subscription. The endpoint is provided by the EI producer.")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "OK", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
     public ResponseEntity<Object> jobDeletedCallback( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
@@ -121,11 +134,14 @@ public class ProducerSimulatorController {
     }
 
     @PostMapping(path = JOB_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "", hidden = true)
+    @Operation(summary = "Callback for EI job creation, returns error", description = "", hidden = true)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "OK", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
     public ResponseEntity<Object> jobCreatedCallbackReturnError( //
         @RequestBody ProducerJobInfo request) {
         logger.info("Job created (returning error) callback {}", request.id);
@@ -134,35 +150,46 @@ public class ProducerSimulatorController {
     }
 
     @DeleteMapping(path = JOB_ERROR_URL + "/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job deletion, returns error", notes = "", hidden = true)
+    @Operation(summary = "Callback for EI job deletion, returns error", description = "", hidden = true)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "OK", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
     public ResponseEntity<Object> jobDeletedCallbackReturnError( //
-        @RequestBody ProducerJobInfo request) {
-        logger.info("Job created (returning error) callback {}", request.id);
+        @PathVariable("eiJobId") String eiJobId) {
+        logger.info("Job created (returning error) callback {}", eiJobId);
         this.testResults.noOfRejectedDelete += 1;
         return ErrorResponse.create("Producer returns error on delete job", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping(path = SUPERVISION_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Producer supervision", notes = "")
+    @Operation(
+        summary = "Producer supervision",
+        description = "The endpoint is provided by the EI producer and is used for supervision of the producer.")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = String.class)}//
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "The producer is OK", //
+                content = @Content(schema = @Schema(implementation = String.class))) //
+        })
     public ResponseEntity<Object> producerSupervision() {
         logger.info("Producer supervision");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(path = SUPERVISION_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Producer supervision error", notes = "", hidden = true)
+    @Operation(summary = "Producer supervision error", description = "", hidden = true)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = String.class)}//
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "OK", //
+                content = @Content(schema = @Schema(implementation = String.class))) //
+        })
     public ResponseEntity<Object> producerSupervisionError() {
         logger.info("Producer supervision error");
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

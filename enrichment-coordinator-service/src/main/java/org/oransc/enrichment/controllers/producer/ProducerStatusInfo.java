@@ -23,17 +23,16 @@ package org.oransc.enrichment.controllers.producer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "producer_status", description = "Status for an EI Producer")
+@Schema(name = "producer_status", description = "Status for an EI Producer")
 public class ProducerStatusInfo {
 
     @Gson.TypeAdapters
-    @ApiModel(value = "producer_operational_state", description = "Represents the operational states")
+    @Schema(name = "producer_operational_state", description = "Represents the operational states")
     public enum OperationalState {
         ENABLED, DISABLED
     }
@@ -42,7 +41,7 @@ public class ProducerStatusInfo {
         + "ENABLED: TBD\n" //
         + "DISABLED: TBD.";
 
-    @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "operational_state", required = true)
+    @Schema(description = OPERATIONAL_STATE_DESCRIPTION, name = "operational_state", required = true)
     @SerializedName("operational_state")
     @JsonProperty(value = "operational_state", required = true)
     public final OperationalState opState;

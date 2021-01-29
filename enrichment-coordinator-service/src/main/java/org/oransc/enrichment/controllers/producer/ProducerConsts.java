@@ -23,7 +23,11 @@ package org.oransc.enrichment.controllers.producer;
 public class ProducerConsts {
 
     public static final String API_ROOT = "/ei-producer/v1";
-    public static final String PRODUCER_API_NAME = "Data Producer Registry API";
+    public static final String PRODUCER_API_NAME = "Data producer (registration)";
+    public static final String PRODUCER_API_DESCRIPTION = "API for data producers";
+
+    public static final String PRODUCER_API_CALLBACKS_NAME = "Data producer (callbacks)";
+    public static final String PRODUCER_API_CALLBACKS_DESCRIPTION = "API implemented by data producers";
 
     private ProducerConsts() {
     }

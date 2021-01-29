@@ -23,51 +23,30 @@ package org.oransc.enrichment.controllers.producer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Collection;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "producer_registration_info", description = "Information for an EI producer")
+@Schema(name = "producer_registration_info", description = "Information for an EI producer")
 public class ProducerRegistrationInfo {
 
-    @Gson.TypeAdapters
-    @ApiModel(value = "producer_ei_type_registration_info", description = "Information for an EI type")
-    public static class ProducerEiTypeRegistrationInfo {
-
-        @ApiModelProperty(value = "EI type identity", required = true)
-        @SerializedName("ei_type_identity")
-        @JsonProperty(value = "ei_type_identity", required = true)
-        public String eiTypeId;
-
-        @ApiModelProperty(value = "Json schema for the job data")
-        @SerializedName("ei_job_data_schema")
-        @JsonProperty("ei_job_data_schema")
-        public Object jobDataSchema;
-
-        public ProducerEiTypeRegistrationInfo(Object jobDataSchema, String eiTypeId) {
-            this.jobDataSchema = jobDataSchema;
-            this.eiTypeId = eiTypeId;
-        }
-
-        public ProducerEiTypeRegistrationInfo() {
-        }
-    }
-
-    @ApiModelProperty(value = "Supported EI type IDs", required = true)
+    @Schema(name = "supported_ei_types", description = "Supported EI type IDs", required = true)
     @SerializedName("supported_ei_types")
     @JsonProperty(value = "supported_ei_types", required = true)
     public Collection<String> supportedTypeIds;
 
-    @ApiModelProperty(value = "callback for EI job", required = true)
+    @Schema(name = "ei_job_callback_url", description = "callback for EI job", required = true)
     @SerializedName("ei_job_callback_url")
     @JsonProperty(value = "ei_job_callback_url", required = true)
     public String jobCallbackUrl;
 
-    @ApiModelProperty(value = "callback for producer supervision", required = true)
+    @Schema(
+        name = "ei_producer_supervision_callback_url",
+        description = "callback for producer supervision",
+        required = true)
     @SerializedName("ei_producer_supervision_callback_url")
     @JsonProperty(value = "ei_producer_supervision_callback_url", required = true)
     public String producerSupervisionCallbackUrl;

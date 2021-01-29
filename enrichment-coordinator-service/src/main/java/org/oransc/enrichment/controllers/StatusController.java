@@ -23,12 +23,12 @@ package org.oransc.enrichment.controllers;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.immutables.gson.Gson;
 import org.oransc.enrichment.repository.EiJobs;
@@ -43,8 +43,11 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController("StatusController")
-@Api(tags = "Service status")
+@Tag(name = StatusController.API_NAME)
 public class StatusController {
+
+    public static final String API_NAME = "EI Service status";
+    public static final String API_DESCRIPTION = "API for monitoring of the service";
 
     @Autowired
     private EiJobs eiJobs;
@@ -56,24 +59,24 @@ public class StatusController {
     private EiProducers eiProducers;
 
     @Gson.TypeAdapters
-    @ApiModel(value = "status_info")
+    @Schema(name = "status_info")
     public static class StatusInfo {
-        @ApiModelProperty(value = "status text")
+        @Schema(name = "status", description = "status text")
         @SerializedName("status")
         @JsonProperty(value = "status", required = true)
         public final String status;
 
-        @ApiModelProperty(value = "Number of EI producers")
+        @Schema(name = "no_of_producers", description = "Number of EI producers")
         @SerializedName("no_of_producers")
         @JsonProperty(value = "no_of_producers", required = true)
         public final int noOfProducers;
 
-        @ApiModelProperty(value = "Number of EI types")
+        @Schema(name = "no_of_types", description = "Number of EI types")
         @SerializedName("no_of_types")
         @JsonProperty(value = "no_of_types", required = true)
         public final int noOfTypes;
 
-        @ApiModelProperty(value = "Number of EI jobs")
+        @Schema(name = "no_of_jobs", description = "Number of EI jobs")
         @SerializedName("no_of_jobs")
         @JsonProperty(value = "no_of_jobs", required = true)
         public final int noOfJobs;
@@ -87,10 +90,13 @@ public class StatusController {
     }
 
     @GetMapping(path = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns status and statistics of this service")
+    @Operation(summary = "Returns status and statistics of this service")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Service is living", response = StatusInfo.class) //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Service is living", //
+                content = @Content(schema = @Schema(implementation = StatusInfo.class))) //
         })
     public Mono<ResponseEntity<Object>> getStatus() {
         StatusInfo info = new StatusInfo("hunky dory", this.eiProducers, this.eiTypes, this.eiJobs);

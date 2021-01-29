@@ -42,9 +42,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.resources.ConnectionProvider;
-import reactor.netty.tcp.ProxyProvider.Proxy;
-import reactor.netty.tcp.TcpClient;
+import reactor.netty.transport.ProxyProvider;
 
 /**
  * Generic reactive REST client.
@@ -200,32 +198,34 @@ public class AsyncRestClient {
             && !httpProxyConfig.httpProxyHost().isEmpty();
     }
 
-    private TcpClient createTcpClient() {
-        TcpClient client = TcpClient.create(ConnectionProvider.newConnection()) //
+    private HttpClient buildHttpClient() {
+        HttpClient httpClient = HttpClient.create() //
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .doOnConnected(connection -> {
                 connection.addHandlerLast(new ReadTimeoutHandler(30));
                 connection.addHandlerLast(new WriteTimeoutHandler(30));
             });
+
         if (this.sslContext != null) {
-            client = client.secure(c -> c.sslContext(sslContext));
+            httpClient = httpClient.secure(ssl -> {
+                ssl.sslContext(sslContext);
+            });
         }
+
         if (isHttpProxyConfigured()) {
-            client = client.proxy(proxy -> proxy.type(Proxy.HTTP).host(httpProxyConfig.httpProxyHost())
-                .port(httpProxyConfig.httpProxyPort()));
+            httpClient = httpClient.proxy(proxy -> proxy.type(ProxyProvider.Proxy.HTTP)
+                .host(httpProxyConfig.httpProxyHost()).port(httpProxyConfig.httpProxyPort()));
         }
-        return client;
+        return httpClient;
     }
 
-    private WebClient createWebClient(String baseUrl, TcpClient tcpClient) {
-        HttpClient httpClient = HttpClient.from(tcpClient);
-
-        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
+    private WebClient buildWebClient(String baseUrl) {
+        final HttpClient httpClient = buildHttpClient();
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder() //
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)) //
             .build();
         return WebClient.builder() //
-            .clientConnector(connector) //
+            .clientConnector(new ReactorClientHttpConnector(httpClient)) //
             .baseUrl(baseUrl) //
             .exchangeStrategies(exchangeStrategies) //
             .build();
@@ -233,15 +233,9 @@ public class AsyncRestClient {
 
     private Mono<WebClient> getWebClient() {
         if (this.webClient == null) {
-            try {
-                TcpClient tcpClient = createTcpClient();
-                this.webClient = createWebClient(this.baseUrl, tcpClient);
-            } catch (Exception e) {
-                logger.error("Could not create WebClient {}", e.getMessage());
-                return Mono.error(e);
-            }
+            this.webClient = buildWebClient(baseUrl);
         }
-        return Mono.just(this.webClient);
+        return Mono.just(buildWebClient(baseUrl));
     }
 
 }
