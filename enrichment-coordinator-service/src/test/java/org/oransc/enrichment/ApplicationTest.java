@@ -59,7 +59,6 @@ import org.oransc.enrichment.controllers.producer.ProducerConsts;
 import org.oransc.enrichment.controllers.producer.ProducerEiTypeInfo;
 import org.oransc.enrichment.controllers.producer.ProducerJobInfo;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
-import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
 import org.oransc.enrichment.controllers.producer.ProducerStatusInfo;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
@@ -163,15 +162,14 @@ class ApplicationTest {
     }
 
     @Test
-    void createApiDoc() throws FileNotFoundException {
-        String url = "/v2/api-docs";
+    void generateApiDoc() throws FileNotFoundException {
+        String url = "/v3/api-docs";
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         JSONObject jsonObj = new JSONObject(resp.getBody());
-        jsonObj.remove("host");
-        assertThat(jsonObj.getJSONObject("definitions").remove("Mono«ResponseEntity«object»»")).isNotNull();
-        assertThat(jsonObj.getJSONObject("definitions").remove("Void")).isNotNull();
+        assertThat(jsonObj.remove("servers")).isNotNull();
+
         String indented = jsonObj.toString(4);
         try (PrintStream out = new PrintStream(new FileOutputStream("api/ecs-api.json"))) {
             out.print(indented);
@@ -731,9 +729,9 @@ class ApplicationTest {
         assertThat(statusInfo.opState).isEqualTo(expectedOperationalState);
     }
 
-    ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo(String typeId)
+    ProducerEiTypeInfo producerEiTypeRegistrationInfo(String typeId)
         throws JsonMappingException, JsonProcessingException {
-        return new ProducerEiTypeRegistrationInfo(jsonSchemaObject(), typeId);
+        return new ProducerEiTypeInfo(jsonSchemaObject());
     }
 
     ProducerRegistrationInfo producerEiRegistratioInfoRejecting(String typeId)
@@ -801,6 +799,7 @@ class ApplicationTest {
         throws JsonMappingException, JsonProcessingException, ServiceException {
         String url = ProducerConsts.API_ROOT + "/eitypes/" + eiTypeId;
         String body = gson.toJson(producerEiTypeRegistrationInfo(eiTypeId));
+
         ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
         this.eiTypes.getType(eiTypeId);
         return resp.getStatusCode();

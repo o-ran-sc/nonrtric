@@ -23,17 +23,16 @@ package org.oransc.enrichment.controllers.consumer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "EiJobStatusObject", description = "Status for an EI job")
+@Schema(name = "EiJobStatusObject", description = "Status for an EI job")
 public class ConsumerEiJobStatus {
 
     @Gson.TypeAdapters
-    @ApiModel(value = "EiJobStatusValues", description = "Allowed values for EI job status")
+    @Schema(name = "EiJobStatusValues", description = "Allowed values for EI job status")
     public enum EiJobStatusValues {
         ENABLED, DISABLED
     }
@@ -42,7 +41,7 @@ public class ConsumerEiJobStatus {
         + "ENABLED: the A1-EI producer is able to deliver EI result for the EI job\n" //
         + "DISABLED: the A1-EI producer is unable to deliver EI result for the EI job";
 
-    @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "eiJobStatus", required = true)
+    @Schema(name = "eiJobStatus", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
     @SerializedName("eiJobStatus")
     @JsonProperty(value = "eiJobStatus", required = true)
     public EiJobStatusValues state;
