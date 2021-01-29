@@ -46,6 +46,30 @@
       "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4c188d0_6dc5d94c",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-01-29T13:50:46Z",
+      "side": 1,
+      "message": "The image is not in Nexus because a1-controller was removed (by mistake, I assume) from the parent pom file of nonrtric repo in this commit:\n\nhttps://gerrit.o-ran-sc.org/r/c/nonrtric/+/5054\n\nSo, we should add it back to this pom file:\nhttps://gerrit.o-ran-sc.org/r/gitweb?p\u003dnonrtric.git;a\u003dblob;f\u003dpom.xml;h\u003d8e2fdf78ca9422568fbaa800d4d18c77c626baf2;hb\u003drefs/heads/cherry\n\nJust need to add this line:\n\u003cmodule\u003esdnc-a1-controller\u003c/module\u003e\n\nIn my opinion, that would be the correct way to proceed rather than using an old image version here.",
+      "parentUuid": "1af1a917_eed3d322",
+      "range": {
+        "startLine": 41,
+        "startChar": 69,
+        "endLine": 41,
+        "endChar": 74
+      },
+      "revId": "7974c2c4be7991b112d68127ac9c1ebcd370973a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
