@@ -23,11 +23,14 @@ package org.oransc.enrichment.controllers.producer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,8 +59,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
-@RestController("ProducerController")
-@Api(tags = {ProducerConsts.PRODUCER_API_NAME})
+@RestController("Producer registry")
+@Tag(name = ProducerConsts.PRODUCER_API_NAME)
 public class ProducerController {
 
     private static Gson gson = new GsonBuilder().create();
@@ -71,15 +74,14 @@ public class ProducerController {
     @Autowired
     private EiProducers eiProducers;
 
-    @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI type identifiers", notes = "")
+    @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = "EI type identifiers", description = "") //
     @ApiResponses(
         value = { //
             @ApiResponse(
-                code = 200,
-                message = "EI type identifiers",
-                response = String.class,
-                responseContainer = "List"), //
+                responseCode = "200",
+                description = "EI type identifiers", //
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))) //
         })
     public ResponseEntity<Object> getEiTypeIdentifiers( //
     ) {
@@ -92,14 +94,17 @@ public class ProducerController {
     }
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI type", notes = "")
+    @Operation(summary = "Individual EI type", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI type", response = ProducerEiTypeInfo.class), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information type is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI type", //
+                content = @Content(schema = @Schema(implementation = ProducerEiTypeInfo.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
     public ResponseEntity<Object> getEiType( //
         @PathVariable("eiTypeId") String eiTypeId) {
         try {
@@ -114,13 +119,22 @@ public class ProducerController {
     @PutMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Type updated", response = VoidResponse.class), //
-            @ApiResponse(code = 201, message = "Type created", response = VoidResponse.class), //
-            @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.ErrorInfo.class)})
-
-    @ApiOperation(value = "Individual EI type", notes = "")
+            @ApiResponse(
+                responseCode = "200",
+                description = "Type updated", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "201",
+                description = "Type created", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "400",
+                description = "Bad request", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
+    @Operation(summary = "Individual EI type", description = "")
     public ResponseEntity<Object> putEiType( //
-        @PathVariable("eiTypeId") String eiTypeId, @RequestBody ProducerEiTypeInfo registrationInfo) {
+        @PathVariable("eiTypeId") String eiTypeId, //
+        @RequestBody ProducerEiTypeInfo registrationInfo) {
 
         EiType previousDefinition = this.eiTypes.get(eiTypeId);
         if (registrationInfo.jobDataSchema == null) {
@@ -130,20 +144,27 @@ public class ProducerController {
         return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
     }
 
-    @DeleteMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI type", notes = "")
+    @DeleteMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = "Individual EI type", description = "") //
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
-            @ApiResponse(code = 204, message = "Producer deleted", response = VoidResponse.class),
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information type is not found",
-                response = ErrorResponse.ErrorInfo.class),
+                responseCode = "200",
+                description = "Not used", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
             @ApiResponse(
-                code = 406,
-                message = "The Enrichment Information type has one or several active producers",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "204",
+                description = "Producer deleted", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
+            @ApiResponse(
+                responseCode = "406",
+                description = "The Enrichment Information type has one or several active producers", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> deleteEiType( //
         @PathVariable("eiTypeId") String eiTypeId) {
 
@@ -160,20 +181,19 @@ public class ProducerController {
     }
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eiproducers", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI producer identifiers", notes = "")
+    @Operation(summary = "EI producer identifiers", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
-                code = 200,
-                message = "EI producer identifiers",
-                response = String.class,
-                responseContainer = "List"), //
+                responseCode = "200",
+                description = "EI producer identifiers", //
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))) //
         })
     public ResponseEntity<Object> getEiProducerIdentifiers( //
-        @ApiParam(
+        @Parameter(
             name = "ei_type_id",
             required = false,
-            value = "If given, only the producers for the EI Data type is returned.") //
+            description = "If given, only the producers for the EI Data type is returned.") //
         @RequestParam(name = "ei_type_id", required = false) String typeId //
     ) {
         List<String> result = new ArrayList<>();
@@ -188,14 +208,18 @@ public class ProducerController {
     @GetMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI producer", notes = "")
+    @Operation(summary = "Individual EI producer", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI producer", response = ProducerRegistrationInfo.class), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information producer is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI producer", //
+                content = @Content(schema = @Schema(implementation = ProducerRegistrationInfo.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information producer is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))//
+        })
     public ResponseEntity<Object> getEiProducer( //
         @PathVariable("eiProducerId") String eiProducerId) {
         try {
@@ -210,18 +234,18 @@ public class ProducerController {
     @GetMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}/eijobs",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI job definitions", notes = "EI job definitions for one EI producer")
+    @Operation(summary = "EI job definitions", description = "EI job definitions for one EI producer")
     @ApiResponses(
         value = { //
             @ApiResponse(
-                code = 200,
-                message = "EI producer",
-                response = ProducerJobInfo.class,
-                responseContainer = "List"), //
+                responseCode = "404",
+                description = "Enrichment Information producer is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information producer is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI producer", //
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProducerJobInfo.class)))), //
+        })
     public ResponseEntity<Object> getEiProducerJobs( //
         @PathVariable("eiProducerId") String eiProducerId) {
         try {
@@ -242,15 +266,19 @@ public class ProducerController {
 
     @GetMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}/status",
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI producer status")
+        produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = "EI producer status") //
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI producer status", response = ProducerStatusInfo.class), //
             @ApiResponse(
-                code = 404,
-                message = "Enrichment Information producer is not found",
-                response = ErrorResponse.ErrorInfo.class)})
+                responseCode = "200",
+                description = "EI producer status", //
+                content = @Content(schema = @Schema(implementation = ProducerStatusInfo.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Enrichment Information producer is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> getEiProducerStatus( //
         @PathVariable("eiProducerId") String eiProducerId) {
         try {
@@ -271,12 +299,18 @@ public class ProducerController {
     @PutMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}", //
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI producer", notes = "")
+    @Operation(summary = "Individual EI producer", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 201, message = "Producer created", response = VoidResponse.class), //
-            @ApiResponse(code = 200, message = "Producer updated", response = VoidResponse.class)} //
-    )
+            @ApiResponse(
+                responseCode = "201",
+                description = "Producer created", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Producer updated", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
     public ResponseEntity<Object> putEiProducer( //
         @PathVariable("eiProducerId") String eiProducerId, //
         @RequestBody ProducerRegistrationInfo registrationInfo) {
@@ -292,12 +326,22 @@ public class ProducerController {
     @DeleteMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI producer", notes = "")
+    @Operation(summary = "Individual EI producer", description = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
-            @ApiResponse(code = 204, message = "Producer deleted", response = VoidResponse.class),
-            @ApiResponse(code = 404, message = "Producer is not found", response = ErrorResponse.ErrorInfo.class)})
+            @ApiResponse(
+                responseCode = "200",
+                description = "Not used", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))),
+            @ApiResponse(
+                responseCode = "204",
+                description = "Producer deleted", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Producer is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
     public ResponseEntity<Object> deleteEiProducer(@PathVariable("eiProducerId") String eiProducerId) {
         try {
             final EiProducer producer = this.eiProducers.getProducer(eiProducerId);

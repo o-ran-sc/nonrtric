@@ -23,16 +23,15 @@ package org.oransc.enrichment.controllers.producer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "producer_ei_type_info", description = "Information for an EI type")
+@Schema(name = "producer_ei_type_info", description = "Information for an EI type")
 public class ProducerEiTypeInfo {
 
-    @ApiModelProperty(value = "Json schema for the job data", required = true)
+    @Schema(name = "ei_job_data_schema", description = "Json schema for the job data", required = true)
     @SerializedName("ei_job_data_schema")
     @JsonProperty(value = "ei_job_data_schema", required = true)
     public Object jobDataSchema;

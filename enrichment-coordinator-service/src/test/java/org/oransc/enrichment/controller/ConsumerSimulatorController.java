@@ -20,10 +20,12 @@
 
 package org.oransc.enrichment.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.List;
 import lombok.Getter;
 
 import org.oransc.enrichment.controllers.VoidResponse;
+import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiJobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ConsumerSimulatorController")
-@Api(tags = {"A1-EI (enrichment information) callbacks"})
+@Tag(name = ConsumerConsts.CONSUMER_API_CALLBACKS_NAME)
 public class ConsumerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -63,15 +66,20 @@ public class ConsumerSimulatorController {
     private TestResults testResults = new TestResults();
 
     public static String getJobStatusUrl(String eiJobId) {
-        return "/consumer_simulator/eijobs/" + eiJobId + "/status";
+        return "/example_dataconsumer/eijobs/" + eiJobId + "/status";
     }
 
-    @PostMapping(path = "/consumer_simulator/eijobs/{eiJobId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job status", notes = "")
+    @PostMapping(path = "/example_dataconsumer/eijobs/{eiJobId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Callback for changed EI job status",
+        description = "The primitive is implemented by the data consumer and is invoked when a EI job status has been changed.")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)} //
-    )
+            @ApiResponse(
+                responseCode = "200",
+                description = "OK", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
     public ResponseEntity<Object> jobStatusCallback( //
         @PathVariable("eiJobId") String eiJobId, //
         @RequestBody ConsumerEiJobStatus status) {
