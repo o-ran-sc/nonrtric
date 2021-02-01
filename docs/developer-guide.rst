@@ -23,3 +23,9 @@ End-to-end call
 ---------------
 
 To test the functionality provided in ONAP, try execute a complete `end-to-end call <https://wiki.onap.org/pages/viewpage.action?pageId=92997705>`_, which uses some other opensource functions from O-RAN SC (`NONRTRIC project <https://wiki.o-ran-sc.org/display/RICNR>`_)
+
+Kubernetes deployment
+^^^^^^^^^^^^^^^^^^^^^
+
+Non-RT RIC can be also deploy as a kubernetes cluster, it/dep repository hosts deployment and integration artifacts and can be clone from this `page <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_. Instructions and helm charts to deploy the Non-RT-RIC functions in OSC's integrated test environment can be found in the ./nonrtric directory.
+For more information see `Integration and Testing documentation <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_
