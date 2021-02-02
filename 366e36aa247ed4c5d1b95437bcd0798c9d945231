@@ -46,6 +46,30 @@
       "revId": "366e36aa247ed4c5d1b95437bcd0798c9d945231",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eda5c7a3_28d0fed0",
+        "filename": "docker-compose/policy-service/config/application-policyagent.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-02-02T12:12:11Z",
+      "side": 0,
+      "message": "Can you please double-check? I still see in the latest patchset that this file has been deleted. We should keep this file as it is, and I will update this file in the upcoming commit.",
+      "parentUuid": "1333da13_94a5f0b3",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 7
+      },
+      "revId": "366e36aa247ed4c5d1b95437bcd0798c9d945231",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
