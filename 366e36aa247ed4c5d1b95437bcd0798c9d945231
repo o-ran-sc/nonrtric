@@ -22,6 +22,30 @@
       "revId": "366e36aa247ed4c5d1b95437bcd0798c9d945231",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1333da13_94a5f0b3",
+        "filename": "docker-compose/policy-service/config/application-policyagent.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-02-02T11:50:35Z",
+      "side": 0,
+      "message": "This is removed.",
+      "parentUuid": "d801ab62_9990fdaf",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 7
+      },
+      "revId": "366e36aa247ed4c5d1b95437bcd0798c9d945231",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
