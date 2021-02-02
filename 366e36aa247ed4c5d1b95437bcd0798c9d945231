@@ -94,6 +94,30 @@
       "revId": "366e36aa247ed4c5d1b95437bcd0798c9d945231",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ce21d4e_8c2c611f",
+        "filename": "docker-compose/policy-service/config/application-policyagent.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-02-02T12:19:00Z",
+      "side": 0,
+      "message": "Thanks",
+      "parentUuid": "b7b95d4e_2d1f7d15",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 7
+      },
+      "revId": "366e36aa247ed4c5d1b95437bcd0798c9d945231",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
