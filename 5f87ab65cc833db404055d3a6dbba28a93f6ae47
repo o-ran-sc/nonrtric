@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41a9de28_65ffafe4",
+        "filename": "docker-compose/data/preparePmsData.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-02-02T10:53:31Z",
+      "side": 1,
+      "message": "As per my understanding, STD_v2 is used by ric3, not ric2",
+      "range": {
+        "startLine": 52,
+        "startChar": 43,
+        "endLine": 52,
+        "endChar": 56
+      },
+      "revId": "5f87ab65cc833db404055d3a6dbba28a93f6ae47",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "609999ab_ea75fbc5",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-02-02T10:53:31Z",
+      "side": 1,
+      "message": "This is not used in OSC image.",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 25
+      },
+      "revId": "5f87ab65cc833db404055d3a6dbba28a93f6ae47",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1cb5cbf_253fb305",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-02-02T10:53:31Z",
+      "side": 1,
+      "message": "This is not used in OSC image.",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 30
+      },
+      "revId": "5f87ab65cc833db404055d3a6dbba28a93f6ae47",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
