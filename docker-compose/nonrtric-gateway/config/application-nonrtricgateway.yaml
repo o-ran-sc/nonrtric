@@ -34,6 +34,14 @@ spring:
         uri: https://policy-agent:8433
         predicates:
         - Path=/a1-policy/v2/policies/**
+      - id: rics
+        uri: https://policy-agent:8433
+        predicates:
+        - Path=/a1-policy/v2/rics/**
+      - id: ei-producer
+        uri: https://ecs:8434
+        predicates:
+        - Path=/ei-producer/v1/eiproducers/**
 management:
   endpoint:
     gateway:
