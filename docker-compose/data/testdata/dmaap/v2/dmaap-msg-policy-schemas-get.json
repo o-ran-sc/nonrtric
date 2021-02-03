@@ -1,0 +1,13 @@
+[
+    {
+        "type": "request",
+        "correlationId": "c09ac7d1-de62-0016-2000-e63701125557-201",
+        "target": "policy-agent",
+        "timestamp": "2019-05-14T11:44:51.36Z",
+        "apiVersion": "1.0",
+        "originatorId": "849e6c6b420",
+        "requestId": "23343221",
+        "operation": "GET",
+        "url": "/a1-policy/v2/policy-types/1"
+    }
+]

@@ -30,40 +30,46 @@
 dmaa_mr_port=${1:-3904}
 a1_sim_OSC_port=${2:-30001}
 a1_sim_STD_port=${3:-30003}
-httpx=${4:-"http"}
+a1_sim_STD_v1_port=${4:-30005}
+httpx=${5:-"http"}
 
 echo "using dmaap-mr port: "$dmaa_mr_port
 echo "using a1-sim-OSC port: "$a1_sim_OSC_port
 echo "using a1-sim-STD port: "$a1_sim_STD_port
+echo "using a1-sim-STD-v1 port: "$a1_sim_STD_v1_port
 echo "using protocol: "$httpx
 echo -e "\n"
 
 echo "dmaap-mr topics:"
-curl -skw " %{http_code}" $httpx://localhost:$dmaa_mr_port/topics/listAll
+curl -skw %{http_code} $httpx://localhost:$dmaa_mr_port/topics/listAll
 echo -e "\n"
 
 echo "dmaap-mr create topic A1-POLICY-AGENT-READ:"
-curl -skw " %{http_code}" -X POST "$httpx://localhost:$dmaa_mr_port/topics/create" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"topicName\": \"A1-POLICY-AGENT-READ\",  \"topicDescription\": \"test topic\",  \"partitionCount\": 1,  \"replicationCount\": 1,  \"transactionEnabled\": \"false\"}"
+curl -skw %{http_code} -X POST "$httpx://localhost:$dmaa_mr_port/topics/create" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"topicName\": \"A1-POLICY-AGENT-READ\",  \"topicDescription\": \"test topic\",  \"partitionCount\": 1,  \"replicationCount\": 1,  \"transactionEnabled\": \"false\"}"
 echo -e "\n"
 
 echo "dmaap-mr create topic A1-POLICY-AGENT-WRITE:"
-curl -skw " %{http_code}" -X POST "$httpx://localhost:$dmaa_mr_port/topics/create" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"topicName\": \"A1-POLICY-AGENT-WRITE\",  \"topicDescription\": \"test topic\",  \"partitionCount\": 1,  \"replicationCount\": 1,  \"transactionEnabled\": \"false\"}"
+curl -skw %{http_code} -X POST "$httpx://localhost:$dmaa_mr_port/topics/create" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"topicName\": \"A1-POLICY-AGENT-WRITE\",  \"topicDescription\": \"test topic\",  \"partitionCount\": 1,  \"replicationCount\": 1,  \"transactionEnabled\": \"false\"}"
 echo -e "\n"
 
 echo "dmaap-mr topics:"
-curl -skw " %{http_code}" $httpx://localhost:$dmaa_mr_port/topics/listAll
+curl -skw %{http_code} $httpx://localhost:$dmaa_mr_port/topics/listAll
 echo -e "\n"
 
 echo "ric1 version:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_OSC_port/counter/interface
+curl -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/counter/interface
 echo -e "\n"
 
 echo "ric2 version:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_port/counter/interface
+curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/counter/interface
 echo -e "\n"
 
 echo "create policy type 1 to ric1:"
-curl -X PUT -skw " %{http_code}" $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @testdata/OSC/policy_type.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @testdata/OSC/policy_type.json
+echo -e "\n"
+
+echo "create policy type 2 to ric3:"
+curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v1_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v1/policy_type.json
 echo -e "\n"
 
 for i in {1..12}; do
@@ -71,7 +77,7 @@ for i in {1..12}; do
     curlString="curl -skw %{http_code} $httpx://localhost:8081/policy_types"
     res=$($curlString)
     echo "$res"
-    expect="[\"\",\"1\"]200"
+    expect="[\"\",\"1\",\"2\"]200"
     if [ "$res" == "$expect" ]; then
         echo -e "\n"
         break;
@@ -80,22 +86,66 @@ for i in {1..12}; do
     fi
 done
 
+## Using PMS v1 interface
 echo "create service 1 to policy agent via dmaap_mr:"
-curl -k -X POST -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap-msg-service-create.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-service-create.json
 echo -e "\n"
 
-echo "create policies to ric1 & ric2 with type1 and service1 via dmaa_mr:"
-curl -k -X POST -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap-msg-policy-create.json
+echo "ger result from mr of previous request:"
+curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
-echo "policy numbers from ric1:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_OSC_port/counter/num_instances
+echo "create policies to ric1 & ric2 & ric3 with type1 and service1 via dmaa_mr:"
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-policy-create.json
 echo -e "\n"
 
-echo "policy numbers from ric2:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_port/counter/num_instances
+echo "ger result from mr of previous request:"
+curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
 echo "get policy from policy agent via dmaap_mr:"
-curl -k -X POST -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap-msg-policy-get.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-policy-get.json
 echo -e "\n"
+
+echo "ger result from mr of previous request:"
+curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
+echo -e "\n"
+
+## Using PMS v2 interface
+echo "create service 2 to policy agent via dmaap_mr:"
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-service-create.json
+echo -e "\n"
+
+echo "ger result from mr of previous request:"
+curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
+echo -e "\n"
+
+echo "create policies to ric1 & ric2 & ric3 with type1 and service1 via dmaa_mr:"
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-policy-create.json
+echo -e "\n"
+
+echo "ger result from mr of previous request:"
+curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
+echo -e "\n"
+
+echo "get policy from policy agent via dmaap_mr:"
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-policy-get.json
+echo -e "\n"
+
+echo "ger result from mr of previous request:"
+curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
+echo -e "\n"
+
+## Get metric from rics
+echo "policy numbers from ric1:"
+curl -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/counter/num_instances
+echo -e "\n"
+
+echo "policy numbers from ric2:"
+curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/counter/num_instances
+echo -e "\n"
+
+echo "policy numbers from ric3:"
+curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v1_port/counter/num_instances
+echo -e "\n"
+

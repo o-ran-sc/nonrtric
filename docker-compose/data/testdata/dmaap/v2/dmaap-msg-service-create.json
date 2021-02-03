@@ -1,0 +1,46 @@
+[
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596363458549998500",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "callback_url": "http://callback-receiver:8090/callbacks/1",
+            "keep_alive_interval_seconds": "1000",
+            "service_id": "serv2"
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:38.550324",
+        "type": "request",
+        "url": "/a1-policy/v2/services"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596363458549998501",
+        "originatorId": "849e6c6b421",
+        "payload": {
+            "callback_url": "http://callback-receiver:8090/callbacks/1",
+            "keep_alive_interval_seconds": "1000",
+            "service_id": "service2"
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:38.550324",
+        "type": "request",
+        "url": "/a1-policy/v2/services"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596363459196978900",
+        "originatorId": "849e6c6b420",
+        "payload": {},
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:39.197067",
+        "type": "request",
+        "url": "/a1-policy/v2/services/serv2/keepalive"
+    }
+]

@@ -78,5 +78,25 @@
         "timestamp": "2020-08-01 17:56:06.656949",
         "type": "request",
         "url": "/policy?id=0f7bb041e1584b1fa17e87520d70a3102&ric=ric2&service=service1"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253558",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "scope": {
+                "ueId": "ue3103",
+                "qosId": "qos3103"
+            },
+            "qosObjectives": {
+                "priorityLevel": 3203
+            }
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/policy?id=0f7bb041e1584b1fa17e87520d70a3103&ric=ric3&service=service1&type=2"
     }
 ]

@@ -1,0 +1,142 @@
+[
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304565904621535",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "policy_data": {
+                "scope": {
+                    "ueId": "ue3010",
+                    "qosId": "qos3010"
+                },
+                "qosObjectives": {
+                    "priorityLevel": 3010
+                }
+            },
+            "policy_id": "0f7bb041e1584b1fa17e87520d70a3010",
+            "policytype_id": "1",
+            "ric_id": "ric1",
+            "service_id": "service2",
+            "status_notification_uri": "http://example.com",
+            "transient": true
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:05.905035",
+        "type": "request",
+        "url": "/a1-policy/v2/policies/"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253556",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "policy_data": {
+                "scope": {
+                    "ueId": "ue3120",
+                    "qosId": "qos3120"
+                },
+                "qosObjectives": {
+                    "priorityLevel": 3120
+                }
+            },
+            "policy_id": "0f7bb041e1584b1fa17e87520d70a3120",
+            "policytype_id": "1",
+            "ric_id": "ric1",
+            "service_id": "service2",
+            "status_notification_uri": "http://example.com",
+            "transient": true
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/a1-policy/v2/policies/"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253557",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "policy_data": {
+                "scope": {
+                    "ueId": "ue3131",
+                    "qosId": "qos3131"
+                },
+                "qosObjectives": {
+                    "priorityLevel": 3101
+                }
+            },
+            "policy_id": "0f7bb041e1584b1fa17e87520d70a3131",
+            "policytype_id": "1",
+            "ric_id": "ric1",
+            "service_id": "service2",
+            "status_notification_uri": "http://example.com",
+            "transient": true
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/a1-policy/v2/policies/"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253558",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "policy_data": {
+                "scope": {
+                    "ueId": "ue3142",
+                    "qosId": "qos3142"
+                },
+                "qosObjectives": {
+                    "priorityLevel": 3102
+                }
+            },
+            "policy_id": "0f7bb041e1584b1fa17e87520d70a3142",
+            "policytype_id": "",
+            "ric_id": "ric2",
+            "service_id": "service2",
+            "status_notification_uri": "http://example.com",
+            "transient": true
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/a1-policy/v2/policies/"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253558",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "policy_data": {
+                "scope": {
+                    "ueId": "ue3153",
+                    "qosId": "qos3153"
+                },
+                "qosObjectives": {
+                    "priorityLevel": 3103
+                }
+            },
+            "policy_id": "0f7bb041e1584b1fa17e87520d70a3153",
+            "policytype_id": "2",
+            "ric_id": "ric3",
+            "service_id": "service2",
+            "status_notification_uri": "http://example.com",
+            "transient": true
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/a1-policy/v2/policies/"
+    }
+]

@@ -1,0 +1,14 @@
+[
+    {
+        "apiVersion": "1.0",
+        "operation": "GET",
+        "correlationId": "1596363458896827100",
+        "originatorId": "849e6c6b420",
+        "payload": {},
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:38.897367",
+        "type": "request",
+        "url": "a1-policy/v2/services"
+    }
+]
