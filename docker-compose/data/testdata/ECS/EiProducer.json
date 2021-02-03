@@ -1,13 +1,5 @@
 {
-    "supported_ei_types": [{
-        "ei_type_identity": "type1",
-        "ei_job_data_schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "STD_Type1_1.0.0",
-            "description": "EI-Type 1",
-            "type": "object"
-        }
-    }],
-    "ei_job_callback_url": "http://producer:80/",
-    "ei_producer_supervision_callback_url": "http://producer:80/"
+    "supported_ei_types":["type1"],
+    "ei_job_callback_url": "https://producer-stub:8093/callbacks/job/prod-a",
+    "ei_producer_supervision_callback_url": "https://producer-stub:8093/callbacks/supervision/prod-a"
 }
