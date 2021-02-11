@@ -14,6 +14,10 @@ limitations under the License.
 
 For more information about license please see the [LICENSE](LICENSE.txt) file for details.
 
+## O-RAN-SC ControlPanel Gateway:
+To view the policy or enrichment information in control panel gui along with Policy Management Service & Enrichment Coordinator Service you should also have nonrtric gateway because all the request from the gui is passed through this API gateway.
+To start all the necessary components,
+docker-compose -f docker-compose.yaml -f control-panel/docker-compose.yaml -f nonrtric-gateway/docker-compose.yaml -f policy-service/docker-compose.yaml -f ecs/docker-compose.yaml -f a1-sim/docker-compose.yaml up
 ## O-RAN-SC docker-compose files:
 The docker compose file helps the user to deploy all or partial components of nonrtric with one command.
 
