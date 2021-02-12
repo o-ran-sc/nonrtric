@@ -58,13 +58,22 @@ public class SwaggerConfig {
 
     static final String API_TITLE = "Enrichment Data service";
 
-    static final String DESCRIPTION = "<h1>API documentation</h1>" + "<h2>General</h2>" + "<p>"
-        + "  The service is mainly a broker between data producers and data consumers. A data producer has the ability to producer one or several type of data (EI type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (EI job). One EI job consists of the the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types."
-        + "</p>" + "<h2>APIs provided by the service</h2>" + "<h4>A1-EI</h4>" + "<p>"
-        + "  This API is between Near-RT RIC, which is a data consumer and the Non-RT RIC. " + "</p>"
-        + "<h4>Data producer API</h4>" + "<p>"
+    static final String DESCRIPTION = "<h1>API documentation</h1>" //
+        + "<h2>General</h2>" //
+        + "<p>" //
+        + "  The service is mainly a broker between data producers and data consumers. A data producer has the ability to producer one or several type of data (EI type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (EI job). One EI job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types." //
+        + "</p>" //
+        + "<h2>APIs provided by the service</h2>" //
+        + "<h4>A1-EI</h4>" //
+        + "<p>" //
+        + "  This API is between Near-RT RIC, which is a data consumer, and the Non-RT RIC. " //
+        + "</p>" + "<h4>Data producer API</h4>" //
+        + "<p>"
         + "  This API is between data producers and this service. It is divivided into two parts, where one is provided by this service (registration) and one part is provided by the data producer."
-        + "</p>" + "<h4>EI Service status</h4>" + "<p>" + "  This API provides a means to monitor the service."
+        + "</p>" //
+        + "<h4>EI Service status</h4>" //
+        + "<p>" //
+        + "  This API provides a means to monitor the service." //
         + "</p>";
 
 }
