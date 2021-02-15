@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90a06341_66378508",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-02-15T12:30:27Z",
+      "side": 1,
+      "message": "duplicate",
+      "range": {
+        "startLine": 64,
+        "startChar": 334,
+        "endLine": 64,
+        "endChar": 337
+      },
+      "revId": "472ca64fc189d543475e22c9aa779703ef7ce132",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "654d5555_d59d35d4",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-02-15T12:30:27Z",
+      "side": 1,
+      "message": "add a comma?",
+      "range": {
+        "startLine": 69,
+        "startChar": 70,
+        "endLine": 69,
+        "endChar": 71
+      },
+      "revId": "472ca64fc189d543475e22c9aa779703ef7ce132",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
