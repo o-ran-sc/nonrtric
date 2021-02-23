@@ -45,7 +45,7 @@ class MockEnrichmentService {
     @Test
     @SuppressWarnings("squid:S2699")
     void runMock() throws Exception {
-        logger.warn("**************** Keeping server alive! " + this.port);
+        logger.warn("*******teams_1.3.00.30857_amd64.deb********* Keeping server alive! " + this.port);
         synchronized (this) {
             this.wait();
         }

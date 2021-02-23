@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.controllers.r1consumer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -28,12 +28,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "EiJobStatusObject", description = "Status for an EI job")
-public class ConsumerEiJobStatus {
+@Schema(name = "JobStatus", description = "Status for an EI job")
+public class ConsumerJobStatus {
 
     @Gson.TypeAdapters
-    @Schema(name = "EiJobStatusValues", description = "Allowed values for EI job status")
-    public enum EiJobStatusValues {
+    @Schema(name = "JobStatusValues", description = "Allowed values for EI job status")
+    public enum InfoJobStatusValues {
         ENABLED, DISABLED
     }
 
@@ -44,12 +44,12 @@ public class ConsumerEiJobStatus {
     @Schema(name = "eiJobStatus", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
     @SerializedName("eiJobStatus")
     @JsonProperty(value = "eiJobStatus", required = true)
-    public EiJobStatusValues state;
+    public InfoJobStatusValues state;
 
-    public ConsumerEiJobStatus() {
+    public ConsumerJobStatus() {
     }
 
-    public ConsumerEiJobStatus(EiJobStatusValues state) {
+    public ConsumerJobStatus(InfoJobStatusValues state) {
         this.state = state;
     }
 

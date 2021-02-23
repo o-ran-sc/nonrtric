@@ -35,8 +35,8 @@ import java.util.List;
 import lombok.Getter;
 
 import org.oransc.enrichment.controllers.VoidResponse;
-import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
-import org.oransc.enrichment.controllers.consumer.ConsumerEiJobStatus;
+import org.oransc.enrichment.controllers.a1e.A1eConsts;
+import org.oransc.enrichment.controllers.a1e.A1eEiJobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -48,14 +48,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ConsumerSimulatorController")
-@Tag(name = ConsumerConsts.CONSUMER_API_CALLBACKS_NAME)
+@Tag(name = A1eConsts.CONSUMER_API_CALLBACKS_NAME)
 public class ConsumerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static class TestResults {
 
-        public List<ConsumerEiJobStatus> status = Collections.synchronizedList(new ArrayList<ConsumerEiJobStatus>());
+        public List<A1eEiJobStatus> status = Collections.synchronizedList(new ArrayList<A1eEiJobStatus>());
 
         public void reset() {
             status.clear();
@@ -82,7 +82,7 @@ public class ConsumerSimulatorController {
         })
     public ResponseEntity<Object> jobStatusCallback( //
         @PathVariable("eiJobId") String eiJobId, //
-        @RequestBody ConsumerEiJobStatus status) {
+        @RequestBody A1eEiJobStatus status) {
         logger.info("Job status callback status: {} eiJobId: {}", status.state, eiJobId);
         this.testResults.status.add(status);
         return new ResponseEntity<>(HttpStatus.OK);

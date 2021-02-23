@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Enrichment Information Service
+  title: Data management and exposure
   description: <h1>API documentation</h1><h2>General</h2><p>  The service is mainly
     a broker between data producers and data consumers. A data producer has the ability
     to producer one or several type of data (EI type). One type of data can be produced
@@ -9,10 +9,15 @@ info:
     and additional parameters for filtering of the data. These parameters are different
     for different data types.</p><h2>APIs provided by the service</h2><h4>A1-EI</h4><p>  This
     API is between Near-RT RIC, which is a data consumer, and the Non-RT RIC. </p><h4>Data
-    producer API</h4><p>  This API is between data producers and this service. It
-    is divivided into two parts, where one is provided by this service (registration)
-    and one part is provided by the data producer.</p><h4>EI Service status</h4><p>  This
-    API provides a means to monitor the service.</p>
+    producer API</h4><p>  This API is provided by the Non-RT RIC platform and is intended
+    to be part of the O-RAN R1 interface.  The API is for use by different kinds of
+    data producers. It is divivided into two parts, where one is provided by this
+    service (registration) and one part is provided by the data producer.</p><h4>Data
+    consumer API</h4><p>  This API is provided by the Non-RT RIC platform and is intended
+    to be part of the O-RAN R1 interface.  The API is for use by different kinds of
+    data consumers and prvides support for:<ul><li>Querying of available types of
+    data to consume.</li><li>Management of data subscription jobs</li></ul></p><h4>EI
+    Service status</h4><p>  This API provides a means to monitor the service.</p>
   license:
     name: Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -24,17 +29,19 @@ tags:
   description: Data consumer EI job registration
 - name: A1-EI (callbacks)
   description: Data consumer EI job status callbacks
-- name: Data producer (callbacks)
+- name: R1 Data producer (callbacks)
   description: API implemented by data producers
-- name: Data producer (registration)
+- name: R1 Data producer (registration)
   description: API for data producers
-- name: EI Service status
+- name: Service status
   description: API for monitoring of the service
+- name: R1 Data consumer
+  description: API for data consumers
 paths:
   /producer_simulator/ei_job:
     post:
       tags:
-      - Data producer (callbacks)
+      - R1 Data producer (callbacks)
       summary: Callback for EI job creation/modification
       description: The call is invoked to activate or to modify a data subscription.
         The endpoint is provided by the EI producer.
@@ -82,7 +89,7 @@ paths:
   /ei-producer/v1/eitypes:
     get:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: EI type identifiers
       operationId: getEiTypeIdentifiers
       responses:
@@ -109,10 +116,25 @@ paths:
                 type: array
                 items:
                   type: string
+  /data-consumer/v1/info-types:
+    get:
+      tags:
+      - R1 Data consumer
+      summary: Information type identifiers
+      operationId: getinfoTypeIdentifiers
+      responses:
+        200:
+          description: Information type identifiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /ei-producer/v1/eiproducers/{eiProducerId}/status:
     get:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: EI producer status
       operationId: getEiProducerStatus
       parameters:
@@ -139,7 +161,7 @@ paths:
   /producer_simulator/ei_job/{eiJobId}:
     delete:
       tags:
-      - Data producer (callbacks)
+      - R1 Data producer (callbacks)
       summary: Callback for EI job deletion
       description: The call is invoked to terminate a data subscription. The endpoint
         is provided by the EI producer.
@@ -162,7 +184,7 @@ paths:
   /ei-producer/v1/eitypes/{eiTypeId}:
     get:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: Individual EI type
       operationId: getEiType
       parameters:
@@ -188,7 +210,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: Individual EI type
       operationId: putEiType
       parameters:
@@ -226,7 +248,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: Individual EI type
       operationId: deleteEiType
       parameters:
@@ -265,7 +287,7 @@ paths:
   /status:
     get:
       tags:
-      - EI Service status
+      - Service status
       summary: Returns status and statistics of this service
       operationId: getStatus
       responses:
@@ -278,7 +300,7 @@ paths:
   /ei-producer/v1/eiproducers:
     get:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: EI producer identifiers
       operationId: getEiProducerIdentifiers
       parameters:
@@ -304,7 +326,7 @@ paths:
       tags:
       - A1-EI (registration)
       summary: Individual EI job
-      operationId: getIndividualEiJob
+      operationId: getIndividualEiJob_1
       parameters:
       - name: eiJobId
         in: path
@@ -368,7 +390,7 @@ paths:
       tags:
       - A1-EI (registration)
       summary: Individual EI job
-      operationId: deleteIndividualEiJob
+      operationId: deleteIndividualEiJob_1
       parameters:
       - name: eiJobId
         in: path
@@ -399,7 +421,7 @@ paths:
   /ei-producer/v1/eiproducers/{eiProducerId}:
     get:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: Individual EI producer
       operationId: getEiProducer
       parameters:
@@ -425,7 +447,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: Individual EI producer
       operationId: putEiProducer
       parameters:
@@ -457,7 +479,7 @@ paths:
                 $ref: '#/components/schemas/Void'
     delete:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: Individual EI producer
       operationId: deleteEiProducer
       parameters:
@@ -490,7 +512,7 @@ paths:
   /producer_simulator/health_check:
     get:
       tags:
-      - Data producer (callbacks)
+      - R1 Data producer (callbacks)
       summary: Producer supervision
       description: The endpoint is provided by the EI producer and is used for supervision
         of the producer.
@@ -502,10 +524,146 @@ paths:
             application/json:
               schema:
                 type: string
+  /data-consumer/v1/info-jobs:
+    get:
+      tags:
+      - R1 Data consumer
+      summary: EI job identifiers
+      description: query for EI job identifiers
+      operationId: getJobIds
+      parameters:
+      - name: infoTypeId
+        in: query
+        description: selects subscription jobs of matching information type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: owner
+        in: query
+        description: selects subscription jobs for one job owner
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: EI job identifiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: Enrichment Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /data-consumer/v1/info-jobs/{infoJobId}:
+    get:
+      tags:
+      - R1 Data consumer
+      summary: Individual data subscription job
+      operationId: getIndividualEiJob
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Information subscription job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        404:
+          description: Information subscription job is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    put:
+      tags:
+      - R1 Data consumer
+      summary: Individual data subscription job
+      operationId: putIndividualInfoJob
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+        required: true
+      responses:
+        200:
+          description: Job updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+        201:
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+        404:
+          description: Enrichment Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags:
+      - R1 Data consumer
+      summary: Individual data subscription job
+      operationId: deleteIndividualEiJob
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Not used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+        204:
+          description: Job deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+        404:
+          description: Information subscription job is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /ei-producer/v1/eiproducers/{eiProducerId}/eijobs:
     get:
       tags:
-      - Data producer (registration)
+      - R1 Data producer (registration)
       summary: EI job definitions
       description: EI job definitions for one EI producer
       operationId: getEiProducerJobs
@@ -528,6 +686,33 @@ paths:
                   $ref: '#/components/schemas/producer_ei_job_request'
         404:
           description: Enrichment Information producer is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /data-consumer/v1/info-types/{infoTypeId}:
+    get:
+      tags:
+      - R1 Data consumer
+      summary: Individual information type
+      operationId: getInfoType
+      parameters:
+      - name: infoTypeId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Information type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformationType'
+        404:
+          description: Information type is not found
           content:
             application/json:
               schema:
@@ -576,7 +761,7 @@ paths:
       tags:
       - A1-EI (registration)
       summary: EI job status
-      operationId: getEiJobStatus
+      operationId: getEiJobStatus_1
       parameters:
       - name: eiJobId
         in: path
@@ -627,6 +812,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Void'
+  /data-consumer/v1/info-jobs/{infoJobId}/status:
+    get:
+      tags:
+      - R1 Data consumer
+      summary: Job status
+      operationId: getEiJobStatus
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Information subscription job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+        404:
+          description: Information subscription job is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
     producer_ei_job_request:
@@ -708,18 +920,6 @@ components:
           type: string
           description: callback for EI job
       description: Information for an EI producer
-    producer_status:
-      required:
-      - operational_state
-      type: object
-      properties:
-        operational_state:
-          type: string
-          description: Represents the operational states
-          enum:
-          - ENABLED
-          - DISABLED
-      description: Status for an EI Producer
     ProblemDetails:
       type: object
       properties:
@@ -736,9 +936,6 @@ components:
           example: 404
       description: A problem detail to carry details in a HTTP response according
         to RFC 7807
-    Void:
-      type: object
-      description: 'Void/empty '
     EiJobStatusObject:
       required:
       - eiJobStatus
@@ -775,3 +972,63 @@ components:
           type: object
           description: EI type specific job data
       description: Information for an Enrichment Information Job
+    JobStatus:
+      required:
+      - eiJobStatus
+      type: object
+      properties:
+        eiJobStatus:
+          type: string
+          description: Allowed values for EI job status
+          enum:
+          - ENABLED
+          - DISABLED
+      description: Status for an EI job
+    producer_status:
+      required:
+      - operational_state
+      type: object
+      properties:
+        operational_state:
+          type: string
+          description: Represents the operational states
+          enum:
+          - ENABLED
+          - DISABLED
+      description: Status for an EI Producer
+    Void:
+      type: object
+      description: 'Void/empty '
+    Job:
+      required:
+      - infoTypeId
+      - jobDefinition
+      - jobOwner
+      - jobResultUri
+      type: object
+      properties:
+        jobResultUri:
+          type: string
+          description: The target URI of the subscribed information
+        infoTypeId:
+          type: string
+          description: Information type Idenitifier of the subscription job
+        jobOwner:
+          type: string
+          description: Identity of the owner of the job
+        statusNotificationUri:
+          type: string
+          description: The target of Information subscription job status notifications
+        jobDefinition:
+          type: object
+          description: Information type specific job data
+      description: Information for an Enrichment Information Job
+    InformationType:
+      required:
+      - consumer_job_data_schema
+      type: object
+      properties:
+        consumer_job_data_schema:
+          type: object
+          description: Json schema for the job data
+      description: Information for an Information type

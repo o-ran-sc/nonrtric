@@ -18,18 +18,24 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.producer;
+package org.oransc.enrichment.controllers.r1consumer;
 
-public class ProducerConsts {
+public class ConsumerConsts {
 
-    public static final String API_ROOT = "/ei-producer/v1";
-    public static final String PRODUCER_API_NAME = "Data producer (registration)";
-    public static final String PRODUCER_API_DESCRIPTION = "API for data producers";
+    public static final String API_ROOT = "/data-consumer/v1";
 
-    public static final String PRODUCER_API_CALLBACKS_NAME = "Data producer (callbacks)";
-    public static final String PRODUCER_API_CALLBACKS_DESCRIPTION = "API implemented by data producers";
+    public static final String CONSUMER_API_NAME = "R1 Data consumer";
+    public static final String CONSUMER_API_DESCRIPTION = "API for data consumers";
 
-    private ProducerConsts() {
+    public static final String OWNER_PARAM = "owner";
+    public static final String OWNER_PARAM_DESCRIPTION = "selects subscription jobs for one job owner";
+
+    public static final String INDIVIDUAL_JOB = "Individual data subscription job";
+
+    public static final String INFO_TYPE_ID_PARAM = "infoTypeId";
+    public static final String INFO_TYPE_ID_PARAM_DESCRIPTION =
+        "selects subscription jobs of matching information type";
+
+    private ConsumerConsts() {
     }
-
 }

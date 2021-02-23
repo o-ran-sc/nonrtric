@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.producer;
+package org.oransc.enrichment.controllers.r1producer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -79,7 +79,7 @@ public class ProducerCallbacks {
      * @param eiJob an EI job
      * @return the number of producers that returned OK
      */
-    public Mono<Integer> startEiJob(EiJob eiJob, EiProducers eiProducers) {
+    public Mono<Integer> startInfoSubscriptionJob(EiJob eiJob, EiProducers eiProducers) {
         Retry retrySpec = Retry.fixedDelay(1, Duration.ofSeconds(1));
         return Flux.fromIterable(getProducersForJob(eiJob, eiProducers)) //
             .flatMap(eiProducer -> startEiJob(eiProducer, eiJob, retrySpec)) //

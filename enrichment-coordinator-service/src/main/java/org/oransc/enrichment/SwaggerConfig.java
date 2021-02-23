@@ -26,8 +26,9 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.oransc.enrichment.controllers.StatusController;
-import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
-import org.oransc.enrichment.controllers.producer.ProducerConsts;
+import org.oransc.enrichment.controllers.a1e.A1eConsts;
+import org.oransc.enrichment.controllers.r1consumer.ConsumerConsts;
+import org.oransc.enrichment.controllers.r1producer.ProducerConsts;
 
 /**
  * Swagger configuration class that uses swagger documentation type and scans
@@ -36,17 +37,18 @@ import org.oransc.enrichment.controllers.producer.ProducerConsts;
  */
 
 @OpenAPIDefinition( //
-    tags = {@Tag(name = ConsumerConsts.CONSUMER_API_NAME, description = ConsumerConsts.CONSUMER_API_DESCRIPTION),
-        @Tag(
-            name = ConsumerConsts.CONSUMER_API_CALLBACKS_NAME,
-            description = ConsumerConsts.CONSUMER_API_CALLBACKS_DESCRIPTION),
+    tags = { //
+        @Tag(name = A1eConsts.CONSUMER_API_NAME, description = A1eConsts.CONSUMER_API_DESCRIPTION),
+        @Tag(name = A1eConsts.CONSUMER_API_CALLBACKS_NAME, description = A1eConsts.CONSUMER_API_CALLBACKS_DESCRIPTION),
         @Tag(
             name = ProducerConsts.PRODUCER_API_CALLBACKS_NAME,
             description = ProducerConsts.PRODUCER_API_CALLBACKS_DESCRIPTION),
         @Tag(name = ProducerConsts.PRODUCER_API_NAME, description = ProducerConsts.PRODUCER_API_DESCRIPTION), //
-        @Tag(name = StatusController.API_NAME, description = StatusController.API_DESCRIPTION)}, //
+        @Tag(name = StatusController.API_NAME, description = StatusController.API_DESCRIPTION), //
+        @Tag(name = ConsumerConsts.CONSUMER_API_NAME, description = ConsumerConsts.CONSUMER_API_DESCRIPTION), //
+    }, //
     info = @Info(
-        title = "Enrichment Information Service", //
+        title = SwaggerConfig.API_TITLE, //
         version = "1.0", //
         description = SwaggerConfig.DESCRIPTION, //
         license = @License(
@@ -56,7 +58,7 @@ public class SwaggerConfig {
     private SwaggerConfig() {
     }
 
-    static final String API_TITLE = "Enrichment Data service";
+    static final String API_TITLE = "Data management and exposure";
 
     static final String DESCRIPTION = "<h1>API documentation</h1>" //
         + "<h2>General</h2>" //
@@ -67,9 +69,20 @@ public class SwaggerConfig {
         + "<h4>A1-EI</h4>" //
         + "<p>" //
         + "  This API is between Near-RT RIC, which is a data consumer, and the Non-RT RIC. " //
-        + "</p>" + "<h4>Data producer API</h4>" //
-        + "<p>"
-        + "  This API is between data producers and this service. It is divivided into two parts, where one is provided by this service (registration) and one part is provided by the data producer."
+        + "</p>" //
+        + "<h4>Data producer API</h4>" //
+        + "<p>" //
+        + "  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface." //
+        + "  The API is for use by different kinds of data producers. It is divivided into two parts, where one is provided by this service (registration) and one part is provided by the data producer."
+        + "</p>" //
+        + "<h4>Data consumer API</h4>" //
+        + "<p>" //
+        + "  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface." //
+        + "  The API is for use by different kinds of data consumers and prvides support for:" //
+        + "<ul>" //
+        + "<li>Querying of available types of data to consume.</li>" //
+        + "<li>Management of data subscription jobs</li>" //
+        + "</ul>" //
         + "</p>" //
         + "<h4>EI Service status</h4>" //
         + "<p>" //

@@ -39,7 +39,7 @@ import java.util.ServiceLoader;
 import java.util.Vector;
 
 import org.oransc.enrichment.configuration.ApplicationConfig;
-import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
+import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class EiJobs {
     public synchronized EiJob getJob(String id) throws ServiceException {
         EiJob ric = allEiJobs.get(id);
         if (ric == null) {
-            throw new ServiceException("Could not find EI job: " + id);
+            throw new ServiceException("Could not find Information job: " + id);
         }
         return ric;
     }
