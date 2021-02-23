@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ad13fce6_2a33cd73",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-23T16:19:49Z",
+      "side": 1,
+      "message": "No, the order is what swagger makes it. \nI think the best way to review is to paste the contents into https://editor.swagger.io/",
+      "parentUuid": "01c2bc5f_931ef8d7",
+      "range": {
+        "startLine": 103,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 10
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76a63453_713b7a68",
         "filename": "enrichment-coordinator-service/api/ecs-api.json",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2021-02-23T15:34:59Z",
       "side": 1,
       "message": "Suggest not referring to R1 here. Its too early IMHO.",
+      "range": {
+        "startLine": 252,
+        "startChar": 21,
+        "endLine": 252,
+        "endChar": 28
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26b1b83f_a7a35ced",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-23T16:19:49Z",
+      "side": 1,
+      "message": "I can remove \"R1\", but the idea was to show the intention. \nThe first OSC API for policies was called \"a1-p\" even though a1-p turned out to be something else when it was standardized. \n\nI then suppose we cannot call a demo R-App \"R-App\" either?",
+      "parentUuid": "76a63453_713b7a68",
       "range": {
         "startLine": 252,
         "startChar": 21,
@@ -68,6 +116,30 @@
       "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb4a0488_520f1039",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-23T16:19:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d53f696d_935041ba",
+      "range": {
+        "startLine": 285,
+        "startChar": 21,
+        "endLine": 285,
+        "endChar": 25
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "a2685757_8de29fab",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerConsts.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-23T16:19:49Z",
+      "side": 1,
+      "message": "This is where the text is defined, so changing here changes it everywhere in the documentation.",
+      "parentUuid": "feeeda37_1aea9fec",
+      "range": {
+        "startLine": 27,
+        "startChar": 52,
+        "endLine": 27,
+        "endChar": 60
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "549afad3_763ec0b9",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerController.java",
         "patchSetId": 1
@@ -151,6 +247,30 @@
       "writtenOn": "2021-02-23T15:34:59Z",
       "side": 1,
       "message": "we\u0027re not ready for this yet ... \nFunctionally fine, but naming it R1 is too early.",
+      "range": {
+        "startLine": 21,
+        "startChar": 41,
+        "endLine": 21,
+        "endChar": 45
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4de65a9_6ce7b99d",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-23T16:19:49Z",
+      "side": 1,
+      "message": "This is a java namespace. If the NBI of the EIS never will be a part of R1, then this whole component is pointless and should be removed.",
+      "parentUuid": "549afad3_763ec0b9",
       "range": {
         "startLine": 21,
         "startChar": 41,
@@ -179,6 +299,29 @@
         "startChar": 27,
         "endLine": 48,
         "endChar": 60
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99b54e96_71b277e4",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/MockEnrichmentService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-23T16:19:49Z",
+      "side": 1,
+      "message": "Not inteneded :)",
+      "range": {
+        "startLine": 48,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 103
       },
       "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
