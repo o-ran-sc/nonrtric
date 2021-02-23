@@ -21,8 +21,8 @@
 package org.oransc.enrichment.tasks;
 
 import org.oransc.enrichment.configuration.ApplicationConfig;
-import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
-import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
+import org.oransc.enrichment.controllers.a1e.A1eCallbacks;
+import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
@@ -50,11 +50,11 @@ public class ProducerSupervision {
     private final EiProducers eiProducers;
     private final EiJobs eiJobs;
     private final ProducerCallbacks producerCallbacks;
-    private final ConsumerCallbacks consumerCallbacks;
+    private final A1eCallbacks consumerCallbacks;
 
     @Autowired
     public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers, EiJobs eiJobs,
-        ProducerCallbacks producerCallbacks, ConsumerCallbacks consumerCallbacks) {
+        ProducerCallbacks producerCallbacks, A1eCallbacks consumerCallbacks) {
         this.eiProducers = eiProducers;
         this.eiJobs = eiJobs;
         this.producerCallbacks = producerCallbacks;
