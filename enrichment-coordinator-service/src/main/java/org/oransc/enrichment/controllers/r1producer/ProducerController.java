@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.producer;
+package org.oransc.enrichment.controllers.r1producer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -86,7 +86,7 @@ public class ProducerController {
     public ResponseEntity<Object> getEiTypeIdentifiers( //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiType eiType : this.eiTypes.getAllEiTypes()) {
+        for (EiType eiType : this.eiTypes.getAllInfoTypes()) {
             result.add(eiType.getId());
         }
 
@@ -170,7 +170,7 @@ public class ProducerController {
 
         EiType type = this.eiTypes.get(eiTypeId);
         if (type == null) {
-            return ErrorResponse.create("EI type not found", HttpStatus.NOT_FOUND);
+            return ErrorResponse.create("Information type not found", HttpStatus.NOT_FOUND);
         }
         if (!this.eiProducers.getProducersForType(type).isEmpty()) {
             String firstProducerId = this.eiProducers.getProducersForType(type).iterator().next().getId();
@@ -309,7 +309,11 @@ public class ProducerController {
             @ApiResponse(
                 responseCode = "200",
                 description = "Producer updated", //
-                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Producer not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> putEiProducer( //
         @PathVariable("eiProducerId") String eiProducerId, //

@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.immutables.value.Value.Immutable;
-import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
-import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
+import org.oransc.enrichment.controllers.a1e.A1eCallbacks;
+import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class EiProducers {
     private ProducerCallbacks producerCallbacks;
 
     @Autowired
-    private ConsumerCallbacks consumerCallbacks;
+    private A1eCallbacks consumerCallbacks;
 
     @Autowired
     private EiJobs eiJobs;

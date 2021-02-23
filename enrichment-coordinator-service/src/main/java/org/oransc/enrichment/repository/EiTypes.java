@@ -77,14 +77,14 @@ public class EiTypes {
         storeInFile(type);
     }
 
-    public synchronized Collection<EiType> getAllEiTypes() {
+    public synchronized Collection<EiType> getAllInfoTypes() {
         return new Vector<>(allEiTypes.values());
     }
 
     public synchronized EiType getType(String id) throws ServiceException {
         EiType type = allEiTypes.get(id);
         if (type == null) {
-            throw new ServiceException("EI type not found: " + id);
+            throw new ServiceException("Information type not found: " + id);
         }
         return type;
     }

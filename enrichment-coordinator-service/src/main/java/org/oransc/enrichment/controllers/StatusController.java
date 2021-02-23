@@ -46,7 +46,7 @@ import reactor.core.publisher.Mono;
 @Tag(name = StatusController.API_NAME)
 public class StatusController {
 
-    public static final String API_NAME = "EI Service status";
+    public static final String API_NAME = "Service status";
     public static final String API_DESCRIPTION = "API for monitoring of the service";
 
     @Autowired

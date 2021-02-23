@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.controllers.a1e;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -46,7 +46,7 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
-public class ConsumerCallbacks {
+public class A1eCallbacks {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static Gson gson = new GsonBuilder().create();
@@ -56,7 +56,7 @@ public class ConsumerCallbacks {
     private final EiProducers eiProducers;
 
     @Autowired
-    public ConsumerCallbacks(ApplicationConfig config, EiJobs eiJobs, EiProducers eiProducers) {
+    public A1eCallbacks(ApplicationConfig config, EiJobs eiJobs, EiProducers eiProducers) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientUseHttpProxy("");
         this.eiJobs = eiJobs;
@@ -73,9 +73,8 @@ public class ConsumerCallbacks {
 
     private Mono<String> noifyStatusToJobOwner(EiJob job) {
         boolean isJobEnabled = this.eiProducers.isJobEnabled(job);
-        ConsumerEiJobStatus status =
-            isJobEnabled ? new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED)
-                : new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
+        A1eEiJobStatus status = isJobEnabled ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
+            : new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.DISABLED);
         String body = gson.toJson(status);
         return this.restClient.post(job.getJobStatusUrl(), body) //
             .doOnNext(response -> logger.debug("Consumer notified OK {}", job.getId())) //

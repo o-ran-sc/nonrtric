@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.controllers.a1e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -41,7 +41,7 @@ import org.json.JSONObject;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
-import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
+import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
@@ -66,9 +66,9 @@ import reactor.core.publisher.Mono;
 
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 @RestController("A1-EI")
-@Tag(name = ConsumerConsts.CONSUMER_API_NAME)
-@RequestMapping(path = ConsumerConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
-public class ConsumerController {
+@Tag(name = A1eConsts.CONSUMER_API_NAME)
+@RequestMapping(path = A1eConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
+public class A1eController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -101,7 +101,7 @@ public class ConsumerController {
     public ResponseEntity<Object> getEiTypeIdentifiers( //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiType eiType : this.eiTypes.getAllEiTypes()) {
+        for (EiType eiType : this.eiTypes.getAllInfoTypes()) {
             result.add(eiType.getId());
         }
 
@@ -115,7 +115,7 @@ public class ConsumerController {
             @ApiResponse(
                 responseCode = "200",
                 description = "EI type", //
-                content = @Content(schema = @Schema(implementation = ConsumerEiTypeInfo.class))), //
+                content = @Content(schema = @Schema(implementation = A1eEiTypeInfo.class))), //
             @ApiResponse(
                 responseCode = "404",
                 description = "Enrichment Information type is not found", //
@@ -125,7 +125,7 @@ public class ConsumerController {
         @PathVariable("eiTypeId") String eiTypeId) {
         try {
             this.eiTypes.getType(eiTypeId); // Make sure that the type exists
-            ConsumerEiTypeInfo info = toEiTypeInfo();
+            A1eEiTypeInfo info = toEiTypeInfo();
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -147,15 +147,15 @@ public class ConsumerController {
         })
     public ResponseEntity<Object> getEiJobIds( //
         @Parameter(
-            name = ConsumerConsts.EI_TYPE_ID_PARAM,
+            name = A1eConsts.EI_TYPE_ID_PARAM,
             required = false, //
-            description = ConsumerConsts.EI_TYPE_ID_PARAM_DESCRIPTION) //
-        @RequestParam(name = ConsumerConsts.EI_TYPE_ID_PARAM, required = false) String eiTypeId,
+            description = A1eConsts.EI_TYPE_ID_PARAM_DESCRIPTION) //
+        @RequestParam(name = A1eConsts.EI_TYPE_ID_PARAM, required = false) String eiTypeId,
         @Parameter(
-            name = ConsumerConsts.OWNER_PARAM,
+            name = A1eConsts.OWNER_PARAM,
             required = false, //
-            description = ConsumerConsts.OWNER_PARAM_DESCRIPTION) //
-        @RequestParam(name = ConsumerConsts.OWNER_PARAM, required = false) String owner) {
+            description = A1eConsts.OWNER_PARAM_DESCRIPTION) //
+        @RequestParam(name = A1eConsts.OWNER_PARAM, required = false) String owner) {
         try {
             List<String> result = new ArrayList<>();
             if (owner != null) {
@@ -184,7 +184,7 @@ public class ConsumerController {
             @ApiResponse(
                 responseCode = "200",
                 description = "EI job", //
-                content = @Content(schema = @Schema(implementation = ConsumerEiJobInfo.class))), //
+                content = @Content(schema = @Schema(implementation = A1eEiJobInfo.class))), //
             @ApiResponse(
                 responseCode = "404",
                 description = "Enrichment Information job is not found", //
@@ -207,7 +207,7 @@ public class ConsumerController {
             @ApiResponse(
                 responseCode = "200",
                 description = "EI job status", //
-                content = @Content(schema = @Schema(implementation = ConsumerEiJobStatus.class))), //
+                content = @Content(schema = @Schema(implementation = A1eEiJobStatus.class))), //
             @ApiResponse(
                 responseCode = "404",
                 description = "Enrichment Information job is not found", //
@@ -223,10 +223,9 @@ public class ConsumerController {
         }
     }
 
-    private ConsumerEiJobStatus toEiJobStatus(EiJob job) {
-        return this.eiProducers.isJobEnabled(job)
-            ? new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED)
-            : new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
+    private A1eEiJobStatus toEiJobStatus(EiJob job) {
+        return this.eiProducers.isJobEnabled(job) ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
+            : new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.DISABLED);
 
     }
 
@@ -280,7 +279,7 @@ public class ConsumerController {
         })
     public Mono<ResponseEntity<Object>> putIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId, //
-        @RequestBody ConsumerEiJobInfo eiJobObject) {
+        @RequestBody A1eEiJobInfo eiJobObject) {
 
         final boolean isNewJob = this.eiJobs.get(eiJobId) == null;
 
@@ -292,13 +291,13 @@ public class ConsumerController {
     }
 
     private Mono<EiJob> startEiJob(EiJob newEiJob) {
-        return this.producerCallbacks.startEiJob(newEiJob, eiProducers) //
+        return this.producerCallbacks.startInfoSubscriptionJob(newEiJob, eiProducers) //
             .doOnNext(noOfAcceptingProducers -> this.logger.debug(
                 "Started EI job {}, number of activated producers: {}", newEiJob.getId(), noOfAcceptingProducers)) //
             .flatMap(noOfAcceptingProducers -> Mono.just(newEiJob));
     }
 
-    private Mono<EiJob> validatePutEiJob(String eiJobId, ConsumerEiJobInfo eiJobInfo) {
+    private Mono<EiJob> validatePutEiJob(String eiJobId, A1eEiJobInfo eiJobInfo) {
         try {
             EiType eiType = this.eiTypes.getType(eiJobInfo.eiTypeId);
             validateJsonObjectAgainstSchema(eiType.getJobDataSchema(), eiJobInfo.jobDefinition);
@@ -331,7 +330,7 @@ public class ConsumerController {
         }
     }
 
-    private EiJob toEiJob(ConsumerEiJobInfo info, String id, EiType type) {
+    private EiJob toEiJob(A1eEiJobInfo info, String id, EiType type) {
         return EiJob.builder() //
             .id(id) //
             .typeId(type.getId()) //
@@ -342,12 +341,11 @@ public class ConsumerController {
             .build();
     }
 
-    private ConsumerEiTypeInfo toEiTypeInfo() {
-        return new ConsumerEiTypeInfo();
+    private A1eEiTypeInfo toEiTypeInfo() {
+        return new A1eEiTypeInfo();
     }
 
-    private ConsumerEiJobInfo toEiJobInfo(EiJob s) {
-        return new ConsumerEiJobInfo(s.getTypeId(), s.getJobData(), s.getOwner(), s.getTargetUrl(),
-            s.getJobStatusUrl());
+    private A1eEiJobInfo toEiJobInfo(EiJob s) {
+        return new A1eEiJobInfo(s.getTypeId(), s.getJobData(), s.getOwner(), s.getTargetUrl(), s.getJobStatusUrl());
     }
 }

@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.controllers.a1e;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -29,7 +29,7 @@ import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
 @Schema(name = "EiJobObject", description = "Information for an Enrichment Information Job")
-public class ConsumerEiJobInfo {
+public class A1eEiJobInfo {
 
     @Schema(name = "eiTypeId", description = "EI type Idenitifier of the EI job", required = true)
     @SerializedName("eiTypeId")
@@ -56,11 +56,10 @@ public class ConsumerEiJobInfo {
     @JsonProperty(value = "jobStatusNotificationUri", required = false)
     public String statusNotificationUri;
 
-    public ConsumerEiJobInfo() {
+    public A1eEiJobInfo() {
     }
 
-    public ConsumerEiJobInfo(String eiTypeId, Object jobData, String owner, String targetUri,
-        String statusNotificationUri) {
+    public A1eEiJobInfo(String eiTypeId, Object jobData, String owner, String targetUri, String statusNotificationUri) {
         this.eiTypeId = eiTypeId;
         this.jobDefinition = jobData;
         this.owner = owner;
