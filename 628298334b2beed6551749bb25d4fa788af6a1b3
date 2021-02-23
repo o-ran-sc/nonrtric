@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01c2bc5f_931ef8d7",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "Just wondering: Is there any way to preserve ordering when these files are generated? \nIt makes it very difficult to review when big chunks move about, even though the content is the same (or is it?).",
+      "range": {
+        "startLine": 103,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 10
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76a63453_713b7a68",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "Suggest not referring to R1 here. Its too early IMHO.",
+      "range": {
+        "startLine": 252,
+        "startChar": 21,
+        "endLine": 252,
+        "endChar": 28
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d53f696d_935041ba",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "as above",
+      "range": {
+        "startLine": 285,
+        "startChar": 21,
+        "endLine": 285,
+        "endChar": 25
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "952b2002_a5d428af",
+        "filename": "enrichment-coordinator-service/api/ecs-api.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "as above - and other instances of R1 here",
+      "range": {
+        "startLine": 309,
+        "startChar": 21,
+        "endLine": 309,
+        "endChar": 31
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d106b6b5_625c976f",
+        "filename": "enrichment-coordinator-service/api/ecs-api.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "ref comment in json above",
+      "range": {
+        "startLine": 17,
+        "startChar": 22,
+        "endLine": 17,
+        "endChar": 36
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "feeeda37_1aea9fec",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerConsts.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "as above",
+      "range": {
+        "startLine": 27,
+        "startChar": 52,
+        "endLine": 27,
+        "endChar": 60
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "549afad3_763ec0b9",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "we\u0027re not ready for this yet ... \nFunctionally fine, but naming it R1 is too early.",
+      "range": {
+        "startLine": 21,
+        "startChar": 41,
+        "endLine": 21,
+        "endChar": 45
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "998bb31f_8794d5f6",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/MockEnrichmentService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-23T15:34:59Z",
+      "side": 1,
+      "message": "Not sure this is intended.",
+      "range": {
+        "startLine": 48,
+        "startChar": 27,
+        "endLine": 48,
+        "endChar": 60
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
