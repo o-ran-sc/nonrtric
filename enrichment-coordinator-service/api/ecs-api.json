@@ -101,19 +101,6 @@
                 }
             }
         },
-        "producer_status": {
-            "description": "Status for an EI Producer",
-            "type": "object",
-            "required": ["operational_state"],
-            "properties": {"operational_state": {
-                "description": "Represents the operational states",
-                "type": "string",
-                "enum": [
-                    "ENABLED",
-                    "DISABLED"
-                ]
-            }}
-        },
         "ProblemDetails": {
             "description": "A problem detail to carry details in a HTTP response according to RFC 7807",
             "type": "object",
@@ -130,10 +117,6 @@
                     "example": 404
                 }
             }
-        },
-        "Void": {
-            "description": "Void/empty ",
-            "type": "object"
         },
         "EiJobStatusObject": {
             "description": "Status for an EI job",
@@ -179,6 +162,77 @@
                     "type": "object"
                 }
             }
+        },
+        "JobStatus": {
+            "description": "Status for an EI job",
+            "type": "object",
+            "required": ["eiJobStatus"],
+            "properties": {"eiJobStatus": {
+                "description": "Allowed values for EI job status",
+                "type": "string",
+                "enum": [
+                    "ENABLED",
+                    "DISABLED"
+                ]
+            }}
+        },
+        "producer_status": {
+            "description": "Status for an EI Producer",
+            "type": "object",
+            "required": ["operational_state"],
+            "properties": {"operational_state": {
+                "description": "Represents the operational states",
+                "type": "string",
+                "enum": [
+                    "ENABLED",
+                    "DISABLED"
+                ]
+            }}
+        },
+        "Void": {
+            "description": "Void/empty ",
+            "type": "object"
+        },
+        "Job": {
+            "description": "Information for an Enrichment Information Job",
+            "type": "object",
+            "required": [
+                "infoTypeId",
+                "jobDefinition",
+                "jobOwner",
+                "jobResultUri"
+            ],
+            "properties": {
+                "jobResultUri": {
+                    "description": "The target URI of the subscribed information",
+                    "type": "string"
+                },
+                "infoTypeId": {
+                    "description": "Information type Idenitifier of the subscription job",
+                    "type": "string"
+                },
+                "jobOwner": {
+                    "description": "Identity of the owner of the job",
+                    "type": "string"
+                },
+                "statusNotificationUri": {
+                    "description": "The target of Information subscription job status notifications",
+                    "type": "string"
+                },
+                "jobDefinition": {
+                    "description": "Information type specific job data",
+                    "type": "object"
+                }
+            }
+        },
+        "InformationType": {
+            "description": "Information for an Information type",
+            "type": "object",
+            "required": ["consumer_job_data_schema"],
+            "properties": {"consumer_job_data_schema": {
+                "description": "Json schema for the job data",
+                "type": "object"
+            }}
         }
     }},
     "openapi": "3.0.1",
@@ -241,6 +295,18 @@
                 }}}
             }},
             "tags": ["A1-EI (registration)"]
+        }},
+        "/data-consumer/v1/info-types": {"get": {
+            "summary": "Information type identifiers",
+            "operationId": "getinfoTypeIdentifiers",
+            "responses": {"200": {
+                "description": "Information type identifiers",
+                "content": {"application/json": {"schema": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }}}
+            }},
+            "tags": ["Data consumer"]
         }},
         "/ei-producer/v1/eiproducers/{eiProducerId}/status": {"get": {
             "summary": "EI producer status",
@@ -367,7 +433,7 @@
                 "description": "Service is living",
                 "content": {"application/json": {"schema": {"$ref": "#/components/schemas/status_info"}}}
             }},
-            "tags": ["EI Service status"]
+            "tags": ["Service status"]
         }},
         "/ei-producer/v1/eiproducers": {"get": {
             "summary": "EI producer identifiers",
@@ -391,7 +457,7 @@
         "/A1-EI/v1/eijobs/{eiJobId}": {
             "get": {
                 "summary": "Individual EI job",
-                "operationId": "getIndividualEiJob",
+                "operationId": "getIndividualEiJob_1",
                 "responses": {
                     "200": {
                         "description": "EI job",
@@ -412,7 +478,7 @@
             },
             "delete": {
                 "summary": "Individual EI job",
-                "operationId": "deleteIndividualEiJob",
+                "operationId": "deleteIndividualEiJob_1",
                 "responses": {
                     "200": {
                         "description": "Not used",
@@ -527,6 +593,10 @@
                     "201": {
                         "description": "Producer created",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "404": {
+                        "description": "Producer not found",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     }
                 },
                 "parameters": [{
@@ -548,6 +618,118 @@
             }},
             "tags": ["Data producer (callbacks)"]
         }},
+        "/data-consumer/v1/info-jobs": {"get": {
+            "summary": "EI job identifiers",
+            "description": "query for information job identifiers",
+            "operationId": "getJobIds",
+            "responses": {
+                "200": {
+                    "description": "Information information job identifiers",
+                    "content": {"application/json": {"schema": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }}}
+                },
+                "404": {
+                    "description": "Information type is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [
+                {
+                    "schema": {"type": "string"},
+                    "in": "query",
+                    "name": "infoTypeId",
+                    "description": "selects subscription jobs of matching information type",
+                    "required": false
+                },
+                {
+                    "schema": {"type": "string"},
+                    "in": "query",
+                    "name": "owner",
+                    "description": "selects subscription jobs for one job owner",
+                    "required": false
+                }
+            ],
+            "tags": ["Data consumer"]
+        }},
+        "/data-consumer/v1/info-jobs/{infoJobId}": {
+            "get": {
+                "summary": "Individual data subscription job",
+                "operationId": "getIndividualEiJob",
+                "responses": {
+                    "200": {
+                        "description": "Information subscription job",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Job"}}}
+                    },
+                    "404": {
+                        "description": "Information subscription job is not found",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                    }
+                },
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "infoJobId",
+                    "required": true
+                }],
+                "tags": ["Data consumer"]
+            },
+            "delete": {
+                "summary": "Individual data subscription job",
+                "operationId": "deleteIndividualEiJob",
+                "responses": {
+                    "200": {
+                        "description": "Not used",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "204": {
+                        "description": "Job deleted",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "404": {
+                        "description": "Information subscription job is not found",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                    }
+                },
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "infoJobId",
+                    "required": true
+                }],
+                "tags": ["Data consumer"]
+            },
+            "put": {
+                "summary": "Individual data subscription job",
+                "requestBody": {
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Job"}}},
+                    "required": true
+                },
+                "operationId": "putIndividualInfoJob",
+                "responses": {
+                    "200": {
+                        "description": "Job updated",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "201": {
+                        "description": "Job created",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "404": {
+                        "description": "Enrichment Information type is not found",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                    }
+                },
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "infoJobId",
+                    "required": true
+                }],
+                "tags": ["Data consumer"]
+            }
+        },
         "/ei-producer/v1/eiproducers/{eiProducerId}/eijobs": {"get": {
             "summary": "EI job definitions",
             "description": "EI job definitions for one EI producer",
@@ -572,6 +754,27 @@
                 "required": true
             }],
             "tags": ["Data producer (registration)"]
+        }},
+        "/data-consumer/v1/info-types/{infoTypeId}": {"get": {
+            "summary": "Individual information type",
+            "operationId": "getInfoType",
+            "responses": {
+                "200": {
+                    "description": "Information type",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/InformationType"}}}
+                },
+                "404": {
+                    "description": "Information type is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoTypeId",
+                "required": true
+            }],
+            "tags": ["Data consumer"]
         }},
         "/A1-EI/v1/eijobs": {"get": {
             "summary": "EI job identifiers",
@@ -610,7 +813,7 @@
         }},
         "/A1-EI/v1/eijobs/{eiJobId}/status": {"get": {
             "summary": "EI job status",
-            "operationId": "getEiJobStatus",
+            "operationId": "getEiJobStatus_1",
             "responses": {
                 "200": {
                     "description": "EI job status",
@@ -648,6 +851,27 @@
                 "required": true
             }],
             "tags": ["A1-EI (callbacks)"]
+        }},
+        "/data-consumer/v1/info-jobs/{infoJobId}/status": {"get": {
+            "summary": "Job status",
+            "operationId": "getEiJobStatus",
+            "responses": {
+                "200": {
+                    "description": "Information subscription job status",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/JobStatus"}}}
+                },
+                "404": {
+                    "description": "Information subscription job is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoJobId",
+                "required": true
+            }],
+            "tags": ["Data consumer"]
         }}
     },
     "info": {
@@ -655,8 +879,8 @@
             "name": "Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.",
             "url": "http://www.apache.org/licenses/LICENSE-2.0"
         },
-        "description": "<h1>API documentation<\/h1><h2>General<\/h2><p>  The service is mainly a broker between data producers and data consumers. A data producer has the ability to producer one or several type of data (EI type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (EI job). One EI job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types.<\/p><h2>APIs provided by the service<\/h2><h4>A1-EI<\/h4><p>  This API is between Near-RT RIC, which is a data consumer, and the Non-RT RIC. <\/p><h4>Data producer API<\/h4><p>  This API is between data producers and this service. It is divivided into two parts, where one is provided by this service (registration) and one part is provided by the data producer.<\/p><h4>EI Service status<\/h4><p>  This API provides a means to monitor the service.<\/p>",
-        "title": "Enrichment Information Service",
+        "description": "<h1>API documentation<\/h1><h2>General<\/h2><p>  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (EI type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (EI job). One EI job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types.<\/p><h2>APIs provided by the service<\/h2><h4>A1-EI<\/h4><p>  This API is between Near-RT RIC and the Non-RT RIC.  The Near-RT RIC is a data consumer, which creates Enrichment Information Jobs to subscribe for data.<\/p><h4>Data producer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data producers and provides support for:<ul><li>Registry of supported information types and which parameters needed to setup a subscription.<\/li><li>Registry of existing data producers.<\/li><li>Callback API provided by producers to setup subscriptions.<\/li><\/ul><\/p><h4>Data consumer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data consumers and provides support for:<ul><li>Querying of available types of data to consume.<\/li><li>Management of data subscription jobs<\/li><\/ul><\/p><h4>EI Service status<\/h4><p>  This API provides a means to monitor the service.<\/p>",
+        "title": "Data management and exposure",
         "version": "1.0"
     },
     "tags": [
@@ -677,8 +901,12 @@
             "description": "API for data producers"
         },
         {
-            "name": "EI Service status",
+            "name": "Service status",
             "description": "API for monitoring of the service"
+        },
+        {
+            "name": "Data consumer",
+            "description": "API for data consumers"
         }
     ]
 }

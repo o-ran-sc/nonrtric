@@ -18,9 +18,9 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.controllers.a1e;
 
-public class ConsumerConsts {
+public class A1eConsts {
 
     public static final String CONSUMER_API_NAME = "A1-EI (registration)";
     public static final String CONSUMER_API_DESCRIPTION = "Data consumer EI job registration";
@@ -35,6 +35,6 @@ public class ConsumerConsts {
     public static final String EI_TYPE_ID_PARAM = "eiTypeId";
     public static final String EI_TYPE_ID_PARAM_DESCRIPTION = "selects EI jobs of matching EI type";
 
-    private ConsumerConsts() {
+    private A1eConsts() {
     }
 }

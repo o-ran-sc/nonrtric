@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * O-RAN-SC
  * %%
- * Copyright (C) 2019 Nordix Foundation
+ * Copyright (C) 2020 Nordix Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.producer;
+package org.oransc.enrichment.controllers.r1consumer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -28,26 +28,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "producer_status", description = "Status for an EI Producer")
-public class ProducerStatusInfo {
+@Schema(name = "InformationType", description = "Information for an Information type")
+public class ConsumerInfoTypeInfo {
 
-    @Gson.TypeAdapters
-    @Schema(name = "producer_operational_state", description = "Represents the operational states")
-    public enum OperationalState {
-        ENABLED, DISABLED
+    @Schema(name = "consumer_job_data_schema", description = "Json schema for the job data", required = true)
+    @SerializedName("consumer__job_data_schema")
+    @JsonProperty(value = "consumer_job_data_schema", required = true)
+    public Object jobDataSchema;
+
+    public ConsumerInfoTypeInfo(Object jobDataSchema) {
+        this.jobDataSchema = jobDataSchema;
     }
 
-    private static final String OPERATIONAL_STATE_DESCRIPTION = "Operational state, values:\n" //
-        + "ENABLED: TBD\n" //
-        + "DISABLED: TBD.";
-
-    @Schema(name = "operational_state", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
-    @SerializedName("operational_state")
-    @JsonProperty(value = "operational_state", required = true)
-    public final OperationalState opState;
-
-    public ProducerStatusInfo(OperationalState state) {
-        this.opState = state;
+    public ConsumerInfoTypeInfo() {
     }
 
 }
