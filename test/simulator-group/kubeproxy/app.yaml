@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $KUBE_PROXY_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $KUBE_PROXY_APP_NAME
+    autotest: KUBEPROXY
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $KUBE_PROXY_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $KUBE_PROXY_APP_NAME
+        autotest: KUBEPROXY
+    spec:
+      containers:
+      - name: $KUBE_PROXY_APP_NAME
+        image: $KUBE_PROXY_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $KUBE_PROXY_INTERNAL_PORT
+        - name: web
+          containerPort: $KUBE_PROXY_WEB_INTERNAL_PORT
+        command: ["mitmweb"]
+        args: ["--web-host", "0.0.0.0", "--no-web-open-browser", "-p", "$KUBE_PROXY_INTERNAL_PORT", "--set", "ssl_insecure"]

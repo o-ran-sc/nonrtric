@@ -19,6 +19,77 @@
 
 # This is a script that contains container/service management functions and test functions for Producer stub
 
+
+################ Test engine functions ################
+
+# Create the image var used during the test
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__PRODSTUB_imagesetup() {
+	__check_and_create_image_var PRODSTUB "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL "$PROD_STUB_DISPLAY_NAME"
+}
+
+# Pull image from remote repo or use locally built image
+# arg: <pull-policy-override> <pull-policy-original>
+# <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
+# <pull-policy-original> Shall be used for images that does not allow overriding
+# Both var may contain: 'remote', 'remote-remove' or 'local'
+__PRODSTUB_imagepull() {
+	echo -e $RED"Image for app PRODSTUB shall never be pulled from remove repo"$ERED
+}
+
+# Build image (only for simulator or interfaces stubs owned by the test environment)
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__PRODSTUB_imagebuild() {
+	cd ../prodstub
+	echo " Building PRODSTUB - $PROD_STUB_DISPLAY_NAME - image: $PROD_STUB_IMAGE"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN" Build Ok"$EGREEN
+	else
+		echo -e $RED" Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
+	fi
+}
+
+# Generate a string for each included image using the app display name and a docker images format string
+# arg: <docker-images-format-string> <file-to-append>
+__PRODSTUB_image_data() {
+	echo -e "$PROD_STUB_DISPLAY_NAME\t$(docker images --format $1 $PROD_STUB_IMAGE)" >>   $2
+}
+
+# Scale kubernetes resources to zero
+# All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
+# This function is called for apps fully managed by the test script
+__PRODSTUB_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
+}
+
+# Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
+# This function is called for prestarted apps not managed by the test script.
+__PRODSTUB_kube_scale_zero_and_wait() {
+	echo -e $RED" PRODSTUB app is not scaled in this state"$ERED
+}
+
+# Delete all kube resouces for the app
+# This function is called for apps managed by the test script.
+__PRODSTUB_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
+}
+
+# Store docker logs
+# This function is called for apps managed by the test script.
+# args: <log-dir> <file-prexix>
+__PRODSTUB_store_docker_logs() {
+	docker logs $PROD_STUB_APP_NAME > $1$2_prodstub.log 2>&1
+}
+#######################################################
+
+
 ## Access to Prod stub sim
 # Direct access
 PROD_STUB_HTTPX="http"
@@ -173,7 +244,9 @@ start_prod_stub() {
         export PROD_STUB_EXTERNAL_SECURE_PORT
         export DOCKER_SIM_NWNAME
 
-		__start_container $PROD_STUB_COMPOSE_DIR NODOCKERARGS 1 $PROD_STUB_APP_NAME
+		export PROD_STUB_DISPLAY_NAME
+
+		__start_container $PROD_STUB_COMPOSE_DIR "" NODOCKERARGS 1 $PROD_STUB_APP_NAME
 
         __check_service_start $PROD_STUB_APP_NAME $PROD_STUB_PATH$PROD_STUB_ALIVE_URL
 	fi
@@ -186,8 +259,14 @@ start_prod_stub() {
 __execute_curl_to_prodstub() {
     TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo "(${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	echo " CMD: $3" >> $HTTPLOG
-	res="$($3)"
+	proxyflag=""
+	if [ $RUNMODE == "KUBE" ]; then
+		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
+			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		fi
+	fi
+	echo " CMD: $3 $proxyflag" >> $HTTPLOG
+	res="$($3 $proxyflag)"
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then

@@ -20,12 +20,17 @@
 TC_ONELINE_DESCR="Resync 10000 policies using OSC and STD interface"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -40,10 +45,14 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/cr_api_functions.sh
 . ../common/mr_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_uuid
+generate_policy_uuid
 
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
@@ -88,6 +97,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
         # Clean container and start all needed containers #
         clean_environment
 
+        if [ $RUNMODE == "KUBE" ]; then
+            start_kube_proxy
+        fi
+
         start_ric_simulators ricsim_g1 4 OSC_2.1.0
 
         start_ric_simulators ricsim_g2 4 STD_1.1.3
@@ -104,9 +117,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_consul_cbs
         fi
 
-        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
-        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+        if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
+            start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
+        fi
+
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
         set_agent_debug
 
@@ -203,11 +220,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_equal json:policies $(($NUM_POLICIES-2+$NUM_POLICIES-3))
 
-        check_policy_agent_logs
+
         if [[ $interface = *"SDNC"* ]]; then
             check_sdnc_logs
         fi
 
+        check_policy_agent_logs
+        check_sdnc_logs
         store_logs          "${__httpx}__${interface}"
 
     done

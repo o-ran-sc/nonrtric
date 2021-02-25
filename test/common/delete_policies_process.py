@@ -30,11 +30,11 @@ from requests.packages import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-#arg responsecode baseurl num_rics uuid startid count pids pid_id
+#arg responsecode baseurl num_rics uuid startid count pids pid_id proxy
 
 try:
-    if len(sys.argv) != 9:
-        print("1Expected 8 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl num_rics uuid startid count pids pid_id")
+    if len(sys.argv) != 10:
+        print("1Expected 9 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl num_rics uuid startid count pids pid_id proxy")
         sys.exit()
 
     responsecode=int(sys.argv[1])
@@ -45,7 +45,14 @@ try:
     count=int(sys.argv[6])
     pids=int(sys.argv[7])
     pid_id=int(sys.argv[8])
+    httpproxy=str(sys.argv[9])
 
+    proxydict=None
+    if httpproxy != "NOPROXY":
+        proxydict = {
+            "http" : httpproxy,
+            "https" : httpproxy
+        }
     if uuid == "NOUUID":
         uuid=""
 
@@ -61,7 +68,10 @@ try:
                 else:
                     url=str(baseurl+"?id="+uuid+str(i))
                 try:
-                    resp=requests.delete(url, verify=False, timeout=90)
+                    if proxydict is None:
+                        resp=requests.delete(url, verify=False, timeout=90)
+                    else:
+                        resp=requests.delete(url, verify=False, timeout=90, proxies=proxydict)
                 except Exception as e1:
                     print("1Delete failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
                     sys.exit()

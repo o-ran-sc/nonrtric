@@ -5,9 +5,9 @@ metadata:
   namespace: $KUBE_SIM_NAMESPACE
   labels:
     run: $HTTP_PROXY_APP_NAME
-    autotest: HTTP_PROXY_APP_NAME
+    autotest: HTTPPROXY
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: $HTTP_PROXY_EXTERNAL_PORT
     targetPort: $HTTP_PROXY_INTERNAL_PORT

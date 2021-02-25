@@ -19,6 +19,62 @@
 
 # This is a script that contains container/service management functions and test functions for RICSIM A1 simulators
 
+################ Test engine functions ################
+
+# Create the image var used during the test
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__RICSIM_imagesetup() {
+	__check_and_create_image_var RICSIM "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $1 "$RIC_SIM_DISPLAY_NAME"
+}
+
+# Pull image from remote repo or use locally built image
+# arg: <pull-policy-override> <pull-policy-original>
+# <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
+# <pull-policy-original> Shall be used for images that does not allow overriding
+# Both var may contain: 'remote', 'remote-remove' or 'local'
+__RICSIM_imagepull() {
+	__check_and_pull_image $1 "$RIC_SIM_DISPLAY_NAME" $RIC_SIM_PREFIX"_"$RIC_SIM_BASE $RIC_SIM_IMAGE
+}
+
+# Generate a string for each included image using the app display name and a docker images format string
+# arg: <docker-images-format-string> <file-to-append>
+__RICSIM_image_data() {
+	echo -e "$RIC_SIM_DISPLAY_NAME\t$(docker images --format $1 $RIC_SIM_IMAGE)" >>   $2
+}
+
+# Scale kubernetes resources to zero
+# All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
+# This function is called for apps fully managed by the test script
+__RICSIM_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+}
+
+# Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
+# This function is called for prestarted apps not managed by the test script.
+__RICSIM_kube_scale_zero_and_wait() {
+	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-a1simulator
+}
+
+# Delete all kube resouces for the app
+# This function is called for apps managed by the test script.
+__RICSIM_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+}
+
+# Store docker logs
+# This function is called for apps managed by the test script.
+# args: <log-dir> <file-prexix>
+__RICSIM_store_docker_logs() {
+	rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})
+	for ric in $rics; do
+		docker logs $ric > $1$2_$ric.log 2>&1
+	done
+}
+
+#######################################################
+
+
 RIC_SIM_HTTPX="http"
 RIC_SIM_HOST=$RIC_SIM_HTTPX"://"$LOCALHOST_NAME
 RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
@@ -190,6 +246,7 @@ start_ric_simulators() {
 		export RIC_SIM_INTERNAL_SECURE_PORT
 		export RIC_SIM_CERT_MOUNT_DIR
 		export DOCKER_SIM_NWNAME
+		export RIC_SIM_DISPLAY_NAME
 
 		docker_args="--scale g1=$G1_COUNT --scale g2=$G2_COUNT --scale g3=$G3_COUNT --scale g4=$G4_COUNT --scale g5=$G5_COUNT"
 		app_data=""
@@ -200,7 +257,7 @@ start_ric_simulators() {
 			let cntr=cntr+1
 		done
 
-		__start_container $RIC_SIM_COMPOSE_DIR "$docker_args" $2 $app_data
+		__start_container $RIC_SIM_COMPOSE_DIR "" "$docker_args" $2 $app_data
 
 		cntr=1
 		while [ $cntr -le $2 ]; do
@@ -222,14 +279,79 @@ start_ric_simulators() {
 	return 0
 }
 
+# Translate ric name to kube host name
+# args: <ric-name>
+# For test scripts
+get_kube_sim_host() {
+	name=$(echo "$1" | tr '_' '-')  #kube does not accept underscore in names
+	#example gnb_1_2 -> gnb-1-2
+	set_name=$(echo $name | rev | cut -d- -f2- | rev) # Cut index part of ric name to get the name of statefulset
+	# example gnb-g1-2 -> gnb-g1 where gnb-g1-2 is the ric name and gnb-g1 is the set name
+	echo $name"."$set_name"."$KUBE_NONRTRIC_NAMESPACE
+}
 
+# Helper function to get a the port of a specific ric simulator
+# args: <ric-id>
+# (Not for test scripts)
+__find_sim_port() {
+    name=$1" " #Space appended to prevent matching 10 if 1 is desired....
+    cmdstr="docker inspect --format='{{(index (index .NetworkSettings.Ports \"$RIC_SIM_PORT/tcp\") 0).HostPort}}' ${name}"
+    res=$(eval $cmdstr)
+	if [[ "$res" =~ ^[0-9]+$ ]]; then
+		echo $res
+	else
+		echo "0"
+    fi
+}
+
+# Helper function to get a the port and host name of a specific ric simulator
+# args: <ric-id>
+# (Not for test scripts)
+__find_sim_host() {
+	if [ $RUNMODE == "KUBE" ]; then
+		ricname=$(echo "$1" | tr '_' '-')
+		for timeout in {1..60}; do
+			host=$(kubectl get pod $ricname  -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.status.podIP}' 2> /dev/null)
+			if [ ! -z "$host" ]; then
+				echo $RIC_SIM_HTTPX"://"$host":"$RIC_SIM_PORT
+				return 0
+			fi
+			sleep 0.5
+		done
+		echo "host-not-found-fatal-error"
+	else
+		name=$1" " #Space appended to prevent matching 10 if 1 is desired....
+		cmdstr="docker inspect --format='{{(index (index .NetworkSettings.Ports \"$RIC_SIM_PORT/tcp\") 0).HostPort}}' ${name}"
+		res=$(eval $cmdstr)
+		if [[ "$res" =~ ^[0-9]+$ ]]; then
+			echo $RIC_SIM_HOST:$res
+			return 0
+		else
+			echo "0"
+		fi
+	fi
+	return 1
+}
+
+# Generate a UUID to use as prefix for policy ids
+generate_policy_uuid() {
+	UUID=$(python3 -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')
+	#Reduce length to make space for serial id, uses 'a' as marker where the serial id is added
+	UUID=${UUID:0:${#UUID}-4}"a"
+}
 
 # Excute a curl cmd towards a ricsimulator and check the response code.
 # args: <expected-response-code> <curl-cmd-string>
 __execute_curl_to_sim() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
-	echo " CMD: $2" >> $HTTPLOG
-	res="$($2)"
+	proxyflag=""
+	if [ $RUNMODE == "KUBE" ]; then
+		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
+			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		fi
+	fi
+	echo " CMD: $2 $proxyflag" >> $HTTPLOG
+	res="$($2 $proxyflag)"
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then

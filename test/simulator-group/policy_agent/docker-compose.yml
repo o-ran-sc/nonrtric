@@ -1,3 +1,4 @@
+#  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,5 +37,6 @@ services:
       - HOSTNAME=${POLICY_AGENT_CONFIG_KEY}
     volumes:
     - ${POLICY_AGENT_HOST_MNT_DIR}/$POLICY_AGENT_CONFIG_FILE:${POLICY_AGENT_CONFIG_MOUNT_PATH}/$POLICY_AGENT_CONFIG_FILE
-
-
+    labels:
+      - "nrttest_app=PA"
+      - "nrttest_dp=${POLICY_AGENT_DISPLAY_NAME}"

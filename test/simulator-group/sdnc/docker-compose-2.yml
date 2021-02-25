@@ -1,0 +1,83 @@
+# ==================================================================================
+#   Modifications Copyright (c) 2019 Nordix Foundation.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#          http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+# ==================================================================================
+version: '3'
+
+networks:
+  default:
+    external:
+      name: ${DOCKER_SIM_NWNAME}
+
+services:
+  db:
+    image: ${SDNC_DB_IMAGE}
+    container_name: ${SDNC_DB_APP_NAME}
+    networks:
+      - default
+    ports:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=itsASecret
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_USER=sdnctl
+      - MYSQL_PASSWORD=gamma
+      - MYSQL_DATABASE=sdnctl
+    logging:
+      driver:   "json-file"
+      options:
+        max-size: "30m"
+        max-file: "5"
+    labels:
+      - "nrttest_app=SDNC"
+      - "nrttest_dp=SDNC DB"
+
+  a1controller:
+    image: ${SDNC_A1_CONTROLLER_IMAGE}
+    depends_on :
+      - db
+    container_name: ${SDNC_APP_NAME}
+    networks:
+      - default
+    entrypoint: ["/opt/onap/sdnc/bin/startODL.sh"]
+    ports:
+      - ${SDNC_EXTERNAL_PORT}:${SDNC_INTERNAL_PORT}
+      - ${SDNC_EXTERNAL_SECURE_PORT}:${SDNC_INTERNAL_SECURE_PORT}
+    links:
+      - db:dbhost
+      - db:sdnctldb01
+      - db:sdnctldb02
+    environment:
+      - MYSQL_ROOT_PASSWORD=itsASecret
+      - MYSQL_USER=sdnctl
+      - MYSQL_PASSWORD=gamma
+      - MYSQL_DATABASE=sdnctl
+      - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
+      - SDNC_BIN=/opt/onap/sdnc/bin
+      - ODL_CERT_DIR=/tmp
+      - ODL_ADMIN_USERNAME=${SDNC_USER}
+      - ODL_ADMIN_PASSWORD=${SDNC_PWD}
+      - ODL_USER=${SDNC_USER}
+      - ODL_PASSWORD=${SDNC_PWD}
+      - SDNC_DB_INIT=true
+      - A1_TRUSTSTORE_PASSWORD=${SDNC_A1_TRUSTSTORE_PASSWORD}
+      - AAI_TRUSTSTORE_PASSWORD=changeit
+    logging:
+      driver:   "json-file"
+      options:
+        max-size: "30m"
+        max-file: "5"
+    labels:
+      - "nrttest_app=SDNC"
+      - "nrttest_dp=${SDNC_DISPLAY_NAME}"

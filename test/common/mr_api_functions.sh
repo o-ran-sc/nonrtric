@@ -20,6 +20,139 @@
 # This is a script that contains container/service management function
 # and test functions for Message Router - mr stub
 
+################ Test engine functions ################
+
+# Create the image var used during the test
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__MR_imagesetup() {
+	__check_and_create_image_var MR "MRSTUB_IMAGE" "MRSTUB_IMAGE_BASE" "MRSTUB_IMAGE_TAG" LOCAL "$MR_STUB_DISPLAY_NAME"
+}
+
+# Create the image var used during the test
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__DMAAPMR_imagesetup() {
+	__check_and_create_image_var DMAAPMR "ONAP_DMAAPMR_IMAGE"    "ONAP_DMAAPMR_IMAGE_BASE"  "ONAP_DMAAPMR_IMAGE_TAG"   REMOTE_RELEASE_ONAP "DMAAP Message Router"
+	__check_and_create_image_var DMAAPMR "ONAP_ZOOKEEPER_IMAGE" "ONAP_ZOOKEEPER_IMAGE_BASE" "ONAP_ZOOKEEPER_IMAGE_TAG" REMOTE_RELEASE_ONAP "ZooKeeper"
+	__check_and_create_image_var DMAAPMR "ONAP_KAFKA_IMAGE"     "ONAP_KAFKA_IMAGE_BASE"     "ONAP_KAFKA_IMAGE_TAG"     REMOTE_RELEASE_ONAP "Kafka"
+}
+
+# Pull image from remote repo or use locally built image
+# arg: <pull-policy-override> <pull-policy-original>
+# <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
+# <pull-policy-original> Shall be used for images that does not allow overriding
+# Both var may contain: 'remote', 'remote-remove' or 'local'
+__MR_imagepull() {
+	echo -e $RED"Image for app CR shall never be pulled from remove repo"$ERED
+}
+
+# Pull image from remote repo or use locally built image
+# arg: <pull-policy-override> <pull-policy-original>
+# <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released (remote) images
+# <pull-policy-original> Shall be used for images that does not allow overriding
+# Both var may contain: 'remote', 'remote-remove' or 'local'
+__DMAAPMR_imagepull() {
+	__check_and_pull_image $2 "DMAAP Message Router" $MR_DMAAP_APP_NAME $ONAP_DMAAPMR_IMAGE
+	__check_and_pull_image $2 "ZooKeeper" $MR_ZOOKEEPER_APP_NAME $ONAP_ZOOKEEPER_IMAGE
+	__check_and_pull_image $2 "Kafka" $MR_KAFKA_APP_NAME $ONAP_KAFKA_IMAGE
+}
+
+# Build image (only for simulator or interfaces stubs owned by the test environment)
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__MR_imagebuild() {
+	cd ../mrstub
+	echo " Building MR - $MR_STUB_DISPLAY_NAME - image: $MRSTUB_IMAGE"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN" Build Ok"$EGREEN
+	else
+		echo -e $RED" Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
+	fi
+}
+
+# Build image (only for simulator or interfaces stubs owned by the test environment)
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__DMAAPMR_imagebuild() {
+	echo -e $RED"Image for app DMAAPMR shall never be built"$ERED
+}
+
+# Generate a string for each included image using the app display name and a docker images format string
+# arg: <docker-images-format-string> <file-to-append>
+__MR_image_data() {
+	echo -e "$MR_STUB_DISPLAY_NAME\t$(docker images --format $1 $MRSTUB_IMAGE)" >>   $2
+}
+
+# Generate a string for each included image using the app display name and a docker images format string
+# arg: <docker-images-format-string> <file-to-append>
+__DMAAPMR_image_data() {
+	echo -e "DMAAP Message Router\t$(docker images --format $1 $ONAP_DMAAPMR_IMAGE)" >>   $2
+	echo -e "ZooKeeper\t$(docker images --format $1 $ONAP_ZOOKEEPER_IMAGE)" >>   $2
+	echo -e "Kafka\t$(docker images --format $1 $ONAP_KAFKA_IMAGE)" >>   $2
+}
+
+# Scale kubernetes resources to zero
+# All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
+# This function is called for apps fully managed by the test script
+__MR_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_ONAP_NAMESPACE autotest MR
+}
+
+# Scale kubernetes resources to zero
+# All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
+# This function is called for apps fully managed by the test script
+__DMAAPMR_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_ONAP_NAMESPACE autotest DMAAPMR
+}
+
+# Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
+# This function is called for prestarted apps not managed by the test script.
+__MR_kube_scale_zero_and_wait() {
+	echo -e " MR replicas kept as is"
+}
+
+# Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
+# This function is called for prestarted apps not managed by the test script.
+__DMAAPMR_kube_scale_zero_and_wait() {
+	echo -e " DMAAP replicas kept as is"
+}
+
+# Delete all kube resouces for the app
+# This function is called for apps managed by the test script.
+__MR_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest MR
+}
+
+# Delete all kube resouces for the app
+# This function is called for apps managed by the test script.
+__DMAAPMR_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest DMAAPMR
+}
+
+# Store docker logs
+# This function is called for apps managed by the test script.
+# args: <log-dir> <file-prexix>
+__MR_store_docker_logs() {
+	docker logs $MR_STUB_APP_NAME > $1$2_mr_stub.log 2>&1
+}
+
+# Store docker logs
+# This function is called for apps managed by the test script.
+# args: <log-dir> <file-prexix>
+__DMAAPMR_store_docker_logs() {
+	docker logs $MR_DMAAP_APP_NAME > $1$2mr.log 2>&1
+	docker logs $MR_KAFKA_APP_NAME > $1$2_mr_kafka.log 2>&1
+	docker logs $MR_ZOOKEEPER_APP_NAME > $1$2_mr_zookeeper.log 2>&1
+}
+
+#######################################################
+
 ## Access to Message Router
 # Host name may be changed if app started by kube
 # Direct access from script
@@ -420,7 +553,7 @@ start_mr() {
 		export MR_INTERNAL_SECURE_PORT
 
 		if [ $retcode_dmaapmr -eq 0 ]; then
-			__start_container $MR_DMAAP_COMPOSE_DIR NODOCKERARGS 1 $MR_DMAAP_APP_NAME
+			__start_container $MR_DMAAP_COMPOSE_DIR "" NODOCKERARGS 1 $MR_DMAAP_APP_NAME
 
 			__check_service_start $MR_DMAAP_APP_NAME $MR_DMAAP_PATH$MR_DMAAP_ALIVE_URL
 
@@ -447,9 +580,10 @@ start_mr() {
 		export MR_STUB_LOCALHOST_PORT
 		export MR_STUB_LOCALHOST_SECURE_PORT
 		export MR_STUB_CERT_MOUNT_DIR
+		export MR_STUB_DISPLAY_NAME
 
 		if [ $retcode_mr -eq 0 ]; then
-			__start_container $MR_STUB_COMPOSE_DIR NODOCKERARGS 1 $MR_STUB_APP_NAME
+			__start_container $MR_STUB_COMPOSE_DIR "" NODOCKERARGS 1 $MR_STUB_APP_NAME
 
 			__check_service_start $MR_STUB_APP_NAME $MR_STUB_PATH$MR_STUB_ALIVE_URL
 		fi

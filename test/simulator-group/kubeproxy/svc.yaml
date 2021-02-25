@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $KUBE_PROXY_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $KUBE_PROXY_APP_NAME
+    autotest: KUBEPROXY
+spec:
+  type: NodePort
+  ports:
+  - port: $KUBE_PROXY_EXTERNAL_PORT
+    targetPort: $KUBE_PROXY_INTERNAL_PORT
+    protocol: TCP
+    name: http
+    nodePort:
+  - port: $KUBE_PROXY_WEB_EXTERNAL_PORT
+    targetPort: $KUBE_PROXY_WEB_INTERNAL_PORT
+    protocol: TCP
+    name: web
+  selector:
+    run: $KUBE_PROXY_APP_NAME

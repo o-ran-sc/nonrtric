@@ -28,6 +28,12 @@
 __do_curl_to_api() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo " (${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
+	proxyflag=""
+	if [ $RUNMODE == "KUBE" ]; then
+		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
+			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		fi
+	fi
 	paramError=0
 	input_url=$3
     if [ $# -gt 0 ]; then
@@ -49,6 +55,10 @@ __do_curl_to_api() {
 		elif [ $1 == "RC" ]; then
 			__ADAPTER=$RC_ADAPTER
 			__ADAPTER_TYPE=$RC_ADAPTER_TYPE
+            __RETRY_CODES=""
+        elif [ $1 == "NGW" ]; then
+			__ADAPTER=$NGW_ADAPTER
+			__ADAPTER_TYPE=$NGW_ADAPTER_TYPE
             __RETRY_CODES=""
         else
             paramError=1
@@ -125,7 +135,7 @@ __do_curl_to_api() {
 	if [ $__ADAPTER_TYPE == "REST" ]; then
         url=" "${__ADAPTER}${input_url}
         oper=" -X "$oper
-        curlString="curl -k "${oper}${timeout}${httpcode}${accept}${content}${url}${file}
+        curlString="curl -k $proxyflag "${oper}${timeout}${httpcode}${accept}${content}${url}${file}
         echo " CMD: "$curlString >> $HTTPLOG
 		if [ $# -eq 4 ]; then
 			echo " FILE: $(<$4)" >> $HTTPLOG
@@ -174,7 +184,7 @@ __do_curl_to_api() {
 			#urlencode the request url since it will be carried by send-request url
 			requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$input_url")
 			url=" "${__ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
-			curlString="curl -k -X POST${timeout}${httpcode}${content}${url}${file}"
+			curlString="curl -k $proxyflag -X POST${timeout}${httpcode}${content}${url}${file}"
 			echo " CMD: "$curlString >> $HTTPLOG
 			res=$($curlString)
 			retcode=$?
@@ -200,7 +210,7 @@ __do_curl_to_api() {
 				cid=$3
 			fi
 			url=" "${__ADAPTER}"/receive-response?correlationid="${cid}
-			curlString="curl -k -X GET"${timeout}${httpcode}${url}
+			curlString="curl -k $proxyflag  -X GET"${timeout}${httpcode}${url}
 			echo " CMD: "$curlString >> $HTTPLOG
 			res=$($curlString)
 			retcode=$?

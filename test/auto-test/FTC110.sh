@@ -21,12 +21,17 @@
 TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM"
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -40,18 +45,25 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/cr_api_functions.sh
 . ../common/mr_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
 
-generate_uuid
+setup_testenvironment
+
+#### TEST BEGIN ####
+
+generate_policy_uuid
 
 use_cr_http
 use_simulator_http
 use_mr_http
 use_agent_rest_http
 
-
-#### TEST BEGIN ####
-
 clean_environment
+
+if [ $RUNMODE == "KUBE" ]; then
+    start_kube_proxy
+fi
 
 start_ric_simulators ricsim_g1 1  OSC_2.1.0
 start_ric_simulators ricsim_g2 1  STD_1.1.3
@@ -67,9 +79,13 @@ if [ $RUNMODE == "DOCKER" ]; then
     start_consul_cbs
 fi
 
-start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
-start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
+    start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
+fi
+
+start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
 prepare_consul_config      NOSDNC  ".consul_config.json"
 
@@ -265,7 +281,6 @@ api_get_service_ids 200
 mr_equal requests_submitted 0
 
 check_policy_agent_logs
-check_control_panel_logs
 
 #### TEST COMPLETE ####
 

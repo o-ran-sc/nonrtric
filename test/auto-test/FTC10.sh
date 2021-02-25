@@ -20,12 +20,17 @@
 TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" MR CR PA RICSIM CP"
+KUBE_INCLUDED_IMAGES=" MR CR PA RICSIM CP KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -40,10 +45,14 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/cr_api_functions.sh
 . ../common/mr_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_uuid
+generate_policy_uuid
 
 use_simulator_http
 use_mr_http
@@ -51,6 +60,10 @@ use_agent_rest_http
 
 
 clean_environment
+
+if [ $RUNMODE == "KUBE" ]; then
+    start_kube_proxy
+fi
 
 start_ric_simulators  ricsim_g1 3 OSC_2.1.0
 
@@ -68,9 +81,13 @@ if [ $RUNMODE == "DOCKER" ]; then
     start_consul_cbs
 fi
 
-start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
-start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
+    start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
+fi
+
+start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
 set_agent_debug
 

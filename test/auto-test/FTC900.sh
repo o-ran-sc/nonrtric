@@ -20,12 +20,17 @@
 TC_ONELINE_DESCR="Preparation for test of the Control Panel and the Health Check app - populating a number of ric simulators with types and instances"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM"
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -39,10 +44,18 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
 . ../common/consul_cbs_functions.sh
+. ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
 clean_environment
+
+if [ $RUNMODE == "KUBE" ]; then
+    start_kube_proxy
+fi
 
 OSC_NUM_RICS=6
 STD_NUM_RICS=5
@@ -57,9 +70,13 @@ fi
 
 start_mr #Just to prevent errors in the agent log...
 
-start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
-start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
+    start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
+fi
+
+start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
 use_agent_rest_http
 
@@ -179,11 +196,11 @@ fi
 # Create policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 2 $((2000+$i)) NOTRANSIENT $notificationurl testdata/OSC/pihw_template.json 1
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT $notificationurl testdata/OSC/piqos_template.json 1
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT $notificationurl testdata/OSC/pitsa_template.json 1
 done
 
@@ -198,12 +215,12 @@ done
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
     if [ "$PMS_VERSION" == "V2" ]; then
-        generate_uuid
+        generate_policy_uuid
         api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
-        generate_uuid
+        generate_policy_uuid
         api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
     fi
 done
@@ -225,3 +242,5 @@ check_policy_agent_logs
 store_logs          END
 
 print_result
+
+auto_clean_environment

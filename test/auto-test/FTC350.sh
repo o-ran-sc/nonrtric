@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -40,10 +40,13 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/mr_api_functions.sh
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_uuid
+generate_policy_uuid
 
 use_cr_http
 
@@ -64,6 +67,10 @@ for interface in $TESTED_VARIANTS ; do
 
     # Clean container and start all needed containers #
     clean_environment
+
+    if [ $RUNMODE == "KUBE" ]; then
+        start_kube_proxy
+    fi
 
     #Start simulators and prepare two configs
 
@@ -94,7 +101,7 @@ for interface in $TESTED_VARIANTS ; do
         prepare_consul_config      NOSDNC  ".consul_config_all.json"
     fi
 
-    start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+    start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
     set_agent_trace
 

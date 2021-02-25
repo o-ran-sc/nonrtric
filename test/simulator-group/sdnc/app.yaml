@@ -35,6 +35,10 @@ spec:
           value: 'true'
         - name: A1_TRUSTSTORE_PASSWORD
           value: $SDNC_A1_TRUSTSTORE_PASSWORD
+        - name: ODL_ADMIN_USERNAME
+          value: $SDNC_USER
+        - name: ODL_ADMIN_PASSWORD
+          value: $SDNC_PWD
         command:
         - /opt/onap/sdnc/bin/startODL.sh
 ---

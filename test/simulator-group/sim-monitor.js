@@ -236,7 +236,7 @@ function fetchAllMetrics_pol() {
         if (getCtr%3 == 0) {
             //Extract the port numbers from the running simulators, for every 3 calls
             const { exec } = require('child_process');
-            exec('docker ps --filter "name='+ricbasename+'" --format "{{.Names}} {{.Ports}}" | sed s/0.0.0.0:// | cut -d \'>\' -f1 | sed \'s/[[-]]*$//\'', (err, stdout, stderr) => {
+            exec('docker ps --filter "name='+ricbasename+'" --filter "network=nonrtric-docker-net" --format "{{.Names}} {{.Ports}}" | sed s/0.0.0.0:// | cut -d \'>\' -f1 | sed \'s/[[-]]*$//\'', (err, stdout, stderr) => {
 
                 var simulators = ""
                 simulators=`${stdout}`.replace(/(\r\n|\n|\r)/gm," ");
@@ -511,7 +511,8 @@ function fetchAllMetrics_ecs() {
                             var jd=JSON.parse(data);
                             var jda=jd["supported_ei_types"]
                             for(var j=0;j<jda.length;j++) {
-                                row=""+row+jda[j]["ei_type_identity"]+" "
+                                row=""+row+jda[j]+" "
+
                             }
                             tmp_ecs_producer_type_arr[idx]=row
                         }

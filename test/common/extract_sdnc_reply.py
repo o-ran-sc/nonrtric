@@ -20,12 +20,12 @@ import json
 import sys
 
 # Extract the response code and optional response message body from and SDNC A1 Controller API reply
-
+# Args: <json-output-key> <file-containing-the response>
 try:
-    with open(sys.argv[1]) as json_file:
+    with open(sys.argv[2]) as json_file:
         reply = json.load(json_file)
 
-        output=reply['output']
+        output=reply[sys.argv[1]]
         status=str(output['http-status'])
         while(len(status) < 3):
             status="0"+status
