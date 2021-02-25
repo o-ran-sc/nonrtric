@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Sanity test of Non-RT RIC Helm recepie - all components"
 DOCKER_INCLUDED_IMAGES="" # Not used -  KUBE only test script
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" MR CR  PRODSTUB"
+KUBE_INCLUDED_IMAGES=" MR CR  PRODSTUB KUBEPROXY"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ECS RC SDNC"
 
@@ -42,6 +42,9 @@ SUPPORTED_RUNMODES="KUBE"
 . ../common/mr_api_functions.sh
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
@@ -68,6 +71,10 @@ if [ "$PMS_VERSION" == "V1" ]; then
 fi
 
 clean_environment
+
+if [ $RUNMODE == "KUBE" ]; then
+    start_kube_proxy
+fi
 
 STD_NUM_RICS=2
 OSC_NUM_RICS=2
@@ -197,9 +204,9 @@ api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/ER-app"
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
     ricid=$((3+$i))
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1100+$i)) NOTRANSIENT $CR_SERVICE_PATH/"std2" testdata/STD/pi1_template.json 1
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1200+$i)) NOTRANSIENT $CR_SERVICE_PATH/"std2" testdata/STD/pi1_template.json 1
 done
 
@@ -207,9 +214,9 @@ done
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
    ricid=$((5+$i))
-   generate_uuid
+   generate_policy_uuid
    api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS_0_2_0 $((2100+$i)) NOTRANSIENT $CR_SERVICE_PATH/"std2" testdata/STD2/pi_qos_template.json 1
-   generate_uuid
+   generate_policy_uuid
    api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS2_0.1.0 $((2200+$i)) NOTRANSIENT $CR_SERVICE_PATH/"std2" testdata/STD2/pi_qos2_template.json 1
 done
 
@@ -217,9 +224,9 @@ done
 for ((i=0; i<$OSC_NUM_RICS; i++))
 do
     ricid=$((1+$i))
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" ric$ricid 1 $((3100+$i)) NOTRANSIENT $CR_SERVICE_PATH/"osc" testdata/OSC/pi1_template.json 1
-    generate_uuid
+    generate_policy_uuid
     api_put_policy 201 "Emergency-response-app" ric$ricid 2 $((3200+$i)) NOTRANSIENT $CR_SERVICE_PATH/"osc" testdata/OSC/pi2_template.json 1
 done
 

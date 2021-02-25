@@ -21,12 +21,17 @@
 TC_ONELINE_DESCR="ECS full interfaces walkthrough"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP HTTPPROXY"
+DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP HTTPPROXY NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" PRODSTUB CR ECS RICSIM CP HTTPPROXY"
+KUBE_INCLUDED_IMAGES="PRODSTUB CR ECS RICSIM CP HTTPPROXY KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
-KUBE_PRESTARTED_IMAGES=" "
+KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -41,12 +46,20 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/controller_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 . ../common/http_proxy_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
 FLAT_A1_EI="1"
 
 clean_environment
+
+if [ $RUNMODE == "KUBE" ]; then
+    start_kube_proxy
+fi
 
 use_ecs_rest_https
 
@@ -56,9 +69,9 @@ use_simulator_https
 
 use_cr_https
 
-#start_http_proxy  #Uncomment this cmd to run with proxy
+start_http_proxy
 
-start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml  #Change NOPROXY to PROXY to run with http proxy
+start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE  #Change NOPROXY to PROXY to run with http proxy
 
 if [ $RUNMODE == "KUBE" ]; then
     ecs_api_admin_reset
@@ -68,7 +81,11 @@ start_prod_stub
 
 set_ecs_trace
 
-start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
+
+if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
+    start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
+fi
 
 if [ "$PMS_VERSION" == "V2" ]; then
     start_ric_simulators ricsim_g3 4  STD_2.0.0

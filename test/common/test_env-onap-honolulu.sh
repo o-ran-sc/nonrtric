@@ -59,24 +59,22 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # Policy Agent image and tags
 POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-POLICY_AGENT_IMAGE_TAG_LOCAL="1.1.1-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.1-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="1.1.1-STAGING-latest" #Will use snapshot repo
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
-
+POLICY_AGENT_IMAGE_TAG_LOCAL="1.1.2-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.2-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE="1.1.2-STAGING-latest" #Will use snapshot repo
+POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.1.2"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.1.1-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.1-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.1.1-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.1.1"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.1.3-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.3-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.1.3-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.1.3"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
-SDNC_DB_IMAGE_BASE="mysql/mysql-server"
-SDNC_DB_IMAGE_TAG_REMOTE_PROXY="5.6"
-
+SDNC_DB_IMAGE_BASE="mariadb"
+SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
 # ECS image and tag - uses cherry release
 ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
@@ -85,7 +83,7 @@ ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
 
 # Control Panel image and tag - uses cherry release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.1"
 
 
 # RAPP Catalogue image and tags - uses cherry release
@@ -131,7 +129,7 @@ PROD_STUB_IMAGE_TAG_LOCAL="latest"
 #Http proxy remote image and tag
 HTTP_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
 HTTP_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
-#No local image for SSDNC DB, remote image always used
+#No local image for http proxy, remote image always used
 
 #ONAP Zookeeper remote image and tag
 ONAP_ZOOKEEPER_IMAGE_BASE="onap/dmaap/zookeeper"
@@ -148,6 +146,10 @@ ONAP_DMAAPMR_IMAGE_BASE="onap/dmaap/dmaap-mr"
 ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
 #No local image for ONAP DMAAP-MR, remote image always used
 
+#Kube proxy remote image and tag
+KUBE_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
+KUBE_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
+#No local image for http proxy, remote image always used
 
 # List of app short names produced by the project
 PROJECT_IMAGES_APP_NAMES="PA SDNC"
@@ -210,7 +212,7 @@ ECS_ALIVE_URL="/status"                                  # Base path for alive c
 ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
-ECS_VERSION="V1-1"                                       # Version where the types are added in the producer registration
+ECS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -295,18 +297,24 @@ SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller co
 SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
 SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
 SDNC_USER="admin"                                        # SDNC username
+SDNC_PWD="admin"                                         # SNDC PWD
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
+#SDNC_API_URL="/rests/operations/A1-ADAPTER-API:"         # Base url path for SNDC API (for upgraded sdnc)
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
 SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
 SDNC_COMPOSE_DIR="sdnc"
+SDNC_COMPOSE_FILE="docker-compose-2.yml"
+SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
+#SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
+SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue Service"
 RAPP_CAT_EXTERNAL_PORT=8680                              # RAPP Catalogue container external port (host -> container)
-RAPP_CAT_INTERNAL_PORT=8080                              # RAPP Catalogue container internal port (container -> container)
+RAPP_CAT_INTERNAL_PORT=8680                              # RAPP Catalogue container internal port (container -> container)
 RAPP_CAT_EXTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container external secure port (host -> container)
-RAPP_CAT_INTERNAL_SECURE_PORT=8433                       # RAPP Catalogue container internal secure port (container -> container)
+RAPP_CAT_INTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container internal secure port (container -> container)
 RAPP_CAT_ALIVE_URL="/services"                           # Base path for alive check
 RAPP_CAT_COMPOSE_DIR="rapp_catalogue"                    # Dir in simulator_group for docker-compose
 
@@ -321,6 +329,7 @@ CONTROL_PANEL_ALIVE_URL="/"                              # Base path for alive c
 CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_group for docker-compose
 CONTROL_PANEL_CONFIG_MOUNT_PATH=/maven                   # Container internal path for config
 CONTROL_PANEL_CONFIG_FILE=application.properties         # Config file name
+CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative to compose file, on the host
 
 HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
 HTTP_PROXY_DISPLAY_NAME="Http Proxy"
@@ -332,6 +341,18 @@ HTTP_PROXY_CONFIG_PORT=0                                 # Port number for proxy
 HTTP_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
 HTTP_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 HTTP_PROXY_COMPOSE_DIR="httpproxy"                       # Dir in simulator_group for docker-compose
+
+
+KUBE_PROXY_APP_NAME="kubeproxy"                          # Name of the Kube Http Proxy container
+KUBE_PROXY_DISPLAY_NAME="Kube Http Proxy"
+KUBE_PROXY_EXTERNAL_PORT=8730                            # Kube Http Proxy container external port (host -> container)
+KUBE_PROXY_INTERNAL_PORT=8080                            # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy container external port (host -> container)
+KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
+KUBE_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
+KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
+KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
 
 ########################################
 # Setting for common curl-base function

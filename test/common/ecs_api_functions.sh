@@ -19,6 +19,65 @@
 
 # This is a script that contains container/service management functions and test functions for ECS
 
+################ Test engine functions ################
+
+# Create the image var used during the test
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__ECS_imagesetup() {
+	__check_and_create_image_var ECS "ECS_IMAGE" "ECS_IMAGE_BASE" "ECS_IMAGE_TAG" $1 "$ECS_DISPLAY_NAME"
+}
+
+# Pull image from remote repo or use locally built image
+# arg: <pull-policy-override> <pull-policy-original>
+# <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
+# <pull-policy-original> Shall be used for images that does not allow overriding
+# Both var may contain: 'remote', 'remote-remove' or 'local'
+__ECS_imagepull() {
+	__check_and_pull_image $1 "$ECS_DISPLAY_NAME" $ECS_APP_NAME $ECS_IMAGE
+}
+
+# Build image (only for simulator or interfaces stubs owned by the test environment)
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__ECS_imagebuild() {
+	echo -e $RED" Image for app ECS shall never be built"$ERED
+}
+
+# Generate a string for each included image using the app display name and a docker images format string
+# arg: <docker-images-format-string> <file-to-append>
+__ECS_image_data() {
+	echo -e "$ECS_DISPLAY_NAME\t$(docker images --format $1 $ECS_IMAGE)" >>   $2
+}
+
+# Scale kubernetes resources to zero
+# All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
+# This function is called for apps fully managed by the test script
+__ECS_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+}
+
+# Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
+# This function is called for prestarted apps not managed by the test script.
+__ECS_kube_scale_zero_and_wait() {
+	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-enrichmentservice
+}
+
+# Delete all kube resouces for the app
+# This function is called for apps managed by the test script.
+__ECS_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+}
+
+# Store docker logs
+# This function is called for apps managed by the test script.
+# args: <log-dir> <file-prexix>
+__ECS_store_docker_logs() {
+	docker logs $ECS_APP_NAME > $1$2_ecs.log 2>&1
+}
+#######################################################
+
+
 ## Access to ECS
 # Host name may be changed if app started by kube
 # Direct access
@@ -141,6 +200,10 @@ start_ecs() {
 			export ECS_DATA_CONFIGMAP_NAME=$ECS_APP_NAME"-data"
 			export ECS_CONTAINER_MNT_DIR
 
+			export ECS_DATA_PV_NAME=$ECS_APP_NAME"-pv"
+			#Create a unique path for the pv each time to prevent a previous volume to be reused
+			export ECS_PV_PATH="ecsdata-"$(date +%s)
+
 			if [ $1 == "PROXY" ]; then
 				ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
 				ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
@@ -162,6 +225,11 @@ start_ecs() {
 			cp $2 $datafile
 			output_yaml=$PWD/tmp/ecs_cfc.yaml
 			__kube_create_configmap $ECS_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest ECS $datafile $output_yaml
+
+			# Create pv
+			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"pv.yaml
+			output_yaml=$PWD/tmp/ecs_pv.yaml
+			__kube_create_instance pv $ECS_APP_NAME $input_yaml $output_yaml
 
 			# Create pvc
 			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"pvc.yaml
@@ -235,6 +303,7 @@ start_ecs() {
 		export ECS_INTERNAL_SECURE_PORT
 		export ECS_EXTERNAL_SECURE_PORT
 		export DOCKER_SIM_NWNAME
+		export ECS_DISPLAY_NAME
 
 		if [ $1 == "PROXY" ]; then
 			ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
@@ -256,7 +325,7 @@ start_ecs() {
 
 		envsubst < $2 > $dest_file
 
-		__start_container $ECS_COMPOSE_DIR NODOCKERARGS 1 $ECS_APP_NAME
+		__start_container $ECS_COMPOSE_DIR "" NODOCKERARGS 1 $ECS_APP_NAME
 
 		__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
 	fi
@@ -324,6 +393,13 @@ use_ecs_retries() {
 	return 0
 }
 
+# Check the ecs logs for WARNINGs and ERRORs
+# args: -
+# (Function for test scripts)
+check_ecs_logs() {
+	__check_container_logs "ECS" $ECS_APP_NAME $ECS_LOGPATH WARN ERR
+}
+
 
 # Tests if a variable value in the ECS is equal to a target value and and optional timeout.
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
@@ -360,7 +436,7 @@ ecs_api_a1_get_job_ids() {
 			return 1
 		fi
 	else
-		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
 		# Valid number of parameters 4,5,6 etc
     	if [ $# -lt 3 ]; then
 			__print_err "<response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
@@ -543,7 +619,7 @@ ecs_api_a1_get_job_status() {
 			fi
 		fi
 	else
-		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
 		if [ $# -lt 2 ] && [ $# -gt 4 ]; then
 			__print_err "<response-code> <job-id> [<status> [<timeout>]]" $@
 			return 1
@@ -618,7 +694,7 @@ ecs_api_a1_get_job() {
 		fi
 		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
 	else
-		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
 		if [ $# -ne 2 ] && [ $# -ne 7 ]; then
 			__print_err "<response-code> <job-id> [<type-id> <target-url> <owner-id> <notification-url> <template-job-file>]" $@
 			return 1
@@ -694,7 +770,7 @@ ecs_api_a1_delete_job() {
 
 		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
 	else
-		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
 		if [ $# -ne 2 ]; then
 			__print_err "<response-code> <job-id>" $@
 			return 1
@@ -739,7 +815,7 @@ ecs_api_a1_put_job() {
 
 		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
 	else
-		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
 		if [ $# -lt 7 ]; then
 			__print_err "<response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>" $@
 			return 1

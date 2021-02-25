@@ -37,6 +37,10 @@ services:
       - ALLOW_HTTP=true
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+    labels:
+      - "nrttest_app=RICSIM"
+      - "nrttest_dp=${RIC_SIM_DISPLAY_NAME}"
+
   g2:
     image: ${RIC_SIM_IMAGE}
     networks:
@@ -50,6 +54,10 @@ services:
       - ALLOW_HTTP=true
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+    labels:
+      - "nrttest_app=RICSIM"
+      - "nrttest_dp=${RIC_SIM_DISPLAY_NAME}"
+
   g3:
     image: ${RIC_SIM_IMAGE}
     networks:
@@ -63,3 +71,6 @@ services:
       - ALLOW_HTTP=true
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+    labels:
+      - "nrttest_app=RICSIM"
+      - "nrttest_dp=${RIC_SIM_DISPLAY_NAME}"

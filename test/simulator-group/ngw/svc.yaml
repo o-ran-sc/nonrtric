@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $NRT_GATEWAY_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $NRT_GATEWAY_APP_NAME
+    autotest: NGW
+spec:
+  type: ClusterIP
+  ports:
+  - port: $NRT_GATEWAY_EXTERNAL_PORT
+    targetPort: $NRT_GATEWAY_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $NRT_GATEWAY_EXTERNAL_SECURE_PORT
+    targetPort: $NRT_GATEWAY_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $NRT_GATEWAY_APP_NAME

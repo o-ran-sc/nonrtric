@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $NRT_GATEWAY_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $NRT_GATEWAY_APP_NAME
+    autotest: NGW
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $NRT_GATEWAY_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $NRT_GATEWAY_APP_NAME
+        autotest: NGW
+    spec:
+      containers:
+      - name: $NRT_GATEWAY_APP_NAME
+        image: $NRT_GATEWAY_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $NRT_GATEWAY_INTERNAL_PORT
+        - name: https
+          containerPort: $NRT_GATEWAY_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $NRT_GATEWAY_CONFIG_MOUNT_PATH/$NRT_GATEWAY_CONFIG_FILE
+          subPath: $NRT_GATEWAY_CONFIG_FILE
+          name: ngw-conf-name
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $NGW_CONFIG_CONFIGMAP_NAME
+        name: ngw-conf-name

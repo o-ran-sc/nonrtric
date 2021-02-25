@@ -21,12 +21,17 @@
 TC_ONELINE_DESCR="ECS Create 10000 jobs and restart, test job persistency"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR CP"
+DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR CP NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="ECS PRODSTUB CP CR"
+KUBE_INCLUDED_IMAGES="ECS PRODSTUB CP CR KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -39,6 +44,10 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
+
+setup_testenvironment
 
 #### TEST BEGIN ####
 
@@ -46,17 +55,25 @@ FLAT_A1_EI="1"
 
 clean_environment
 
+if [ $RUNMODE == "KUBE" ]; then
+    start_kube_proxy
+fi
+
 use_ecs_rest_http
 
 use_prod_stub_http
 
-start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
+start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE
 
 start_prod_stub
 
 set_ecs_trace
 
-start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
+
+if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
+    start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
+fi
 
 start_cr
 

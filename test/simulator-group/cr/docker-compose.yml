@@ -29,3 +29,6 @@ services:
     ports:
       - ${CR_EXTERNAL_PORT}:${CR_INTERNAL_PORT}
       - ${CR_EXTERNAL_SECURE_PORT}:${CR_INTERNAL_SECURE_PORT}
+    labels:
+      - "nrttest_app=CR"
+      - "nrttest_dp=${CR_DISPLAY_NAME}"

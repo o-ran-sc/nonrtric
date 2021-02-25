@@ -33,6 +33,9 @@ services:
       - ${CONSUL_EXTERNAL_PORT}:${CONSUL_INTERNAL_PORT}
     volumes:
       - ./consul/:/consul/config
+    labels:
+      - "nrttest_app=CONSUL"
+      - "nrttest_dp=${CONSUL_DISPLAY_NAME}"
 
   config-binding-service:
     networks:
@@ -45,4 +48,7 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
     depends_on:
       - ${CONSUL_HOST}
+    labels:
+      - "nrttest_app=CBS"
+      - "nrttest_dp=${CBS_DISPLAY_NAME}"
 

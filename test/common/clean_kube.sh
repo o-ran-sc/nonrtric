@@ -31,7 +31,7 @@ SAMELINE="\033[0K\r"
 __kube_delete_all_resources() {
 	echo "Deleting all from namespace: "$1
 	namespace=$1
-	resources="deployments replicaset statefulset services pods configmaps pvc"
+	resources="deployments replicaset statefulset services pods configmaps pvc pv"
 	deleted_resourcetypes=""
 	for restype in $resources; do
 		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')

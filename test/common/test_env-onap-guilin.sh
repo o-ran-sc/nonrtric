@@ -116,8 +116,7 @@ CR_IMAGE_TAG_LOCAL="latest"
 #Http proxy remote image and tag
 HTTP_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
 HTTP_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
-#No local image for SSDNC DB, remote image always used
-
+#No local image for http proxy, remote image always used
 
 #ONAP Zookeeper remote image and tag
 ONAP_ZOOKEEPER_IMAGE_BASE="onap/dmaap/zookeeper"
@@ -133,6 +132,12 @@ ONAP_KAFKA_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.0.4"
 ONAP_DMAAPMR_IMAGE_BASE="onap/dmaap/dmaap-mr"
 ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
 #No local image for ONAP DMAAP-MR, remote image always used
+
+#Kube proxy remote image and tag
+KUBE_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
+KUBE_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
+#No local image for http proxy, remote image always used
+
 
 # List of app short names produced by the project
 PROJECT_IMAGES_APP_NAMES="PA SDNC"
@@ -253,8 +258,10 @@ SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
 SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
 SDNC_COMPOSE_DIR="sdnc"                                  # Dir in simulator_group for docker-compose
+SDNC_COMPOSE_FILE="docker-compose.yml"
+SDNC_KUBE_APP_FILE="app.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
-
+SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
 
 CONTROL_PANEL_APP_NAME="controlpanel"                    # Name of the Control Panel container
 CONTROL_PANEL_DISPLAY_NAME="Non-RT RIC Control Panel"
@@ -267,6 +274,7 @@ CONTROL_PANEL_ALIVE_URL="/"                              # Base path for alive c
 CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_group for docker-compose
 CONTROL_PANEL_CONFIG_MOUNT_PATH=/maven                   # Container internal path for config
 CONTROL_PANEL_CONFIG_FILE=application.properties         # Config file name
+CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative to compose file, on the host
 
 HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
 HTTP_PROXY_DISPLAY_NAME="Http Proxy"
@@ -278,6 +286,18 @@ HTTP_PROXY_CONFIG_PORT=0                                 # Port number for proxy
 HTTP_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
 HTTP_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 HTTP_PROXY_COMPOSE_DIR="httpproxy"                       # Dir in simulator_group for docker-compose
+
+
+KUBE_PROXY_APP_NAME="kubeproxy"                          # Name of the Kube Http Proxy container
+KUBE_PROXY_DISPLAY_NAME="Kube Http Proxy"
+KUBE_PROXY_EXTERNAL_PORT=8730                            # Kube Http Proxy container external port (host -> container)
+KUBE_PROXY_INTERNAL_PORT=8080                            # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy container external port (host -> container)
+KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
+KUBE_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
+KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
+KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
 
 ########################################
 # Setting for common curl-base function
