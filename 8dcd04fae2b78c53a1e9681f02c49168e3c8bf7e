@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "6feda28c_34f9320f",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af37d6e2_e29c234f",
+      "range": {
+        "startLine": 66,
+        "startChar": 122,
+        "endLine": 66,
+        "endChar": 131
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecfa9695_d4ad42a4",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c34cd59_dddc738b",
+      "range": {
+        "startLine": 66,
+        "startChar": 146,
+        "endLine": 66,
+        "endChar": 151
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83764dae_0fa7082c",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fcc2aba_178d32c5",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83764dae_0fa7082c",
+      "range": {
+        "startLine": 76,
+        "startChar": 76,
+        "endLine": 76,
+        "endChar": 86
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "cd27a9a9_76289e19",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c6eaab0_cd9acc50",
+      "range": {
+        "startLine": 81,
+        "startChar": 73,
+        "endLine": 81,
+        "endChar": 81
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4bf5225_9c2e89c1",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1producer/ProducerController.java",
         "patchSetId": 2
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "8aca58ac_1e900c0f",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1producer/ProducerController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4bf5225_9c2e89c1",
+      "range": {
+        "startLine": 303,
+        "startChar": 5,
+        "endLine": 303,
+        "endChar": 17
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe4f6055_af8be91b",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1producer/ProducerController.java",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2021-02-26T07:09:18Z",
       "side": 1,
       "message": "Is there a possibility for a 406 response, when a producer has active jobs?",
+      "range": {
+        "startLine": 330,
+        "startChar": 5,
+        "endLine": 330,
+        "endChar": 17
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49188f9d_edf76525",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1producer/ProducerController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "Good question. But no, you can de-register the producer anyway.",
+      "parentUuid": "fe4f6055_af8be91b",
       "range": {
         "startLine": 330,
         "startChar": 5,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "b318ca26_d90dd20d",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/controller/ConsumerSimulatorController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "This is a callback API (implemented by the user of this service) and there are no required or restrictions in error responses.",
+      "parentUuid": "603907d4_c5a4fac7",
+      "range": {
+        "startLine": 76,
+        "startChar": 5,
+        "endLine": 76,
+        "endChar": 17
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0afe0071_f390f560",
         "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/controller/ProducerSimulatorController.java",
         "patchSetId": 2
@@ -174,6 +342,30 @@
       "writtenOn": "2021-02-26T07:09:18Z",
       "side": 1,
       "message": "Missing error response?",
+      "range": {
+        "startLine": 92,
+        "startChar": 5,
+        "endLine": 92,
+        "endChar": 17
+      },
+      "revId": "8dcd04fae2b78c53a1e9681f02c49168e3c8bf7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b8ed284_68c4fc82",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/controller/ProducerSimulatorController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-02-26T08:17:41Z",
+      "side": 1,
+      "message": "This is a callback API and there are no required or restrictions in error responses right now.",
+      "parentUuid": "0afe0071_f390f560",
       "range": {
         "startLine": 92,
         "startChar": 5,
