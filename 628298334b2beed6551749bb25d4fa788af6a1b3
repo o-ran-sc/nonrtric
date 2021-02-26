@@ -236,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "c077dcdd_13cb8e49",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerConsts.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-26T15:27:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a2685757_8de29fab",
+      "range": {
+        "startLine": 27,
+        "startChar": 52,
+        "endLine": 27,
+        "endChar": 60
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "549afad3_763ec0b9",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/r1consumer/ConsumerController.java",
         "patchSetId": 1
@@ -326,6 +350,30 @@
       "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae3ad70c_f02d54b5",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/MockEnrichmentService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-02-26T15:27:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99b54e96_71b277e4",
+      "range": {
+        "startLine": 48,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 103
+      },
+      "revId": "628298334b2beed6551749bb25d4fa788af6a1b3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
