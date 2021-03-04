@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07bd86d6_c3b9d47d",
+        "filename": "test/auto-test/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-03-04T13:35:51Z",
+      "side": 1,
+      "message": "not?",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "67c896947b60a81ce4ecafe84fca591b888b6788",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2318c416_d35e70db",
+        "filename": "test/common/agent_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-03-04T13:35:51Z",
+      "side": 1,
+      "message": "This sentence is confusing to me. Should one really use a local image to usa a released image? This sentence is repeated in many files.",
+      "range": {
+        "startLine": 33,
+        "startChar": 71,
+        "endLine": 33,
+        "endChar": 144
+      },
+      "revId": "67c896947b60a81ce4ecafe84fca591b888b6788",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de65bf9e_99a85a63",
+        "filename": "test/common/control_panel_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-03-04T13:35:51Z",
+      "side": 1,
+      "message": "Is this commented out code necessary to keep here?",
+      "range": {
+        "startLine": 168,
+        "startChar": 3,
+        "endLine": 168,
+        "endChar": 5
+      },
+      "revId": "67c896947b60a81ce4ecafe84fca591b888b6788",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
