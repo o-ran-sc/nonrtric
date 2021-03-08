@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4bfd0aa1_000f872c",
+        "filename": "test/auto-test/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-03-08T08:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07bd86d6_c3b9d47d",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "67c896947b60a81ce4ecafe84fca591b888b6788",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2318c416_d35e70db",
         "filename": "test/common/agent_api_functions.sh",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f30efbc8_0f1408ba",
+        "filename": "test/common/agent_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-03-08T08:06:58Z",
+      "side": 1,
+      "message": "Yes, it is possible to use a local image (for example the PMS) together with the release images of the other components. This local image has to be explicitly stated on the command line when starting the test. The typical case here is when an image is been corrected (for example a bug-fix) after release. You build that image locally and want to run the test with that image to verify the functionality together with the other released images prior to committing the bug fix.\nThe possibility to override images (with a local image, or a snapshot/staging/release image) is available to all images that allow overriding - basically all the images PMS, ECS, A1 sim etc we develop and delivery. And the overriding can be ordered when starting the test script using release images or with staging images. \nThe list of images that will be used in the test are always listed in the beginning of the printout for the test.",
+      "parentUuid": "2318c416_d35e70db",
+      "range": {
+        "startLine": 33,
+        "startChar": 71,
+        "endLine": 33,
+        "endChar": 144
+      },
+      "revId": "67c896947b60a81ce4ecafe84fca591b888b6788",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "de65bf9e_99a85a63",
         "filename": "test/common/control_panel_api_functions.sh",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2021-03-04T13:35:51Z",
       "side": 1,
       "message": "Is this commented out code necessary to keep here?",
+      "range": {
+        "startLine": 168,
+        "startChar": 3,
+        "endLine": 168,
+        "endChar": 5
+      },
+      "revId": "67c896947b60a81ce4ecafe84fca591b888b6788",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72dbc3ea_bf4509e5",
+        "filename": "test/common/control_panel_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-03-08T08:06:58Z",
+      "side": 1,
+      "message": "Not needed, removed.",
+      "parentUuid": "de65bf9e_99a85a63",
       "range": {
         "startLine": 168,
         "startChar": 3,
