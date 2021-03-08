@@ -68,6 +68,63 @@
       "revId": "1db10d37f63d0104c2be6f87d7ea69939db06cc0",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba528484_e6938e78",
+        "filename": "rapp-manager/src/main/java/org/oransc/rappmanager/controller/AppController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-03-08T07:39:49Z",
+      "side": 1,
+      "message": "Should this be /apps/{id} ? (assuming you want to install one application at a time).",
+      "range": {
+        "startLine": 59,
+        "startChar": 25,
+        "endLine": 59,
+        "endChar": 30
+      },
+      "revId": "1db10d37f63d0104c2be6f87d7ea69939db06cc0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca73fcb1_d281fa80",
+        "filename": "rapp-manager/src/main/java/org/oransc/rappmanager/controller/Chart.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-03-08T07:39:49Z",
+      "side": 1,
+      "message": "Have you thought about name/version/id ? \nIs id like a uuid or a combination of name+version?\nCan we retrieve name+version from the chart hotel if we do not put it in the \"key\"?",
+      "revId": "1db10d37f63d0104c2be6f87d7ea69939db06cc0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e90b3ac_ec0176d6",
+        "filename": "rapp-manager/src/main/java/org/oransc/rappmanager/controller/ChartController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-03-08T07:39:49Z",
+      "side": 1,
+      "message": "Should it not be enough with PUT, which can be used for both. \nHowever, can a chart be updated? Would it not then be a new chart (a new version)?",
+      "revId": "1db10d37f63d0104c2be6f87d7ea69939db06cc0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
