@@ -21,12 +21,16 @@ networks:
     external:
       name: ${DOCKER_SIM_NWNAME}
 services:
-  httpproxy:
+  nonrtric-gateway:
+    image: ${NRT_GATEWAY_IMAGE}
+    container_name: ${NRT_GATEWAY_APP_NAME}
     networks:
       - default
-    container_name: ${HTTP_PROXY_APP_NAME}
-    image: ${HTTP_PROXY_IMAGE}
-    tty: true
-    command: mitmweb --web-host 0.0.0.0 --no-web-open-browser --set ssl_insecure
     ports:
-      - ${HTTP_PROXY_WEB_EXTERNAL_PORT}:${HTTP_PROXY_WEB_INTERNAL_PORT}
+    - ${NRT_GATEWAY_EXTERNAL_PORT}:${NRT_GATEWAY_INTERNAL_PORT}
+#    - ${NRT_GATEWAY_EXTERNAL_SECURE_PORT}:${NRT_GATEWAY_INTERNAL_SECURE_PORT}
+    volumes:
+    - ${NRT_GATEWAY_HOST_MNT_DIR}/$NRT_GATEWAY_CONFIG_FILE:${NRT_GATEWAY_CONFIG_MOUNT_PATH}/$NRT_GATEWAY_CONFIG_FILE
+    labels:
+      - "nrttest_app=NGW"
+      - "nrttest_dp=${NRT_GATEWAY_DISPLAY_NAME}"

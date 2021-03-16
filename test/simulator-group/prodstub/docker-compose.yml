@@ -31,3 +31,6 @@ services:
     ports:
       - ${PROD_STUB_EXTERNAL_PORT}:${PROD_STUB_INTERNAL_PORT}
       - ${PROD_STUB_EXTERNAL_SECURE_PORT}:${PROD_STUB_INTERNAL_SECURE_PORT}
+    labels:
+      - "nrttest_app=PRODSTUB"
+      - "nrttest_dp=${PROD_STUB_DISPLAY_NAME}"

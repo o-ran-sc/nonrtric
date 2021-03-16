@@ -73,43 +73,44 @@ ECS_IMAGE_TAG_REMOTE="1.1.0"
 ECS_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 
-# Control Panel image and tags
-# CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-# CONTROL_PANEL_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT"
-# CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
-# CONTROL_PANEL_IMAGE_TAG_REMOTE="2.2.0"
-# CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
-
-
-###########################################################
-##### Temporarily using cherry as dawn version is corrupted
-###########################################################
-# Control Panel image and tags
+#Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_LOCAL="2.1.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE="2.1.0"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.1.0"
+CONTROL_PANEL_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE="2.2.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
 
 
+# Gateway image and tags
+NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
+NRT_GATEWAY_IMAGE_TAG_LOCAL="0.0.1-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="0.0.1-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE="0.0.1"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+
+
+# SDNC A1 Controller image and tags - Note using ONAP image
+SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.2"
+#No local image for ONAP SDNC, remote release image always used
+
+# ORAN SDNC adapter kept as reference
 # SDNC A1 Controller image and tags - still using cherry version, no new version for dawn
-SDNC_A1_CONTROLLER_IMAGE_BASE="o-ran-sc/nonrtric-a1-controller"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.0.1-SNAPSHOT"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.0.1-SNAPSHOT"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.0.1"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.0.1"
-
-# SDNC A1 Controller image and tags - intended versions for dawn - not yet present
-# SDNC_A1_CONTROLLER_IMAGE_BASE="o-ran-sc/nonrtric-a1-controller"
-# SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.1.0-SNAPSHOT"
-# SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.0-SNAPSHOT"
-# SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.1.0"
-# SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.1.0"
-
+#SDNC_A1_CONTROLLER_IMAGE_BASE="o-ran-sc/nonrtric-a1-controller"
+#SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.0.1-SNAPSHOT"
+#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.0.1-SNAPSHOT"
+#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.0.1"
+#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.0.1"
 
 #SDNC DB remote image and tag
-SDNC_DB_IMAGE_BASE="mysql/mysql-server"
-SDNC_DB_IMAGE_TAG_REMOTE_PROXY="5.6"
+#The DB is part of SDNC so handled in the same way as SDNC
+SDNC_DB_IMAGE_BASE="mariadb"
+SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
+
+#Older SDNC db image kept for reference
+#SDNC DB remote image and tag
+#SDNC_DB_IMAGE_BASE="mysql/mysql-server"
+#SDNC_DB_IMAGE_TAG_REMOTE_PROXY="5.6"
 #No local image for SSDNC DB, remote image always used
 
 
@@ -161,7 +162,7 @@ PROD_STUB_IMAGE_TAG_LOCAL="latest"
 #Http proxy remote image and tag
 HTTP_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
 HTTP_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
-#No local image for SSDNC DB, remote image always used
+#No local image for http proxy, remote image always used
 
 #ONAP Zookeeper remote image and tag
 ONAP_ZOOKEEPER_IMAGE_BASE="onap/dmaap/zookeeper"
@@ -178,14 +179,19 @@ ONAP_DMAAPMR_IMAGE_BASE="onap/dmaap/dmaap-mr"
 ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
 #No local image for ONAP DMAAP-MR, remote image always used
 
+#Kube proxy remote image and tag
+KUBE_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
+KUBE_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
+#No local image for http proxy, remote image always used
+
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="PA ECS CP SDNC RC RICSIM"
+PROJECT_IMAGES_APP_NAMES="PA ECS CP RC RICSIM NGW"  # Add SDNC here if oran image is used
 
 # List of app short names which images pulled from ORAN
 ORAN_IMAGES_APP_NAMES=""  # Not used
 
 # List of app short names which images pulled from ONAP
-ONAP_IMAGES_APP_NAMES="CBS DMAAPMR"
+ONAP_IMAGES_APP_NAMES="CBS DMAAPMR SDNC"   # SDNC added as ONAP image
 
 
 ########################################
@@ -266,7 +272,7 @@ MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
 
 
 CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
-CR_DISPLAY_NAME="RAPP Catalogue"
+CR_DISPLAY_NAME="Callback receiver"
 CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
 CR_INTERNAL_PORT=8090                                    # Callback receiver container internal port (container -> container)
 CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
@@ -315,6 +321,26 @@ RIC_SIM_CERT_MOUNT_DIR="./cert"
 RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
 RIC_SIM_ALIVE_URL="/"                                    # Base path for alive check
 
+# Kept as reference for oran a1 adapter
+# SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
+# SDNC_DISPLAY_NAME="SDNC A1 Controller"
+# SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
+# SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
+# SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
+# SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
+# SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
+# SDNC_A1_TRUSTSTORE_PASSWORD=""                           # SDNC truststore password
+# SDNC_USER="admin"                                        # SDNC username
+# SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
+# SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
+# SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
+# SDNC_COMPOSE_DIR="sdnc"                                  # Dir in simulator_group for docker-compose
+# SDNC_COMPOSE_FILE="docker-compose.yml"
+# SDNC_KUBE_APP_FILE="app.yaml"
+# SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
+# SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
+
+# For ONAP sdan
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
 SDNC_DISPLAY_NAME="SDNC A1 Controller"
 SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
@@ -322,13 +348,19 @@ SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller co
 SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
 SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
 SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
-SDNC_A1_TRUSTSTORE_PASSWORD=""                           # SDNC truststore password
+SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
 SDNC_USER="admin"                                        # SDNC username
+SDNC_PWD="admin"                                         # SNDC PWD
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
+#SDNC_API_URL="/rests/operations/A1-ADAPTER-API:"         # Base url path for SNDC API (for upgraded sdnc)
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
 SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
-SDNC_COMPOSE_DIR="sdnc"                                  # Dir in simulator_group for docker-compose
+SDNC_COMPOSE_DIR="sdnc"
+SDNC_COMPOSE_FILE="docker-compose-2.yml"
+SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
+#SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
+SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue"
@@ -345,11 +377,27 @@ CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel contain
 CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container internal port (container -> container)
 CONTROL_PANEL_EXTERNAL_SECURE_PORT=8880                  # Control Panel container external port (host -> container)
 CONTROL_PANEL_INTERNAL_SECURE_PORT=8082                  # Control Panel container internal port (container -> container)
-CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"  # Path the application log in the Control Panel container
+CONTROL_PANEL_LOGPATH="/var/log/nonrtric-gateway/application.log"  # Path the application log in the Control Panel container
 CONTROL_PANEL_ALIVE_URL="/"                              # Base path for alive check
 CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_group for docker-compose
-CONTROL_PANEL_CONFIG_MOUNT_PATH=/maven                   # Container internal path for config
-CONTROL_PANEL_CONFIG_FILE=application.properties         # Config file name
+CONTROL_PANEL_CONFIG_FILE=nginx.conf                     # Config file name
+CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative to compose file, on the host
+CONTROL_PANEL_CONFIG_MOUNT_PATH=/etc/nginx               # Container internal path for config
+
+NRT_GATEWAY_APP_NAME="nonrtricgateway"                  # Name of the Gateway container
+NRT_GATEWAY_DISPLAY_NAME="NonRT-RIC Gateway"
+NRT_GATEWAY_EXTERNAL_PORT=9090                           # Gateway container external port (host -> container)
+NRT_GATEWAY_INTERNAL_PORT=9090                           # Gateway container internal port (container -> container)
+NRT_GATEWAY_EXTERNAL_SECURE_PORT=9091                    # Gateway container external port (host -> container)
+NRT_GATEWAY_INTERNAL_SECURE_PORT=9091                    # Gateway container internal port (container -> container)
+NRT_GATEWAY_LOGPATH="/var/log/nonrtric-gateway/application.log" # Path the application log in the Gateway container
+NRT_GATEWAY_HOST_MNT_DIR="./mnt"                         # Mounted dir, relative to compose file, on the host
+NRT_GATEWAY_ALIVE_URL="/actuator/metrics"                # Base path for alive check
+NRT_GATEWAY_COMPOSE_DIR="ngw"                            # Dir in simulator_group for docker-compose
+NRT_GATEWAY_CONFIG_MOUNT_PATH=/opt/app/nonrtric-gateway/config  # Container internal path for config
+NRT_GATEWAY_CONFIG_FILE=application.yaml                 # Config file name
+NRT_GATEWAY_PKG_NAME="org.springframework.cloud.gateway" # Java base package name
+NRT_GATEWAY_ACTUATOR="/actuator/loggers/$NRT_GATEWAY_PKG_NAME" # Url for trace/debug
 
 HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
 HTTP_PROXY_DISPLAY_NAME="Http Proxy"
@@ -361,6 +409,17 @@ HTTP_PROXY_CONFIG_PORT=0                                 # Port number for proxy
 HTTP_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
 HTTP_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 HTTP_PROXY_COMPOSE_DIR="httpproxy"                       # Dir in simulator_group for docker-compose
+
+KUBE_PROXY_APP_NAME="kubeproxy"                          # Name of the Kube Http Proxy container
+KUBE_PROXY_DISPLAY_NAME="Kube Http Proxy"
+KUBE_PROXY_EXTERNAL_PORT=8730                            # Kube Http Proxy container external port (host -> container)
+KUBE_PROXY_INTERNAL_PORT=8080                            # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy container external port (host -> container)
+KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
+KUBE_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
+KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
+KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
 
 ########################################
 # Setting for common curl-base function

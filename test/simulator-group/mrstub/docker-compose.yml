@@ -34,3 +34,6 @@ services:
     environment:
       - TOPIC_READ=${TOPIC_READ}
       - TOPIC_WRITE=${TOPIC_WRITE}
+    labels:
+      - "nrttest_app=MR"
+      - "nrttest_dp=${MR_STUB_DISPLAY_NAME}"

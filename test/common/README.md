@@ -16,7 +16,7 @@ Cleans all services, deployments, pods, replica set etc started by the test envi
 `compare_json.py` \
 A python script to compare two json obects for equality. Note that the comparsion always sort json-arrays before comparing (that is, it does not care about the order of items within the array). In addition, the target json object may specify individual parameter values where equality is 'dont care'.
 
-`consult_cbs_function.sh` \
+`consul_cbs_function.sh` \
 Contains functions for managing Consul and CBS as well as create the configuration for the PMS.
 
 `control_panel_api_function.sh` \
@@ -49,8 +49,14 @@ Contains functions for adapting towards the ECS API
 `extract_sdnc_reply.py` \
 A python script to extract the information from an sdnc (A1 Controller) reply json. Helper for the test environment.
 
+`gateway_api_functions.sh` \
+Contains functions for managing the Non-RT RIC Gateway
+
 `http_proxy_api_functions.sh` \
 Contains functions for managing the Http Proxy
+
+`kube_proxy_api_functions.sh` \
+Contains functions for managing the Kube Proxy - to gain access to all services pod inside a kube cluster.
 
 `mr_api_functions.sh` \
 Contains functions for managing the MR Stub and the Dmaap Message Router
@@ -66,7 +72,7 @@ Contains functions for adapting towards the RIC (A1) simulator admin API.
 
 `test_env*.sh` \
 Common env variables for test in the auto-test dir. All configuration of port numbers, image names and version etc shall be made in this file.
-Used by the auto test scripts/suites but could be used for other test script as well. The test cases shall be started with the file for the intended target using command line argument '--env-file'. There are preconfigured env files, pattern 'test_env*.sh', in ../common.
+Used by the auto test scripts/suites but could be used for other test script as well. The test cases shall be started with the file for the intended target using command line argument '--env-file'.
 
 `testcase_common.sh` \
 Common functions for auto test cases in the auto-test dir. This script is the foundation of test auto environment which sets up images and enviroment variables needed by this script as well as the script adapting to the APIs.
@@ -100,6 +106,13 @@ The script can be started with these arguments
 | `--use-staging-image` | The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names |
 | `--use-release-image` | The script will use images from the nexus release repo for the supplied apps, space separated list of app short names |
 | `help` | Print this info along with the test script description and the list of app short names supported |
+
+## Function: setup_testenvironment
+Main function to setup the test environment before any tests are started.
+Must be called right after sourcing all component scripts.
+| arg list |
+|--|
+| None |
 
 ## Function: indent1 ##
 Indent every line of a command output with one space char.
@@ -155,16 +168,6 @@ Mark a test as a deviation from the requirements. The list of deviations will be
 | --------- | ----------- |
 | `<deviation-message-to-print>` | Any text message describing the deviation. The text will also be printed in the test report. The intention is to mark known deviations, compared to required functionality |
 
-## Function: get_kube_sim_host ##
-Translate ric name to kube host name.
-| arg list |
-|--|
-| `<ric-name>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<ric-name>` | The name of the ric to translate into a host name (ip) |
-
 ## Function: clean_environment ##
 Stop and remove all containers (docker) or resources (kubernetes). Containers not part of the test are not affected (docker only). Removes all resources started by previous kube tests (kube only).
 | arg list |
@@ -188,33 +191,8 @@ Make the script sleep for a number of seconds.
 | `<sleep-time-in-sec> ` | Number of seconds to sleep |
 | `<any-text-in-quotes-to-be-printed>` | Optional. The text will be printed, if present |
 
-## Function: generate_uuid ##
-Geneate a UUID prefix to use along with the policy instance number when creating/deleting policies. Sets the env var UUID.
-UUID is then automatically added to the policy id in GET/PUT/DELETE.
-| arg list |
-|--|
-| None |
-
-## Function: check_policy_agent_logs ##
-Check the Policy Agent log for any warnings and errors and print the count of each.
-| arg list |
-|--|
-| None |
-
-## Function: check_ecs_logs ##
-Check the ECS log for any warnings and errors and print the count of each.
-| arg list |
-|--|
-| None |
-
 ## Function: check_control_panel_logs ##
 Check the Control Panel log for any warnings and errors and print the count of each.
-| arg list |
-|--|
-| None |
-
-## Function: check_sdnc_logs ##
-Check the SDNC log for any warnings and errors and print the count of each.
 | arg list |
 |--|
 | None |
@@ -312,6 +290,13 @@ Configure the Policy Agent to make upto 5 retries if an API calls return any of 
 | arg list |
 |--|
 | `[<response-code>]*` |
+
+
+## Function: check_policy_agent_logs ##
+Check the Policy Agent log for any warnings and errors and print the count of each.
+| arg list |
+|--|
+| None |
 
 ## Function: api_equal() ##
 
@@ -727,7 +712,7 @@ Test of GET '/v2/configuration'
 | `[<response-code>]*` | A space separated list of http response codes, may be empty to reset to 'no codes'.  |
 
 
-# Description of functions in consult_cbs_function.sh #
+# Description of functions in consul_cbs_function.sh #
 
 
 ## Function: consul_config_app ##
@@ -795,6 +780,12 @@ Use https for all API calls towards the SDNC A1 Controller. Note that this funct
 
 ## Function: start_sdnc ##
 Start the SDNC A1 Controller container and its database container
+| arg list |
+|--|
+| None |
+
+## Function: check_sdnc_logs ##
+Check the SDNC log for any warnings and errors and print the count of each.
 | arg list |
 |--|
 | None |
@@ -988,7 +979,11 @@ Configure the ECS log on trace level. The ECS must be running.
 |--|
 | None |
 
-# Description of functions in ecs_api_function.sh #
+## Function: check_ecs_logs ##
+Check the ECS log for any warnings and errors and print the count of each.
+| arg list |
+|--|
+| None |
 
 ## Function: ecs_equal ##
 Tests if a variable value in the ECS is equal to a target value.
@@ -1275,11 +1270,73 @@ Test of GET '/status'.
 | `<response-code>` | Expected http response code |
 | `<type>` | Type id, if the interface supports type in url |
 
+# Description of functions in gateway_api_functions.sh #
+
+
+## Function: use_gateway_http ##
+Use http for all calls to the gateway. This is set by default.
+| arg list |
+|--|
+| None |
+
+## Function: use_gateway_https ##
+Use https for all calls to the gateway.
+| arg list |
+|--|
+| None |
+
+## Function: set_gateway_debug ##
+Set debug level logging in the gateway
+| arg list |
+|--|
+| None |
+
+## Function: set_gateway_trace ##
+Set debug level logging in the trace
+| arg list |
+|--|
+| None |
+
+## Function: start_gateway ##
+Start the the gateway container in docker or kube depending on start mode
+| arg list |
+|--|
+| None |
+
+## Function: gateway_pms_get_status ##
+Sample test of pms api (status)
+| arg list |
+|--|
+| `<response-code> ` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+
+## Function: gateway_ecs_get_types ##
+Sample test of ecs api (get ei type)
+Only response code tested - not payload
+| arg list |
+|--|
+| `<response-code> ` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
 
 # Description of functions in http_proxy_api_functions.sh #
 
 ## Function: start_http_proxy ##
 Start the http proxy container in docker or kube depending on running mode.
+| arg list |
+|--|
+| None |
+
+# Description of functions in kube_proxy_api_functions.sh #
+
+## Function: start_kube_proxy ##
+Start the kube proxy container in kube. This proxy enabled the test env to access all services and pods in a kube cluster.
+No proxy is started if the function is called in docker mode.
 | arg list |
 |--|
 | None |
@@ -1611,6 +1668,23 @@ Start a group of simulator where a group may contain 1 more simulators. Started 
 | `ricsim_g1|ricsim_g2|ricsim_g3` | Base name of the simulator. Each instance will have an postfix instance id added, starting on '1'. For examplle 'ricsim_g1_1', 'ricsim_g1_2' etc  |
 |`<count>`| And integer, 1 or greater. Specifies the number of simulators to start|
 |`<interface-id>`| Shall be the interface id of the simulator. See the repo 'a1-interface' for the available ids. |
+
+## Function: get_kube_sim_host ##
+Translate ric name to kube host name.
+| arg list |
+|--|
+| `<ric-name>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<ric-name>` | The name of the ric to translate into a host name (ip) |
+
+## Function: generate_policy_uuid ##
+Geneate a UUID prefix to use along with the policy instance number when creating/deleting policies. Sets the env var UUID.
+UUID is then automatically added to the policy id in GET/PUT/DELETE.
+| arg list |
+|--|
+| None |
 
 ## Function: sim_equal ##
 Tests if a variable value in the RIC simulator is equal to a target value.

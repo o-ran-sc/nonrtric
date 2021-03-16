@@ -42,6 +42,9 @@ services:
       -  ./mnt/zk/zk_server_jaas.conf:/etc/zookeeper/secrets/jaas/zk_server_jaas.conf
     networks:
       - default
+    labels:
+      - "nrttest_app=DMAAPMR"
+      - "nrttest_dp=ZooKeeper"
 
   kafka:
    image: $ONAP_KAFKA_IMAGE
@@ -66,9 +69,12 @@ services:
    volumes:
      -  ./mnt/kafka/zk_client_jaas.conf:/etc/kafka/secrets/jaas/zk_client_jaas.conf
    networks:
-      - default
+    - default
    depends_on:
     - zookeeper
+   labels:
+    - "nrttest_app=DMAAPMR"
+    - "nrttest_dp=Kafka"
 
   dmaap:
     image: $ONAP_DMAAPMR_IMAGE
@@ -87,3 +93,6 @@ services:
     depends_on:
       - zookeeper
       - kafka
+    labels:
+      - "nrttest_app=DMAAPMR"
+      - "nrttest_dp=DMAAP Message Router"

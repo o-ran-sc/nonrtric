@@ -31,13 +31,13 @@ from requests.packages import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-#arg responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id
+#arg responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id proxy
 data_out=""
 url_out=""
 try:
 
-    if len(sys.argv) < 11:
-        print("1Expected 11/14 args, got "+str(len(sys.argv)-1))
+    if len(sys.argv) < 12:
+        print("1Expected 12/15 args, got "+str(len(sys.argv)-1))
         print (sys.argv[1:])
         sys.exit()
     responsecode=int(sys.argv[1])
@@ -46,9 +46,10 @@ try:
     num_rics=int(sys.argv[4])
     uuid=str(sys.argv[5])
     start=int(sys.argv[6])
+    httpproxy="NOPROXY"
     if ("/v2/" in baseurl):
-        if len(sys.argv) != 15:
-            print("1Expected 14 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid service type transient notification-url templatepath count pids pid_id")
+        if len(sys.argv) != 16:
+            print("1Expected 15 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid service type transient notification-url templatepath count pids pid_id proxy")
             print (sys.argv[1:])
             sys.exit()
 
@@ -60,9 +61,10 @@ try:
         count=int(sys.argv[12])
         pids=int(sys.argv[13])
         pid_id=int(sys.argv[14])
+        httpproxy=str(sys.argv[15])
     else:
-        if len(sys.argv) != 11:
-            print("1Expected 10 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id")
+        if len(sys.argv) != 12:
+            print("1Expected 11 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id proxy")
             print (sys.argv[1:])
             sys.exit()
 
@@ -70,7 +72,14 @@ try:
         count=int(sys.argv[8])
         pids=int(sys.argv[9])
         pid_id=int(sys.argv[10])
+        httpproxy=str(sys.argv[11])
 
+    proxydict=None
+    if httpproxy != "NOPROXY":
+        proxydict = {
+            "http" : httpproxy,
+            "https" : httpproxy
+        }
     if uuid == "NOUUID":
         uuid=""
 
@@ -115,8 +124,10 @@ try:
                             url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
                             url_out=url
                             data_out=json.dumps(json.loads(payload))
-
-                        resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
+                        if proxydict is None:
+                            resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
+                        else:
+                            resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90, proxies=proxydict)
                     except Exception as e1:
                         print("1Put failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
                         sys.exit()

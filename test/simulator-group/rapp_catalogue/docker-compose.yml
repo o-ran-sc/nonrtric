@@ -28,7 +28,6 @@ services:
     ports:
     - ${RAPP_CAT_EXTERNAL_PORT}:${RAPP_CAT_INTERNAL_PORT}
     - ${RAPP_CAT_EXTERNAL_SECURE_PORT}:${RAPP_CAT_INTERNAL_SECURE_PORT}
-
-
-
-
+    labels:
+      - "nrttest_app=RC"
+      - "nrttest_dp=${PROD_STUB_DISPLAY_NAME}"

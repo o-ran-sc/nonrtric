@@ -19,6 +19,66 @@
 
 # This is a script that contains container/service managemnt functions for Http Proxy
 
+################ Test engine functions ################
+
+# Create the image var used during the test
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__HTTPPROXY_imagesetup() {
+	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" REMOTE_PROXY "$HTTP_PROXY_DISPLAY_NAME"
+}
+
+# Pull image from remote repo or use locally built image
+# arg: <pull-policy-override> <pull-policy-original>
+# <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
+# <pull-policy-original> Shall be used for images that does not allow overriding
+# Both var may contain: 'remote', 'remote-remove' or 'local'
+__HTTPPROXY_imagepull() {
+	__check_and_pull_image $2 "$HTTP_PROXY_DISPLAY_NAME" $HTTP_PROXY_APP_NAME $HTTP_PROXY_IMAGE
+}
+
+# Build image (only for simulator or interfaces stubs owned by the test environment)
+# arg: <image-tag-suffix> (selects staging, snapshot, release etc)
+# <image-tag-suffix> is present only for images with staging, snapshot,release tags
+__HTTPPROXY_imagebuild() {
+	echo -e $RED"Image for app HTTPPROXY shall never be built"$ERED
+}
+
+# Generate a string for each included image using the app display name and a docker images format string
+# arg: <docker-images-format-string> <file-to-append>
+__HTTPPROXY_image_data() {
+	echo -e "$HTTP_PROXY_DISPLAY_NAME\t$(docker images --format $1 $HTTP_PROXY_IMAGE)" >>   $2
+}
+
+# Scale kubernetes resources to zero
+# All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
+# This function is called for apps fully managed by the test script
+__HTTPPROXY_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest HTTPPROXY
+}
+
+# Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
+# This function is called for prestarted apps not managed by the test script.
+__HTTPPROXY_kube_scale_zero_and_wait() {
+	echo -e $RED" NGW replicas kept as is"$ERED
+}
+
+# Delete all kube resouces for the app
+# This function is called for apps managed by the test script.
+__HTTPPROXY_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest HTTPPROXY
+}
+
+# Store docker logs
+# This function is called for apps managed by the test script.
+# args: <log-dir> <file-prexix>
+__HTTPPROXY_store_docker_logs() {
+	docker logs $HTTP_PROXY_APP_NAME > $1$2_httpproxy.log 2>&1
+}
+
+#######################################################
+
+
 ## Access to Http Proxy Receiver
 # Host name may be changed if app started by kube
 # Direct access from script
@@ -116,7 +176,9 @@ start_http_proxy() {
 		export HTTP_PROXY_WEB_INTERNAL_PORT
 		export DOCKER_SIM_NWNAME
 
-		__start_container $HTTP_PROXY_COMPOSE_DIR NODOCKERARGS 1 $HTTP_PROXY_APP_NAME
+		export HTTP_PROXY_DISPLAY_NAME
+
+		__start_container $HTTP_PROXY_COMPOSE_DIR "" NODOCKERARGS 1 $HTTP_PROXY_APP_NAME
 
         __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_PATH$HTTP_PROXY_ALIVE_URL
 

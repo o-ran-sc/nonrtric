@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config or pushed config"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
@@ -37,6 +37,8 @@ SUPPORTED_RUNMODES="DOCKER"
 . ../common/controller_api_functions.sh
 . ../common/consul_cbs_functions.sh
 
+setup_testenvironment
+
 #### TEST BEGIN ####
 
 if [ "$PMS_VERSION" == "V2" ]; then
@@ -46,12 +48,12 @@ else
 fi
 
 for consul_conf in $TESTED_VARIANTS ; do
-    generate_uuid
+    generate_policy_uuid
 
     # Clean container and start all needed containers #
     clean_environment
 
-    start_policy_agent NOPROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+    start_policy_agent NOPROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
     set_agent_trace
 
@@ -117,7 +119,7 @@ for consul_conf in $TESTED_VARIANTS ; do
     fi
 
     check_policy_agent_logs
-    check_control_panel_logs
+
 
     # Remove one RIC RIC and check
     start_ric_simulators ricsim_g2 1  STD_1.1.3
@@ -143,7 +145,7 @@ for consul_conf in $TESTED_VARIANTS ; do
     fi
 
     check_policy_agent_logs
-    check_control_panel_logs
+    check_sdnc_logs
 
     store_logs          END_$consul_conf
 done

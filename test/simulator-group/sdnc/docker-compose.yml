@@ -36,6 +36,9 @@ services:
       options:
         max-size: "30m"
         max-file: "5"
+    labels:
+      - "nrttest_app=SDNC"
+      - "nrttest_dp=SDNC DB"
 
   a1controller:
     image: ${SDNC_A1_CONTROLLER_IMAGE}
@@ -57,9 +60,13 @@ services:
       - SDNC_DB_INIT=true
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
       - A1_TRUSTSTORE_PASSWORD=${SDNC_A1_TRUSTSTORE_PASSWORD}
+      - ODL_ADMIN_USERNAME=${SDNC_USER}
+      - ODL_ADMIN_PASSWORD=${SDNC_PWD}
     logging:
       driver:   "json-file"
       options:
         max-size: "30m"
         max-file: "5"
-
+    labels:
+      - "nrttest_app=SDNC"
+      - "nrttest_dp=${SDNC_DISPLAY_NAME}"

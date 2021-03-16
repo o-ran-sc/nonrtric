@@ -1,7 +1,7 @@
 <!--
      ============LICENSE_START=======================================================
-     Copyright © 2020 Nordix Foundation. All rights reserved.
-     Copyright © 2019 AT&T Intellectual Property. All rights reserved.
+     Copyright Â© 2020 Nordix Foundation. All rights reserved.
+     Copyright Â© 2019 AT&T Intellectual Property. All rights reserved.
      ================================================================================
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -207,3 +207,4 @@
   </root>
 
 </configuration>
+
