@@ -17,7 +17,7 @@ A test script, for example FTC1, is executed from the cmd line using the script 
 
  ./FTC1.sh remote docker --env-file ../common/test_env-oran-cherry.sh
 
-Note that is running on a released verion, the parameter "release" shall be included to run the released images.
+Note that not is running on a released verion, the parameter "release" shall be included to run the released images.
 
 See the README.md in  `../common/` for all details about available parameters and their meaning.
 
