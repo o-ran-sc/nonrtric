@@ -81,6 +81,47 @@ The included functions are described in detail further below.
 `testsuite_common.sh` \
 Common functions for running two or more auto test scripts as a suite.
 
+## Integration of a new applicaton
+
+Integration a new application to the test environment involves the following steps.
+
+* Choose a short name for the application. Should be a uppcase name. For example, the NonRTRIC Gateway has NGW as short name.
+This short name shall be added to the testengine_config.sh. See that file for detailed instructions.
+
+* Create a file in this directory using the pattern `<application-name>_api_functions.sh`.
+This file must implement the following functions used by the test engine. Note that functions must include the application short name in the function name. If the application does not run in kubernetes, then the last three functions in the list can be omitted.
+
+| Function |
+|--|
+| __<app-short_name>_imagesetup |
+| __<app-short_name>_imagepull |
+| __<app-short_name>_imagebuild |
+| __<app-short_name>_image_data |
+| __<app-short_name>_kube_scale_zero |
+| __<app-short_name>_kube_scale_zero_and_wait |
+| __<app-short_name>_kube_delete_all |
+
+In addition, all other functions used for testing of the application shall also be added to the file. For example functions to start the application, setting interface parameters as well as functions to send rest call towards the api of the application and validating the result.
+
+* Add the application variables to api_curl.sh. This file contains a generic function to make rest calls to an api. It also supports switching betweeen direct rest calls or rest calls via messsage router.
+
+* Create a directory beneath in the simulator-group dir. This new directory shall contain docker-compose files, config files (with or without variable substitutions) and kubernetes resource files.
+
+All docker-compose files and all kubernetes resource files need to defined special lables. These lables are used by the test enginge to identify containers and resources started and used by the test engine.
+
+| Label for docker compose | Description |
+|--|--|
+| nrttest_app | shall contain the application short name |
+| nrttest_dp  | shall be set by a variable containing the display name, a short textual description of the applicaion |
+
+| Label for kubernetes resource | Description |
+|--|--|
+| autotest | shall contain the application short name |
+
+* Add mandatory image(s) and image tag(s) to the appropriate environment files for each release in the file(s) `test_env_<system>-<release-name>`.
+In addition, all other needed environment shall also be defined in these file.
+
+
 # Description of functions in testcase_common.sh #
 
 ## Script args ##

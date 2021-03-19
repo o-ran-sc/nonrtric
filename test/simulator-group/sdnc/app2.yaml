@@ -53,6 +53,8 @@ spec:
           value: 'true'
         - name: A1_TRUSTSTORE_PASSWORD
           value: $SDNC_A1_TRUSTSTORE_PASSWORD
+        - name: AAI_TRUSTSTORE_PASSWORD
+          value: 'changeit'
         command:
         - /opt/onap/sdnc/bin/startODL.sh
 ---

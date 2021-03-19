@@ -1873,8 +1873,8 @@ __start_container() {
 	appcount=$1
 	shift
 
-	os_version=$(uname -a 2> /dev/null | awk '{print tolower($0)}' | grep "mircosoft")
-	if [[ "$os_version" == *"mircosoft"* ]]; then
+	os_version=$(uname -a 2> /dev/null | awk '{print tolower($0)}' | grep "microsoft")
+	if [[ "$os_version" == *"microsoft"* ]]; then
 		echo -e $YELLOW" Workaround for Linux on Win - delay container start, 1 sec, to make sure files mounted in the container are available on disk - WLS problem"$EYELLOW
 		sleep 1
 	fi

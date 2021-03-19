@@ -57,19 +57,29 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 # 6 XXX_REMOTE_RELEASE_ONAP: ONAP release images: <onap-release-nexus-repo><image-name>:<release-tag>
 # 7 XXX_PROXY: other images, not produced by the project: <proxy-nexus-repo><mage-name>:<proxy-tag>
 
+#############################################################################
+# Note:
+# The imgage tags for pms and sdnc are updated AFTER the release.
+# This means that the latest staging/snapshot images for these two components have
+# version one step (0.0.1 - bug-level) higher than the
+# latest release image version.
+
+# This is only applicable for ONAP images
+#############################################################################
+
 # Policy Agent image and tags
 POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
 POLICY_AGENT_IMAGE_TAG_LOCAL="1.1.2-SNAPSHOT"
 POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.2-SNAPSHOT"
 POLICY_AGENT_IMAGE_TAG_REMOTE="1.1.2-STAGING-latest" #Will use snapshot repo
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.1.2"
+POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
 SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.1.3-SNAPSHOT" ###CHECK THIS
 SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.3-STAGING-latest"
 SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.1.3-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.1.3"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.1.2"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
