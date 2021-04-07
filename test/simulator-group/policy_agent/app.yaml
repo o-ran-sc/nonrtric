@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $POLICY_AGENT_APP_NAME
         image: $POLICY_AGENT_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $POLICY_AGENT_INTERNAL_PORT

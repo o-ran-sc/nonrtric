@@ -18,5 +18,6 @@ spec:
     targetPort: $KUBE_PROXY_WEB_INTERNAL_PORT
     protocol: TCP
     name: web
+    nodePort:
   selector:
     run: $KUBE_PROXY_APP_NAME

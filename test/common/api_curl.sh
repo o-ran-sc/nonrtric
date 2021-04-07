@@ -30,8 +30,8 @@ __do_curl_to_api() {
     echo " (${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
 	paramError=0

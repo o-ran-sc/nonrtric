@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $PROD_STUB_APP_NAME
         image: $PROD_STUB_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $PROD_STUB_INTERNAL_PORT

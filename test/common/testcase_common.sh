@@ -26,7 +26,7 @@
 __print_args() {
 	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
-	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+]"
+	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -51,6 +51,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--use-snapshot-image  -  The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names"
 	echo "--use-staging-image   -  The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names"
 	echo "--use-release-image   -  The script will use images from the nexus release repo for the supplied apps, space separated list of app short names"
+	echo "--image-repo          -  Url to image repo. Only required in when running in multi-node kube cluster, otherwise optional. All used images will be re-tagged and pushed to this repo"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -300,6 +301,9 @@ TCTEST_START=$SECONDS
 TIMER_MEASUREMENTS=".timer_measurement.txt"
 echo -e "Activity \t Duration" > $TIMER_MEASUREMENTS
 
+# If this is set, all used images will be re-tagged and pushed to this repo before any
+IMAGE_REPO_ADR=""
+
 
 echo "-------------------------------------------------------------------------------------------------"
 echo "-----------------------------------      Test case: "$ATC
@@ -503,6 +507,22 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			fi
 		fi
 	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--image-repo" ]; then
+			shift;
+			IMAGE_REPO_ADR=$1
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No image repo url found for : '--image-repo'"
+				fi
+			else
+				echo "Option set - Image repo url: "$1
+				shift;
+				foundparm=0
+			fi
+		fi
+	fi
 done
 echo ""
 
@@ -612,6 +632,7 @@ echo -e "Application\tApp short name\tImage\ttag\ttag-switch" > $image_list_file
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
 # arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name>
 __check_and_create_image_var() {
+
 	if [ $# -ne 6 ]; then
 		echo "Expected arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name>"
 		((IMAGE_ERR++))
@@ -630,6 +651,8 @@ __check_and_create_image_var() {
 	tmptag=$4"_"$5
 	tag="${!tmptag}"
 
+	optional_image_repo_target=""
+
 	if [ -z $image ]; then
 		__check_ignore_image $1
 		if [ $? -eq 0 ]; then
@@ -647,6 +670,9 @@ __check_and_create_image_var() {
 		echo ""
 		tmp=$tmp"<no-image>\t"
 	else
+
+		optional_image_repo_target=$image
+
 		#Add repo depending on image type
 		if [ "$5" == "REMOTE_RELEASE" ]; then
 			image=$NEXUS_RELEASE_REPO$image
@@ -680,7 +706,14 @@ __check_and_create_image_var() {
 	tmp=$tmp"\t"$5
 	echo -e "$tmp" >> $image_list_file
 	#Export the env var
-	export "${2}"=$image":"$tag
+	export "${2}"=$image":"$tag  #Note, this var may be set to the value of the target value below in __check_and_pull_image
+	if [ ! -z "$IMAGE_REPO_ADR" ]; then
+		export "${2}_SOURCE"=$image":"$tag  #Var to keep the actual source image
+		export "${2}_TARGET"=$IMAGE_REPO_ADR"/"$optional_image_repo_target":"$tag  #Create image + tag for optional image repo - pushed later if needed
+	else
+		export "${2}_SOURCE"=""
+		export "${2}_TARGET"=""
+	fi
 }
 
 # Check if app uses image included in this test run
@@ -830,21 +863,58 @@ __check_image_override() {
 	return 0
 }
 
+# Function to re-tag and image and push to another image repo
+__retag_and_push_image() {
+	if [ ! -z "$IMAGE_REPO_ADR" ]; then
+		source_image="${!1}"
+		trg_var_name=$1_"TARGET" # This var is created in func __check_and_create_image_var
+		target_image="${!trg_var_name}"
+		echo -ne "  Attempt to re-tag image to: ${BOLD}${target_image}${EBOLD}${SAMELINE}"
+		tmp=$(docker image tag $source_image ${target_image} )
+		if [ $? -ne 0 ]; then
+			docker stop $tmp &> ./tmp/.dockererr
+			((IMAGE_ERR++))
+			echo ""
+			echo -e "  Attempt to re-tag image to: ${BOLD}${target_image}${EBOLD} - ${RED}Failed${ERED}"
+			cat ./tmp/.dockererr
+			return 1
+		else
+			echo -e "  Attempt to re-tag image to: ${BOLD}${target_image}${EBOLD} - ${GREEN}OK${EGREEN}"
+		fi
+		echo -ne "  Attempt to push re-tagged image: ${BOLD}${target_image}${EBOLD}${SAMELINE}"
+		tmp=$(docker push ${target_image} )
+		if [ $? -ne 0 ]; then
+			docker stop $tmp &> ./tmp/.dockererr
+			((IMAGE_ERR++))
+			echo ""
+			echo -e "  Attempt to push re-tagged image: ${BOLD}${target_image}${EBOLD} - ${RED}Failed${ERED}"
+			cat ./tmp/.dockererr
+			return 1
+		else
+			echo -e "  Attempt to push re-tagged image: ${BOLD}${target_image}${EBOLD} - ${GREEN}OK${EGREEN}"
+		fi
+		export "${1}"=$target_image
+	fi
+	return 0
+}
+
 #Function to check if image exist and stop+remove the container+pull new images as needed
-#args <script-start-arg> <descriptive-image-name> <container-base-name> <image-with-tag>
+#args <script-start-arg> <descriptive-image-name> <container-base-name> <image-with-tag-var-name>
 __check_and_pull_image() {
 
-	echo -e " Checking $BOLD$2$EBOLD container(s) with basename: $BOLD$3$EBOLD using image: $BOLD$4$EBOLD"
+	source_image="${!4}"
+
+	echo -e " Checking $BOLD$2$EBOLD container(s) with basename: $BOLD$3$EBOLD using image: $BOLD$source_image$EBOLD"
 	format_string="\"{{.Repository}}\\t{{.Tag}}\\t{{.CreatedSince}}\\t{{.Size}}\""
-	tmp_im=$(docker images --format $format_string ${4})
+	tmp_im=$(docker images --format $format_string $source_image)
 
 	if [ $1 == "local" ]; then
 		if [ -z "$tmp_im" ]; then
-			echo -e "  "$2" (local image): \033[1m"$4"\033[0m $RED does not exist in local registry, need to be built (or manually pulled)"$ERED
+			echo -e "  "$2" (local image): \033[1m"$source_image"\033[0m $RED does not exist in local registry, need to be built (or manually pulled)"$ERED
 			((IMAGE_ERR++))
 			return 1
 		else
-			echo -e "  "$2" (local image): \033[1m"$4"\033[0m "$GREEN"OK"$EGREEN
+			echo -e "  "$2" (local image): \033[1m"$source_image"\033[0m "$GREEN"OK"$EGREEN
 		fi
 	elif [ $1 == "remote" ] || [ $1 == "remote-remove" ]; then
 		if [ $1 == "remote-remove" ]; then
@@ -881,7 +951,7 @@ __check_and_pull_image() {
 		fi
 		if [ -z "$tmp_im" ]; then
 			echo -ne "  Pulling image${SAMELINE}"
-			out=$(docker pull $4)
+			out=$(docker pull $source_image)
 			if [ $? -ne 0 ]; then
 				echo ""
 				echo -e "  Pulling image -$RED could not be pulled"$ERED
@@ -902,7 +972,10 @@ __check_and_pull_image() {
 			echo -e "  Pulling image -$GREEN OK $EGREEN(exists in local repository)"
 		fi
 	fi
-	return 0
+
+	__retag_and_push_image $4
+
+	return $?
 }
 
 setup_testenvironment() {
@@ -1078,6 +1151,30 @@ setup_testenvironment() {
 	column -t -s $'\t' $docker_tmp_file | indent1
 
 	echo ""
+	if [ $RUNMODE == "KUBE" ]; then
+
+		echo "================================================================================="
+		echo "================================================================================="
+
+		CLUSTER_IP=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+		if [[ $CLUSTER_IP != *"kubernetes"* ]]; then
+			echo -e $YELLOW" The cluster ip is: $CLUSTER_IP. This kubernetes is likely a multi-node cluster."$EYELLOW
+			echo -e $YELLOW" The image pull policy is set to 'Never'."$EYELLOW
+			export KUBE_IMAGE_PULL_POLICY="Never"
+			if [ -z "$IMAGE_REPO_ADR" ]; then
+				echo -e $RED" The flag --image-repo need to be provided to the cmd with the path to a custom image repo'."$ERED
+				exit 1
+			fi
+		else
+			echo -e $YELLOW" The cluster ip is: $CLUSTER_IP. This kubernetes is likely a single-node cluster on a local machine."$EYELLOW
+			echo -e $YELLOW" The image pull policy is set to 'Never'."$EYELLOW
+			export KUBE_IMAGE_PULL_POLICY="Never"
+		fi
+
+		echo "================================================================================="
+		echo "================================================================================="
+		echo ""
+	fi
 
 	echo -e $BOLD"======================================================="$EBOLD
 	echo -e $BOLD"== Common test setup completed -  test script begins =="$EBOLD
@@ -2091,12 +2188,13 @@ store_logs() {
 # returns: The return code is 0 for ok and 1 for not ok
 __do_curl() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
-	curlString="curl -skw %{http_code} $@"
+	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			curlString="curl -skw %{http_code} --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT $@"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
+	curlString="curl -skw %{http_code} $proxyflag $@"
 	echo " CMD: $curlString" >> $HTTPLOG
 	res=$($curlString)
 	echo " RESP: $res" >> $HTTPLOG

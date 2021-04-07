@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $CR_APP_NAME
         image: $CR_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $CR_INTERNAL_PORT

@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $SDNC_APP_NAME
         image: $SDNC_A1_CONTROLLER_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $SDNC_INTERNAL_PORT
@@ -64,7 +64,7 @@ spec:
       containers:
         - name: $SDNC_DB_APP_NAME
           image: $SDNC_DB_IMAGE
-          imagePullPolicy: Never
+          imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
           ports:
           - name: http
             containerPort: 3306

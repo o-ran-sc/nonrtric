@@ -218,7 +218,7 @@ POLICY_AGENT_HOST_MNT_DIR="./mnt"                        # Mounted dir, relative
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log" # Path the application log in the Policy Agent container
 POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
 POLICY_AGENT_CONFIG_KEY="policy-agent"                   # Key for consul config
-POLICY_AGENT_PKG_NAME="org.oransc.policyagent"           # Java base package name
+POLICY_AGENT_PKG_NAME="org.onap.ccsdk.oran.a1policymanagementservice"  # Java base package name
 POLICY_AGENT_ACTUATOR="/actuator/loggers/$POLICY_AGENT_PKG_NAME" # Url for trace/debug
 POLICY_AGENT_ALIVE_URL="$PMS_API_PREFIX/v2/status"       # Base path for alive check
 POLICY_AGENT_COMPOSE_DIR="policy_agent"                  # Dir in simulator_group for docker-compose
@@ -383,8 +383,10 @@ CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_grou
 CONTROL_PANEL_CONFIG_FILE=nginx.conf                     # Config file name
 CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative to compose file, on the host
 CONTROL_PANEL_CONFIG_MOUNT_PATH=/etc/nginx               # Container internal path for config
+CONTROL_PANEL_NGINX_KUBE_RESOLVER="kube-dns.kube-system.svc.cluster.local valid=5s"  #nginx resolver for kube
+CONTROL_PANEL_NGINX_DOCKER_RESOLVER="127.0.0.11"         # nginx resolver for docker
 
-NRT_GATEWAY_APP_NAME="nonrtricgateway"                  # Name of the Gateway container
+NRT_GATEWAY_APP_NAME="nonrtricgateway"                   # Name of the Gateway container
 NRT_GATEWAY_DISPLAY_NAME="NonRT-RIC Gateway"
 NRT_GATEWAY_EXTERNAL_PORT=9090                           # Gateway container external port (host -> container)
 NRT_GATEWAY_INTERNAL_PORT=9090                           # Gateway container internal port (container -> container)
@@ -416,8 +418,7 @@ KUBE_PROXY_EXTERNAL_PORT=8730                            # Kube Http Proxy conta
 KUBE_PROXY_INTERNAL_PORT=8080                            # Kube Http Proxy container internal port (container -> container)
 KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy container external port (host -> container)
 KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
-KUBE_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
-KUBE_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
+KUBE_PROXY_PATH=""                                       # Proxy url path, will be set if proxy is started
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
 

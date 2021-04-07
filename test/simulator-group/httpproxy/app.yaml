@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $HTTP_PROXY_APP_NAME
         image: $HTTP_PROXY_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $HTTP_PROXY_INTERNAL_PORT

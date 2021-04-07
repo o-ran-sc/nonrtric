@@ -46,9 +46,13 @@ __CR_imagebuild() {
 	echo " Building CR - $CR_DISPLAY_NAME - image: $CR_IMAGE"
 	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
-		echo -e  $GREEN" Build Ok"$EGREEN
+		echo -e  $GREEN"  Build Ok"$EGREEN
+		__retag_and_push_image CR_IMAGE
+		if [ $? -ne 0 ]; then
+			exit 1
+		fi
 	else
-		echo -e $RED" Build Failed"$ERED
+		echo -e $RED"  Build Failed"$ERED
 		((RES_CONF_FAIL++))
 		cat .dockererr
 		echo -e $RED"Exiting...."$ERED
@@ -57,9 +61,13 @@ __CR_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __CR_image_data() {
 	echo -e "$CR_DISPLAY_NAME\t$(docker images --format $1 $CR_IMAGE)" >>   $2
+	if [ ! -z "$CR_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $CR_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero

@@ -7,15 +7,17 @@ metadata:
     run: $CONTROL_PANEL_APP_NAME
     autotest: CP
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: $CONTROL_PANEL_EXTERNAL_PORT
     targetPort: $CONTROL_PANEL_INTERNAL_PORT
     protocol: TCP
     name: http
+    nodePort:
   - port: $CONTROL_PANEL_EXTERNAL_SECURE_PORT
     targetPort: $CONTROL_PANEL_INTERNAL_SECURE_PORT
     protocol: TCP
     name: https
+    nodePort:
   selector:
     run: $CONTROL_PANEL_APP_NAME

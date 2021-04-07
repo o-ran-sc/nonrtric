@@ -43,7 +43,7 @@ __CBS_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __CONSUL_imagepull() {
-	__check_and_pull_image $2 "$CONSUL_DISPLAY_NAME" $CONSUL_APP_NAME $CONSUL_IMAGE
+	__check_and_pull_image $2 "$CONSUL_DISPLAY_NAME" $CONSUL_APP_NAME CONSUL_IMAGE
 }
 
 # Pull image from remote repo or use locally built image
@@ -52,7 +52,7 @@ __CONSUL_imagepull() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __CBS_imagepull() {
-	__check_and_pull_image $2 "$CBS_DISPLAY_NAME" $CBS_APP_NAME $CBS_IMAGE
+	__check_and_pull_image $2 "$CBS_DISPLAY_NAME" $CBS_APP_NAME CBS_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -70,15 +70,23 @@ __CBS_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __CONSUL_image_data() {
 	echo -e "$CONSUL_DISPLAY_NAME\t$(docker images --format $1 $CONSUL_IMAGE)" >>   $2
+	if [ ! -z "$CONSUL_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $CONSUL_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __CBS_image_data() {
 	echo -e "$CBS_DISPLAY_NAME\t$(docker images --format $1 $CBS_IMAGE)" >>   $2
+	if [ ! -z "$CBS_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $CBS_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
