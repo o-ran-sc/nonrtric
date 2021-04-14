@@ -46,9 +46,13 @@ __PRODSTUB_imagebuild() {
 	echo " Building PRODSTUB - $PROD_STUB_DISPLAY_NAME - image: $PROD_STUB_IMAGE"
 	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
-		echo -e  $GREEN" Build Ok"$EGREEN
+		echo -e  $GREEN"  Build Ok"$EGREEN
+		__retag_and_push_image PROD_STUB_IMAGE
+		if [ $? -ne 0 ]; then
+			exit 1
+		fi
 	else
-		echo -e $RED" Build Failed"$ERED
+		echo -e $RED"  Build Failed"$ERED
 		((RES_CONF_FAIL++))
 		cat .dockererr
 		echo -e $RED"Exiting...."$ERED
@@ -57,9 +61,13 @@ __PRODSTUB_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __PRODSTUB_image_data() {
 	echo -e "$PROD_STUB_DISPLAY_NAME\t$(docker images --format $1 $PROD_STUB_IMAGE)" >>   $2
+	if [ ! -z "$PROD_STUB_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $PROD_STUB_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
@@ -261,8 +269,8 @@ __execute_curl_to_prodstub() {
     echo "(${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
 	echo " CMD: $3 $proxyflag" >> $HTTPLOG

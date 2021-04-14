@@ -294,8 +294,7 @@ KUBE_PROXY_EXTERNAL_PORT=8730                            # Kube Http Proxy conta
 KUBE_PROXY_INTERNAL_PORT=8080                            # Kube Http Proxy container internal port (container -> container)
 KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy container external port (host -> container)
 KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
-KUBE_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
-KUBE_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
+KUBE_PROXY_PATH=""                                       # Proxy url path, will be set if proxy is started
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
 

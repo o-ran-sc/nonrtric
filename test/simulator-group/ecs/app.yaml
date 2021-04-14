@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $ECS_APP_NAME
         image: $ECS_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $ECS_INTERNAL_PORT

@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $MR_DMAAP_KUBE_APP_NAME
         image: $ONAP_DMAAPMR_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $MR_INTERNAL_PORT
@@ -77,7 +77,7 @@ spec:
       containers:
       - name: $MR_KAFKA_BWDS_NAME
         image: $ONAP_KAFKA_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: 9092
@@ -142,7 +142,7 @@ spec:
       containers:
       - name: $MR_ZOOKEEPER_APP_NAME
         image: $ONAP_ZOOKEEPER_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: 2181

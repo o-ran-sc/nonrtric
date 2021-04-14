@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $CONTROL_PANEL_APP_NAME
         image: $CONTROL_PANEL_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $CONTROL_PANEL_INTERNAL_PORT

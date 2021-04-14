@@ -34,13 +34,17 @@ __RICSIM_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __RICSIM_imagepull() {
-	__check_and_pull_image $1 "$RIC_SIM_DISPLAY_NAME" $RIC_SIM_PREFIX"_"$RIC_SIM_BASE $RIC_SIM_IMAGE
+	__check_and_pull_image $1 "$RIC_SIM_DISPLAY_NAME" $RIC_SIM_PREFIX"_"$RIC_SIM_BASE RIC_SIM_IMAGE
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __RICSIM_image_data() {
 	echo -e "$RIC_SIM_DISPLAY_NAME\t$(docker images --format $1 $RIC_SIM_IMAGE)" >>   $2
+	if [ ! -z "$RIC_SIM_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $RIC_SIM_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
@@ -346,8 +350,8 @@ __execute_curl_to_sim() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
 	echo " CMD: $2 $proxyflag" >> $HTTPLOG

@@ -44,8 +44,8 @@ __SDNC_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __SDNC_imagepull() {
-	__check_and_pull_image $1 "$SDNC_DISPLAY_NAME" $SDNC_APP_NAME $SDNC_A1_CONTROLLER_IMAGE
-	__check_and_pull_image $2 "SDNC DB" $SDNC_APP_NAME $SDNC_DB_IMAGE
+	__check_and_pull_image $1 "$SDNC_DISPLAY_NAME" $SDNC_APP_NAME SDNC_A1_CONTROLLER_IMAGE
+	__check_and_pull_image $2 "SDNC DB" $SDNC_APP_NAME SDNC_DB_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -56,10 +56,17 @@ __SDNC_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __SDNC_image_data() {
 	echo -e "$SDNC_DISPLAY_NAME\t$(docker images --format $1 $SDNC_A1_CONTROLLER_IMAGE)" >>   $2
+	if [ ! -z "$SDNC_A1_CONTROLLER_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $SDNC_A1_CONTROLLER_IMAGE_SOURCE)" >>   $2
+	fi
 	echo -e "SDNC DB\t$(docker images --format $1 $SDNC_DB_IMAGE)" >>   $2
+	if [ ! -z "$SDNC_DB_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $SDNC_DB_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
@@ -299,8 +306,8 @@ __do_curl_to_controller() {
     echo "  FILE ($payload) : $json"  >> $HTTPLOG
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			proxyflag=" --proxy http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			proxyflag=" --proxy KUBE_PROXY_PATH"
 		fi
 	fi
     curlString="curl -skw %{http_code} $proxyflag -X POST $SDNC_API_PATH$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"

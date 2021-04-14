@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $NRT_GATEWAY_APP_NAME
         image: $NRT_GATEWAY_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $NRT_GATEWAY_INTERNAL_PORT

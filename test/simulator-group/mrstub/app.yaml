@@ -20,7 +20,7 @@ spec:
       containers:
       - name: $MR_STUB_APP_NAME
         image: $MRSTUB_IMAGE
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $MR_INTERNAL_PORT

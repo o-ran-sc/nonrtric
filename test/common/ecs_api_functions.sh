@@ -34,7 +34,7 @@ __ECS_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __ECS_imagepull() {
-	__check_and_pull_image $1 "$ECS_DISPLAY_NAME" $ECS_APP_NAME $ECS_IMAGE
+	__check_and_pull_image $1 "$ECS_DISPLAY_NAME" $ECS_APP_NAME ECS_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -45,9 +45,13 @@ __ECS_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __ECS_image_data() {
 	echo -e "$ECS_DISPLAY_NAME\t$(docker images --format $1 $ECS_IMAGE)" >>   $2
+	if [ ! -z "$ECS_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $ECS_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero

@@ -53,9 +53,9 @@ __MR_imagepull() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __DMAAPMR_imagepull() {
-	__check_and_pull_image $2 "DMAAP Message Router" $MR_DMAAP_APP_NAME $ONAP_DMAAPMR_IMAGE
-	__check_and_pull_image $2 "ZooKeeper" $MR_ZOOKEEPER_APP_NAME $ONAP_ZOOKEEPER_IMAGE
-	__check_and_pull_image $2 "Kafka" $MR_KAFKA_APP_NAME $ONAP_KAFKA_IMAGE
+	__check_and_pull_image $2 "DMAAP Message Router" $MR_DMAAP_APP_NAME ONAP_DMAAPMR_IMAGE
+	__check_and_pull_image $2 "ZooKeeper" $MR_ZOOKEEPER_APP_NAME ONAP_ZOOKEEPER_IMAGE
+	__check_and_pull_image $2 "Kafka" $MR_KAFKA_APP_NAME ONAP_KAFKA_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -66,9 +66,13 @@ __MR_imagebuild() {
 	echo " Building MR - $MR_STUB_DISPLAY_NAME - image: $MRSTUB_IMAGE"
 	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
-		echo -e  $GREEN" Build Ok"$EGREEN
+		echo -e  $GREEN"  Build Ok"$EGREEN
+		__retag_and_push_image MRSTUB_IMAGE
+		if [ $? -ne 0 ]; then
+			exit 1
+		fi
 	else
-		echo -e $RED" Build Failed"$ERED
+		echo -e $RED"  Build Failed"$ERED
 		((RES_CONF_FAIL++))
 		cat .dockererr
 		echo -e $RED"Exiting...."$ERED
@@ -84,17 +88,31 @@ __DMAAPMR_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __MR_image_data() {
 	echo -e "$MR_STUB_DISPLAY_NAME\t$(docker images --format $1 $MRSTUB_IMAGE)" >>   $2
+	if [ ! -z "$MRSTUB_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $MRSTUB_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __DMAAPMR_image_data() {
 	echo -e "DMAAP Message Router\t$(docker images --format $1 $ONAP_DMAAPMR_IMAGE)" >>   $2
+	if [ ! -z "$ONAP_DMAAPMR_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $ONAP_DMAAPMR_IMAGE_SOURCE)" >>   $2
+	fi
 	echo -e "ZooKeeper\t$(docker images --format $1 $ONAP_ZOOKEEPER_IMAGE)" >>   $2
+	if [ ! -z "$ONAP_ZOOKEEPER_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $ONAP_ZOOKEEPER_IMAGE_SOURCE)" >>   $2
+	fi
 	echo -e "Kafka\t$(docker images --format $1 $ONAP_KAFKA_IMAGE)" >>   $2
+	if [ ! -z "$ONAP_KAFKA_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $ONAP_KAFKA_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero

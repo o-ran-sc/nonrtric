@@ -28,7 +28,7 @@ spec:
           value: "1"
         - name: ALLOW_HTTP
           value: "true"
-        imagePullPolicy: Never
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
           containerPort: $RIC_SIM_INTERNAL_PORT

@@ -35,7 +35,7 @@ __CP_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __CP_imagepull() {
-	__check_and_pull_image $1 "$CONTROL_PANEL_DISPLAY_NAME" $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_IMAGE
+	__check_and_pull_image $1 "$CONTROL_PANEL_DISPLAY_NAME" $CONTROL_PANEL_APP_NAME CONTROL_PANEL_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -46,9 +46,13 @@ __CP_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __CP_image_data() {
 	echo -e "$CONTROL_PANEL_DISPLAY_NAME\t$(docker images --format $1 $CONTROL_PANEL_IMAGE)" >>   $2
+	if [ ! -z "$CONTROL_PANEL_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $CONTROL_PANEL_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
@@ -164,9 +168,12 @@ start_control_panel() {
 			export CONTROL_PANEL_CONFIG_MOUNT_PATH
 			export CONTROL_PANEL_CONFIG_FILE
 			export CP_CONFIG_CONFIGMAP_NAME=$CONTROL_PANEL_APP_NAME"-config"
+			export CP_PROXY_CONFIGMAP_NAME=$CONTROL_PANEL_APP_NAME"-proxy"
 
-			export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
+			export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME.$KUBE_NONRTRIC_NAMESPACE.svc.cluster.local  # suffix needed for nginx name resolution
 			export NRT_GATEWAY_EXTERNAL_PORT
+
+			export CP_NGINX_RESOLVER=$CONTROL_PANEL_NGINX_KUBE_RESOLVER
 
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
@@ -245,10 +252,11 @@ start_control_panel() {
 		export CONTROL_PANEL_DISPLAY_NAME
 		export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME
 
+		export CP_NGINX_RESOLVER=$CONTROL_PANEL_NGINX_DOCKER_RESOLVER
+
 		dest_file=$SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_HOST_MNT_DIR/$CONTROL_PANEL_CONFIG_FILE
 
-		envsubst '${NGW_DOMAIN_NAME},${NRT_GATEWAY_EXTERNAL_PORT},${POLICY_AGENT_EXTERNAL_SECURE_PORT},${ECS_EXTERNAL_SECURE_PORT},${POLICY_AGENT_DOMAIN_NAME},${ECS_DOMAIN_NAME}' < $1 > $dest_file
-		#envsubst  < $1 > $dest_file
+		envsubst '${NGW_DOMAIN_NAME},${CP_NGINX_RESOLVER},${NRT_GATEWAY_EXTERNAL_PORT},${POLICY_AGENT_EXTERNAL_SECURE_PORT},${ECS_EXTERNAL_SECURE_PORT},${POLICY_AGENT_DOMAIN_NAME},${ECS_DOMAIN_NAME}' < $1 > $dest_file
 
 		__start_container $CONTROL_PANEL_COMPOSE_DIR "" NODOCKERARGS 1 $CONTROL_PANEL_APP_NAME
 

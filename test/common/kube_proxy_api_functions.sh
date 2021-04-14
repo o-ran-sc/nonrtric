@@ -35,7 +35,7 @@ __KUBEPROXY_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __KUBEPROXY_imagepull() {
-	__check_and_pull_image $2 "$KUBE_PROXY_DISPLAY_NAME" $KUBE_PROXY_APP_NAME $KUBE_PROXY_IMAGE
+	__check_and_pull_image $2 "$KUBE_PROXY_DISPLAY_NAME" $KUBE_PROXY_APP_NAME KUBE_PROXY_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -46,9 +46,13 @@ __KUBEPROXY_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __KUBEPROXY_image_data() {
 	echo -e "$KUBE_PROXY_DISPLAY_NAME\t$(docker images --format $1 $KUBE_PROXY_IMAGE)" >>   $2
+	if [ ! -z "$KUBE_PROXY_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $KUBE_PROXY_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
@@ -83,9 +87,9 @@ __KUBEPROXY_store_docker_logs() {
 ## Access to Kube Http Proxy
 # Host name may be changed if app started by kube
 # Direct access from script
-KUBE_PROXY_HTTPX="http"
-KUBE_PROXY_HOST_NAME=$LOCALHOST_NAME
-KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$KUBE_PROXY_HOST_NAME":"$KUBE_PROXY_WEB_EXTERNAL_PORT
+#BMXX  KUBE_PROXY_HTTPX="http"
+#BMXX KUBE_PROXY_HOST_NAME=$LOCALHOST_NAME
+#BMXX KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$KUBE_PROXY_HOST_NAME":"$KUBE_PROXY_WEB_EXTERNAL_PORT
 
 #########################
 ### Http Proxy functions
@@ -151,27 +155,25 @@ start_kube_proxy() {
 		fi
 
 		echo " Retrieving host and ports for service..."
-		KUBE_PROXY_HOST_NAME=$(__kube_get_service_host $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE)
-		KUBE_PROXY_WEB_EXTERNAL_PORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web")
-		KUBE_PROXY_EXTERNAL_PORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")
 
-
-		minikube status > /dev/null
-		if [ $? -eq 0 ]; then
-			echo -e $GREEN" Running minikube inside a kubernetes cluster. No proxy needed for the test script to access services"$EGREEN
-			export CLUSTER_KUBE_PROXY_NODEPORT=""
-		else
-			echo -e $YELLOW" Running outside the kubernetes cluster. Proxy is setup to access services from the test script"$EYELLOW
-			export CLUSTER_KUBE_PROXY_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")
+		CLUSTER_KUBE_PROXY="http"
+		CLUSTER_KUBE_PROXY_HOST=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+		if [[ $CLUSTER_KUBE_PROXY_HOST == *"kubernetes"* ]]; then
+			echo -e $YELLOW" The cluster host is: $CLUSTER_KUBE_PROXY_HOST. The proxy (mitmproxy) used by test script requires an ip so the ip is assumed and set to 127.0.0.1"
+			CLUSTER_KUBE_PROXY_HOST="127.0.0.1"
 		fi
+		CLUSTER_KUBE_PROXY_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")  # port for proxy access
+		KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web")  # web port, only for alive test
 
-		KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$KUBE_PROXY_HOST_NAME":"$KUBE_PROXY_WEB_EXTERNAL_PORT
-		KUBE_PROXY_CONFIG_PORT=$KUBE_PROXY_EXTERNAL_PORT
-		KUBE_PROXY_CONFIG_HOST_NAME=$KUBE_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
+		KUBE_PROXY_WEB_PATH=$CLUSTER_KUBE_PROXY"://"$CLUSTER_KUBE_PROXY_HOST":"$KUBE_PROXY_WEB_NODEPORT
 
-		echo " Host IP, http port, cluster http nodeport (may be empty): $KUBE_PROXY_HOST_NAME $KUBE_PROXY_WEB_EXTERNAL_PORT $CLUSTER_KUBE_PROXY_NODEPORT"
+		echo " Cluster ip/host, cluster http nodeport cluster web nodeport: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_NODEPORT $KUBE_PROXY_WEB_NODEPORT"
 
-		__check_service_start $KUBE_PROXY_APP_NAME $KUBE_PROXY_PATH$KUBE_PROXY_ALIVE_URL
+		export KUBE_PROXY_PATH=  # Make sure proxy is empty when checking the proxy itself
+		__check_service_start $KUBE_PROXY_APP_NAME $KUBE_PROXY_WEB_PATH$KUBE_PROXY_ALIVE_URL
+
+		# Set proxy for all subsequent calls for all services etc
+		export KUBE_PROXY_PATH=$CLUSTER_KUBE_PROXY"://"$CLUSTER_KUBE_PROXY_HOST":"$CLUSTER_KUBE_PROXY_NODEPORT
 
 	else
 		echo $YELLOW" Kube http proxy not needed in docker test. App not started"

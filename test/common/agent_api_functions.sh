@@ -34,7 +34,7 @@ __PA_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __PA_imagepull() {
-	__check_and_pull_image $1 "$POLICY_AGENT_DISPLAY_NAME" $POLICY_AGENT_APP_NAME $POLICY_AGENT_IMAGE
+	__check_and_pull_image $1 "$POLICY_AGENT_DISPLAY_NAME" $POLICY_AGENT_APP_NAME POLICY_AGENT_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
@@ -45,9 +45,13 @@ __PA_imagebuild() {
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
+# If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
 __PA_image_data() {
 	echo -e "$POLICY_AGENT_DISPLAY_NAME\t$(docker images --format $1 $POLICY_AGENT_IMAGE)" >>   $2
+	if [ ! -z "$POLICY_AGENT_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $POLICY_AGENT_IMAGE_SOURCE)" >>   $2
+	fi
 }
 
 # Scale kubernetes resources to zero
@@ -928,8 +932,8 @@ api_put_policy_parallel() {
 
 	httpproxy="NOPROXY"
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			httpproxy="http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			httpproxy=$KUBE_PROXY_PATH
 		fi
 	fi
 
@@ -1123,8 +1127,8 @@ api_delete_policy_parallel() {
 
 	httpproxy="NOPROXY"
 	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$CLUSTER_KUBE_PROXY_NODEPORT" ]; then
-			httpproxy="http://localhost:$CLUSTER_KUBE_PROXY_NODEPORT"
+		if [ ! -z "$KUBE_PROXY_PATH" ]; then
+			httpproxy=$KUBE_PROXY_PATH
 		fi
 	fi
 
