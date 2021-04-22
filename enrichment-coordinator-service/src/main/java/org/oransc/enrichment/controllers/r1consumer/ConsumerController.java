@@ -262,7 +262,7 @@ public class ConsumerController {
         path = "/info-jobs/{infoJobId}", //
         produces = MediaType.APPLICATION_JSON_VALUE, //
         consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = ConsumerConsts.INDIVIDUAL_JOB)
+    @Operation(summary = ConsumerConsts.INDIVIDUAL_JOB, description = ConsumerConsts.PUT_INDIVIDUAL_JOB_DESCRIPTION)
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -280,11 +280,19 @@ public class ConsumerController {
         })
     public Mono<ResponseEntity<Object>> putIndividualInfoJob( //
         @PathVariable("infoJobId") String jobId, //
+        @Parameter(
+            name = ConsumerConsts.PERFORM_TYPE_CHECK_PARAM,
+            required = false, //
+            description = ConsumerConsts.PERFORM_TYPE_CHECK_PARAM_DESCRIPTION) //
+        @RequestParam(
+            name = ConsumerConsts.PERFORM_TYPE_CHECK_PARAM,
+            required = false,
+            defaultValue = "false") boolean performTypeCheck,
         @RequestBody ConsumerJobInfo informationJobObject) {
 
         final boolean isNewJob = this.jobs.get(jobId) == null;
 
-        return validatePutInfoJob(jobId, informationJobObject) //
+        return validatePutInfoJob(jobId, informationJobObject, performTypeCheck) //
             .flatMap(this::startInfoSubscriptionJob) //
             .doOnNext(newEiJob -> this.jobs.put(newEiJob)) //
             .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
@@ -298,16 +306,18 @@ public class ConsumerController {
             .flatMap(noOfAcceptingProducers -> Mono.just(newInfoJob));
     }
 
-    private Mono<EiJob> validatePutInfoJob(String jobId, ConsumerJobInfo jobInfo) {
+    private Mono<EiJob> validatePutInfoJob(String jobId, ConsumerJobInfo jobInfo, boolean performTypeCheck) {
         try {
-            EiType infoType = this.infoTypes.getType(jobInfo.infoTypeId);
-            validateJsonObjectAgainstSchema(infoType.getJobDataSchema(), jobInfo.jobDefinition);
+            if (performTypeCheck) {
+                EiType infoType = this.infoTypes.getType(jobInfo.infoTypeId);
+                validateJsonObjectAgainstSchema(infoType.getJobDataSchema(), jobInfo.jobDefinition);
+            }
             EiJob existingEiJob = this.jobs.get(jobId);
 
             if (existingEiJob != null && !existingEiJob.getTypeId().equals(jobInfo.infoTypeId)) {
                 throw new ServiceException("Not allowed to change type for existing job", HttpStatus.CONFLICT);
             }
-            return Mono.just(toEiJob(jobInfo, jobId, infoType));
+            return Mono.just(toEiJob(jobInfo, jobId, jobInfo.infoTypeId));
         } catch (Exception e) {
             return Mono.error(e);
         }
@@ -331,15 +341,19 @@ public class ConsumerController {
         }
     }
 
-    private EiJob toEiJob(ConsumerJobInfo info, String id, EiType type) {
+    private EiJob toEiJob(ConsumerJobInfo info, String id, String typeId) {
         return EiJob.builder() //
             .id(id) //
-            .typeId(type.getId()) //
+            .typeId(typeId) //
             .owner(info.owner) //
             .jobData(info.jobDefinition) //
             .targetUrl(info.jobResultUri) //
             .jobStatusUrl(info.statusNotificationUri == null ? "" : info.statusNotificationUri) //
             .build();
+    }
+
+    private EiJob toEiJob(ConsumerJobInfo info, String id, EiType type) {
+        return toEiJob(info, id, type.getId());
     }
 
     private ConsumerInfoTypeInfo toInfoTypeInfo(EiType type) {

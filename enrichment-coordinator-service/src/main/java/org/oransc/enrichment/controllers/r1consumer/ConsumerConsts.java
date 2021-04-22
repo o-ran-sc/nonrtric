@@ -32,9 +32,15 @@ public class ConsumerConsts {
 
     public static final String INDIVIDUAL_JOB = "Individual data subscription job";
 
+    public static final String PUT_INDIVIDUAL_JOB_DESCRIPTION = "The job will be enabled when a producer is available";
+
     public static final String INFO_TYPE_ID_PARAM = "infoTypeId";
     public static final String INFO_TYPE_ID_PARAM_DESCRIPTION =
         "selects subscription jobs of matching information type";
+
+    public static final String PERFORM_TYPE_CHECK_PARAM = "typeCheck";
+    public static final String PERFORM_TYPE_CHECK_PARAM_DESCRIPTION =
+        "when true, a validation of that the type exists and that the job matches the type schema.";
 
     private ConsumerConsts() {
     }

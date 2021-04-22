@@ -602,6 +602,7 @@ paths:
       tags:
       - Data consumer
       summary: Individual data subscription job
+      description: The job will be enabled when a producer is available
       operationId: putIndividualInfoJob
       parameters:
       - name: infoJobId
@@ -611,6 +612,16 @@ paths:
         explode: false
         schema:
           type: string
+      - name: typeCheck
+        in: query
+        description: when true, a validation of that the type exists and that the
+          job matches the type schema.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:

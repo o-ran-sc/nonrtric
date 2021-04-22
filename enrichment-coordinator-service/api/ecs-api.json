@@ -706,6 +706,7 @@
                     "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Job"}}},
                     "required": true
                 },
+                "description": "The job will be enabled when a producer is available",
                 "operationId": "putIndividualInfoJob",
                 "responses": {
                     "200": {
@@ -721,12 +722,24 @@
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     }
                 },
-                "parameters": [{
-                    "schema": {"type": "string"},
-                    "in": "path",
-                    "name": "infoJobId",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "schema": {"type": "string"},
+                        "in": "path",
+                        "name": "infoJobId",
+                        "required": true
+                    },
+                    {
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        },
+                        "in": "query",
+                        "name": "typeCheck",
+                        "description": "when true, a validation of that the type exists and that the job matches the type schema.",
+                        "required": false
+                    }
+                ],
                 "tags": ["Data consumer"]
             }
         },
