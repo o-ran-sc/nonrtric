@@ -27,6 +27,7 @@ __print_args() {
 	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
+	echo "      [--cluster-timeout <timeout-in seconds>]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -51,7 +52,8 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--use-snapshot-image  -  The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names"
 	echo "--use-staging-image   -  The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names"
 	echo "--use-release-image   -  The script will use images from the nexus release repo for the supplied apps, space separated list of app short names"
-	echo "--image-repo          -  Url to image repo. Only required in when running in multi-node kube cluster, otherwise optional. All used images will be re-tagged and pushed to this repo"
+	echo "--image-repo          -  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo"
+	echo "--cluster-timeout     -  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds. "
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -303,7 +305,7 @@ echo -e "Activity \t Duration" > $TIMER_MEASUREMENTS
 
 # If this is set, all used images will be re-tagged and pushed to this repo before any
 IMAGE_REPO_ADR=""
-
+CLUSTER_TIME_OUT=0
 
 echo "-------------------------------------------------------------------------------------------------"
 echo "-----------------------------------      Test case: "$ATC
@@ -523,6 +525,32 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			fi
 		fi
 	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--cluster-timeout" ]; then
+			shift;
+			CLUSTER_TIME_OUT=$1
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No timeout value found for : '--cluster-timeout'"
+				fi
+			else
+				#Check if positive int
+				case ${CLUSTER_TIME_OUT#[+]} in
+  					*[!0-9]* | '')
+					  	paramerror=1
+						if [ -z "$paramerror_str" ]; then
+							paramerror_str="Value for '--cluster-timeout' not an int : "$CLUSTER_TIME_OUT
+					  	fi
+					  	;;
+  					* ) ;; # Ok
+				esac
+				echo "Option set - Cluster timeout: "$1
+				shift;
+				foundparm=0
+			fi
+		fi
+	fi
 done
 echo ""
 
@@ -707,7 +735,7 @@ __check_and_create_image_var() {
 	echo -e "$tmp" >> $image_list_file
 	#Export the env var
 	export "${2}"=$image":"$tag  #Note, this var may be set to the value of the target value below in __check_and_pull_image
-	if [ ! -z "$IMAGE_REPO_ADR" ]; then
+	if [ ! -z "$IMAGE_REPO_ADR" ] && [ $5 == "LOCAL" ]; then    # Only push local images if repo is given
 		export "${2}_SOURCE"=$image":"$tag  #Var to keep the actual source image
 		export "${2}_TARGET"=$IMAGE_REPO_ADR"/"$optional_image_repo_target":"$tag  #Create image + tag for optional image repo - pushed later if needed
 	else
@@ -1047,40 +1075,44 @@ setup_testenvironment() {
 
 	# The following sequence pull the configured images
 
-	echo -e $BOLD"Pulling configured images, if needed"$EBOLD
 
-	for imagename in $APP_SHORT_NAMES; do
-		__check_included_image $imagename
-		incl=$?
-		__check_project_image $imagename
-		proj=$?
-		if [ $incl -eq 0 ]; then
-			if [ $proj -eq 0 ]; then
-				START_ARG_MOD=$START_ARG
-				__check_image_local_override $imagename
-				if [ $? -eq 1 ]; then
-					START_ARG_MOD="local"
+	echo -e $BOLD"Pulling configured images, if needed"$EBOLD
+	if [ ! -z "$IMAGE_REPO_ADR" ]; then
+		echo -e $YELLOW" Excluding all remote image check/pull when running with image repo: $IMAGE_REPO_ADR"$EYELLOW
+	else
+		for imagename in $APP_SHORT_NAMES; do
+			__check_included_image $imagename
+			incl=$?
+			__check_project_image $imagename
+			proj=$?
+			if [ $incl -eq 0 ]; then
+				if [ $proj -eq 0 ]; then
+					START_ARG_MOD=$START_ARG
+					__check_image_local_override $imagename
+					if [ $? -eq 1 ]; then
+						START_ARG_MOD="local"
+					fi
+				else
+					START_ARG_MOD=$START_ARG
+				fi
+				__check_image_local_build $imagename
+				#No pull of images built locally
+				if [ $? -ne 0 ]; then
+					# A function name is created from the app short name
+					# for example app short name 'HTTPPROXY' -> produce the function
+					# name __HTTPPROXY_imagesetup
+					# This function is called and is expected to exist in the imported
+					# file for the httpproxy test functions
+					# The resulting function impl will call '__check_and_pull_image' function
+					# with appropriate parameters
+					function_pointer="__"$imagename"_imagepull"
+					$function_pointer $START_ARG_MOD $START_ARG
 				fi
 			else
-				START_ARG_MOD=$START_ARG
+				echo -e $YELLOW" Excluding $imagename image from image check/pull"$EYELLOW
 			fi
-			__check_image_local_build $imagename
-			#No pull of images built locally
-			if [ $? -ne 0 ]; then
-				# A function name is created from the app short name
-				# for example app short name 'HTTPPROXY' -> produce the function
-				# name __HTTPPROXY_imagesetup
-				# This function is called and is expected to exist in the imported
-				# file for the httpproxy test functions
-				# The resulting function impl will call '__check_and_pull_image' function
-				# with appropriate parameters
-				function_pointer="__"$imagename"_imagepull"
-				$function_pointer $START_ARG_MOD $START_ARG
-			fi
-		else
-			echo -e $YELLOW" Excluding $imagename image from image check/pull"$EYELLOW
-		fi
-	done
+		done
+	fi
 
 	#Errors in image setting - exit
 	if [ $IMAGE_ERR -ne 0 ]; then
@@ -1126,8 +1158,8 @@ setup_testenvironment() {
 
 	echo ""
 
-	# Create a table of the images used in the script
-	echo -e $BOLD"Local docker registry images used in the this test script"$EBOLD
+	# Create a table of the images used in the script - from local repo
+	echo -e $BOLD"Local docker registry images used in this test script"$EBOLD
 
 	docker_tmp_file=./tmp/.docker-images-table
 	format_string="{{.Repository}}\\t{{.Tag}}\\t{{.CreatedSince}}\\t{{.Size}}\\t{{.CreatedAt}}"
@@ -1136,40 +1168,85 @@ setup_testenvironment() {
 	for imagename in $APP_SHORT_NAMES; do
 		__check_included_image $imagename
 		if [ $? -eq 0 ]; then
-			# A function name is created from the app short name
-			# for example app short name 'MR' -> produce the function
-			# name __MR_imagebuild
-			# This function is called and is expected to exist in the imported
-			# file for the mr test functions
-			# The resulting function impl shall build the imagee
-			function_pointer="__"$imagename"_image_data"
-			$function_pointer "$format_string" $docker_tmp_file
+			# Only print image data if image repo is null, or if image repo is set and image is local
+			print_image_data=0
+			if [ -z "$IMAGE_REPO_ADR" ]; then
+				print_image_data=1
+			else
+				__check_image_local_build $imagename
+				if [ $? -eq 0 ]; then
+					print_image_data=1
+				fi
+			fi
+			if [ $print_image_data -eq 1 ]; then
+				# A function name is created from the app short name
+				# for example app short name 'MR' -> produce the function
+				# name __MR_imagebuild
+				# This function is called and is expected to exist in the imported
+				# file for the mr test functions
+				# The resulting function impl shall build the imagee
+				function_pointer="__"$imagename"_image_data"
+				$function_pointer "$format_string" $docker_tmp_file
+			fi
 		fi
 	done
-
 
 	column -t -s $'\t' $docker_tmp_file | indent1
 
 	echo ""
+
+	if [ ! -z "$IMAGE_REPO_ADR" ]; then
+
+		# Create a table of the images used in the script - from remote repo
+		echo -e $BOLD"Remote repo images used in this test script"$EBOLD
+		echo -e $YELLOW"-- Note: These image will be pulled when the container starts. Images not managed by the test engine --"$EYELLOW
+
+		docker_tmp_file=./tmp/.docker-images-table
+		format_string="{{.Repository}}\\t{{.Tag}}"
+		echo -e "Application\tRepository\tTag" > $docker_tmp_file
+
+		for imagename in $APP_SHORT_NAMES; do
+			__check_included_image $imagename
+			if [ $? -eq 0 ]; then
+				# Only print image data if image repo is null, or if image repo is set and image is local
+				__check_image_local_build $imagename
+				if [ $? -ne 0 ]; then
+					# A function name is created from the app short name
+					# for example app short name 'MR' -> produce the function
+					# name __MR_imagebuild
+					# This function is called and is expected to exist in the imported
+					# file for the mr test functions
+					# The resulting function impl shall build the imagee
+					function_pointer="__"$imagename"_image_data"
+					$function_pointer "$format_string" $docker_tmp_file
+				fi
+			fi
+		done
+
+		column -t -s $'\t' $docker_tmp_file | indent1
+
+		echo ""
+	fi
+
 	if [ $RUNMODE == "KUBE" ]; then
 
 		echo "================================================================================="
 		echo "================================================================================="
 
-		CLUSTER_IP=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
-		if [[ $CLUSTER_IP != *"kubernetes"* ]]; then
-			echo -e $YELLOW" The cluster ip is: $CLUSTER_IP. This kubernetes is likely a multi-node cluster."$EYELLOW
-			echo -e $YELLOW" The image pull policy is set to 'Never'."$EYELLOW
+		if [ -z "$IMAGE_REPO_ADR" ]; then
+			echo -e $YELLOW" The image pull policy is set to 'Never' - assuming a local image repo is available for all images"$EYELLOW
+			echo -e " This setting only works on single node clusters on the local machine"
+			echo -e " It does not work with multi-node clusters or remote clusters. "
 			export KUBE_IMAGE_PULL_POLICY="Never"
-			if [ -z "$IMAGE_REPO_ADR" ]; then
-				echo -e $RED" The flag --image-repo need to be provided to the cmd with the path to a custom image repo'."$ERED
-				exit 1
-			fi
 		else
-			echo -e $YELLOW" The cluster ip is: $CLUSTER_IP. This kubernetes is likely a single-node cluster on a local machine."$EYELLOW
-			echo -e $YELLOW" The image pull policy is set to 'Never'."$EYELLOW
-			export KUBE_IMAGE_PULL_POLICY="Never"
+			echo -e $YELLOW" The image pull policy is set to 'Always'"$EYELLOW
+			echo -e " This setting work on local clusters, multi-node clusters and remote cluster. "
+			echo -e " Only locally built images are managed. Remote images are always pulled from remote repos"
+			echo -e " Pulling remote snapshot or staging images my in some case result in pulling newer image versions outside the control of the test engine"
+			export KUBE_IMAGE_PULL_POLICY="Always"
 		fi
+		CLUSTER_IP=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+		echo -e $YELLOW" The cluster hostname/ip is: $CLUSTER_IP"$EYELLOW
 
 		echo "================================================================================="
 		echo "================================================================================="
@@ -1292,7 +1369,7 @@ print_result() {
 start_timer() {
 	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
 	TC_TIMER=$SECONDS
-	echo " Timer started"
+	echo " Timer started: $(date)"
 }
 
 # Print the value of the time (in seconds)
@@ -1815,6 +1892,26 @@ __kube_create_configmap() {
 	return 0
 }
 
+# This function runs a kubectl cmd where a single output value is expected, for example get ip with jsonpath filter.
+# The function retries up to the timeout given in the cmd flag '--cluster-timeout'
+# args: <full kubectl cmd with parameters
+# (Not for test scripts)
+__kube_cmd_with_timeout() {
+	TS_TMP=$(($SECONDS+$CLUSTER_TIME_OUT))
+
+	while true; do
+		kube_cmd_result=$($@)
+		if [ $? -ne 0 ]; then
+			kube_cmd_result=""
+		fi
+		if [ $SECONDS -ge $TS_TMP ] || [ ! -z "$kube_cmd_result" ] ; then
+			echo $kube_cmd_result
+			return 0
+		fi
+		sleep 1
+	done
+}
+
 # This function scales or deletes all resources for app selected by the testcase.
 # args: -
 # (Not for test scripts)
@@ -2049,7 +2146,7 @@ __check_service_start() {
 	TSTART=$SECONDS
 	loop_ctr=0
 	while (( $TSTART+600 > $SECONDS )); do
-		result="$(__do_curl $url)"
+		result="$(__do_curl -m 10 $url)"
 		if [ $? -eq 0 ]; then
 			if [ ${#result} -gt 15 ]; then
 				#If response is too long, truncate
@@ -2197,7 +2294,13 @@ __do_curl() {
 	curlString="curl -skw %{http_code} $proxyflag $@"
 	echo " CMD: $curlString" >> $HTTPLOG
 	res=$($curlString)
+	retcode=$?
 	echo " RESP: $res" >> $HTTPLOG
+	echo " RETCODE: $retcode" >> $HTTPLOG
+	if [ $retcode -ne 0 ]; then
+		echo "<no-response-from-server>"
+		return 1
+	fi
 	http_code="${res:${#res}-3}"
 	if [ ${#res} -eq 3 ]; then
 		if [ $http_code -lt 200 ] || [ $http_code -gt 299 ]; then

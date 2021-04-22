@@ -7,7 +7,7 @@ metadata:
     run: $KUBE_PROXY_APP_NAME
     autotest: KUBEPROXY
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
   - port: $KUBE_PROXY_EXTERNAL_PORT
     targetPort: $KUBE_PROXY_INTERNAL_PORT

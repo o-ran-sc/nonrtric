@@ -215,7 +215,9 @@ else
     ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type1 $(($NUM_JOBS/5))
 fi
 
-restart_ecs
+stop_ecs
+
+start_stopped_ecs
 
 set_ecs_trace
 
