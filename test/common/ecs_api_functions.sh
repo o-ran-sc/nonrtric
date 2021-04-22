@@ -96,6 +96,9 @@ ECS_ADAPTER=$ECS_PATH
 # Make curl retries towards ECS for http response codes set in this env var, space separated list of codes
 ECS_RETRY_CODES=""
 
+#Save first worker node the pod is started on
+__ECS_WORKER_NODE=""
+
 ###########################
 ### ECS functions
 ###########################
@@ -205,6 +208,7 @@ start_ecs() {
 			export ECS_CONTAINER_MNT_DIR
 
 			export ECS_DATA_PV_NAME=$ECS_APP_NAME"-pv"
+			export ECS_DATA_PVC_NAME=$ECS_APP_NAME"-pvc"
 			#Create a unique path for the pv each time to prevent a previous volume to be reused
 			export ECS_PV_PATH="ecsdata-"$(date +%s)
 
@@ -249,6 +253,15 @@ start_ecs() {
 			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"app.yaml
 			output_yaml=$PWD/tmp/ecs_app.yaml
 			__kube_create_instance app $ECS_APP_NAME $input_yaml $output_yaml
+		fi
+
+		# Tie the ECS to a worker node so that ECS will always be scheduled to the same worker node if the ECS pod is restarted
+		# A PVC of type hostPath is mounted to ECS, for persistent storage, so the ECS must always be on the node which mounted the volume
+
+		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
+		__ECS_WORKER_NODE=$(kubectl get pod -l "autotest=ECS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+		if [ -z "$__ECS_WORKER_NODE" ]; then
+			echo -e $YELLOW" Cannot find worker node for pod for $ECS_APP_NAME, persistency may not work"$EYELLOW
 		fi
 
 		echo " Retrieving host and ports for service..."
@@ -337,23 +350,99 @@ start_ecs() {
 	return 0
 }
 
-# Restart ECS
+# Stop the ecs
+# args: -
 # args: -
 # (Function for test scripts)
-restart_ecs() {
-	echo -e $BOLD"Re-starting ECS"$EBOLD
-	docker restart $ECS_APP_NAME &> ./tmp/.dockererr
-	if [ $? -ne 0 ]; then
-		__print_err "Could not restart $ECS_APP_NAME" $@
-		cat ./tmp/.dockererr
-		((RES_CONF_FAIL++))
-		return 1
-	fi
+stop_ecs() {
+	echo -e $BOLD"Stopping $ECS_DISPLAY_NAME"$EBOLD
 
-	__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+	if [ $RUNMODE == "KUBE" ]; then
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+		echo "  Deleting the replica set - a new will be started when the app is started"
+		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=ECS")
+		if [ $? -ne 0 ]; then
+			echo -e $RED" Could not delete replica set "$RED
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	else
+		docker stop $ECS_APP_NAME &> ./tmp/.dockererr
+		if [ $? -ne 0 ]; then
+			__print_err "Could not stop $ECS_APP_NAME" $@
+			cat ./tmp/.dockererr
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	fi
+	echo -e $BOLD$GREEN"Stopped"$EGREEN$EBOLD
 	echo ""
 	return 0
 }
+
+# Start a previously stopped ecs
+# args: -
+# (Function for test scripts)
+start_stopped_ecs() {
+	echo -e $BOLD"Starting (the previously stopped) $ECS_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+
+		# Tie the PMS to the same worker node it was initially started on
+		# A PVC of type hostPath is mounted to PMS, for persistent storage, so the PMS must always be on the node which mounted the volume
+		if [ -z "$__ECS_WORKER_NODE" ]; then
+			echo -e $RED" No initial worker node found for pod "$RED
+			((RES_CONF_FAIL++))
+			return 1
+		else
+			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__ECS_WORKER_NODE to deployment for $ECS_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
+			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
+			tmp=$(kubectl patch deployment $ECS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__ECS_WORKER_NODE'"}}}}}')
+			if [ $? -ne 0 ]; then
+				echo -e $YELLOW" Cannot set nodeSelector to deployment for $ECS_APP_NAME, persistency may not work"$EYELLOW
+			fi
+			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+		fi
+
+	else
+		docker start $ECS_APP_NAME &> ./tmp/.dockererr
+		if [ $? -ne 0 ]; then
+			__print_err "Could not start (the stopped) $ECS_APP_NAME" $@
+			cat ./tmp/.dockererr
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	fi
+	__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# # Restart ECS
+# # args: -
+# # (Function for test scripts)
+# restart_ecs() {
+# 	echo -e $BOLD"Re-starting $ECS_DISPLAY_NAME"$EBOLD
+# 	if [ $RUNMODE == "KUBE" ]; then
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+# 		__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+# 	else
+# 		docker restart $ECS_APP_NAME &> ./tmp/.dockererr
+# 		if [ $? -ne 0 ]; then
+# 			__print_err "Could not restart $ECS_APP_NAME" $@
+# 			cat ./tmp/.dockererr
+# 			((RES_CONF_FAIL++))
+# 			return 1
+# 		fi
+# 	fi
+
+# 	__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+# 	echo ""
+# 	return 0
+# }
 
 # Turn on debug level tracing in ECS
 # args: -

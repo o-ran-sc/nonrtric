@@ -146,8 +146,8 @@ The script can be started with these arguments
 | `--use-snapshot-image` | The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names |
 | `--use-staging-image` | The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names |
 | `--use-release-image` | The script will use images from the nexus release repo for the supplied apps, space separated list of app short names |
-| `--image-repo` |  Url to image repo. Only required in when running in multi-node kube cluster, otherwise optional. All used images will be re-tagged and pushed to this repo
-
+| `--image-repo` |  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo |
+| `--cluster-timeout` |  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
 ## Function: setup_testenvironment

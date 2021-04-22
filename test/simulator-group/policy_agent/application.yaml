@@ -53,6 +53,8 @@ app:
   # Location of the component configuration file. The file will only be used if the Consul database is not used;
   # configuration from the Consul will override the file.
   filepath: /opt/app/policy-agent/data/application_configuration.json
+  # path where the service can store data
+  vardata-directory: /var/policy-management-service
   webclient:
     # Configuration of the trust store used for the HTTP client (outgoing requests)
     # The file location and the password for the truststore is only relevant if trust-store-used == true

@@ -35,7 +35,7 @@ __PRODSTUB_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __PRODSTUB_imagepull() {
-	echo -e $RED"Image for app PRODSTUB shall never be pulled from remove repo"$ERED
+	echo -e $RED"Image for app PRODSTUB shall never be pulled from remote repo"$ERED
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
