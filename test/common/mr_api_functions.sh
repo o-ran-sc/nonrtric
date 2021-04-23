@@ -580,9 +580,9 @@ start_mr() {
 
 			__create_topic $MR_WRITE_TOPIC "Topic for writing policy messages"
 
-			__dmaap_pipeclean $MR_READ_TOPIC "/events/A1-POLICY-AGENT-READ" "/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=1000&limit=100"
+			__dmaap_pipeclean $MR_READ_TOPIC "/events/$MR_READ_TOPIC" "/events/$MR_READ_TOPIC/users/policy-agent?timeout=1000&limit=100"
 
-			__dmaap_pipeclean $MR_WRITE_TOPIC "/events/A1-POLICY-AGENT-WRITE" "/events/A1-POLICY-AGENT-WRITE/users/mr-stub?timeout=1000&limit=100"
+			__dmaap_pipeclean $MR_WRITE_TOPIC "/events/$MR_WRITE_TOPIC" "/events/$MR_WRITE_TOPIC/users/mr-stub?timeout=1000&limit=100"
 
 			echo " Current topics:"
 			curlString="$MR_DMAAP_PATH/topics"

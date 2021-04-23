@@ -168,7 +168,7 @@ def create_message(operation, correlation_id, payload, url):
 ### MR-stub interface, for MR control
 
 # Send a message to MR
-# URI and parameters (GET): /send-request?operation=<GET|PUT|POST|DELETE>&url=<url>
+# URI and parameters (PUT or POST): /send-request?operation=<GET|PUT|POST|DELETE>&url=<url>
 # response: <correlation-id> (http 200) o4 400 for parameter error or 500 for other errors
 @app.route(APP_WRITE_URL,
     methods=['PUT','POST'])

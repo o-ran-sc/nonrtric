@@ -195,10 +195,10 @@ MR_DMAAP_LOCALHOST_PORT=3904                             # MR stub container ext
 MR_STUB_LOCALHOST_PORT=3908                              # MR stub container external port (host -> container)
 MR_DMAAP_LOCALHOST_SECURE_PORT=3905                      # MR stub container internal port (container -> container)
 MR_STUB_LOCALHOST_SECURE_PORT=3909                       # MR stub container external secure port (host -> container)
-MR_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=15000&limit=100" # Path to read messages from MR
-MR_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"             # Path write messages to MR
 MR_READ_TOPIC="A1-POLICY-AGENT-READ"                     # Read topic
 MR_WRITE_TOPIC="A1-POLICY-AGENT-WRITE"                   # Write topic
+MR_READ_URL="/events/$MR_READ_TOPIC/users/policy-agent?timeout=15000&limit=100" # Path to read messages from MR
+MR_WRITE_URL="/events/$MR_WRITE_TOPIC"                   # Path to write messages to MR
 MR_STUB_ALIVE_URL="/"                                    # Base path for mr stub alive check
 MR_DMAAP_ALIVE_URL="/topics"                             # Base path for dmaap-mr alive check
 MR_DMAAP_COMPOSE_DIR="dmaapmr"                           # Dir in simulator_group for dmaap mr for - docker-compose
