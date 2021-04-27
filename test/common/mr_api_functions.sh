@@ -44,7 +44,7 @@ __DMAAPMR_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __MR_imagepull() {
-	echo -e $RED"Image for app CR shall never be pulled from remove repo"$ERED
+	echo -e $RED"Image for app MR shall never be pulled from remote repo"$ERED
 }
 
 # Pull image from remote repo or use locally built image

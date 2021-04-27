@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Create/delete policies in parallel over a number of rics using a number of child process"
+TC_ONELINE_DESCR="PMS Create 10000 policies and restart, test polices persistency"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR PA RICSIM SDNC NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR PA RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -33,14 +33,13 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+SUPPORTED_PROFILES="ONAP-ISTANBUL ORAN-DAWN"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
-. ../common/mr_api_functions.sh
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
 . ../common/consul_cbs_functions.sh
@@ -56,13 +55,14 @@ setup_testenvironment
 ##########################
 
 # Tested variants of REST/DMAAP/SDNC config
-TESTED_VARIANTS="REST   REST+SDNC"
+TESTED_VARIANTS="REST"
 
 #Test agent and simulator protocol versions (others are http only)
-TESTED_PROTOCOLS="HTTP HTTPS"
+TESTED_PROTOCOLS="HTTP"
 
-NUM_RICS=20
-NUM_POLICIES_PER_RIC=500
+NUM_RICS=5
+NUM_POLICIES_PER_RIC=2000
+
 
 generate_policy_uuid
 
@@ -84,7 +84,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
             use_simulator_https
-            use_mr_https
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_https
             fi
@@ -92,7 +91,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         else
             use_cr_http
             use_simulator_http
-            use_mr_http
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_http
             fi
@@ -106,7 +104,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_kube_proxy
         fi
 
-        start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
+        start_ric_simulators ricsim_g1 $NUM_RICS STD_2.0.0
 
         start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -135,8 +133,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
             consul_config_app                      ".consul_config.json"
         fi
 
-        start_mr # Not used, but removes error messages from the agent log
-
         start_cr
 
         api_get_status 200
@@ -149,7 +145,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "Load policy type in group 1 simulators"
         for ((i=1; i<=$NUM_RICS; i++))
         do
-            sim_put_policy_type 201 ricsim_g1_$i 1 testdata/OSC/sim_1.json
+            sim_put_policy_type 201 ricsim_g1_$i STD_QOS_0_2_0 testdata/STD2/sim_qos.json
         done
 
         if [ "$PMS_VERSION" == "V2" ]; then
@@ -174,7 +170,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
+        api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS STD_QOS_0_2_0 $START_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES_PER_RIC 7
 
         print_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
@@ -185,6 +181,42 @@ for __httpx in $TESTED_PROTOCOLS ; do
         do
             sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
         done
+
+        stop_policy_agent
+
+        start_stopped_policy_agent
+
+        set_agent_debug
+
+        api_equal json:policies $INSTANCES 500
+
+        stop_policy_agent
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_post_delete_instances 200 ricsim_g1_$i
+        done
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_equal ricsim_g1_$i num_instances 0
+        done
+
+        start_stopped_policy_agent
+
+        set_agent_debug
+
+        start_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
+
+
+        api_equal json:policies $INSTANCES 500
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC 500
+        done
+
+        print_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
 
         start_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
@@ -198,6 +230,29 @@ for __httpx in $TESTED_PROTOCOLS ; do
         do
             sim_equal ricsim_g1_$i num_instances 0
         done
+
+        stop_policy_agent
+
+        start_stopped_policy_agent
+
+        set_agent_debug
+
+        api_equal json:policies 0
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_equal ricsim_g1_$i num_instances 0
+        done
+
+        sleep_wait 200
+
+        api_equal json:policies 0
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_equal ricsim_g1_$i num_instances 0
+        done
+
 
         for ((i=1; i<=$NUM_RICS; i++))
         do

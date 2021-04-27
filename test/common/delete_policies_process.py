@@ -84,7 +84,7 @@ try:
                         retry_cnt -= 1
                         total_retry_count += 1
                     else:
-                        print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code))
+                        print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code)+str(resp.raw))
                         sys.exit()
                 else:
                     retry_cnt=-1

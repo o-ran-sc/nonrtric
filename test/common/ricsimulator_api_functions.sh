@@ -314,7 +314,7 @@ __find_sim_port() {
 __find_sim_host() {
 	if [ $RUNMODE == "KUBE" ]; then
 		ricname=$(echo "$1" | tr '_' '-')
-		for timeout in {1..60}; do
+		for timeout in {1..500}; do   # long waiting time needed in case of starting large number of sims
 			host=$(kubectl get pod $ricname  -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.status.podIP}' 2> /dev/null)
 			if [ ! -z "$host" ]; then
 				echo $RIC_SIM_HTTPX"://"$host":"$RIC_SIM_PORT

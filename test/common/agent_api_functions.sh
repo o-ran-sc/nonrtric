@@ -96,6 +96,9 @@ PA_ADAPTER=$PA_PATH
 # Make curl retries towards the agent for http response codes set in this env var, space separated list of codes
 AGENT_RETRY_CODES=""
 
+#Save first worker node the pod is started on
+__PA_WORKER_NODE=""
+
 ###########################
 ### Policy Agents functions
 ###########################
@@ -203,6 +206,13 @@ start_policy_agent() {
 			export POLICY_AGENT_CONFIG_CONFIGMAP_NAME=$POLICY_AGENT_APP_NAME"-config"
 			export POLICY_AGENT_DATA_CONFIGMAP_NAME=$POLICY_AGENT_APP_NAME"-data"
 			export POLICY_AGENT_PKG_NAME
+
+			export POLICY_AGENT_DATA_PV_NAME=$POLICY_AGENT_APP_NAME"-pv"
+			export POLICY_AGENT_DATA_PVC_NAME=$POLICY_AGENT_APP_NAME"-pvc"
+			##Create a unique path for the pv each time to prevent a previous volume to be reused
+			export POLICY_AGENT_PV_PATH="padata-"$(date +%s)
+			export POLICY_AGENT_CONTAINER_MNT_DIR
+
 			if [ $1 == "PROXY" ]; then
 				AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
 				AGENT_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
@@ -237,6 +247,16 @@ start_policy_agent() {
 			output_yaml=$PWD/tmp/pa_cfd.yaml
 			__kube_create_configmap $POLICY_AGENT_DATA_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest PA $data_json $output_yaml
 
+			## Create pv
+			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"pv.yaml
+			output_yaml=$PWD/tmp/pa_pv.yaml
+			__kube_create_instance pv $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+
+			## Create pvc
+			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"pvc.yaml
+			output_yaml=$PWD/tmp/pa_pvc.yaml
+			__kube_create_instance pvc $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+
 			# Create service
 			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"svc.yaml
 			output_yaml=$PWD/tmp/pa_svc.yaml
@@ -247,6 +267,12 @@ start_policy_agent() {
 			output_yaml=$PWD/tmp/pa_app.yaml
 			__kube_create_instance app $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
 
+		fi
+
+		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
+		__PA_WORKER_NODE=$(kubectl get pod -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+		if [ -z "$__PA_WORKER_NODE" ]; then
+			echo -e $YELLOW" Cannot find worker node for pod for $POLICY_AGENT_APP_NAME, persistency may not work"$EYELLOW
 		fi
 
 		echo " Retrieving host and ports for service..."
@@ -274,6 +300,25 @@ start_policy_agent() {
 			exit
 		fi
 
+		curdir=$PWD
+		cd $SIM_GROUP
+		cd policy_agent
+		cd $POLICY_AGENT_HOST_MNT_DIR
+		#cd ..
+		if [ -d db ]; then
+			if [ "$(ls -A $DIR)" ]; then
+				echo -e $BOLD" Cleaning files in mounted dir: $PWD/db"$EBOLD
+				rm -rf db/*  &> /dev/null
+				if [ $? -ne 0 ]; then
+					echo -e $RED" Cannot remove database files in: $PWD"$ERED
+					exit 1
+				fi
+			fi
+		else
+			echo " No files in mounted dir or dir does not exists"
+		fi
+		cd $curdir
+
 		#Export all vars needed for docker-compose
 		export POLICY_AGENT_APP_NAME
 		export POLICY_AGENT_APP_NAME_ALIAS
@@ -291,6 +336,7 @@ start_policy_agent() {
 		export POLICY_AGENT_CONFIG_FILE
 		export POLICY_AGENT_PKG_NAME
 		export POLICY_AGENT_DISPLAY_NAME
+		export POLICY_AGENT_CONTAINER_MNT_DIR
 
 		if [ $1 == "PROXY" ]; then
 			AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
@@ -319,6 +365,79 @@ start_policy_agent() {
 	echo ""
 	return 0
 }
+
+# Stop the policy agent
+# args: -
+# args: -
+# (Function for test scripts)
+stop_policy_agent() {
+	echo -e $BOLD"Stopping $POLICY_AGENT_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+		echo "  Deleting the replica set - a new will be started when the app is started"
+		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=PA")
+		if [ $? -ne 0 ]; then
+			echo -e $RED" Could not delete replica set "$RED
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	else
+		docker stop $POLICY_AGENT_APP_NAME &> ./tmp/.dockererr
+		if [ $? -ne 0 ]; then
+			__print_err "Could not stop $POLICY_AGENT_APP_NAME" $@
+			cat ./tmp/.dockererr
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	fi
+	echo -e $BOLD$GREEN"Stopped"$EGREEN$EBOLD
+	echo ""
+	return 0
+}
+
+# Start a previously stopped policy agent
+# args: -
+# (Function for test scripts)
+start_stopped_policy_agent() {
+	echo -e $BOLD"Starting (the previously stopped) $POLICY_AGENT_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+
+		# Tie the PMS to the same worker node it was initially started on
+		# A PVC of type hostPath is mounted to PMS, for persistent storage, so the PMS must always be on the node which mounted the volume
+		if [ -z "$__PA_WORKER_NODE" ]; then
+			echo -e $RED" No initial worker node found for pod "$RED
+			((RES_CONF_FAIL++))
+			return 1
+		else
+			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__PA_WORKER_NODE to deployment for $POLICY_AGENT_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
+			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
+			tmp=$(kubectl patch deployment $POLICY_AGENT_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__PA_WORKER_NODE'"}}}}}')
+			if [ $? -ne 0 ]; then
+				echo -e $YELLOW" Cannot set nodeSelector to deployment for $POLICY_AGENT_APP_NAME, persistency may not work"$EYELLOW
+			fi
+			__kube_scale deployment $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+		fi
+
+	else
+		docker start $POLICY_AGENT_APP_NAME &> ./tmp/.dockererr
+		if [ $? -ne 0 ]; then
+			__print_err "Could not start (the stopped) $POLICY_AGENT_APP_NAME" $@
+			cat ./tmp/.dockererr
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	fi
+	__check_service_start $POLICY_AGENT_APP_NAME $PA_PATH$POLICY_AGENT_ALIVE_URL
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+
 
 # Load the the appl config for the agent into a config map
 agent_load_config() {

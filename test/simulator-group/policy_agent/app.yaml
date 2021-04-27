@@ -17,6 +17,9 @@ spec:
         run: $POLICY_AGENT_APP_NAME
         autotest: PA
     spec:
+      securityContext:
+        runAsUser: 0
+# Need to run as root to be able to store files in dir mounted as a hostPath volume
       containers:
       - name: $POLICY_AGENT_APP_NAME
         image: $POLICY_AGENT_IMAGE
@@ -29,6 +32,10 @@ spec:
         volumeMounts:
         - mountPath: $POLICY_AGENT_CONFIG_MOUNT_PATH
           name: pa-conf-name
+#        volumeMounts:
+        - mountPath: $POLICY_AGENT_CONTAINER_MNT_DIR
+          name: pa-pv-data-name
+#        volumeMounts:
         - mountPath: $POLICY_AGENT_DATA_MOUNT_PATH
           name: pa-data-name
       volumes:
@@ -40,3 +47,9 @@ spec:
           defaultMode: 420
           name: $POLICY_AGENT_DATA_CONFIGMAP_NAME
         name: pa-data-name
+      - persistentVolumeClaim:
+          claimName: $POLICY_AGENT_DATA_PVC_NAME
+        name: pa-pv-data-name
+# Selector will be set when pod is started first time
+      nodeSelector:
+

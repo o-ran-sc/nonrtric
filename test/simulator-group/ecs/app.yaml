@@ -38,6 +38,8 @@ spec:
           name: $ECS_CONFIG_CONFIGMAP_NAME
         name: ecs-conf-name
       - persistentVolumeClaim:
-          claimName: $ECS_DATA_CONFIGMAP_NAME
+          claimName: $ECS_DATA_PVC_NAME
         name: ecs-data-name
+# Selector will be set when pod is started first time
+      nodeSelector:
 
