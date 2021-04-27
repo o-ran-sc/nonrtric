@@ -22,6 +22,30 @@
       "revId": "a69cd90b798f1a25820d742710bcd13dfd1c4c60",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b1a9acf_3627cd4c",
+        "filename": "test/simulator-group/kubeproxy/svc.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-04-27T07:28:46Z",
+      "side": 1,
+      "message": "Needed to declare it a Loadbalancer in order to get externally reachable ip - needed when running in an external cluster - like google cloud.",
+      "parentUuid": "967e0ca2_76541f82",
+      "range": {
+        "startLine": 10,
+        "startChar": 8,
+        "endLine": 10,
+        "endChar": 20
+      },
+      "revId": "a69cd90b798f1a25820d742710bcd13dfd1c4c60",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
