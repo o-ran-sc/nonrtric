@@ -16,23 +16,23 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ORAN Cherry
-TEST_ENV_PROFILE="ORAN-DAWN"
-FLAVOUR="ORAN"
+#Profile for ONAP honolulu release
+TEST_ENV_PROFILE="ONAP-ISTANBUL"
+FLAVOUR="ONAP"
 
 ########################################
 ## Nexus repo settings
 ########################################
 
 # Nexus repos for developed images
-NEXUS_PROXY_REPO="nexus3.o-ran-sc.org:10001/"
-NEXUS_RELEASE_REPO="nexus3.o-ran-sc.org:10002/"
-NEXUS_SNAPSHOT_REPO="nexus3.o-ran-sc.org:10003/"
-NEXUS_STAGING_REPO="nexus3.o-ran-sc.org:10004/"
+NEXUS_PROXY_REPO="nexus3.onap.org:10001/"
+NEXUS_RELEASE_REPO="nexus3.onap.org:10002/"
+NEXUS_SNAPSHOT_REPO="nexus3.onap.org:10003/"
+NEXUS_STAGING_REPO=$NEXUS_SNAPSHOT_REPO  #staging repo not used in ONAP, using snapshot
 
 # Nexus repos for images used by test (not developed by the project)
-NEXUS_RELEASE_REPO_ONAP="nexus3.onap.org:10002/"  # Only for released ONAP images
-NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
+NEXUS_RELEASE_REPO_ORAN="nexus3.o-ran-sc.org:10002/" # Only for released ORAN images
+NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 ########################################
 # Set up of image and tags for the test.
@@ -57,77 +57,53 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 # 6 XXX_REMOTE_RELEASE_ONAP: ONAP release images: <onap-release-nexus-repo><image-name>:<release-tag>
 # 7 XXX_PROXY: other images, not produced by the project: <proxy-nexus-repo><mage-name>:<proxy-tag>
 
+#############################################################################
+# Note:
+# The imgage tags for pms and sdnc are updated AFTER the release.
+# This means that the latest staging/snapshot images for these two components have
+# version one step (0.0.1 - bug-level) higher than the
+# latest release image version.
 
-# Policy Agent base image and tags
-POLICY_AGENT_IMAGE_BASE="o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="2.2.0"
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
+# This is only applicable for ONAP images
+#############################################################################
 
-# ECS image and tags
-ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-ECS_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-ECS_IMAGE_TAG_REMOTE="1.1.0"
-ECS_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+# Policy Agent image and tags
+POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
+POLICY_AGENT_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE="1.2.0-STAGING-latest" #Will use snapshot repo
+POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
-
-#Control Panel image and tags
-CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE="2.2.0"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
-
-
-# Gateway image and tags
-NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
-NRT_GATEWAY_IMAGE_TAG_LOCAL="0.0.1-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="0.0.1-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE="0.0.1"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
-
-
-# SDNC A1 Controller image and tags - Note using ONAP image
+# SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.2"
-#No local image for ONAP SDNC, remote release image always used
-
-# ORAN SDNC adapter kept as reference
-# SDNC A1 Controller image and tags - still using cherry version, no new version for dawn
-#SDNC_A1_CONTROLLER_IMAGE_BASE="o-ran-sc/nonrtric-a1-controller"
-#SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.0.1-SNAPSHOT"
-#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.0.1-SNAPSHOT"
-#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.0.1"
-#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.0.1"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.2.0-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.2.0-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-#Older SDNC db image kept for reference
-#SDNC DB remote image and tag
-#SDNC_DB_IMAGE_BASE="mysql/mysql-server"
-#SDNC_DB_IMAGE_TAG_REMOTE_PROXY="5.6"
-#No local image for SSDNC DB, remote image always used
+# ECS image and tag - uses cherry release
+ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
+ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
 
 
-# RAPP Catalogue image and tags
+# Control Panel image and tag - uses cherry release
+CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.1"
+
+
+# RAPP Catalogue image and tags - uses cherry release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
-RAPP_CAT_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-RAPP_CAT_IMAGE_TAG_REMOTE="1.1.0"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
 
 
-# Near RT RIC Simulator image and tags - same version as cherry
+# Near RT RIC Simulator image and tags - uses cherry release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
-RIC_SIM_IMAGE_TAG_LOCAL="latest"
-RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.0-SNAPSHOT"
-RIC_SIM_IMAGE_TAG_REMOTE="2.1.0"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.1.0"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.0"
 
 
 #Consul remote image and tag
@@ -159,6 +135,7 @@ PROD_STUB_IMAGE_BASE="producer-stub"
 PROD_STUB_IMAGE_TAG_LOCAL="latest"
 #No remote image for producer stub, local image always used
 
+
 #Http proxy remote image and tag
 HTTP_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
 HTTP_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
@@ -185,18 +162,19 @@ KUBE_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
 #No local image for http proxy, remote image always used
 
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="PA ECS CP RC RICSIM NGW"  # Add SDNC here if oran image is used
+PROJECT_IMAGES_APP_NAMES="PA SDNC"
 
 # List of app short names which images pulled from ORAN
-ORAN_IMAGES_APP_NAMES=""  # Not used
+ORAN_IMAGES_APP_NAMES="CP ECS RICSIM RC"
 
 # List of app short names which images pulled from ONAP
-ONAP_IMAGES_APP_NAMES="CBS DMAAPMR SDNC"   # SDNC added as ONAP image
+ONAP_IMAGES_APP_NAMES=""   # Not used
 
 
 ########################################
 # Detailed settings per app
 ########################################
+
 
 DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker private network
 
@@ -210,7 +188,7 @@ POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent containe
 POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
 POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
 PMS_VERSION="V2"                                         # Tested version of northbound API
-PMS_API_PREFIX="/a1-policy"                              # api url prefix, only for V2
+PMS_API_PREFIX="/a1-policy"                               # api url prefix, only for V2. Shall contain leading "/"
 
 POLICY_AGENT_APP_NAME="policymanagementservice"          # Name for Policy Agent container
 POLICY_AGENT_DISPLAY_NAME="Policy Management Service"
@@ -227,7 +205,6 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
-POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 
 ECS_APP_NAME="enrichmentservice"                         # Name for ECS container
 ECS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ECS container
@@ -238,7 +215,7 @@ ECS_INTERNAL_SECURE_PORT=8434                            # ECS container interna
 
 ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
 ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
-ECS_HOST_MNT_DIR="./mnt"                                 # Mounted db dir, relative to compose file, on the host
+ECS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
 ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
 ECS_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
 ECS_CERT_MOUNT_DIR="./cert"
@@ -246,7 +223,7 @@ ECS_ALIVE_URL="/status"                                  # Base path for alive c
 ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
-ECS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
+ECS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -272,13 +249,13 @@ MR_STUB_COMPOSE_DIR="mrstub"                             # Dir in simulator_grou
 MR_KAFKA_APP_NAME="kafka"                                # Kafka app name
 MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
 
-
 CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
-CR_DISPLAY_NAME="Callback receiver"
+CR_DISPLAY_NAME="Callback Reciever"
 CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
 CR_INTERNAL_PORT=8090                                    # Callback receiver container internal port (container -> container)
 CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
 CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
+CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
 CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
 CR_ALIVE_URL="/"                                         # Base path for alive check
 CR_COMPOSE_DIR="cr"                                      # Dir in simulator_group for docker-compose
@@ -319,30 +296,9 @@ RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator contain
 RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
                                                          # (external ports allocated by docker)
 RIC_SIM_CERT_MOUNT_DIR="./cert"
-
 RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
-RIC_SIM_ALIVE_URL="/"                                    # Base path for alive check
+RIC_SIM_ALIVE_URL="/"
 
-# Kept as reference for oran a1 adapter
-# SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
-# SDNC_DISPLAY_NAME="SDNC A1 Controller"
-# SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
-# SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
-# SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
-# SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
-# SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
-# SDNC_A1_TRUSTSTORE_PASSWORD=""                           # SDNC truststore password
-# SDNC_USER="admin"                                        # SDNC username
-# SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
-# SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
-# SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
-# SDNC_COMPOSE_DIR="sdnc"                                  # Dir in simulator_group for docker-compose
-# SDNC_COMPOSE_FILE="docker-compose.yml"
-# SDNC_KUBE_APP_FILE="app.yaml"
-# SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
-# SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
-
-# For ONAP sdan
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
 SDNC_DISPLAY_NAME="SDNC A1 Controller"
 SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
@@ -365,7 +321,7 @@ SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
-RAPP_CAT_DISPLAY_NAME="RAPP Catalogue"
+RAPP_CAT_DISPLAY_NAME="RAPP Catalogue Service"
 RAPP_CAT_EXTERNAL_PORT=8680                              # RAPP Catalogue container external port (host -> container)
 RAPP_CAT_INTERNAL_PORT=8680                              # RAPP Catalogue container internal port (container -> container)
 RAPP_CAT_EXTERNAL_SECURE_PORT=8633                       # RAPP Catalogue container external secure port (host -> container)
@@ -374,34 +330,17 @@ RAPP_CAT_ALIVE_URL="/services"                           # Base path for alive c
 RAPP_CAT_COMPOSE_DIR="rapp_catalogue"                    # Dir in simulator_group for docker-compose
 
 CONTROL_PANEL_APP_NAME="controlpanel"                    # Name of the Control Panel container
-CONTROL_PANEL_DISPLAY_NAME="Control Panel"
+CONTROL_PANEL_DISPLAY_NAME="Non-RT RIC Control Panel"
 CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container internal port (container -> container)
 CONTROL_PANEL_EXTERNAL_SECURE_PORT=8880                  # Control Panel container external port (host -> container)
-CONTROL_PANEL_INTERNAL_SECURE_PORT=8082                  # Control Panel container internal port (container -> container)
-CONTROL_PANEL_LOGPATH="/var/log/nonrtric-gateway/application.log"  # Path the application log in the Control Panel container
+CONTROL_PANEL_INTERNAL_SECURE_PORT=8082                  # Control Panel container intternal port (container -> container)
+CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"  # Path the application log in the Control Panel container
 CONTROL_PANEL_ALIVE_URL="/"                              # Base path for alive check
 CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_group for docker-compose
-CONTROL_PANEL_CONFIG_FILE=nginx.conf                     # Config file name
+CONTROL_PANEL_CONFIG_MOUNT_PATH=/maven                   # Container internal path for config
+CONTROL_PANEL_CONFIG_FILE=application.properties         # Config file name
 CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative to compose file, on the host
-CONTROL_PANEL_CONFIG_MOUNT_PATH=/etc/nginx               # Container internal path for config
-CONTROL_PANEL_NGINX_KUBE_RESOLVER="kube-dns.kube-system.svc.cluster.local valid=5s"  #nginx resolver for kube
-CONTROL_PANEL_NGINX_DOCKER_RESOLVER="127.0.0.11"         # nginx resolver for docker
-
-NRT_GATEWAY_APP_NAME="nonrtricgateway"                   # Name of the Gateway container
-NRT_GATEWAY_DISPLAY_NAME="NonRT-RIC Gateway"
-NRT_GATEWAY_EXTERNAL_PORT=9090                           # Gateway container external port (host -> container)
-NRT_GATEWAY_INTERNAL_PORT=9090                           # Gateway container internal port (container -> container)
-NRT_GATEWAY_EXTERNAL_SECURE_PORT=9091                    # Gateway container external port (host -> container)
-NRT_GATEWAY_INTERNAL_SECURE_PORT=9091                    # Gateway container internal port (container -> container)
-NRT_GATEWAY_LOGPATH="/var/log/nonrtric-gateway/application.log" # Path the application log in the Gateway container
-NRT_GATEWAY_HOST_MNT_DIR="./mnt"                         # Mounted dir, relative to compose file, on the host
-NRT_GATEWAY_ALIVE_URL="/actuator/metrics"                # Base path for alive check
-NRT_GATEWAY_COMPOSE_DIR="ngw"                            # Dir in simulator_group for docker-compose
-NRT_GATEWAY_CONFIG_MOUNT_PATH=/opt/app/nonrtric-gateway/config  # Container internal path for config
-NRT_GATEWAY_CONFIG_FILE=application.yaml                 # Config file name
-NRT_GATEWAY_PKG_NAME="org.springframework.cloud.gateway" # Java base package name
-NRT_GATEWAY_ACTUATOR="/actuator/loggers/$NRT_GATEWAY_PKG_NAME" # Url for trace/debug
 
 HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
 HTTP_PROXY_DISPLAY_NAME="Http Proxy"
@@ -413,6 +352,7 @@ HTTP_PROXY_CONFIG_PORT=0                                 # Port number for proxy
 HTTP_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
 HTTP_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 HTTP_PROXY_COMPOSE_DIR="httpproxy"                       # Dir in simulator_group for docker-compose
+
 
 KUBE_PROXY_APP_NAME="kubeproxy"                          # Name of the Kube Http Proxy container
 KUBE_PROXY_DISPLAY_NAME="Kube Http Proxy"
@@ -428,5 +368,5 @@ KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_grou
 # Setting for common curl-base function
 ########################################
 
-UUID=""                                                   # UUID used as prefix to the policy id to simulate a real UUID
-                                                          # Testscript need to set the UUID otherwise this empty prefix is used
+UUID=""                                                  # UUID used as prefix to the policy id to simulate a real UUID
+                                                         # Testscript need to set the UUID to use other this empty prefix is used

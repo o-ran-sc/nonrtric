@@ -49,9 +49,14 @@ Note that ECS was not available before oran cherry so a test script without ECS 
 
 ONAP HONOLULU
 =============
-./PM_EI_DEMO.sh remote-remove  docker   --env-file ../common/test_env-onap-honolulu.sh
-./PM_EI_DEMO.sh remote-remove  kube   --env-file ../common/test_env-onap-honolulu.sh
-Note: When honolulu is released, add the 'release' arg to run released images.
+./PM_EI_DEMO.sh remote-remove  docker release  --env-file ../common/test_env-onap-honolulu.sh
+./PM_EI_DEMO.sh remote-remove  kube  release --env-file ../common/test_env-onap-honolulu.sh
+
+ONAP ISTANBUL
+=============
+./PM_EI_DEMO.sh remote-remove  docker   --env-file ../common/test_env-onap-istanbul.sh
+./PM_EI_DEMO.sh remote-remove  kube   --env-file ../common/test_env-onap-istanbul.sh
+Note: When istanbul is released, add the 'release' arg to run released images.
 ```
 ## Test case categories
 The test script are number using these basic categories where 0-999 are releated to the policy managment and 1000-1999 are related to enrichment management. 2000-2999 are for southbound http proxy. There are also demo test cases that test more or less all components. These test scripts does not use the numbering scheme below.
