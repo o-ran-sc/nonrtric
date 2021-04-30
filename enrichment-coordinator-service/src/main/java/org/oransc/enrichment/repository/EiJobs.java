@@ -178,7 +178,7 @@ public class EiJobs {
     }
 
     private String getDatabaseDirectory() {
-        return config.getVardataDirectory() + "/eijobs";
+        return config.getVardataDirectory() + "/database/eijobs";
     }
 
 }
