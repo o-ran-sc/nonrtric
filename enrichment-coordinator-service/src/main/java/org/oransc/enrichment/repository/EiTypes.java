@@ -143,6 +143,6 @@ public class EiTypes {
     }
 
     private String getDatabaseDirectory() {
-        return config.getVardataDirectory() + "/eitypes";
+        return config.getVardataDirectory() + "/database/eitypes";
     }
 }
