@@ -1,0 +1,12 @@
+{
+    "O-RAN-RU-00": "O-RAN-DU-0",
+    "O-RAN-RU-01": "O-RAN-DU-1",
+    "O-RAN-RU-02": "O-RAN-DU-2",
+    "O-RAN-RU-03": "O-RAN-DU-3",
+    "O-RAN-RU-04": "O-RAN-DU-4",
+    "O-RAN-RU-05": "O-RAN-DU-5",
+    "O-RAN-RU-06": "O-RAN-DU-6",
+    "O-RAN-RU-07": "O-RAN-DU-7",
+    "O-RAN-RU-08": "O-RAN-DU-8",
+    "O-RAN-RU-09": "O-RAN-DU-9"
+}
