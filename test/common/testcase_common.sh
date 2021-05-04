@@ -1894,7 +1894,7 @@ __kube_create_configmap() {
 
 # This function runs a kubectl cmd where a single output value is expected, for example get ip with jsonpath filter.
 # The function retries up to the timeout given in the cmd flag '--cluster-timeout'
-# args: <full kubectl cmd with parameters
+# args: <full kubectl cmd with parameters>
 # (Not for test scripts)
 __kube_cmd_with_timeout() {
 	TS_TMP=$(($SECONDS+$CLUSTER_TIME_OUT))
@@ -1912,6 +1912,39 @@ __kube_cmd_with_timeout() {
 	done
 }
 
+# This function starts a pod that cleans a the contents of a path mounted as a pvc
+# After this action the pod should terminate
+# This should only be executed when the pod owning the pvc is not running
+# args: <appname> <namespace> <pvc-name> <path-to remove>
+# (Not for test scripts)
+__kube_clean_pvc() {
+
+	export PVC_CLEANER_NAMESPACE=$2
+	export PVC_CLEANER_CLAIMNAME=$3
+	export PVC_CLEANER_RM_PATH=$4
+	input_yaml=$SIM_GROUP"/pvc-cleaner/"pvc-cleaner.yaml
+	output_yaml=$PWD/tmp/$2-pvc-cleaner.yaml
+
+	envsubst < $input_yaml > $output_yaml
+
+	kubectl delete -f $output_yaml #> /dev/null 2>&1    # Delete the previous terminated pod - if existing
+
+	__kube_create_instance pod pvc-cleaner $input_yaml $output_yaml
+	if [ $? -ne 0 ]; then
+		echo $YELLOW" Could not clean pvc for app: $1 - persistent storage not clean - tests may not work"
+		return 1
+	fi
+
+	term_ts=$(($SECONDS+30))
+	while [ $term_ts -gt $SECONDS ]; do
+		pod_status=$(kubectl get pod pvc-cleaner -n $PVC_CLEANER_NAMESPACE --no-headers -o custom-columns=":status.phase")
+		if [ "$pod_status" == "Succeeded" ]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
 # This function scales or deletes all resources for app selected by the testcase.
 # args: -
 # (Not for test scripts)
@@ -1920,22 +1953,26 @@ __clean_kube() {
 
 	# Scale prestarted or managed apps
 	for imagename in $APP_SHORT_NAMES; do
-		__check_included_image $imagename
+		# A function name is created from the app short name
+		# for example app short name 'RICMSIM' -> produce the function
+		# name __RICSIM_kube_scale_zero or __RICSIM_kube_scale_zero_and_wait
+		# This function is called and is expected to exist in the imported
+		# file for the ricsim test functions
+		# The resulting function impl shall scale the resources to 0
+		# For prestarted apps, the function waits until the resources are 0
+		# For included (not prestated) apps, the scaling is just ordered
+		__check_prestarted_image $imagename
 		if [ $? -eq 0 ]; then
-			# A function name is created from the app short name
-			# for example app short name 'RICMSIM' -> produce the function
-			# name __RICSIM_kube_scale_zero or __RICSIM_kube_scale_zero_and_wait
-			# This function is called and is expected to exist in the imported
-			# file for the ricsim test functions
-			# The resulting function impl shall scale the resources to 0
-			__check_prestarted_image $imagename
-			if [ $? -eq 0 ]; then
-				function_pointer="__"$imagename"_kube_scale_zero_and_wait"
-			else
-				function_pointer="__"$imagename"_kube_scale_zero"
-			fi
+			function_pointer="__"$imagename"_kube_scale_zero_and_wait"
 			echo -e " Scaling all kube resources for app $BOLD $imagename $EBOLD to 0"
 			$function_pointer
+		else
+			__check_included_image $imagename
+			if [ $? -eq 0 ]; then
+				function_pointer="__"$imagename"_kube_scale_zero"
+				echo -e " Scaling all kube resources for app $BOLD $imagename $EBOLD to 0"
+				$function_pointer
+			fi
 		fi
 	done
 

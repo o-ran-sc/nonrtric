@@ -56,11 +56,13 @@ try:
     if uuid == "NOUUID":
         uuid=""
 
-    total_retry_count=0
+    http_retry_count=0
+    connect_retry_count=0
 
     stop=count*num_rics+start
     for i in range(start,stop):
         if (i%pids == (pid_id-1)):
+            connect_ok=False
             retry_cnt=5
             while(retry_cnt>0):
                 if ("/v2/policies/" in baseurl):
@@ -72,27 +74,32 @@ try:
                         resp=requests.delete(url, verify=False, timeout=90)
                     else:
                         resp=requests.delete(url, verify=False, timeout=90, proxies=proxydict)
+                    cconnect_ok=True
                 except Exception as e1:
-                    print("1Delete failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
-                    sys.exit()
-                if (resp.status_code == None):
-                    print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: None")
-                    sys.exit()
-                if (resp.status_code != responsecode):
-                    if (resp.status_code == 503 ) and (retry_cnt > 1):
+                    if (retry_cnt > 1):
                         sleep(0.1)
                         retry_cnt -= 1
-                        total_retry_count += 1
+                        connect_retry_count += 1
                     else:
-                        print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code)+str(resp.raw))
+                        print("1Delete failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
                         sys.exit()
-                else:
-                    retry_cnt=-1
 
-    if (total_retry_count > 0):
-        print("0 retries:"+str(total_retry_count))
-    else:
-        print("0")
+                if (cconnect_ok == True):
+                    if (resp.status_code == None):
+                        print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: None")
+                        sys.exit()
+                    if (resp.status_code != responsecode):
+                        if (resp.status_code >= 500) and (http_retry_count < 600 ) and (retry_cnt > 1):
+                            sleep(0.1)
+                            retry_cnt -= 1
+                            http_retry_count += 1
+                        else:
+                            print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code)+str(resp.raw))
+                            sys.exit()
+                    else:
+                        retry_cnt=-1
+
+    print("0 http retries:"+str(http_retry_count) + ", connect retries: "+str(connect_retry_count))
     sys.exit()
 
 except Exception as e:

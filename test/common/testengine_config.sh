@@ -27,7 +27,7 @@ PROJECT_IMAGES="PA ECS SDNC CP NGW RICSIM RC"
 AVAILABLE_IMAGES_OVERRIDE="PA ECS SDNC CP NGW RICSIM RC"
 
 # List of available apps where the image is built by the test environment
-LOCAL_IMAGE_BUILD="MR CR PRODSTUB"
+LOCAL_IMAGE_BUILD="MR CR PRODSTUB KUBEPROXY"
 
 
 #Integrate a new app into the test environment

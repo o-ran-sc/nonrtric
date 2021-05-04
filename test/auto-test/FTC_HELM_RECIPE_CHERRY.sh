@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Sanity test of Non-RT RIC Helm recepie - all components"
+TC_ONELINE_DESCR="Sanity test of Non-RT RIC Helm recepie - all components - CHERRY release"
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="" # Not used -  KUBE only test script
@@ -28,7 +28,7 @@ KUBE_INCLUDED_IMAGES=" MR CR  PRODSTUB KUBEPROXY"
 KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ECS RC SDNC"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ORAN-CHERRY ORAN-DAWN"
+SUPPORTED_PROFILES="ORAN-CHERRY"
 #Supported run modes
 SUPPORTED_RUNMODES="KUBE"
 

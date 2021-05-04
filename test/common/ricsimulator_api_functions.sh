@@ -475,7 +475,7 @@ sim_post_delete_instances() {
 # (Function for test scripts)
 sim_post_delete_all() {
 	__log_conf_start $@
-	if [ $# -ne 3 ]; then
+	if [ $# -ne 2 ]; then
 		__print_err "<response-code> <numericic-id>" $@
 		return 1
 	fi

@@ -259,9 +259,13 @@ start_ecs() {
 		# A PVC of type hostPath is mounted to ECS, for persistent storage, so the ECS must always be on the node which mounted the volume
 
 		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
-		__ECS_WORKER_NODE=$(kubectl get pod -l "autotest=ECS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
-		if [ -z "$__ECS_WORKER_NODE" ]; then
-			echo -e $YELLOW" Cannot find worker node for pod for $ECS_APP_NAME, persistency may not work"$EYELLOW
+		if [ $retcode_i -eq 0 ]; then
+			__ECS_WORKER_NODE=$(kubectl get pod -l "autotest=ECS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+			if [ -z "$__ECS_WORKER_NODE" ]; then
+				echo -e $YELLOW" Cannot find worker node for pod for $ECS_APP_NAME, persistency may not work"$EYELLOW
+			fi
+		else
+			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
 		fi
 
 		echo " Retrieving host and ports for service..."
@@ -358,6 +362,14 @@ stop_ecs() {
 	echo -e $BOLD"Stopping $ECS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
+
+		__check_prestarted_image "ECS"
+		if [ $? -eq 0 ]; then
+			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
+			return 0
+		fi
+
 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
 		echo "  Deleting the replica set - a new will be started when the app is started"
 		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=ECS")
@@ -388,6 +400,14 @@ start_stopped_ecs() {
 
 	if [ $RUNMODE == "KUBE" ]; then
 
+		__check_prestarted_image "ECS"
+		if [ $? -eq 0 ]; then
+			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+			return 0
+		fi
+
 		# Tie the PMS to the same worker node it was initially started on
 		# A PVC of type hostPath is mounted to PMS, for persistent storage, so the PMS must always be on the node which mounted the volume
 		if [ -z "$__ECS_WORKER_NODE" ]; then
@@ -403,7 +423,6 @@ start_stopped_ecs() {
 			fi
 			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
-
 	else
 		docker start $ECS_APP_NAME &> ./tmp/.dockererr
 		if [ $? -ne 0 ]; then
@@ -1751,6 +1770,25 @@ ecs_api_admin_reset() {
 			echo " Deleted job: "$job
 		fi
 	done
+
+	__log_test_pass
+	return 0
+}
+
+##########################################
+####     Reset jobs and producers     ####
+##########################################
+
+
+# Admin reset to remove all data in ecs; jobs, producers etc
+# NOTE - only works in kubernetes and the pod should not be running
+# args: -
+# (Function for test scripts)
+
+ecs_kube_pvc_reset() {
+	__log_test_start $@
+
+	__kube_clean_pvc $ECS_APP_NAME nonrtric enrichmentservice-pvc /var/enrichment-coordinator-service/database
 
 	__log_test_pass
 	return 0
