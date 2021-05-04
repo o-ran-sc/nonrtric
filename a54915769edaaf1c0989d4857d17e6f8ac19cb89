@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12e74fb3_91820d23",
+        "filename": "test/auto-test/FTC_HELM_RECIPE_DAWN.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-05-04T09:13:07Z",
+      "side": 1,
+      "message": "(Annoying comment ... ) \nThe \"D\" release will no longer be called \"Dawn\" - just \"D release\" :-(",
+      "range": {
+        "startLine": 20,
+        "startChar": 76,
+        "endLine": 20,
+        "endChar": 81
+      },
+      "revId": "a54915769edaaf1c0989d4857d17e6f8ac19cb89",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
