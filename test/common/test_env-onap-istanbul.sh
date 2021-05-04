@@ -157,9 +157,9 @@ ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
 #No local image for ONAP DMAAP-MR, remote image always used
 
 #Kube proxy remote image and tag
-KUBE_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
-KUBE_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
-#No local image for http proxy, remote image always used
+KUBE_PROXY_IMAGE_BASE="nodejs-http-proxy"
+KUBE_PROXY_IMAGE_TAG_LOCAL="latest"
+#No remote image for kube proxy, local image always used
 
 # List of app short names produced by the project
 PROJECT_IMAGES_APP_NAMES="PA SDNC"

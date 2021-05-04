@@ -208,7 +208,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
 
-
         api_equal json:policies $INSTANCES 500
 
         for ((i=1; i<=$NUM_RICS; i++))
@@ -252,7 +251,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         do
             sim_equal ricsim_g1_$i num_instances 0
         done
-
 
         for ((i=1; i<=$NUM_RICS; i++))
         do

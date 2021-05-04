@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __KUBEPROXY_imagesetup() {
-	__check_and_create_image_var KUBEPROXY "KUBE_PROXY_IMAGE" "KUBE_PROXY_IMAGE_BASE" "KUBE_PROXY_IMAGE_TAG" REMOTE_PROXY "$KUBE_PROXY_DISPLAY_NAME"
+	__check_and_create_image_var KUBEPROXY "KUBE_PROXY_IMAGE" "KUBE_PROXY_IMAGE_BASE" "KUBE_PROXY_IMAGE_TAG" LOCAL "$KUBE_PROXY_DISPLAY_NAME"
 }
 
 # Pull image from remote repo or use locally built image
@@ -35,14 +35,29 @@ __KUBEPROXY_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
 __KUBEPROXY_imagepull() {
-	__check_and_pull_image $2 "$KUBE_PROXY_DISPLAY_NAME" $KUBE_PROXY_APP_NAME KUBE_PROXY_IMAGE
+	echo -e $RED"Image for app KUBEPROXY shall never be pulled from remote repo"$ERED
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __KUBEPROXY_imagebuild() {
-	echo -e $RED"Image for app KUBEPROXY shall never be built"$ERED
+	cd ../http-https-proxy
+	echo " Building KUBEPROXY - $KUBE_PROXY_DISPLAY_NAME - image: $KUBE_PROXY_IMAGE"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $KUBE_PROXY_IMAGE . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN"  Build Ok"$EGREEN
+		__retag_and_push_image KUBE_PROXY_IMAGE
+		if [ $? -ne 0 ]; then
+			exit 1
+		fi
+	else
+		echo -e $RED"  Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
+	fi
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
@@ -65,7 +80,7 @@ __KUBEPROXY_kube_scale_zero() {
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __KUBEPROXY_kube_scale_zero_and_wait() {
-	echo -e $RED" Http proxy replicas kept as is"$ERED
+	echo -e $RED" KUBEPROXY app is not scaled in this state"$ERED
 }
 
 # Delete all kube resouces for the app
@@ -157,7 +172,7 @@ start_kube_proxy() {
 
 		if [ "$CLUSTER_KUBE_PROXY_HOST" == "localhost" ]; then
 			#Local host found
-			echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME host is: $CLUSTER_KUBE_PROXY_HOST. The proxy (mitmproxy) used by test script requires an ip so the ip is assumed and set to 127.0.0.1"$EYELLOW
+			echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME host is: $CLUSTER_KUBE_PROXY_HOST"$EYELLOW
 			CLUSTER_KUBE_PROXY_HOST="127.0.0.1"
 		else
 			if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then

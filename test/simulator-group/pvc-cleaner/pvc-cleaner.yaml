@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-cleaner
+  namespace: $PVC_CLEANER_NAMESPACE
+spec:
+  restartPolicy: Never
+  containers:
+  - name: pvc-cleaner
+    image: "ubuntu:20.10"
+    command: ["/bin/sh","-c"]
+    args: ["rm -rf $PVC_CLEANER_RM_PATH/*"]
+    volumeMounts:
+    - mountPath: $PVC_CLEANER_RM_PATH
+      name: pvc-cleaner-m-vol
+  volumes:
+  - name: pvc-cleaner-m-vol
+    persistentVolumeClaim:
+      claimName: $PVC_CLEANER_CLAIMNAME
