@@ -26,10 +26,11 @@ services:
       - default
     container_name: ${HTTP_PROXY_APP_NAME}
     image: ${HTTP_PROXY_IMAGE}
-    tty: true
-    command: mitmweb --web-host 0.0.0.0 --no-web-open-browser --set ssl_insecure
     ports:
+      - ${HTTP_PROXY_EXTERNAL_PORT}:${HTTP_PROXY_INTERNAL_PORT}
+      - ${HTTP_PROXY_EXTERNAL_SECURE_PORT}:${HTTP_PROXY_INTERNAL_SECURE_PORT}
       - ${HTTP_PROXY_WEB_EXTERNAL_PORT}:${HTTP_PROXY_WEB_INTERNAL_PORT}
+      - ${HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT}:${HTTP_PROXY_WEB_INTERNAL_SECURE_PORT}
     labels:
       - "nrttest_app=HTTPPROXY"
       - "nrttest_dp=${HTTP_PROXY_DISPLAY_NAME}"

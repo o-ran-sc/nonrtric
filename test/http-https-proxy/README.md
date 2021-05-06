@@ -23,10 +23,10 @@ The dir cert contains a self-signed cert. Use the script generate_cert_and_key.s
 
 | Operation | curl example |
 | --------- | ------------ |
-| proxy http call via http | curl --proxy localhost:8080 http://pms:1234 |
-| proxy https call via http | curl --proxy localhost:8080 https://pms:5678 |
-| proxy http call via https | curl --proxy-insecure localhost:8433 http://pms:1234 |
-| proxy https call via https |  curl --proxy-insecure localhost:8433 https://pms:5678 |
+| proxy http call via http | curl --proxy http://localhost:8080 http://100.110.120.130:1234 |
+| proxy https call via http | curl -k --proxy http//localhost:8080 https://100.110.120.130:5678 |
+| proxy http call via https | curl --proxy-insecure --proxy https://localhost:8433 http://100.110.120.130:1234 |
+| proxy https call via https | curl --proxy-insecure --proxy https://localhost:8433 https://100.110.120.130:5678 |
 | alive check and get stats | curl localhost:8081 |
 | alive check and get stats via proxy |  curl --proxy localhost:8080 http://localhost:8081 |
 

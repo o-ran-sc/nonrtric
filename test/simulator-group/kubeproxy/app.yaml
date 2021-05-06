@@ -26,3 +26,7 @@ spec:
           containerPort: $KUBE_PROXY_INTERNAL_PORT
         - name: web
           containerPort: $KUBE_PROXY_WEB_INTERNAL_PORT
+        - name: https
+          containerPort: $KUBE_PROXY_INTERNAL_SECURE_PORT
+        - name: webs
+          containerPort: $KUBE_PROXY_WEB_INTERNAL_SECURE_PORT

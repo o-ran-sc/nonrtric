@@ -114,8 +114,8 @@ CR_IMAGE_TAG_LOCAL="latest"
 #No remote image for CR, local image always used
 
 #Http proxy remote image and tag
-HTTP_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
-HTTP_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
+HTTP_PROXY_IMAGE_BASE="nodejs-http-proxy"
+HTTP_PROXY_IMAGE_TAG_LOCAL="latest"
 #No local image for http proxy, remote image always used
 
 #ONAP Zookeeper remote image and tag
@@ -134,7 +134,7 @@ ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
 #No local image for ONAP DMAAP-MR, remote image always used
 
 #Kube proxy remote image and tag
-KUBE_PROXY_IMAGE_BASE="nodejs-http-proxy"
+KUBE_PROXY_IMAGE_BASE="nodejs-kube-proxy"
 KUBE_PROXY_IMAGE_TAG_LOCAL="latest"
 #No remote image for kube proxy, local image always used
 
@@ -279,22 +279,30 @@ CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative
 
 HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
 HTTP_PROXY_DISPLAY_NAME="Http Proxy"
-HTTP_PROXY_EXTERNAL_PORT=8780                            # Http Proxy container external port (host -> container)
+HTTP_PROXY_EXTERNAL_PORT=8740                            # Http Proxy container external port (host -> container)
 HTTP_PROXY_INTERNAL_PORT=8080                            # Http Proxy container internal port (container -> container)
-HTTP_PROXY_WEB_EXTERNAL_PORT=8781                        # Http Proxy container external port (host -> container)
+HTTP_PROXY_EXTERNAL_SECURE_PORT=8742                     # Http Proxy container external secure port (host -> container)
+HTTP_PROXY_INTERNAL_SECURE_PORT=8433                     # Http Proxy container internal secure port (container -> container)
+HTTP_PROXY_WEB_EXTERNAL_PORT=8741                        # Http Proxy container external port (host -> container)
 HTTP_PROXY_WEB_INTERNAL_PORT=8081                        # Http Proxy container internal port (container -> container)
+HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT=8743                 # Http Proxy container external secure port (host -> container)
+HTTP_PROXY_WEB_INTERNAL_SECURE_PORT=8434                 # Http Proxy container internal secure port (container -> container
 HTTP_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
 HTTP_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
 HTTP_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 HTTP_PROXY_COMPOSE_DIR="httpproxy"                       # Dir in simulator_group for docker-compose
-
+HTTP_PROXY_BUILD_DIR="http-https-proxy"                  # Dir in simulator_group for image build - note, reuses source from kubeproxy
 
 KUBE_PROXY_APP_NAME="kubeproxy"                          # Name of the Kube Http Proxy container
 KUBE_PROXY_DISPLAY_NAME="Kube Http Proxy"
 KUBE_PROXY_EXTERNAL_PORT=8730                            # Kube Http Proxy container external port (host -> container)
 KUBE_PROXY_INTERNAL_PORT=8080                            # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_EXTERNAL_SECURE_PORT=8782                     # Kube Proxy container external secure port (host -> container)
+KUBE_PROXY_INTERNAL_SECURE_PORT=8433                     # Kube Proxy container internal secure port (container -> container)
 KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy container external port (host -> container)
 KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
+KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT=8783                 # Kube Proxy container external secure port (host -> container)
+KUBE_PROXY_WEB_INTERNAL_SECURE_PORT=8434                 # Kube Proxy container internal secure port (container -> container
 KUBE_PROXY_PATH=""                                       # Proxy url path, will be set if proxy is started
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose

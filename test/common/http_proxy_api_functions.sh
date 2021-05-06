@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __HTTPPROXY_imagesetup() {
-	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" REMOTE_PROXY "$HTTP_PROXY_DISPLAY_NAME"
+	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" LOCAL "$HTTP_PROXY_DISPLAY_NAME"
 }
 
 # Pull image from remote repo or use locally built image
@@ -41,7 +41,22 @@ __HTTPPROXY_imagepull() {
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __HTTPPROXY_imagebuild() {
-	echo -e $RED"Image for app HTTPPROXY shall never be built"$ERED
+	cd ../$HTTP_PROXY_BUILD_DIR       # Note: Reusing same impl as for kube proxy
+	echo " Building HTTPPROXY - $HTTP_PROXY_DISPLAY_NAME - image: $HTTP_PROXY_IMAGE"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $HTTP_PROXY_IMAGE . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN"  Build Ok"$EGREEN
+		__retag_and_push_image HTTP_PROXY_IMAGE
+		if [ $? -ne 0 ]; then
+			exit 1
+		fi
+	else
+		echo -e $RED"  Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
+	fi
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
@@ -64,7 +79,7 @@ __HTTPPROXY_kube_scale_zero() {
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __HTTPPROXY_kube_scale_zero_and_wait() {
-	echo -e $RED" NGW replicas kept as is"$ERED
+	echo -e $RED" HTTPPROXY replicas kept as is"$ERED
 }
 
 # Delete all kube resouces for the app
@@ -93,6 +108,30 @@ HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EX
 #########################
 ### Http Proxy functions
 #########################
+
+# All calls to httpproxy will be directed to the http interface
+# args: -
+# (Function for test scripts)
+use_http_proxy_http() {
+	echo -e $BOLD"$HTTP_PROXY_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD"
+	HTTP_PROXY_HTTPX="http"
+	HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_PORT
+
+	echo ""
+}
+
+# All calls to httpproxy will be directed to the https interface
+# args: -
+# (Function for test scripts)
+use_http_proxy_https() {
+	echo -e $BOLD"$HTTP_PROXY_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD"
+	HTTP_PROXY_HTTPX="https"
+	HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_SECURE_PORT
+
+	echo ""
+}
 
 # Start the Http Proxy in the simulator group
 # args: -
@@ -132,10 +171,17 @@ start_http_proxy() {
 		if [ $retcode_i -eq 0 ]; then
 			echo -e " Creating $HTTP_PROXY_APP_NAME deployment and service"
 			export HTTP_PROXY_APP_NAME
+
 			export HTTP_PROXY_WEB_EXTERNAL_PORT
 			export HTTP_PROXY_WEB_INTERNAL_PORT
 			export HTTP_PROXY_EXTERNAL_PORT
 			export HTTP_PROXY_INTERNAL_PORT
+
+			export HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
+			export HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
+			export HTTP_PROXY_EXTERNAL_SECURE_PORT
+			export HTTP_PROXY_INTERNAL_SECURE_PORT
+
 			export KUBE_SIM_NAMESPACE
 			export HTTP_PROXY_IMAGE
 
@@ -156,13 +202,24 @@ start_http_proxy() {
 		echo " Retrieving host and ports for service..."
 		HTTP_PROXY_HOST_NAME=$(__kube_get_service_host $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE)
 		HTTP_PROXY_WEB_EXTERNAL_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web")
+		HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "webs")
+
 		HTTP_PROXY_EXTERNAL_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")
+		HTTP_PROXY_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "https")
 
-		HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EXTERNAL_PORT
-		HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_EXTERNAL_PORT
-		HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
+		if [ $HTTP_PROXY_HTTPX == "http" ]; then
+			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EXTERNAL_PORT
+			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_EXTERNAL_PORT
+			HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
 
-		echo " Host IP, http port: $HTTP_PROXY_HOST_NAME $HTTP_PROXY_WEB_EXTERNAL_PORT"
+			echo " Host IP, http port: $HTTP_PROXY_HOST_NAME $HTTP_PROXY_WEB_EXTERNAL_PORT"
+		else
+			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
+			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_EXTERNAL_SECURE_PORT
+			HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
+
+			echo " Host IP, https port: $HTTP_PROXY_HOST_NAME $HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT"
+		fi
 
 		__check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_PATH$HTTP_PROXY_ALIVE_URL
 
@@ -176,17 +233,32 @@ start_http_proxy() {
 		fi
 
 		export HTTP_PROXY_APP_NAME
+		export HTTP_PROXY_EXTERNAL_PORT
+		export HTTP_PROXY_INTERNAL_PORT
+		export HTTP_PROXY_EXTERNAL_SECURE_PORT
+		export HTTP_PROXY_INTERNAL_SECURE_PORT
 		export HTTP_PROXY_WEB_EXTERNAL_PORT
 		export HTTP_PROXY_WEB_INTERNAL_PORT
+		export HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
+		export HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
 		export DOCKER_SIM_NWNAME
 
 		export HTTP_PROXY_DISPLAY_NAME
 
 		__start_container $HTTP_PROXY_COMPOSE_DIR "" NODOCKERARGS 1 $HTTP_PROXY_APP_NAME
 
+		if [ $HTTP_PROXY_HTTPX == "http" ]; then
+			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_PORT
+		else
+			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_SECURE_PORT
+		fi
         __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_PATH$HTTP_PROXY_ALIVE_URL
 
-		HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_INTERNAL_PORT
+		if [ $HTTP_PROXY_HTTPX == "http" ]; then
+			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_INTERNAL_PORT
+		else
+			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_INTERNAL_SECURE_PORT
+		fi
 		HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME
 
 	fi

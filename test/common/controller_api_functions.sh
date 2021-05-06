@@ -307,7 +307,11 @@ __do_curl_to_controller() {
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
 		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			proxyflag=" --proxy KUBE_PROXY_PATH"
+			if [ $KUBE_PROXY_HTTPX == "http" ]; then
+				proxyflag=" --proxy $KUBE_PROXY_PATH"
+			else
+				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
+			fi
 		fi
 	fi
     curlString="curl -skw %{http_code} $proxyflag -X POST $SDNC_API_PATH$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"

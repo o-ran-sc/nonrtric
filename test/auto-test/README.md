@@ -34,12 +34,12 @@ ORAN CHERRY
 ./PM_EI_DEMO.sh remote-remove  docker release   --env-file ../common/test_env-oran-cherry.sh
 ./PM_EI_DEMO.sh remote-remove  kube  release --env-file ../common/test_env-oran-cherry.sh
 
-ORAN DAWN
+ORAN D-RELEASE
 =========
-./PM_EI_DEMO.sh remote-remove  docker   --env-file ../common/test_env-oran-dawn.sh  --use-release-image SDNC
-./PM_EI_DEMO.sh remote-remove  kube   --env-file ../common/test_env-oran-dawn.sh  --use-release-image SDNC
-Note that dawn has not update the SDNC so cherry release is used
-Note: When dawn is released, add the 'release' arg to run released images.
+./PM_EI_DEMO.sh remote-remove  docker   --env-file ../common/test_env-oran-d-release.sh  --use-release-image SDNC
+./PM_EI_DEMO.sh remote-remove  kube   --env-file ../common/test_env-oran-d-release.sh  --use-release-image SDNC
+Note that D-Release has not updated the SDNC so cherry release is used
+Note: When D-Release is released, add the 'release' arg to run released images.
 
 ONAP GUILIN
 ===========

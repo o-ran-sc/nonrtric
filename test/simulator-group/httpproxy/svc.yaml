@@ -17,5 +17,13 @@ spec:
     targetPort: $HTTP_PROXY_WEB_INTERNAL_PORT
     protocol: TCP
     name: web
+  - port: $HTTP_PROXY_EXTERNAL_SECURE_PORT
+    targetPort: $HTTP_PROXY_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  - port: $HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
+    targetPort: $HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: webs
   selector:
     run: $HTTP_PROXY_APP_NAME

@@ -105,51 +105,9 @@ function httpclientrequest(clientrequest, clientresponse) {
   });
 }
 
-function main() {
-
-  // -------------------- Alive server ----------------------------------
-  // Responde with '200' and statistics for any path on the alive address
-  const alivelistener = function (req, res) {
-    console.log(stats)
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.write(JSON.stringify(stats))
-    res.end();
-  };
-
-  // The alive server - for healthckeck
-  const aliveserver = http.createServer(alivelistener);
-
-  // The alive server - for healthckeck
-  const aliveserverhttps = https.createServer(httpsoptions, alivelistener);
-
-  //Handle heatlhcheck requests
-  aliveserver.listen(aliveport, () => {
-    console.log('alive server on: '+aliveport);
-    console.log(' example: curl localhost: '+aliveport)
-  });
-
-  //Handle heatlhcheck requests
-  aliveserverhttps.listen(aliveporthttps, () => {
-    console.log('alive server on: '+aliveporthttps);
-    console.log(' example: curl -k https://localhost: '+aliveporthttps)
-  });
-
-  // -------------------- Proxy server ---------------------------------
-
-  // The proxy server
-  const proxyserver  = http.createServer(httpclientrequest).listen(proxyport);
-  console.log('http/https proxy for http proxy calls on port ' + proxyport);
-  console.log(' example: curl --proxy localhost:8080 http://pms:1234')
-  console.log(' example: curl -k --proxy localhost:8080 https://pms:5678')
-
-  const proxyserverhttps = https.createServer(httpsoptions, httpclientrequest).listen(proxyporthttps);
-  console.log('http/https proxy for https proxy calls on port ' + proxyporthttps);
-  console.log(' example: curl --proxy-insecure localhost:8433 http://pms:1234')
-  console.log(' example: curl --proxy-insecure localhost:8433 https://pms:5678')
-  console.log(' note: proxy shall not specify https')
-
-  // handle a http proxy request - https listener
-  proxyserver.addListener(
+// Function to add a 'connect' message listener to a http server
+function addhttpsconnect(httpserver) {
+  httpserver.addListener(
     'connect',
     function (request, socketrequest, bodyhead) {
 
@@ -203,6 +161,56 @@ function main() {
       });
     }
   );
+}
+
+function main() {
+
+  // -------------------- Alive server ----------------------------------
+  // Responde with '200' and statistics for any path on the alive address
+  const alivelistener = function (req, res) {
+    console.log(stats)
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.write(JSON.stringify(stats))
+    res.end();
+  };
+
+  // The alive server - for healthckeck
+  const aliveserver = http.createServer(alivelistener);
+
+  // The alive server - for healthckeck
+  const aliveserverhttps = https.createServer(httpsoptions, alivelistener);
+
+  //Handle heatlhcheck requests
+  aliveserver.listen(aliveport, () => {
+    console.log('alive server on: '+aliveport);
+    console.log(' example: curl localhost:'+aliveport)
+  });
+
+  //Handle heatlhcheck requests
+  aliveserverhttps.listen(aliveporthttps, () => {
+    console.log('alive server on: '+aliveporthttps);
+    console.log(' example: curl -k https://localhost:'+aliveporthttps)
+  });
+
+  // -------------------- Proxy server ---------------------------------
+
+  // The proxy server
+  const proxyserver  = http.createServer(httpclientrequest).listen(proxyport);
+  console.log('http/https proxy for http proxy calls on port ' + proxyport);
+  console.log(' example: curl --proxy http://localhost:8080 http://100.110.120.130:1234')
+  console.log(' example: curl -k --proxy http//localhost:8080 https://100.110.120.130:5678')
+
+  // handle a http proxy request - https listener
+  addhttpsconnect(proxyserver);
+
+  const proxyserverhttps = https.createServer(httpsoptions, httpclientrequest).listen(proxyporthttps);
+  console.log('http/https proxy for https proxy calls on port ' + proxyporthttps);
+  console.log(' example: curl --proxy-insecure --proxy https://localhost:8433 http://100.110.120.130:1234')
+  console.log(' example: curl --proxy-insecure --proxy https://localhost:8433 https://100.110.120.130:5678')
+
+  // handle a https proxy request - https listener
+  addhttpsconnect(proxyserverhttps);
+
 }
 
 //Handle ctrl c when running in interactive mode
