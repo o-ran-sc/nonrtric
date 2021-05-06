@@ -12,7 +12,7 @@ alarm has been cleared, provided that the verbose option has been used when the 
 
 # Prerequisits
 To run this script Python3 needs to be installed. To install the script's dependencies, run the following command from
-the `src` folder: `pip install -r requirements.txt`
+the `app` folder: `pip install -r requirements.txt`
 
 Also, the MR needs to be up and running with a topic created for the alarms and there must be an endpoint for the
 configuration change event that will accept these.
@@ -20,7 +20,7 @@ configuration change event that will accept these.
 For convenience, a message generator and a change event endpoint simulator are provided.
 
 # How to run
-Go to the `src/` folder and run `python3 main.py`. The script will start and run until stopped. Use the `-h` option to
+Go to the `app/` folder and run `python3 main.py`. The script will start and run until stopped. Use the `-h` option to
 see the options available for the script.
 
 
