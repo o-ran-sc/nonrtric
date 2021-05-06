@@ -25,6 +25,8 @@ import json
 # randomly generated between 0 and 9.
 # When the modulo of the ID is 1, a "heartbeat" message will also be sent to MR.
 
+MR_PATH = "http://localhost:3904/events/unauthenticated.SEC_FAULT_OUTPUT"
+
 linkFailureMessage = {
     "event": {
         "commonEventHeader": {
@@ -34,10 +36,10 @@ linkFailureMessage = {
             "eventType": "O-RAN-RU-Fault_Alarms",
             "sequence": 0,
             "priority": "High",
-            "reportingEntityId": "uro1",
+            "reportingEntityId": "SDNR",
             "reportingEntityName": "@controllerName@",
             "sourceId": "",
-            "sourceName": "nt:network-topology/nt:topology/nt:node/nt:node-id",
+            "sourceName": "O-RU-ID",
             "startEpochMicrosec": "@timestamp@",
             "lastEpochMicrosec": "@timestamp@",
             "nfNamingCode": "",
@@ -48,10 +50,10 @@ linkFailureMessage = {
         },
         "faultFields": {
             "faultFieldsVersion": "4.0",
-            "alarmCondition": "o-ran-fm:alarm-notif/fault-id",
+            "alarmCondition": "CUS Link Failure",
             "alarmInterfaceA": "o-ran-fm:alarm-notif/fault-source",
             "eventSourceType": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-model or \"O-RU\"",
-            "specificProblem": "CUS Link Failure",
+            "specificProblem": "",
             "eventSeverity": "CRITICAL",
             "vfStatus": "Active",
             "alarmAdditionalInformation": {
@@ -89,13 +91,13 @@ while True:
     random_time = int(10 * random.random())
     if (random_time % 3 == 1):
         print("Sent heart beat")
-        requests.post("http://localhost:3904/events/ALARMS-WRITE", json=heartBeatMessage);
+        requests.post(MR_PATH, json=heartBeatMessage);
 
     o_ru_id = "O-RAN-RU-0" + str(random_time)
     print("Sent link failure for O-RAN-RU: " + o_ru_id)
     msg_as_json = json.loads(json.dumps(linkFailureMessage))
-    msg_as_json["event"]["commonEventHeader"]["reportingEntityId"] = o_ru_id
-    requests.post("http://localhost:3904/events/ALARMS-WRITE", json=msg_as_json);
+    msg_as_json["event"]["commonEventHeader"]["sourceName"] = o_ru_id
+    requests.post(MR_PATH, json=msg_as_json);
 
     time.sleep(random_time)
 
