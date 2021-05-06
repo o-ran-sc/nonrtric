@@ -16,12 +16,13 @@
 #  ============LICENSE_END=================================================
 #
 
-from flask import Flask, request
+from flask import Flask
 from flask import Response
 import json
 import random
 import requests
 import threading
+import time
 
 # Provides an endpoint for the "UNLOCK" configuration change for an O-DU.
 # Stores the ID of the O-DU and randomly, after between 0 and 10 seconds, sends an Alarm Notification that clears the
@@ -31,7 +32,7 @@ app = Flask(__name__)
 # Server info
 HOST_IP = "::"
 HOST_PORT = 9990
-APP_URL = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=O-RAN-DU-01/yang-ext:mount/"
+APP_URL = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=<string:o_du_id>/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=<string:o_ru_id>"
 
 linkFailureMessage = {
     "event": {
@@ -42,10 +43,10 @@ linkFailureMessage = {
             "eventType": "O-RAN-RU-Fault_Alarms",
             "sequence": 0,
             "priority": "High",
-            "reportingEntityId": "uro1",
-            "reportingEntityName": "@controllerName@",
+            "reportingEntityId": "SDNR",
+            "reportingEntityName": "",
             "sourceId": "",
-            "sourceName": "nt:network-topology/nt:topology/nt:node/nt:node-id",
+            "sourceName": "oru1",
             "startEpochMicrosec": "@timestamp@",
             "lastEpochMicrosec": "@timestamp@",
             "nfNamingCode": "",
@@ -56,10 +57,10 @@ linkFailureMessage = {
         },
         "faultFields": {
             "faultFieldsVersion": "4.0",
-            "alarmCondition": "o-ran-fm:alarm-notif/fault-id",
+            "alarmCondition": "CUS Link Failure",
             "alarmInterfaceA": "o-ran-fm:alarm-notif/fault-source",
             "eventSourceType": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-model or \"O-RU\"",
-            "specificProblem": "CUS Link Failure",
+            "specificProblem": "",
             "eventSeverity": "NORMAL",
             "vfStatus": "Active",
             "alarmAdditionalInformation": {
@@ -82,8 +83,10 @@ class AlarmClearThread (threading.Thread):
 
     def run(self):
         print(f'Sleeping: {self.sleep_time} before clearing O-DU: {self.o_ru_id}')
+        time.sleep(self.sleep_time)
         msg_as_json = json.loads(json.dumps(linkFailureMessage))
-        msg_as_json["event"]["commonEventHeader"]["reportingEntityId"] = self.o_ru_id
+        msg_as_json["event"]["commonEventHeader"]["sourceName"] = self.o_ru_id
+        print("Sedning alarm clear for O-RU: " + self.o_ru_id)
         requests.post("http://localhost:3904/events/ALARMS-WRITE", json=msg_as_json);
 
 
@@ -94,13 +97,10 @@ def index():
     return 'OK', 200
 
 
-@app.route(APP_URL + "o-ran-sc-du-hello-world:network-function/<id>",
+@app.route(APP_URL,
     methods=['POST'])
-def sendrequest(id):
-    o_du_id = id.split("=")[1]
-    print("Config change for O-DU with ID " + o_du_id)
-    payload = json.loads(json.dumps(request.json))
-    o_ru_id = payload["o-ran-sc-du-hello-world:du-to-ru-connection"][0]["name"]
+def sendrequest(o_du_id, o_ru_id):
+    print("Got request with O-DU ID: " + o_du_id + " and O-RU ID: " + o_ru_id)
     random_time = int(10 * random.random())
     alarm_clear_thread = AlarmClearThread(random_time, o_ru_id)
     alarm_clear_thread.start()
