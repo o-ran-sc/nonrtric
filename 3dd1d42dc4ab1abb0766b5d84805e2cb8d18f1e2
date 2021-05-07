@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb922b8e_09d452d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000060
+      },
+      "writtenOn": "2021-05-07T08:03:36Z",
+      "side": 1,
+      "message": "Just a high-level comment:\n\nwith respect of the mapping from O-RU identifiers to O-DU identifiers.\nWe created an instance diagram and some naming conventions, which helps debugging and trouble shooting:\nhttps://wiki.o-ran-sc.org/display/OAM/O-RAN+Component+Names#ORANComponentNames-InstanceDiagram\n\nIf possible, please be prepared to \"overwrite\" the \"o-ru-to-o-du-map.txt\" with docker/k8s means (volume) for the use case.\n\nFor demonstration propose it may look like:\n\n{\n    \"ERICSSON-O-RU-11221\": \"HCL-O-DU-1122\",\n    \"ERICSSON-O-RU-11222\": \"HCL-O-DU-1122\",\n    \"ERICSSON-O-RU-11223\": \"HCL-O-DU-1122\",\n    \"HIGHSTREET-O-RU-12121\": \"ERICSSON-O-DU-1212\",\n    \"HIGHSTREET-O-RU-12122\": \"ERICSSON-O-DU-1212\",\n    \"HIGHSTREET-O-RU-12123\": \"ERICSSON-O-DU-1212\"\n}\n\nAlex and I may come up with a more \"complex\" mapping based on TAPI as discussed in ONAP Modeling.\nBut such mapping file is not required, to demo the D-release use case. \n\n",
+      "revId": "3dd1d42dc4ab1abb0766b5d84805e2cb8d18f1e2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
