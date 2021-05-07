@@ -16,16 +16,19 @@
 #  ============LICENSE_END=================================================
 #
 
+import json
+import os
+import random
 import requests
 import time
-import random
-import json
 
 # Randomly, between 0 and 10 seconds sends a "CUS Link Failure" alarm event to the Message Router. The ID of the O-RU is also
 # randomly generated between 0 and 9.
 # When the modulo of the ID is 1, a "heartbeat" message will also be sent to MR.
 
-MR_PATH = "http://localhost:3904/events/unauthenticated.SEC_FAULT_OUTPUT"
+mr_host = "http://localhost"
+mr_port = "3904"
+MR_PATH = "/events/unauthenticated.SEC_FAULT_OUTPUT"
 
 linkFailureMessage = {
     "event": {
@@ -87,17 +90,27 @@ heartBeatMessage = {
    }
  }
 
-while True:
-    random_time = int(10 * random.random())
-    if (random_time % 3 == 1):
-        print("Sent heart beat")
-        requests.post(MR_PATH, json=heartBeatMessage);
+if __name__ == "__main__":
+    if os.getenv("MR-HOST") is not None:
+        mr_host = os.getenv("MR-HOST")
+        print("Using MR Host from os: " + mr_host)
+    if os.getenv("MR-PORT") is not None:
+        mr_port = os.getenv("MR-PORT")
+        print("Using MR Port from os: " + mr_port)
 
-    o_ru_id = "O-RAN-RU-0" + str(random_time)
-    print("Sent link failure for O-RAN-RU: " + o_ru_id)
-    msg_as_json = json.loads(json.dumps(linkFailureMessage))
-    msg_as_json["event"]["commonEventHeader"]["sourceName"] = o_ru_id
-    requests.post(MR_PATH, json=msg_as_json);
+    mr_url = mr_host + ":" + mr_port + MR_PATH
+    print(mr_url)
+    while True:
+        random_time = int(10 * random.random())
+        if (random_time % 3 == 1):
+            print("Sent heart beat")
+            requests.post(mr_url, json=heartBeatMessage);
 
-    time.sleep(random_time)
+        o_ru_id = "ERICSSON-O-RU-1122" + str(random_time)
+        print("Sent link failure for O-RAN-RU: " + o_ru_id)
+        msg_as_json = json.loads(json.dumps(linkFailureMessage))
+        msg_as_json["event"]["commonEventHeader"]["sourceName"] = o_ru_id
+        requests.post(mr_url, json=msg_as_json);
+
+        time.sleep(random_time)
 

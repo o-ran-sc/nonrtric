@@ -19,6 +19,7 @@
 from flask import Flask
 from flask import Response
 import json
+import os
 import random
 import requests
 import threading
@@ -29,7 +30,9 @@ import time
 # "CUS Link Failure" alarm event to MR.
 app = Flask(__name__)
 
-MR_PATH = "http://localhost:3904/events/unauthenticated.SEC_FAULT_OUTPUT"
+mr_host = "http://localhost"
+mr_port = "3904"
+MR_PATH = "/events/unauthenticated.SEC_FAULT_OUTPUT"
 
 # Server info
 HOST_IP = "::"
@@ -89,7 +92,7 @@ class AlarmClearThread (threading.Thread):
         msg_as_json = json.loads(json.dumps(linkFailureMessage))
         msg_as_json["event"]["commonEventHeader"]["sourceName"] = self.o_ru_id
         print("Sedning alarm clear for O-RU: " + self.o_ru_id)
-        requests.post(MR_PATH, json=msg_as_json);
+        requests.post(mr_host + ":" + mr_port + MR_PATH, json=msg_as_json);
 
 
 # I'm alive function
@@ -111,4 +114,11 @@ def sendrequest(o_du_id, o_ru_id):
 
 
 if __name__ == "__main__":
+    if os.getenv("MR-HOST") is not None:
+        mr_host = os.getenv("MR-HOST")
+        print("Using MR Host from os: " + mr_host)
+    if os.getenv("MR-PORT") is not None:
+        mr_port = os.getenv("MR-PORT")
+        print("Using MR Port from os: " + mr_port)
+
     app.run(port=HOST_PORT, host=HOST_IP)

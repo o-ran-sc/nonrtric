@@ -18,8 +18,9 @@
 
 import argparse
 import ast
-import requests
 import json
+import os
+import requests
 import time
 
 MR_PATH = "/events/[TOPIC]/users/test/"
@@ -101,14 +102,26 @@ if __name__ == '__main__':
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
     args = vars(parser.parse_args())
     mr_host = args["mrHost"]
+    if os.getenv("MR-HOST") is not None:
+        mr_host = os.getenv("MR-HOST")
+        print("Using MR Host from os: " + mr_host)
     mr_port = args["mrPort"]
+    if os.getenv("MR-PORT") is not None:
+        mr_port = os.getenv("MR-PORT")
+        print("Using MR Port from os: " + mr_port)
     mr_topic = args["mrTopic"]
     sdnr_host = args["sdnrHost"]
+    if os.getenv("SDNR-HOST") is not None:
+        sdnr_host = os.getenv("SDNR-HOST")
+        print("Using SNDR Host from os: " + sdnr_host)
     sdnr_port = args["sdnrPort"]
+    if os.getenv("SDNR-PORT") is not None:
+        sdnr_port = os.getenv("SDNR-PORT")
+        print("Using SNDR Host from os: " + sdnr_port)
     o_ru_to_o_du_map = read_o_ru_to_o_du_map_from_file(args["oRuTooDuMapFile"])
     pollTime = args["pollTime"]
 
-    if args["verbose"]:
+    if os.getenv("VERBOSE") is not None or args["verbose"]:
 
         def verboseprint(*args, **kwargs):
             print(*args, **kwargs)
@@ -123,13 +136,16 @@ if __name__ == '__main__':
     sdnr_address = sdnr_host + ":" + str(sdnr_port)
 
     while True:
-        response = requests.get(mr_address)
-        verboseprint("Polling")
-        messages = response.json()
-        for message in messages:
-            if (is_message_new_link_failure(message)):
-                handle_link_failure(message, o_ru_to_o_du_map, sdnr_address)
-            elif (is_message_clear_link_failure(message)):
-                handle_clear_link_failure(message)
+        try:
+            verboseprint("Polling")
+            response = requests.get(mr_address)
+            messages = response.json()
+            for message in messages:
+                if (is_message_new_link_failure(message)):
+                    handle_link_failure(message, o_ru_to_o_du_map, sdnr_address)
+                elif (is_message_clear_link_failure(message)):
+                    handle_clear_link_failure(message)
+        except Exception as inst:
+            print(inst)
 
         time.sleep(pollTime)
