@@ -31,7 +31,11 @@ __do_curl_to_api() {
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
 		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			proxyflag=" --proxy $KUBE_PROXY_PATH"
+			if [ $KUBE_PROXY_HTTPX == "http" ]; then
+				proxyflag=" --proxy $KUBE_PROXY_PATH"
+			else
+				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
+			fi
 		fi
 	fi
 	paramError=0

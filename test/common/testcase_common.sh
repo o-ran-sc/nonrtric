@@ -27,7 +27,7 @@ __print_args() {
 	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
-	echo "      [--cluster-timeout <timeout-in seconds>]"
+	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -53,6 +53,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--use-staging-image   -  The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names"
 	echo "--use-release-image   -  The script will use images from the nexus release repo for the supplied apps, space separated list of app short names"
 	echo "--image-repo          -  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo"
+	echo "--repo-policy         -  Policy controlling which images to re-tag and push if param --image-repo is set. Default is 'local'"
 	echo "--cluster-timeout     -  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds. "
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
@@ -303,8 +304,9 @@ TCTEST_START=$SECONDS
 TIMER_MEASUREMENTS=".timer_measurement.txt"
 echo -e "Activity \t Duration" > $TIMER_MEASUREMENTS
 
-# If this is set, all used images will be re-tagged and pushed to this repo before any
+# If this is set, some images (control by the parameter repo-polcy) will be re-tagged and pushed to this repo before any
 IMAGE_REPO_ADR=""
+IMAGE_REPO_POLICY="local"
 CLUSTER_TIME_OUT=0
 
 echo "-------------------------------------------------------------------------------------------------"
@@ -526,6 +528,29 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 		fi
 	fi
 	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--repo-policy" ]; then
+			shift;
+			IMAGE_REPO_POLICY=$1
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No policy found for : '--repo-policy'"
+				fi
+			else
+			    if [ "$1" == "local" ] || [ "$1" == "remote" ]; then
+					echo "Option set - Image repo policy: "$1
+					shift;
+					foundparm=0
+				else
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="Repo policy shall be 'local' or 'remote'"
+					fi
+				fi
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
 		if [ "$1" == "--cluster-timeout" ]; then
 			shift;
 			CLUSTER_TIME_OUT=$1
@@ -735,8 +760,24 @@ __check_and_create_image_var() {
 	echo -e "$tmp" >> $image_list_file
 	#Export the env var
 	export "${2}"=$image":"$tag  #Note, this var may be set to the value of the target value below in __check_and_pull_image
-	if [ ! -z "$IMAGE_REPO_ADR" ] && [ $5 == "LOCAL" ]; then    # Only push local images if repo is given
+
+	remote_or_local_push=false
+	if [ ! -z "$IMAGE_REPO_ADR" ] && [[ $5 != *"PROXY"* ]]; then
+		if [ $5 == "LOCAL" ]; then
+			remote_or_local_push=true
+		fi
+		if [[ $5 == *"REMOTE"* ]]; then
+			if [ "$IMAGE_REPO_POLICY" == "remote" ]; then
+				remote_or_local_push=true
+			fi
+		fi
+	fi
+	if $remote_or_local_push; then    # Only re-tag and push images according to policy, if repo is given
 		export "${2}_SOURCE"=$image":"$tag  #Var to keep the actual source image
+		if [[ $optional_image_repo_target == *"/"* ]]; then # Replace all / with _ for images to push to external repo
+			optional_image_repo_target_tmp=${optional_image_repo_target//\//_}
+			optional_image_repo_target=$optional_image_repo_target_tmp
+		fi
 		export "${2}_TARGET"=$IMAGE_REPO_ADR"/"$optional_image_repo_target":"$tag  #Create image + tag for optional image repo - pushed later if needed
 	else
 		export "${2}_SOURCE"=""
@@ -897,6 +938,11 @@ __retag_and_push_image() {
 		source_image="${!1}"
 		trg_var_name=$1_"TARGET" # This var is created in func __check_and_create_image_var
 		target_image="${!trg_var_name}"
+
+		if [ -z $target_image ]; then
+			return 0  # Image with no target shall not be pushed
+		fi
+
 		echo -ne "  Attempt to re-tag image to: ${BOLD}${target_image}${EBOLD}${SAMELINE}"
 		tmp=$(docker image tag $source_image ${target_image} )
 		if [ $? -ne 0 ]; then
@@ -1077,8 +1123,8 @@ setup_testenvironment() {
 
 
 	echo -e $BOLD"Pulling configured images, if needed"$EBOLD
-	if [ ! -z "$IMAGE_REPO_ADR" ]; then
-		echo -e $YELLOW" Excluding all remote image check/pull when running with image repo: $IMAGE_REPO_ADR"$EYELLOW
+	if [ ! -z "$IMAGE_REPO_ADR" ] && [ $IMAGE_REPO_POLICY == "local" ]; then
+		echo -e $YELLOW" Excluding all remote image check/pull when running with image repo: $IMAGE_REPO_ADR and image policy $IMAGE_REPO_POLICY"$EYELLOW
 	else
 		for imagename in $APP_SHORT_NAMES; do
 			__check_included_image $imagename
@@ -2325,7 +2371,11 @@ __do_curl() {
 	proxyflag=""
 	if [ $RUNMODE == "KUBE" ]; then
 		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			proxyflag=" --proxy $KUBE_PROXY_PATH"
+			if [ $KUBE_PROXY_HTTPX == "http" ]; then
+				proxyflag=" --proxy $KUBE_PROXY_PATH"
+			else
+				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
+			fi
 		fi
 	fi
 	curlString="curl -skw %{http_code} $proxyflag $@"

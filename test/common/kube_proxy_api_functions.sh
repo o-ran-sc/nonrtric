@@ -98,8 +98,39 @@ __KUBEPROXY_store_docker_logs() {
 
 #######################################################
 
+## Access to Kube http proxy
+# Direct access
+KUBE_PROXY_HTTPX="http"
+
+
+# Set http as the protocol to use for all communication to the Kube http proxy
+# args: -
+# (Function for test scripts)
+use_kube_proxy_http() {
+	echo -e $BOLD"$KUBE_PROXY_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards Kube http proxy"
+
+	KUBE_PROXY_HTTPX="http"
+
+	echo -e $YELLOW" This setting cannot be changed once the kube proxy is started"$EYELLOW
+	echo ""
+}
+
+# Set https as the protocol to use for all communication to the Kube http proxy
+# args: -
+# (Function for test scripts)
+use_kube_proxy_https() {
+	echo -e $BOLD"$KUBE_PROXY_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards Kube http proxy"
+
+	KUBE_PROXY_HTTPX="https"
+
+	echo -e $YELLOW" This setting cannot be changed once the kube proxy is started"$EYELLOW
+	echo ""
+}
+
 #########################
-### Http Proxy functions
+### Kube Http Proxy functions
 #########################
 
 # Start the Kube Http Proxy in the simulator group
@@ -140,10 +171,17 @@ start_kube_proxy() {
 		if [ $retcode_i -eq 0 ]; then
 			echo -e " Creating $KUBE_PROXY_APP_NAME deployment and service"
 			export KUBE_PROXY_APP_NAME
+
 			export KUBE_PROXY_WEB_EXTERNAL_PORT
 			export KUBE_PROXY_WEB_INTERNAL_PORT
 			export KUBE_PROXY_EXTERNAL_PORT
 			export KUBE_PROXY_INTERNAL_PORT
+
+			export KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT
+			export KUBE_PROXY_WEB_INTERNAL_SECURE_PORT
+			export KUBE_PROXY_EXTERNAL_SECURE_PORT
+			export KUBE_PROXY_INTERNAL_SECURE_PORT
+
 			export KUBE_SIM_NAMESPACE
 			export KUBE_PROXY_IMAGE
 
@@ -162,8 +200,6 @@ start_kube_proxy() {
 		fi
 
 		echo " Retrieving host and ports for service..."
-
-		CLUSTER_KUBE_PROXY="http"
 
 		#Finding host of the proxy
 		echo "  Trying to find svc hostname..."
@@ -188,28 +224,33 @@ start_kube_proxy() {
 				echo -e $YELLOW" The test environment host/ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
 			fi
 		fi
+
+		PORT_KEY_PREFIX=""
+		if [ $KUBE_PROXY_HTTPX == "https" ]; then
+			PORT_KEY_PREFIX="s"  #add suffix to port key name to get https ports
+		fi
 		if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
 			#Host/ip of proxy not found, try to use the cluster and the nodeports of the proxy
 			CLUSTER_KUBE_PROXY_HOST=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
 			echo -e $YELLOW" The test environment cluster ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
-			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")  # port for proxy access
-			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web")  # web port, only for alive test
-			echo " Cluster ip/host, cluster http nodeport, cluster web nodeport: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
+			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
+			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test
+			echo " Cluster ip/host, cluster http$PORT_KEY_PREFIX nodeport, cluster web$PORT_KEY_PREFIX nodeport: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
 		else
 			#Find the service ports of the proxy
-			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")  # port for proxy access
-			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web")  # web port, only for alive test
-			echo " Proxy ip/host, proxy http port, proxy web port: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
+			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
+			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test
+			echo " Proxy ip/host, proxy http$PORT_KEY_PREFIX port, proxy web$PORT_KEY_PREFIX port: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
 		fi
 
-		KUBE_PROXY_WEB_PATH=$CLUSTER_KUBE_PROXY"://"$CLUSTER_KUBE_PROXY_HOST":"$KUBE_PROXY_WEB_NODEPORT
+		KUBE_PROXY_WEB_PATH=$KUBE_PROXY_HTTPX"://"$CLUSTER_KUBE_PROXY_HOST":"$KUBE_PROXY_WEB_NODEPORT
 
 		export KUBE_PROXY_PATH=  # Make sure proxy is empty when checking the proxy itself
 		__check_service_start $KUBE_PROXY_APP_NAME $KUBE_PROXY_WEB_PATH$KUBE_PROXY_ALIVE_URL
 
 		# Set proxy for all subsequent calls for all services etc
-		export KUBE_PROXY_PATH=$CLUSTER_KUBE_PROXY"://"$CLUSTER_KUBE_PROXY_HOST":"$CLUSTER_KUBE_PROXY_PORT
-
+		export KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$CLUSTER_KUBE_PROXY_HOST":"$CLUSTER_KUBE_PROXY_PORT
+		export KUBE_PROXY_HTTPX
 	else
 		echo $YELLOW" Kube http proxy not needed in docker test. App not started"
 	fi

@@ -32,6 +32,7 @@ if [ $? -eq 0 ]; then
     echo "CMD OK"
 else
     echo "CMD FAIL"
+    exti 1
 fi
 echo ""
 
@@ -43,10 +44,11 @@ if [ $? -eq 0 ]; then
     echo "CMD OK"
 else
     echo "CMD FAIL"
+    exti 1
 fi
 echo ""
 
-CMD="curl --proxy-insecure localhost:8433 localhost:8081"
+CMD="curl --proxy-insecure --proxy https://localhost:8433 localhost:8081"
 echo "Running cmd: "$CMD
 $CMD
 echo ""
@@ -54,10 +56,11 @@ if [ $? -eq 0 ]; then
     echo "CMD OK"
 else
     echo "CMD FAIL"
+    exti 1
 fi
 echo ""
 
-CMD="curl --proxy-insecure localhost:8433 -k https://localhost:8434"
+CMD="curl --proxy-insecure --proxy https://localhost:8433 -k https://localhost:8434"
 echo "Running cmd: "$CMD
 $CMD
 echo ""
@@ -65,6 +68,7 @@ if [ $? -eq 0 ]; then
     echo "CMD OK"
 else
     echo "CMD FAIL"
+    exti 1
 fi
 echo ""
 

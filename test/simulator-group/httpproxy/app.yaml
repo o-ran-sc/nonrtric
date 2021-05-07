@@ -26,5 +26,7 @@ spec:
           containerPort: $HTTP_PROXY_INTERNAL_PORT
         - name: web
           containerPort: $HTTP_PROXY_WEB_INTERNAL_PORT
-        command: ["mitmweb"]
-        args: ["--web-host", "0.0.0.0", "--no-web-open-browser", "-p", "$HTTP_PROXY_INTERNAL_PORT", "--set", "ssl_insecure"]
+        - name: https
+          containerPort: $HTTP_PROXY_INTERNAL_SECURE_PORT
+        - name: webs
+          containerPort: $HTTP_PROXY_WEB_INTERNAL_SECURE_PORT

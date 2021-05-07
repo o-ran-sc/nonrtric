@@ -129,7 +129,7 @@ The script can be started with these arguments
 
 | arg list |
 |--|
-| `remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]` |
+| `remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address] [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>]` |
 
 | parameter | description |
 |-|-|
@@ -147,6 +147,7 @@ The script can be started with these arguments
 | `--use-staging-image` | The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names |
 | `--use-release-image` | The script will use images from the nexus release repo for the supplied apps, space separated list of app short names |
 | `--image-repo` |  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo |
+| `-repo-policy ` |  Policy controlling which images to re-tag and push to image repo in param --image-repo. Can be set to 'local' (push on locally built images) or 'remote' (push locally built images and images from nexus repo). Default is 'local' |
 | `--cluster-timeout` |  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
@@ -1375,6 +1376,18 @@ Only response code tested - not payload
 
 # Description of functions in http_proxy_api_functions.sh #
 
+## Function: use_http_proxy_http ##
+Use http for all proxy requests. Note that this only applicable to the actual proxy request, the proxied protocol can still be http and https.
+| arg list |
+|--|
+| None |
+
+## Function: use_http_proxy_https ##
+Use https for all proxy requests. Note that this only applicable to the actual proxy request, the proxied protocol can still be http and https.
+| arg list |
+|--|
+| None |
+
 ## Function: start_http_proxy ##
 Start the http proxy container in docker or kube depending on running mode.
 | arg list |
@@ -1382,6 +1395,18 @@ Start the http proxy container in docker or kube depending on running mode.
 | None |
 
 # Description of functions in kube_proxy_api_functions.sh #
+
+## Function: use_kube_proxy_http ##
+Use http for all proxy requests. Note that this only applicable to the actual proxy request, the proxied protocol can still be http and https.
+| arg list |
+|--|
+| None |
+
+## Function: use_kube_proxy_https ##
+Use https for all proxy requests. Note that this only applicable to the actual proxy request, the proxied protocol can still be http and https.
+| arg list |
+|--|
+| None |
 
 ## Function: start_kube_proxy ##
 Start the kube proxy container in kube. This proxy enabled the test env to access all services and pods in a kube cluster.

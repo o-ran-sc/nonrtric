@@ -28,7 +28,7 @@ KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
 KUBE_PRESTARTED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-DAWN"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -41,6 +41,7 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
 . ../common/kube_proxy_api_functions.sh
+. ../common/gateway_api_functions.sh
 
 setup_testenvironment
 

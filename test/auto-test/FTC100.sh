@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="Full agent API walkthrough using agent REST/DMAAP and with/wit
 DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGw"
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -34,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-DAWN"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 

@@ -33,7 +33,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-ISTANBUL ORAN-DAWN"
+SUPPORTED_PROFILES="ONAP-ISTANBUL ORAN-D-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -154,7 +154,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_equal json:policy_types 1 300  #Wait for the agent to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 600 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "serv1" 0 "$CR_SERVICE_PATH/1"
 
         echo "Check the number of types in the agent for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))
@@ -181,6 +181,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         do
             sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
         done
+
+        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_PATH/1"
 
         stop_policy_agent
 
@@ -217,6 +219,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         print_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
 
+        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_PATH/1"
+
         start_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
         api_delete_policy_parallel 204 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
@@ -244,6 +248,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         done
 
         sleep_wait 200
+
+        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_PATH/1"
 
         api_equal json:policies 0
 

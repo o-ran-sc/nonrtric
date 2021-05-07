@@ -19,5 +19,15 @@ spec:
     protocol: TCP
     name: web
     nodePort:
+  - port: $KUBE_PROXY_EXTERNAL_SECURE_PORT
+    targetPort: $KUBE_PROXY_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+    nodePort:
+  - port: $KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT
+    targetPort: $KUBE_PROXY_WEB_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: webs
+    nodePort:
   selector:
     run: $KUBE_PROXY_APP_NAME
