@@ -26,12 +26,12 @@ import java.util.Set;
 
 import lombok.Getter;
 
-public class EiProducer {
+public class InfoProducer {
     @Getter
     private final String id;
 
     @Getter
-    private final Collection<EiType> eiTypes;
+    private final Collection<InfoType> infoTypes;
 
     @Getter
     private final String jobCallbackUrl;
@@ -43,10 +43,10 @@ public class EiProducer {
 
     private int unresponsiveCounter = 0;
 
-    public EiProducer(String id, Collection<EiType> eiTypes, String jobCallbackUrl,
+    public InfoProducer(String id, Collection<InfoType> infoTypes, String jobCallbackUrl,
         String producerSupervisionCallbackUrl) {
         this.id = id;
-        this.eiTypes = eiTypes;
+        this.infoTypes = infoTypes;
         this.jobCallbackUrl = jobCallbackUrl;
         this.producerSupervisionCallbackUrl = producerSupervisionCallbackUrl;
     }
@@ -67,18 +67,18 @@ public class EiProducer {
         return this.unresponsiveCounter == 0;
     }
 
-    public synchronized void setJobEnabled(EiJob job) {
+    public synchronized void setJobEnabled(InfoJob job) {
         this.enabledJobs.add(job.getId());
     }
 
-    public synchronized void setJobDisabled(EiJob job) {
+    public synchronized void setJobDisabled(InfoJob job) {
         this.enabledJobs.remove(job.getId());
     }
 
     /**
      * Is the job enabled for this producer?
      */
-    public synchronized boolean isJobEnabled(EiJob job) {
+    public synchronized boolean isJobEnabled(InfoJob job) {
         return this.enabledJobs.contains(job.getId());
     }
 

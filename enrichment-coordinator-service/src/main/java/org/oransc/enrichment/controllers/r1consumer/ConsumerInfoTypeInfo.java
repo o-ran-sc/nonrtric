@@ -28,12 +28,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "InformationType", description = "Information for an Information type")
+@Schema(name = "consumer_information_type", description = "Information for an Information type")
 public class ConsumerInfoTypeInfo {
 
-    @Schema(name = "consumer_job_data_schema", description = "Json schema for the job data", required = true)
-    @SerializedName("consumer_job_data_schema")
-    @JsonProperty(value = "consumer_job_data_schema", required = true)
+    @Schema(name = "job_data_schema", description = "Json schema for the job data", required = true)
+    @SerializedName("job_data_schema")
+    @JsonProperty(value = "job_data_schema", required = true)
     public Object jobDataSchema;
 
     public ConsumerInfoTypeInfo(Object jobDataSchema) {

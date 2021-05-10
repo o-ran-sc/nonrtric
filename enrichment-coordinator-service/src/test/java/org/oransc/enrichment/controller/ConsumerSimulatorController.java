@@ -65,14 +65,16 @@ public class ConsumerSimulatorController {
     @Getter
     private TestResults testResults = new TestResults();
 
-    public static String getJobStatusUrl(String eiJobId) {
-        return "/example_dataconsumer/eijobs/" + eiJobId + "/status";
+    public static String getJobStatusUrl(String infoJobId) {
+        return "/example_dataconsumer/info_jobs/" + infoJobId + "/status";
     }
 
-    @PostMapping(path = "/example_dataconsumer/eijobs/{eiJobId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+        path = "/example_dataconsumer/info_jobs/{infoJobId}/status",
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
-        summary = "Callback for changed EI job status",
-        description = "The primitive is implemented by the data consumer and is invoked when a EI job status has been changed.")
+        summary = "Callback for changed Information Job status",
+        description = "The primitive is implemented by the data consumer and is invoked when a Information Job status has been changed.")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -81,9 +83,9 @@ public class ConsumerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobStatusCallback( //
-        @PathVariable("eiJobId") String eiJobId, //
+        @PathVariable("infoJobId") String infoJobId, //
         @RequestBody A1eEiJobStatus status) {
-        logger.info("Job status callback status: {} eiJobId: {}", status.state, eiJobId);
+        logger.info("Job status callback status: {} infoJobId: {}", status.state, infoJobId);
         this.testResults.status.add(status);
         return new ResponseEntity<>(HttpStatus.OK);
     }

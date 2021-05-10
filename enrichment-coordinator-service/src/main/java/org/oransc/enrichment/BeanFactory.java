@@ -27,8 +27,8 @@ import java.lang.invoke.MethodHandles;
 import org.apache.catalina.connector.Connector;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
-import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiTypes;
+import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +47,8 @@ class BeanFactory {
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private ProducerCallbacks producerCallbacks;
-    private EiTypes eiTypes;
-    private EiJobs eiJobs;
+    private InfoTypes infoTypes;
+    private InfoJobs infoJobs;
 
     @Bean
     public ObjectMapper mapper() {
@@ -65,29 +65,29 @@ class BeanFactory {
     }
 
     @Bean
-    public EiJobs eiJobs() {
-        if (eiJobs == null) {
-            eiJobs = new EiJobs(getApplicationConfig(), producerCallbacks());
+    public InfoJobs infoJobs() {
+        if (infoJobs == null) {
+            infoJobs = new InfoJobs(getApplicationConfig(), producerCallbacks());
             try {
-                eiJobs.restoreJobsFromDatabase();
+                infoJobs.restoreJobsFromDatabase();
             } catch (Exception e) {
                 logger.error("Could not restore jobs from database: {}", e.getMessage());
             }
         }
-        return eiJobs;
+        return infoJobs;
     }
 
     @Bean
-    public EiTypes eiTypes() {
-        if (this.eiTypes == null) {
-            eiTypes = new EiTypes(getApplicationConfig());
+    public InfoTypes infoTypes() {
+        if (this.infoTypes == null) {
+            infoTypes = new InfoTypes(getApplicationConfig());
             try {
-                eiTypes.restoreTypesFromDatabase();
+                infoTypes.restoreTypesFromDatabase();
             } catch (Exception e) {
-                logger.error("Could not restore EI types from database: {}", e.getMessage());
+                logger.error("Could not restore Information Types from database: {}", e.getMessage());
             }
         }
-        return eiTypes;
+        return infoTypes;
     }
 
     @Bean

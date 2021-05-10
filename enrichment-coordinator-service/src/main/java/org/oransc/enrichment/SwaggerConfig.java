@@ -63,13 +63,14 @@ public class SwaggerConfig {
     static final String DESCRIPTION = "<h1>API documentation</h1>" //
         + "<h2>General</h2>" //
         + "<p>" //
-        + "  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (EI type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (EI job). One EI job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types." //
+        + "  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types." //
         + "</p>" //
         + "<h2>APIs provided by the service</h2>" //
         + "<h4>A1-EI</h4>" //
         + "<p>" //
         + "  This API is between Near-RT RIC and the Non-RT RIC." //
-        + "  The Near-RT RIC is a data consumer, which creates Enrichment Information Jobs to subscribe for data." //
+        + "  The Near-RT RIC is a data consumer, which creates Information Jobs to subscribe for data." //
+        + "  In this context, the information is referred to as 'Enrichment Information', EI." //
         + "</p>" //
         + "<h4>Data producer API</h4>" //
         + "<p>" //
@@ -90,9 +91,9 @@ public class SwaggerConfig {
         + "<li>Management of data subscription jobs</li>" //
         + "</ul>" //
         + "</p>" //
-        + "<h4>EI Service status</h4>" //
+        + "<h4>Service status</h4>" //
         + "<p>" //
-        + "  This API provides a means to monitor the service." //
+        + "  This API provides a means to monitor the health of this service." //
         + "</p>";
 
 }

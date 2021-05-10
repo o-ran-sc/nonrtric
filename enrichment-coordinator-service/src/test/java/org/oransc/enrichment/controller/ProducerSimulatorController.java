@@ -56,8 +56,8 @@ public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String JOB_URL = "/producer_simulator/ei_job";
-    public static final String JOB_ERROR_URL = "/producer_simulator/ei_job_error";
+    public static final String JOB_URL = "/producer_simulator/info_job";
+    public static final String JOB_ERROR_URL = "/producer_simulator/info_job_error";
 
     public static final String SUPERVISION_URL = "/producer_simulator/health_check";
     public static final String SUPERVISION_ERROR_URL = "/producer_simulator/health_check_error";
@@ -87,8 +87,8 @@ public class ProducerSimulatorController {
 
     @PostMapping(path = JOB_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
-        summary = "Callback for EI job creation/modification",
-        description = "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the EI producer.")
+        summary = "Callback for Information Job creation/modification",
+        description = "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the Information Producer.")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -111,10 +111,10 @@ public class ProducerSimulatorController {
         }
     }
 
-    @DeleteMapping(path = "/producer_simulator/ei_job/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/producer_simulator/info_job/{infoJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
-        summary = "Callback for EI job deletion",
-        description = "The call is invoked to terminate a data subscription. The endpoint is provided by the EI producer.")
+        summary = "Callback for Information Job deletion",
+        description = "The call is invoked to terminate a data subscription. The endpoint is provided by the Information Producer.")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -123,10 +123,10 @@ public class ProducerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobDeletedCallback( //
-        @PathVariable("eiJobId") String eiJobId) {
+        @PathVariable("infoJobId") String infoJobId) {
         try {
-            logger.info("Job deleted callback {}", eiJobId);
-            this.testResults.jobsStopped.add(eiJobId);
+            logger.info("Job deleted callback {}", infoJobId);
+            this.testResults.jobsStopped.add(infoJobId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -134,7 +134,7 @@ public class ProducerSimulatorController {
     }
 
     @PostMapping(path = JOB_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Callback for EI job creation, returns error", description = "", hidden = true)
+    @Operation(summary = "Callback for Information Job creation, returns error", description = "", hidden = true)
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -149,8 +149,8 @@ public class ProducerSimulatorController {
         return ErrorResponse.create("Producer returns error on create job", HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping(path = JOB_ERROR_URL + "/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Callback for EI job deletion, returns error", description = "", hidden = true)
+    @DeleteMapping(path = JOB_ERROR_URL + "/{infoJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Callback for Information Job deletion, returns error", description = "", hidden = true)
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -159,8 +159,8 @@ public class ProducerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobDeletedCallbackReturnError( //
-        @PathVariable("eiJobId") String eiJobId) {
-        logger.info("Job created (returning error) callback {}", eiJobId);
+        @PathVariable("infoJobId") String infoJobId) {
+        logger.info("Job created (returning error) callback {}", infoJobId);
         this.testResults.noOfRejectedDelete += 1;
         return ErrorResponse.create("Producer returns error on delete job", HttpStatus.NOT_FOUND);
     }
@@ -168,7 +168,7 @@ public class ProducerSimulatorController {
     @GetMapping(path = SUPERVISION_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
         summary = "Producer supervision",
-        description = "The endpoint is provided by the EI producer and is used for supervision of the producer.")
+        description = "The endpoint is provided by the Information Producer and is used for supervision of the producer.")
     @ApiResponses(
         value = { //
             @ApiResponse(

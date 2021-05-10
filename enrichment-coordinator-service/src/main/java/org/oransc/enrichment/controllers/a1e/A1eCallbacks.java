@@ -29,10 +29,10 @@ import java.util.Collection;
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
-import org.oransc.enrichment.repository.EiJob;
-import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiType;
+import org.oransc.enrichment.repository.InfoJob;
+import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoProducers;
+import org.oransc.enrichment.repository.InfoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,18 +52,18 @@ public class A1eCallbacks {
     private static Gson gson = new GsonBuilder().create();
 
     private final AsyncRestClient restClient;
-    private final EiJobs eiJobs;
-    private final EiProducers eiProducers;
+    private final InfoJobs eiJobs;
+    private final InfoProducers eiProducers;
 
     @Autowired
-    public A1eCallbacks(ApplicationConfig config, EiJobs eiJobs, EiProducers eiProducers) {
+    public A1eCallbacks(ApplicationConfig config, InfoJobs eiJobs, InfoProducers eiProducers) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientUseHttpProxy("");
         this.eiJobs = eiJobs;
         this.eiProducers = eiProducers;
     }
 
-    public Flux<String> notifyJobStatus(Collection<EiType> eiTypes) {
+    public Flux<String> notifyJobStatus(Collection<InfoType> eiTypes) {
         return Flux.fromIterable(eiTypes) //
             .flatMap(eiType -> Flux.fromIterable(this.eiJobs.getJobsForType(eiType))) //
             .filter(eiJob -> !eiJob.getJobStatusUrl().isEmpty()) //
@@ -71,7 +71,7 @@ public class A1eCallbacks {
             .flatMap(this::noifyStatusToJobOwner);
     }
 
-    private Mono<String> noifyStatusToJobOwner(EiJob job) {
+    private Mono<String> noifyStatusToJobOwner(InfoJob job) {
         boolean isJobEnabled = this.eiProducers.isJobEnabled(job);
         A1eEiJobStatus status = isJobEnabled ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
             : new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.DISABLED);

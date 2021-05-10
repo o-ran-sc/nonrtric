@@ -34,12 +34,12 @@ public class A1eEiJobInfo {
     @Schema(name = "eiTypeId", description = "EI type Idenitifier of the EI job", required = true)
     @SerializedName("eiTypeId")
     @JsonProperty(value = "eiTypeId", required = true)
-    public String eiTypeId;
+    public String eiTypeId = "";
 
     @Schema(name = "jobOwner", description = "Identity of the owner of the job", required = true)
     @SerializedName("jobOwner")
     @JsonProperty(value = "jobOwner", required = true)
-    public String owner;
+    public String owner = "";
 
     @Schema(name = "jobDefinition", description = "EI type specific job data", required = true)
     @SerializedName("jobDefinition")
@@ -49,12 +49,12 @@ public class A1eEiJobInfo {
     @Schema(name = "jobResultUri", description = "The target URI of the EI data", required = true)
     @SerializedName("jobResultUri")
     @JsonProperty(value = "jobResultUri", required = true)
-    public String jobResultUri;
+    public String jobResultUri = "";
 
     @Schema(name = "statusNotificationUri", description = "The target of EI job status notifications", required = false)
     @SerializedName("jobStatusNotificationUri")
     @JsonProperty(value = "jobStatusNotificationUri", required = false)
-    public String statusNotificationUri;
+    public String statusNotificationUri = "";
 
     public A1eEiJobInfo() {
     }

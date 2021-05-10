@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "producer_status", description = "Status for an EI Producer")
+@Schema(name = "producer_status", description = "Status for an Info Producer")
 public class ProducerStatusInfo {
 
     @Gson.TypeAdapters

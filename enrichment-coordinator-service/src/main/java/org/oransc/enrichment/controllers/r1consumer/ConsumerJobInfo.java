@@ -28,43 +28,46 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "Job", description = "Information for an Enrichment Information Job")
+@Schema(name = "consumer_job", description = "Information for an Enrichment  Information Job")
 public class ConsumerJobInfo {
 
-    @Schema(name = "infoTypeId", description = "Information type Idenitifier of the subscription job", required = true)
-    @SerializedName("infoTypeId")
-    @JsonProperty(value = "infoTypeId", required = true)
-    public String infoTypeId;
+    @Schema(
+        name = "info_type_id",
+        description = "Information type Idenitifier of the subscription job",
+        required = true)
+    @SerializedName("info_type_id")
+    @JsonProperty(value = "info_type_id", required = true)
+    public String infoTypeId = "";
 
-    @Schema(name = "jobOwner", description = "Identity of the owner of the job", required = true)
-    @SerializedName("jobOwner")
-    @JsonProperty(value = "jobOwner", required = true)
-    public String owner;
+    @Schema(name = "job_owner", description = "Identity of the owner of the job", required = true)
+    @SerializedName("job_owner")
+    @JsonProperty(value = "job_owner", required = true)
+    public String owner = "";
 
-    @Schema(name = "jobDefinition", description = "Information type specific job data", required = true)
-    @SerializedName("jobDefinition")
-    @JsonProperty(value = "jobDefinition", required = true)
+    @Schema(name = "job_definition", description = "Information type specific job data", required = true)
+    @SerializedName("job_definition")
+    @JsonProperty(value = "job_definition", required = true)
     public Object jobDefinition;
 
-    @Schema(name = "jobResultUri", description = "The target URI of the subscribed information", required = true)
-    @SerializedName("jobResultUri")
-    @JsonProperty(value = "jobResultUri", required = true)
-    public String jobResultUri;
+    @Schema(name = "job_result_uri", description = "The target URI of the subscribed information", required = true)
+    @SerializedName("job_result_uri")
+    @JsonProperty(value = "job_result_uri", required = true)
+    public String jobResultUri = "";
 
     @Schema(
-        name = "statusNotificationUri",
+        name = "status_notification_uri",
         description = "The target of Information subscription job status notifications",
         required = false)
-    @SerializedName("jobStatusNotificationUri")
-    @JsonProperty(value = "jobStatusNotificationUri", required = false)
-    public String statusNotificationUri;
+    @SerializedName("status_notification_uri")
+    @JsonProperty(value = "status_notification_uri", required = false)
+    public String statusNotificationUri = "";
 
     public ConsumerJobInfo() {
     }
 
-    public ConsumerJobInfo(String eiTypeId, Object jobData, String owner, String targetUri,
+    public ConsumerJobInfo(String infoTypeId, Object jobData, String owner, String targetUri,
         String statusNotificationUri) {
-        this.infoTypeId = eiTypeId;
+        this.infoTypeId = infoTypeId;
         this.jobDefinition = jobData;
         this.owner = owner;
         this.jobResultUri = targetUri;

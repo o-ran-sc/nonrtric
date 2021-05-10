@@ -30,10 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents the dynamic information about a EI job
+ * Represents the dynamic information about a information job
  */
 @Builder
-public class EiJob {
+public class InfoJob {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Getter

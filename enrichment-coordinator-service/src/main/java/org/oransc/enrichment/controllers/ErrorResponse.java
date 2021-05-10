@@ -69,7 +69,7 @@ public class ErrorResponse {
         }
 
         @Schema(
-            example = "EI job type not found",
+            example = "Information Job type not found",
             description = "A human-readable explanation specific to this occurrence of the problem.")
         public String getDetail() {
             return this.detail;
