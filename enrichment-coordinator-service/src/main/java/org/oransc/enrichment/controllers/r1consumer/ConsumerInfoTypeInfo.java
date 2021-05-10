@@ -32,7 +32,7 @@ import org.immutables.gson.Gson;
 public class ConsumerInfoTypeInfo {
 
     @Schema(name = "consumer_job_data_schema", description = "Json schema for the job data", required = true)
-    @SerializedName("consumer__job_data_schema")
+    @SerializedName("consumer_job_data_schema")
     @JsonProperty(value = "consumer_job_data_schema", required = true)
     public Object jobDataSchema;
 
