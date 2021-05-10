@@ -418,7 +418,7 @@ prodstub_check_jobdata() {
         jobfile=$(cat $7)
         jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
     else
-        _log_test_fail_general "Template file "$7" for jobdata, does not exist"
+    	__log_test_fail_general "Template file "$7" for jobdata, does not exist"
         return 1
     fi
     targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"ei_job_data\":$jobfile}"
@@ -444,7 +444,7 @@ prodstub_check_jobdata_2() {
         jobfile=$(cat $7)
         jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
     else
-        _log_test_fail_general "Template file "$7" for jobdata, does not exist"
+    	__log_test_fail_general "Template file "$7" for jobdata, does not exist"
         return 1
     fi
     targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"ei_job_data\":$jobfile,\"last_updated\":\"????\"}"

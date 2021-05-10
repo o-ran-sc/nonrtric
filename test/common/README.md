@@ -1308,6 +1308,121 @@ Test of GET '/status'.
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 
+## Function: ecs_api_idc_get_type_ids() ##
+Test of GET '/data-consumer/v1/info-types' and an optional check of the returned list of type ids.
+To test the response code only, provide the response code.
+To also test the response payload add list of expected type ids (or EMPTY if the list is expected to be empty).
+
+| arg list |
+|--|
+| `<response-code> [ EMPTY | <type-id>+]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the Info type  |
+| `EMPTY` | The expected list of type ids shall be empty  |
+
+## Function: ecs_api_idc_get_job_ids() ##
+Test of GET '/data-consumer/v1/info-jobs' and optional check of the array of returned job ids.
+To test the response code only, provide the response code parameter as well as a type id and an owner id.
+To also test the response payload add the 'EMPTY' for an expected empty array or repeat the last parameter for each expected job id.
+
+| arg list |
+|--|
+| `<response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the Info type  |
+| `<owner-id>` | Id of the job owner  |
+| `NOOWNER` | No owner is given  |
+| `<job-id>` | Id of the expected job  |
+| `EMPTY` | The expected list of job id shall be empty  |
+
+## Function: ecs_api_idc_get_job() ##
+Test of GET '/data-consumer/v1/info-jobs/{infoJobId}' and optional check of the returned job.
+To test the response code only, provide the response code, type id and job id.
+To also test the response payload add the remaining parameters.
+
+| arg list |
+|--|
+| `<response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the Info type  |
+| `<job-id>` | Id of the job  |
+| `<target-url>` | Expected target url for the job  |
+| `<owner-id>` | Expected owner for the job  |
+| `<template-job-file>` | Path to a job template for job parameters of the job  |
+
+## Function: ecs_api_idc_put_job() ##
+Test of PUT '​/data-consumer/v1/info-jobs/{infoJobId}'.
+To test, provide all the specified parameters.
+
+| arg list |
+|--|
+| `<response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file> [VALIDATE]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the Info type  |
+| `<job-id>` | Id of the job  |
+| `<target-url>` | Target url for the job  |
+| `<owner-id>` | Owner of the job  |
+| `<template-job-file>` | Path to a job template for job parameters of the job  |
+| `VALIIDATE` | Indicator to preform type validation at creation  |
+
+## Function: ecs_api_idc_delete_job() ##
+Test of DELETE '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}'.
+To test, provide all the specified parameters.
+
+| arg list |
+|--|
+| `<response-code> <type-id> <job-id> |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the EI type  |
+| `<job-id>` | Id of the job  |
+
+## Function: ecs_api_idc_get_type() ##
+Test of GET '/data-consumer/v1/info-types/{infoTypeId} and optional check of the returned schema.
+To test the response code only, provide the response code parameter as well as the type-id.
+To also test the response payload add a path to the expected schema file.
+
+| arg list |
+|--|
+| `<response-code> <type-id> [<schema-file>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the Info type  |
+| `<schema-file>` | Path to a schema file to compare with the returned schema  |
+
+## Function: ecs_api_idc_get_job_status() ##
+Test of GET '/data-consumer/v1/info-jobs/{infoJobId}/status' and optional check of the returned status.
+To test the response code only, provide the response code, type id and job id.
+To also test the response payload add the expected status.
+
+| arg list |
+|--|
+| `<response-code> <type-id> <job-id> [<status>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the Info type  |
+| `<job-id>` | Id of the job  |
+| `<status>` | Expected status  |
+
+
 ## Function: ecs_api_admin_reset() ##
 Test of GET '/status'.
 

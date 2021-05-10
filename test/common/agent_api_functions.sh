@@ -2124,7 +2124,7 @@ api_put_configuration() {
         return 1
     fi
 	if [ ! -f $2 ]; then
-		_log_test_fail_general "Config file "$2", does not exist"
+		__log_test_fail_general "Config file "$2", does not exist"
 		return 1
 	fi
 	inputJson=$(< $2)
@@ -2160,7 +2160,7 @@ api_get_configuration() {
         return 1
     fi
 	if [ ! -f $2 ]; then
-		_log_test_fail_general "Config file "$2" for comparison, does not exist"
+		__log_test_fail_general "Config file "$2" for comparison, does not exist"
 		return 1
 	fi
 

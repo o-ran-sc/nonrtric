@@ -79,7 +79,7 @@ fi
 
 start_prod_stub
 
-set_ecs_trace
+set_ecs_debug
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -95,17 +95,37 @@ start_cr
 
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
 CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
+#Targets for ei jobs
 TARGET1="$RIC_SIM_HTTPX://ricsim_g3_1:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://ricsim_g3_2:$RIC_SIM_PORT/datadelivery"
 TARGET3="$RIC_SIM_HTTPX://ricsim_g3_3:$RIC_SIM_PORT/datadelivery"
 TARGET8="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
 TARGET10="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
 
+#Targets for info jobs
+TARGET101="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+TARGET102="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+TARGET103="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+TARGET108="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+TARGET110="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+TARGET150="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+TARGET160="http://localhost:80/target"  # Dummy target, no target for info data in this env...
+
+#Status callbacks for eijobs
 STATUS1="$CR_SERVICE_PATH/job1-status"
 STATUS2="$CR_SERVICE_PATH/job2-status"
 STATUS3="$CR_SERVICE_PATH/job3-status"
 STATUS8="$CR_SERVICE_PATH/job8-status"
 STATUS10="$CR_SERVICE_PATH/job10-status"
+
+#Status callbacks for infojobs
+INFOSTATUS101="$CR_SERVICE_PATH/info-job101-status"
+INFOSTATUS102="$CR_SERVICE_PATH/info-job102-status"
+INFOSTATUS103="$CR_SERVICE_PATH/info-job103-status"
+INFOSTATUS108="$CR_SERVICE_PATH/info-job108-status"
+INFOSTATUS110="$CR_SERVICE_PATH/info-job110-status"
+INFOSTATUS150="$CR_SERVICE_PATH/info-job150-status"
+INFOSTATUS160="$CR_SERVICE_PATH/info-job160-status"
 
 ### Setup prodstub sim to accept calls for producers, types and jobs
 ## prod-a type1
@@ -1028,6 +1048,632 @@ else
 fi
 
 cr_equal received_callbacks 6
+
+
+if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+
+    # End test if info types is not impl in tested version
+    check_ecs_logs
+
+    store_logs END
+
+    #### TEST COMPLETE ####
+
+    print_result
+
+    auto_clean_environment
+fi
+
+
+############################################
+# Test of info types
+############################################
+
+### Setup prodstub sim to accept calls for producers, info types and jobs
+## prod-ia type101
+## prod-ib type101 and type102
+## prod-ic no-type
+## prod-id type104
+## prod-ie type106
+## prod-if type106
+## prod-ig type150  (configured later)
+## prod-ig type160  (configured later)
+
+## job101 -> prod-ia
+## job102 -> prod-ia
+## job103 -> prod-ib
+## job104 -> prod-ia
+## job106 -> prod-ib
+## job108 -> prod-id
+## job110 -> prod-ie and prod-if
+## job150 -> prod-ig  (configured later)
+
+prodstub_arm_producer 200 prod-ia
+prodstub_arm_producer 200 prod-ib
+prodstub_arm_producer 200 prod-ic
+prodstub_arm_producer 200 prod-id
+prodstub_arm_producer 200 prod-ie
+prodstub_arm_producer 200 prod-if
+
+prodstub_arm_type 200 prod-ia type101
+prodstub_arm_type 200 prod-ib type102
+prodstub_arm_type 200 prod-ib type103
+prodstub_arm_type 200 prod-id type104
+prodstub_arm_type 200 prod-ie type106
+prodstub_arm_type 200 prod-if type106
+
+prodstub_disarm_type 200 prod-ib type103
+prodstub_arm_type 200 prod-ib type101
+prodstub_disarm_type 200 prod-ib type101
+
+
+prodstub_arm_job_create 200 prod-ia job101
+prodstub_arm_job_create 200 prod-ia job102
+prodstub_arm_job_create 200 prod-ib job103
+
+prodstub_arm_job_delete 200 prod-ia job101
+prodstub_arm_job_delete 200 prod-ia job102
+prodstub_arm_job_delete 200 prod-ib job103
+
+prodstub_arm_job_create 200 prod-ib job104
+prodstub_arm_job_create 200 prod-ia job104
+
+prodstub_arm_job_create 200 prod-ib job106
+
+prodstub_arm_job_create 200 prod-id job108
+
+prodstub_arm_job_create 200 prod-ie job110
+prodstub_arm_job_create 200 prod-if job110
+
+
+# NOTE: types, jobs and producers are still present related to eitypes
+
+
+### Initial tests - no config made
+### GET: type ids, types, producer ids, producers, job ids, jobs
+### DELETE: jobs
+ecs_api_idc_get_type_ids 200 type1 type2 type4 type6
+ecs_api_idc_get_type 404 test-type
+
+ecs_api_edp_get_type_ids 200 type1 type2 type4 type6
+ecs_api_edp_get_type_2 404 test-type
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e
+ecs_api_edp_get_producer_2 404 test-prod
+ecs_api_edp_get_producer_status 404 test-prod
+
+ecs_api_edp_delete_producer 404 test-prod
+
+ecs_api_idc_get_job_ids 200 test-type NOWNER EMPTY
+ecs_api_idc_get_job_ids 200 test-type test-owner EMPTY
+
+ecs_api_idc_get_job 404 test-job
+
+ecs_api_idc_get_job_status 404 test-job
+
+ecs_api_idc_delete_job 404 test-job
+
+ecs_api_edp_get_producer_jobs_2 404 test-prod
+
+ecs_api_edp_get_type_2 404 test-type
+ecs_api_edp_delete_type_2 404 test-type
+
+### Setup of producer/job and testing apis ###
+
+## Setup prod-ia
+ecs_api_edp_get_type_ids 200 type1 type2 type4 type6
+ecs_api_edp_get_type_2 404 type101
+ecs_api_edp_put_producer_2 404 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
+
+# Create type, delete and create again
+ecs_api_edp_put_type_2 201 type101 testdata/ecs/info-type-1.json
+ecs_api_edp_get_type_2 200 type101
+ecs_api_edp_get_type_ids 200 type101 type1 type2 type4 type6
+ecs_api_edp_delete_type_2 204 type101
+ecs_api_edp_get_type_2 404 type101
+ecs_api_edp_get_type_ids 200 type1 type2 type4 type6
+ecs_api_edp_put_type_2 201 type101 testdata/ecs/info-type-1.json
+ecs_api_edp_get_type_ids 200 type101 type1 type2 type4 type6
+ecs_api_edp_get_type_2 200 type101 testdata/ecs/info-type-1.json
+
+ecs_api_edp_put_producer_2 201 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
+ecs_api_edp_put_producer_2 200 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
+
+ecs_api_edp_delete_type_2 406 type101
+
+
+#ecs_api_idc_get_type_ids 200 type101
+#ecs_api_idc_get_type 200 type101 testdata/ecs/empty-type.json
+
+ecs_api_edp_get_type_ids 200 type101 type1 type2 type4 type6
+ecs_api_edp_get_type_2 200 type101 testdata/ecs/info-type-1.json
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-b prod-c prod-d prod-e
+ecs_api_edp_get_producer_ids_2 200 type101 prod-ia
+ecs_api_edp_get_producer_ids_2 200 type102 EMPTY
+
+ecs_api_edp_get_producer_2 200 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
+
+ecs_api_edp_get_producer_status 200 prod-ia ENABLED
+
+ecs_api_idc_get_job_ids 200 type101 NOWNER EMPTY
+ecs_api_idc_get_job_ids 200 type101 test-owner EMPTY
+
+ecs_api_idc_get_job 404 test-job
+
+ecs_api_idc_get_job_status 404 test-job
+ecs_api_edp_get_producer_jobs_2 200 prod-ia EMPTY
+
+## Create a job for prod-ia
+## job101 - prod-ia
+ecs_api_idc_put_job 201 job101 type101 $TARGET101 info-owner-1 $INFOSTATUS101 testdata/ecs/job-template.json VALIDATE
+
+# Check the job data in the producer
+prodstub_check_jobdata_2 200 prod-ia job101 type101 $TARGET101 info-owner-1 testdata/ecs/job-template.json
+
+ecs_api_idc_get_job_ids 200 type101 NOWNER job101
+ecs_api_idc_get_job_ids 200 type101 info-owner-1 job101
+
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job1 job2 job3 job8 job10
+
+ecs_api_idc_get_job 200 job101 type101 $TARGET101 info-owner-1 $INFOSTATUS101 testdata/ecs/job-template.json
+
+ecs_api_idc_get_job_status 200 job101 ENABLED
+
+prodstub_equal create/prod-ia/job101 1
+
+ecs_api_edp_get_producer_jobs_2 200 prod-ia job101 type101 $TARGET101 info-owner-1 testdata/ecs/job-template.json
+
+## Create a second job for prod-ia
+## job102 - prod-ia
+ecs_api_idc_put_job 201 job102 type101 $TARGET102 info-owner-2 $INFOSTATUS102 testdata/ecs/job-template.json  VALIDATE
+
+# Check the job data in the producer
+prodstub_check_jobdata_2 200 prod-ia job102 type101 $TARGET102 info-owner-2 testdata/ecs/job-template.json
+ecs_api_idc_get_job_ids 200 type101 NOWNER job101 job102
+ecs_api_idc_get_job_ids 200 type101 info-owner-1 job101
+ecs_api_idc_get_job_ids 200 type101 info-owner-2 job102
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job1 job2 job3 job8 job10
+
+ecs_api_idc_get_job 200 job102 type101 $TARGET102 info-owner-2 $INFOSTATUS102 testdata/ecs/job-template.json
+
+ecs_api_idc_get_job_status 200 job102 ENABLED
+
+prodstub_equal create/prod-ia/job102 1
+
+ecs_api_edp_get_producer_jobs_2 200 prod-ia job101 type101 $TARGET101 info-owner-1 testdata/ecs/job-template.json job102 type101 $TARGET102 info-owner-2 testdata/ecs/job-template.json
+
+
+## Setup prod-ib
+ecs_api_edp_put_type_2 201 type102 testdata/ecs/info-type-2.json
+ecs_api_edp_put_producer_2 201 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
+
+
+ecs_api_idc_get_type_ids 200 type101 type102 type1 type2 type4 type6
+
+ecs_api_idc_get_type 200 type101 testdata/ecs/info-type-1.json
+
+ecs_api_idc_get_type 200 type102 testdata/ecs/info-type-2.json
+
+ecs_api_edp_get_type_ids 200 type101 type102 type1 type2 type4 type6
+ecs_api_edp_get_type_2 200 type101 testdata/ecs/info-type-1.json
+ecs_api_edp_get_type_2 200 type102 testdata/ecs/info-type-2.json
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_2 200 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
+ecs_api_edp_get_producer_2 200 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
+
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+
+## Create job for prod-ib
+##  job103 - prod-ib
+ecs_api_idc_put_job 201 job103 type102 $TARGET103 info-owner-3 $INFOSTATUS103 testdata/ecs/job-template.json  VALIDATE
+
+prodstub_equal create/prod-ib/job103 1
+
+# Check the job data in the producer
+prodstub_check_jobdata_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template.json
+
+ecs_api_idc_get_job_ids 200 type101 NOWNER job101 job102
+ecs_api_idc_get_job_ids 200 type102 NOWNER job103
+ecs_api_idc_get_job_ids 200 type101 info-owner-1 job101
+ecs_api_idc_get_job_ids 200 type101 info-owner-2 job102
+ecs_api_idc_get_job_ids 200 type102 info-owner-3 job103
+
+ecs_api_idc_get_job 200 job103 type102 $TARGET103 info-owner-3 $INFOSTATUS103 testdata/ecs/job-template.json
+
+ecs_api_idc_get_job_status 200 job103 ENABLED
+
+ecs_api_edp_get_producer_jobs_2 200 prod-ia job101 type101 $TARGET101 info-owner-1 testdata/ecs/job-template.json job102 type101 $TARGET102 info-owner-2 testdata/ecs/job-template.json
+ecs_api_edp_get_producer_jobs_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template.json
+
+## Setup prod-ic (no types)
+ecs_api_edp_put_producer_2 201 prod-ic $CB_JOB/prod-ic $CB_SV/prod-ic NOTYPE
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_2 200 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
+ecs_api_edp_get_producer_2 200 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
+ecs_api_edp_get_producer_2 200 prod-ic $CB_JOB/prod-ic $CB_SV/prod-ic EMPTY
+
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+
+
+## Delete job103 and prod-ib and re-create if different order
+
+# Delete job then producer
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job1 job2 job3 job8 job10
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-b prod-c prod-d prod-e
+
+ecs_api_idc_delete_job 204 job103
+
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job1 job2 job3 job8 job10
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-b prod-c prod-d prod-e
+
+ecs_api_edp_delete_producer 204 prod-ib
+
+ecs_api_edp_get_producer_status 404 prod-ib
+
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job1 job2 job3 job8 job10
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ic prod-b prod-c prod-d prod-e
+
+prodstub_equal delete/prod-ib/job103 1
+
+ecs_api_idc_put_job 201 job103 type102 $TARGET103 info-owner-3 $INFOSTATUS103 testdata/ecs/job-template.json VALIDATE
+ecs_api_idc_get_job_status 200 job103 DISABLED
+
+# Put producer then job
+ecs_api_edp_put_producer_2 201 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
+
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+
+ecs_api_idc_put_job 200 job103 type102 $TARGET103 info-owner-3 $INFOSTATUS103 testdata/ecs/job-template2.json  VALIDATE
+ecs_api_idc_get_job_status 200 job103 ENABLED
+
+prodstub_check_jobdata_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
+
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job1 job2 job3 job8 job10
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-b prod-c prod-d prod-e
+
+prodstub_equal create/prod-ib/job103 3
+prodstub_equal delete/prod-ib/job103 1
+
+# Delete only the producer
+ecs_api_edp_delete_producer 204 prod-ib
+
+ecs_api_edp_get_producer_status 404 prod-ib
+
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103  job1 job2 job3 job8 job10
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ic prod-b prod-c prod-d prod-e
+
+ecs_api_idc_get_job_status 200 job103 DISABLED
+
+cr_equal received_callbacks 7 30
+cr_equal received_callbacks?id=info-job103-status 1
+cr_api_check_all_ecs_events 200 info-job103-status DISABLED
+
+# Re-create the producer
+ecs_api_edp_put_producer_2 201 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
+
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+
+ecs_api_idc_get_job_status 200 job103 ENABLED
+
+cr_equal received_callbacks 8 30
+cr_equal received_callbacks?id=info-job103-status 2
+cr_api_check_all_ecs_events 200 info-job103-status ENABLED
+
+prodstub_check_jobdata_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
+
+## Setup prod-id
+ecs_api_edp_put_type_2 201 type104 testdata/ecs/info-type-4.json
+ecs_api_edp_put_producer_2 201 prod-id $CB_JOB/prod-id $CB_SV/prod-id type104
+
+ecs_api_idc_get_job_ids 200 type104 NOWNER EMPTY
+
+ecs_api_idc_put_job 201 job108 type104 $TARGET108 info-owner-4 $INFOSTATUS108 testdata/ecs/job-template.json  VALIDATE
+
+prodstub_check_jobdata_2 200 prod-id job108 type104 $TARGET108 info-owner-4 testdata/ecs/job-template.json
+
+prodstub_equal create/prod-id/job108 1
+prodstub_equal delete/prod-id/job108 0
+
+ecs_api_idc_get_job_ids 200 type104 NOWNER job108
+
+ecs_api_idc_get_job_status 200 job108 ENABLED
+
+# Re-PUT the producer with zero types
+ecs_api_edp_put_producer_2 200 prod-id $CB_JOB/prod-id $CB_SV/prod-id NOTYPE
+
+ecs_api_idc_get_job_ids 200 type104 NOWNER job108
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job108  job1 job2 job3 job8 job10
+
+ecs_api_idc_get_job_status 200 job108 DISABLED
+
+cr_equal received_callbacks 9 30
+cr_equal received_callbacks?id=info-job108-status 1
+cr_api_check_all_ecs_events 200 info-job108-status DISABLED
+
+prodstub_equal create/prod-id/job108 1
+prodstub_equal delete/prod-id/job108 0
+
+## Re-setup prod-id
+ecs_api_edp_put_type_2 200 type104 testdata/ecs/info-type-4.json
+ecs_api_edp_put_producer_2 200 prod-id $CB_JOB/prod-id $CB_SV/prod-id type104
+
+ecs_api_idc_get_job_ids 200 type104 NOWNER job108
+ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job108 job1 job2 job3 job8 job10
+
+ecs_api_idc_get_job_status 200 job108 ENABLED
+
+ecs_api_edp_get_producer_status 200 prod-ia ENABLED
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+
+cr_equal received_callbacks 10 30
+cr_equal received_callbacks?id=info-job108-status 2
+cr_api_check_all_ecs_events 200 info-job108-status ENABLED
+
+prodstub_equal create/prod-id/job108 2
+prodstub_equal delete/prod-id/job108 0
+
+
+## Setup prod-ie
+ecs_api_edp_put_type_2 201 type106 testdata/ecs/info-type-6.json
+ecs_api_edp_put_producer_2 201 prod-ie $CB_JOB/prod-ie $CB_SV/prod-ie type106
+
+ecs_api_idc_get_job_ids 200 type106 NOWNER EMPTY
+
+ecs_api_idc_put_job 201 job110 type106 $TARGET110 info-owner-4 $INFOSTATUS110 testdata/ecs/job-template.json  VALIDATE
+
+prodstub_check_jobdata_2 200 prod-ie job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template.json
+
+prodstub_equal create/prod-ie/job110 1
+prodstub_equal delete/prod-ie/job110 0
+
+ecs_api_idc_get_job_ids 200 type106 NOWNER job110
+
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+## Setup prod-if
+ecs_api_edp_put_type_2 200 type106 testdata/ecs/info-type-6.json
+ecs_api_edp_put_producer_2 201 prod-if $CB_JOB/prod-if $CB_SV/prod-if type106
+
+ecs_api_idc_get_job_ids 200 type106 NOWNER job110
+
+prodstub_check_jobdata_2 200 prod-if job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template.json
+
+prodstub_equal create/prod-if/job110 1
+prodstub_equal delete/prod-if/job110 0
+
+ecs_api_idc_get_job_ids 200 type106 NOWNER job110
+
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+## Status updates prod-ia and jobs
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-id prod-ie prod-if  prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_status 200 prod-ia ENABLED
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED
+ecs_api_edp_get_producer_status 200 prod-if ENABLED
+
+# Arm producer prod-ia for supervision failure
+prodstub_arm_producer 200 prod-ia 400
+
+# Wait for producer prod-ia to go disabled
+ecs_api_edp_get_producer_status 200 prod-ia DISABLED 360
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-id  prod-ie prod-if prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_status 200 prod-ia DISABLED
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED
+ecs_api_edp_get_producer_status 200 prod-if ENABLED
+
+
+ecs_api_idc_get_job_status 200 job101 ENABLED
+ecs_api_idc_get_job_status 200 job102 ENABLED
+ecs_api_idc_get_job_status 200 job103 ENABLED
+ecs_api_idc_get_job_status 200 job108 ENABLED
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+# Arm producer prod-ia for supervision
+prodstub_arm_producer 200 prod-ia 200
+
+# Wait for producer prod-ia to go enabled
+ecs_api_edp_get_producer_status 200 prod-ia ENABLED 360
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-id prod-ie prod-if prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_status 200 prod-ia ENABLED
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED
+ecs_api_edp_get_producer_status 200 prod-if ENABLED
+
+ecs_api_idc_get_job_status 200 job101 ENABLED
+ecs_api_idc_get_job_status 200 job102 ENABLED
+ecs_api_idc_get_job_status 200 job103 ENABLED
+ecs_api_idc_get_job_status 200 job108 ENABLED
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+# Arm producer prod-ia for supervision failure
+prodstub_arm_producer 200 prod-ia 400
+
+# Wait for producer prod-ia to go disabled
+ecs_api_edp_get_producer_status 200 prod-ia DISABLED 360
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-id prod-ie prod-if prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_status 200 prod-ia DISABLED
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED
+ecs_api_edp_get_producer_status 200 prod-if ENABLED
+
+ecs_api_idc_get_job_status 200 job101 ENABLED
+ecs_api_idc_get_job_status 200 job102 ENABLED
+ecs_api_idc_get_job_status 200 job103 ENABLED
+ecs_api_idc_get_job_status 200 job108 ENABLED
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+# Wait for producer prod-ia to be removed
+ecs_equal json:ei-producer/v1/eiproducers 9 1000
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-if  prod-b prod-c prod-d prod-e
+
+
+ecs_api_edp_get_producer_status 404 prod-ia
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED
+ecs_api_edp_get_producer_status 200 prod-if ENABLED
+
+ecs_api_idc_get_job_status 200 job101 DISABLED
+ecs_api_idc_get_job_status 200 job102 DISABLED
+ecs_api_idc_get_job_status 200 job103 ENABLED
+ecs_api_idc_get_job_status 200 job108 ENABLED
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+cr_equal received_callbacks 12 30
+cr_equal received_callbacks?id=info-job101-status 1
+cr_equal received_callbacks?id=info-job102-status 1
+
+cr_api_check_all_ecs_events 200 info-job101-status DISABLED
+cr_api_check_all_ecs_events 200 info-job102-status DISABLED
+
+
+# Arm producer prod-ie for supervision failure
+prodstub_arm_producer 200 prod-ie 400
+
+ecs_api_edp_get_producer_status 200 prod-ie DISABLED 1000
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-if prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_status 404 prod-ia
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie DISABLED
+ecs_api_edp_get_producer_status 200 prod-if ENABLED
+
+ecs_api_idc_get_job_status 200 job101 DISABLED
+ecs_api_idc_get_job_status 200 job102 DISABLED
+ecs_api_idc_get_job_status 200 job103 ENABLED
+ecs_api_idc_get_job_status 200 job108 ENABLED
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+#Disable create for job110 in prod-ie
+prodstub_arm_job_create 200 prod-ie job110 400
+
+#Update tjob 10 - only prod-if will be updated
+ecs_api_idc_put_job 200 job110 type106 $TARGET110 info-owner-4 $INFOSTATUS110 testdata/ecs/job-template2.json  VALIDATE
+#Reset producer and job responses
+prodstub_arm_producer 200 prod-ie 200
+prodstub_arm_job_create 200 prod-ie job110 200
+
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED 360
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-if  prod-b prod-c prod-d prod-e
+
+#Wait for job to be updated
+sleep_wait 120
+
+prodstub_check_jobdata_2 200 prod-if job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template2.json
+
+prodstub_arm_producer 200 prod-if 400
+
+ecs_api_edp_get_producer_status 200 prod-if DISABLED 360
+
+ecs_equal json:ei-producer/v1/eiproducers 8 1000
+
+ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-b prod-c prod-d prod-e
+
+ecs_api_edp_get_producer_status 404 prod-ia
+ecs_api_edp_get_producer_status 200 prod-ib ENABLED
+ecs_api_edp_get_producer_status 200 prod-ic ENABLED
+ecs_api_edp_get_producer_status 200 prod-id ENABLED
+ecs_api_edp_get_producer_status 200 prod-ie ENABLED
+ecs_api_edp_get_producer_status 404 prod-if
+
+ecs_api_idc_get_job_status 200 job101 DISABLED
+ecs_api_idc_get_job_status 200 job102 DISABLED
+ecs_api_idc_get_job_status 200 job103 ENABLED
+ecs_api_idc_get_job_status 200 job108 ENABLED
+ecs_api_idc_get_job_status 200 job110 ENABLED
+
+cr_equal received_callbacks 12
+
+### Test of pre and post validation
+
+ecs_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106
+ecs_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ecs/job-template.json VALIDATE
+ecs_api_idc_put_job 201 job160 type160 $TARGET160 info-owner-1 $INFOSTATUS160 testdata/ecs/job-template.json
+
+ecs_api_idc_get_job_status 404 job150
+ecs_api_idc_get_job_status 200 job160 DISABLED 60
+
+prodstub_arm_producer 200 prod-ig
+prodstub_arm_job_create 200 prod-ig job150
+prodstub_arm_job_create 200 prod-ig job160
+
+ecs_api_edp_put_producer_2 201 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig NOTYPE
+ecs_api_edp_get_producer_status 200 prod-ig ENABLED 360
+
+ecs_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig EMPTY
+
+ecs_api_idc_get_job_status 404 job150
+ecs_api_idc_get_job_status 200 job160 DISABLED 60
+
+prodstub_arm_type 200 prod-ig type160
+
+ecs_api_edp_put_type_2 201 type160 testdata/ecs/info-type-60.json
+ecs_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106 type160
+
+ecs_api_edp_put_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160
+ecs_api_edp_get_producer_status 200 prod-ig ENABLED 360
+ecs_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160
+
+ecs_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ecs/job-template.json VALIDATE
+
+ecs_api_idc_get_job_status 404 job150
+ecs_api_idc_get_job_status 200 job160 ENABLED 60
+
+prodstub_check_jobdata_2 200 prod-ig job160 type160 $TARGET160 info-owner-1 testdata/ecs/job-template.json
+
+prodstub_equal create/prod-ig/job160 1
+prodstub_equal delete/prod-ig/job160 0
+
+prodstub_arm_type 200 prod-ig type150
+
+ecs_api_edp_put_type_2 201 type150 testdata/ecs/info-type-50.json
+ecs_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106 type160 type150
+
+ecs_api_edp_put_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160 type150
+ecs_api_edp_get_producer_status 200 prod-ig ENABLED 360
+
+ecs_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160 type150
+
+ecs_api_idc_get_job_status 404 job150
+ecs_api_idc_get_job_status 200 job160 ENABLED
+
+ecs_api_idc_put_job 201 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ecs/job-template.json VALIDATE
+
+ecs_api_idc_get_job_status 200 job150 ENABLED 60
+ecs_api_idc_get_job_status 200 job160 ENABLED
+
+cr_equal received_callbacks 12
 
 check_ecs_logs
 

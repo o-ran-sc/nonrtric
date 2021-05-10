@@ -806,7 +806,7 @@ ecs_api_a1_get_job() {
 				jobfile=$(cat $6)
 				jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
 			else
-				_log_test_fail_general "Job template file "$6", does not exist"
+				__log_test_fail_general "Job template file "$6", does not exist"
 				return 1
 			fi
 			targetJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
@@ -826,7 +826,7 @@ ecs_api_a1_get_job() {
 				jobfile=$(cat $7)
 				jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
 			else
-				_log_test_fail_general "Job template file "$6", does not exist"
+				__log_test_fail_general "Job template file "$6", does not exist"
 				return 1
 			fi
 			targetJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
@@ -894,7 +894,7 @@ ecs_api_a1_put_job() {
 			jobfile=$(cat $6)
 			jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
 		else
-			_log_test_fail_general "Job template file "$6", does not exist"
+			__log_test_fail_general "Job template file "$6", does not exist"
 			return 1
 		fi
 
@@ -913,7 +913,7 @@ ecs_api_a1_put_job() {
 			jobfile=$(cat $7)
 			jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
 		else
-			_log_test_fail_general "Job template file "$7", does not exist"
+			__log_test_fail_general "Job template file "$7", does not exist"
 			return 1
 		fi
 
@@ -1357,7 +1357,7 @@ ecs_api_edp_get_producer() {
 				if [ -f ${arr[$i+1]} ]; then
 					schema=$(cat ${arr[$i+1]})
 				else
-					_log_test_fail_general "Schema file "${arr[$i+1]}", does not exist"
+					__log_test_fail_general "Schema file "${arr[$i+1]}", does not exist"
 					return 1
 				fi
 
@@ -1494,7 +1494,7 @@ ecs_api_edp_put_producer() {
 			if [ -f ${arr[$i+1]} ]; then
 				schema=$(cat ${arr[$i+1]})
 			else
-				_log_test_fail_general "Schema file "${arr[$i+1]}", does not exist"
+				__log_test_fail_general "Schema file "${arr[$i+1]}", does not exist"
 				return 1
 			fi
 			inputJson=$inputJson"{\"ei_type_identity\":\"${arr[$i]}\",\"ei_job_data_schema\":$schema}"
@@ -1613,7 +1613,7 @@ ecs_api_edp_get_producer_jobs() {
 					jobfile=$(cat ${arr[$i+4]})
 					jobfile=$(echo "$jobfile" | sed "s/XXXX/${arr[$i]}/g")
 				else
-					_log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
+					__log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
 					return 1
 				fi
 				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile}"
@@ -1677,7 +1677,7 @@ ecs_api_edp_get_producer_jobs_2() {
 					jobfile=$(cat ${arr[$i+4]})
 					jobfile=$(echo "$jobfile" | sed "s/XXXX/${arr[$i]}/g")
 				else
-					_log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
+					__log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
 					return 1
 				fi
 				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile, \"last_updated\":\"????\"}"
@@ -1710,7 +1710,7 @@ ecs_api_service_status() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
-		__print_err "<response-code> [<producer-id>]*|NOID" $@
+		__print_err "<response-code>" $@
 		return 1
 	fi
 	res="$(__do_curl_to_api ECS GET /status)"
@@ -1719,6 +1719,332 @@ ecs_api_service_status() {
 		__log_test_fail_status_code $1 $status
 		return 1
 	fi
+	__log_test_pass
+	return 0
+}
+
+###########################################
+######### Info data consumer API ##########
+###########################################
+#Function prefix: ecs_api_idc
+
+
+# API Test function: GET /data-consumer/v1/info-types
+# args: <response-code> [ (EMPTY | [<type-id>]+) ]
+# (Function for test scripts)
+ecs_api_idc_get_type_ids() {
+	__log_test_start $@
+
+    if [ $# -lt 1 ]; then
+		__print_err "<response-code> [ (EMPTY | [<type-id>]+) ]" $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-types"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	if [ $# -gt 1 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+		if [ $2 != "EMPTY" ]; then
+			for pid in ${@:2} ; do
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				targetJson=$targetJson"\"$pid\""
+			done
+		fi
+		targetJson=$targetJson"]"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: GET /data-consumer/v1/info-jobs
+# args: <response-code> <type-id>|NOTYPE <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
+# (Function for test scripts)
+ecs_api_idc_get_job_ids() {
+	__log_test_start $@
+
+	# Valid number of parameters 4,5,6 etc
+	if [ $# -lt 3 ]; then
+		__print_err "<response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
+		return 1
+	fi
+	search=""
+	if [ $3 != "NOWNER" ]; then
+		search="?owner="$3
+	fi
+
+	if [ $2 != "NOTYPE" ]; then
+		if [ -z "$search" ]; then
+			search="?infoTypeId="$2
+		else
+			search=$search"&infoTypeId="$2
+		fi
+	fi
+	query="/data-consumer/v1/info-jobs$search"
+
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 3 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+
+		for pid in ${@:4} ; do
+			if [ "$targetJson" != "[" ]; then
+				targetJson=$targetJson","
+			fi
+			if [ $pid != "EMPTY" ]; then
+				targetJson=$targetJson"\"$pid\""
+			fi
+		done
+
+		targetJson=$targetJson"]"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: GET /data-consumer/v1/info-jobs/{infoJobId}
+# args: <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
+# (Function for test scripts)
+ecs_api_idc_get_job() {
+	__log_test_start $@
+
+	if [ $# -ne 2 ] && [ $# -ne 7 ]; then
+		__print_err "<response-code> <job-id> [<type-id> <target-url> <owner-id> <notification-url> <template-job-file>]" $@
+		return 1
+	fi
+	query="/data-consumer/v1/info-jobs/$2"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -eq 7 ]; then
+		body=${res:0:${#res}-3}
+
+		if [ -f $7 ]; then
+			jobfile=$(cat $7)
+			jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
+		else
+			__log_test_fail_general "Job template file "$6", does not exist"
+			return 1
+		fi
+		targetJson="{\"infoTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+
+# API Test function: PUT ​/data-consumer/v1/info-jobs/{infoJobId}
+# args: <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file> [ VALIDATE ]
+# (Function for test scripts)
+ecs_api_idc_put_job() {
+	__log_test_start $@
+
+	if [ $# -lt 7 ] || [ $# -gt 8 ]; then
+		__print_err "<response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file> [ VALIDATE ]" $@
+		return 1
+	fi
+	if [ -f $7 ]; then
+		jobfile=$(cat $7)
+		jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
+	else
+		__log_test_fail_general "Job template file "$7", does not exist"
+		return 1
+	fi
+
+	inputJson="{\"infoTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+	file="./tmp/.p.json"
+	echo "$inputJson" > $file
+
+	query="/data-consumer/v1/info-jobs/$2"
+
+	if [ $# -eq 8 ]; then
+		if [ $8 == "VALIDATE" ]; then
+			query=$query"?typeCheck=true"
+		fi
+	fi
+
+    res="$(__do_curl_to_api ECS PUT $query $file)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: DELETE ​/data-consumer/v1/info-jobs/{infoJobId}
+# args: <response-code> <job-id>
+# (Function for test scripts)
+ecs_api_idc_delete_job() {
+	__log_test_start $@
+
+	if [ $# -ne 2 ]; then
+		__print_err "<response-code> <job-id>" $@
+		return 1
+	fi
+	query="/data-consumer/v1/info-jobs/$2"
+    res="$(__do_curl_to_api ECS DELETE $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: GET ​/data-consumer/v1/info-types/{infoTypeId}
+# args: <response-code> <type-id> [<schema-file>]
+# (Function for test scripts)
+ecs_api_idc_get_type() {
+	__log_test_start $@
+
+    if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+		__print_err "<response-code> <type-id> [<schema-file>]" $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-types/$2"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -eq 3 ]; then
+		body=${res:0:${#res}-3}
+		if [ -f $3 ]; then
+			schema=$(cat $3)
+		else
+			__log_test_fail_general "Schema file "$3", does not exist"
+			return 1
+		fi
+		targetJson="{\"consumer_job_data_schema\":$schema}"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: GET /data-consumer/v1/info-jobs/{infoJobId}/status
+# args: <response-code> <job-id> [<status> [<timeout>]]
+# (Function for test scripts)
+ecs_api_idc_get_job_status() {
+	__log_test_start $@
+
+	if [ $# -lt 2 ] && [ $# -gt 4 ]; then
+		__print_err "<response-code> <job-id> [<status> [<timeout>]]" $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-jobs/$2/status"
+
+	start=$SECONDS
+	for (( ; ; )); do
+		res="$(__do_curl_to_api ECS GET $query)"
+		status=${res:${#res}-3}
+
+		if [ $# -eq 4 ]; then
+			duration=$((SECONDS-start))
+			echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
+			if [ $duration -gt $4 ]; then
+				echo ""
+				duration=-1  #Last iteration
+			fi
+		else
+			duration=-1 #single test, no wait
+		fi
+
+		if [ $status -ne $1 ]; then
+			if [ $duration -eq -1 ]; then
+				__log_test_fail_status_code $1 $status
+				return 1
+			fi
+		fi
+		if [ $# -ge 3 ] && [ $status -eq $1 ]; then
+			body=${res:0:${#res}-3}
+			targetJson="{\"eiJobStatus\": \"$3\"}"
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				if [ $duration -eq -1 ]; then
+					__log_test_fail_body
+					return 1
+				fi
+			else
+				duration=-1  #Goto pass
+			fi
+		fi
+		if [ $duration -eq -1 ]; then
+			if [ $# -eq 4 ]; then
+				echo ""
+			fi
+			__log_test_pass
+			return 0
+		else
+			sleep 1
+		fi
+	done
+
 	__log_test_pass
 	return 0
 }
