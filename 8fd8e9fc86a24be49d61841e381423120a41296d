@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "691cd086_f69aa772",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-05-11T12:05:25Z",
+      "side": 1,
+      "message": "Maybe the function \"validateUri\" that is used in three controller can be moved to a common place and reused?",
+      "revId": "8fd8e9fc86a24be49d61841e381423120a41296d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
