@@ -54,6 +54,8 @@ cntr_msg_responses_submitted=0
 cntr_msg_responses_fetched=0
 
 # Request and response constants
+ORU_WRITE_URL="/events/unauthenticated.SEC_FAULT_OUTPUT"
+ORU_READ_URL="/events/unauthenticated.SEC_FAULT_OUTPUT/users/test/"
 AGENT_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"
 AGENT_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent"
 APP_WRITE_URL="/send-request"
@@ -344,6 +346,24 @@ def events_write():
 
         return Response('{}', status=200, mimetype=MIME_JSON)
 
+@app.route(ORU_WRITE_URL,
+    methods=['PUT','POST'])
+def oru_write():
+    global msg_requests
+    msg=json.dumps(request.json)
+    msg_requests.append(msg)
+    return Response('{}', status=200, mimetype=MIME_JSON)
+
+@app.route(ORU_READ_URL,
+    methods=['GET'])
+def oru_read():
+    global msg_requests
+    if(len(msg_requests)>0):
+        rsp=msg_requests.pop(0)
+        res=[]
+        res.append(rsp)
+        return Response(json.dumps(res), status=200, mimetype=MIME_JSON)
+    return Response("[]", status=200, mimetype=MIME_JSON)
 
 ### Functions for metrics read out ###
 

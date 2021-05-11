@@ -22,6 +22,11 @@ COPY . /usr/src/app/
 
 WORKDIR /usr/src/app
 
+## install curl & ping to help debug
+RUN apt update
+RUN apt install curl -y
+RUN apt-get install iputils-ping -y
+
 RUN pip install -r requirements.txt
 
-CMD [ "python3", "main.py" ]
+CMD [ "python3", "-u", "main.py" ]

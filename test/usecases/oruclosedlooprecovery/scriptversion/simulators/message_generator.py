@@ -90,6 +90,14 @@ heartBeatMessage = {
    }
  }
 
+def sendPostRequest(url ,msg):
+    try:
+        requests.post(url, json=msg)
+    except Exception as e:
+        print(type(e))
+        print(e.args)
+        print(e)
+
 if __name__ == "__main__":
     if os.getenv("MR-HOST") is not None:
         mr_host = os.getenv("MR-HOST")
@@ -104,13 +112,13 @@ if __name__ == "__main__":
         random_time = int(10 * random.random())
         if (random_time % 3 == 1):
             print("Sent heart beat")
-            requests.post(mr_url, json=heartBeatMessage);
+            sendPostRequest(mr_url, heartBeatMessage)
 
         o_ru_id = "ERICSSON-O-RU-1122" + str(random_time)
         print("Sent link failure for O-RAN-RU: " + o_ru_id)
         msg_as_json = json.loads(json.dumps(linkFailureMessage))
         msg_as_json["event"]["commonEventHeader"]["sourceName"] = o_ru_id
-        requests.post(mr_url, json=msg_as_json);
+        sendPostRequest(mr_url, msg_as_json)
 
         time.sleep(random_time)
 
