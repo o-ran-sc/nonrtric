@@ -127,6 +127,11 @@ set_agent_trace
 
 set_ecs_trace
 
+use_info_jobs=false  #Set flag if interface supporting info-types is used
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    use_info_jobs=true
+fi
+
 rapp_cat_api_get_services 200 EMPTY
 
 rapp_cat_api_put_service 201 "Emergency-response-app" v1 "Emergency-response-app" "Emergency-response-app"
@@ -241,7 +246,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    if [ $use_info_jobs ]; then
+        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    fi
 fi
 
 
@@ -257,7 +266,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    if [ $use_info_jobs ]; then
+        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    fi
 fi
 
 check_policy_agent_logs

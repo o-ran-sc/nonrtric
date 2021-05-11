@@ -83,6 +83,12 @@ TARGET="http://localhost:80/target"  # Dummy target
 
 NUM_JOBS=10000
 
+use_info_jobs=false  #Set flag if interface supporting info-types is used
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    use_info_jobs=true
+    NUM_JOBS=5000 # 5K ei jobs and 5K info jobs
+fi
+
 # Setup prodstub sim to accept calls for producers, types and jobs
 prodstub_arm_producer 200 prod-a
 prodstub_arm_producer 200 prod-b
@@ -208,7 +214,11 @@ else
     fi
 fi
 
-ecs_equal json:ei-producer/v1/eiproducers 4
+if [ $use_info_jobs ]; then
+    ecs_equal json:data-producer/v1/info-producers 4
+else
+    ecs_equal json:ei-producer/v1/eiproducers 4
+fi
 
 ecs_api_edp_get_producer_status 200 prod-a ENABLED
 ecs_api_edp_get_producer_status 200 prod-b ENABLED
@@ -436,7 +446,11 @@ else
 
 fi
 
-ecs_equal json:ei-producer/v1/eiproducers 4
+if [ $use_info_jobs ]; then
+    ecs_equal json:data-producer/v1/info-producers 4
+else
+    ecs_equal json:ei-producer/v1/eiproducers 4
+fi
 
 ecs_api_edp_get_producer_status 200 prod-a ENABLED
 ecs_api_edp_get_producer_status 200 prod-b ENABLED
@@ -528,14 +542,20 @@ do
             prodstub_check_jobdata 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
             prodstub_check_jobdata 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
         else
-            prodstub_check_jobdata_2 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-            prodstub_check_jobdata_2 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-            prodstub_check_jobdata_2 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            if [ $use_info_jobs ]; then
+                prodstub_check_jobdata_3 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            else
+                prodstub_check_jobdata_2 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+            fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_2 200 prod-a job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
-            prodstub_check_jobdata_2 200 prod-b job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
-            prodstub_check_jobdata_2 200 prod-c job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-a job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-b job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
         fi
 
     fi
@@ -544,42 +564,59 @@ do
             prodstub_check_jobdata 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
             prodstub_check_jobdata 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
         else
-            prodstub_check_jobdata_2 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
-            prodstub_check_jobdata_2 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+            if [ $use_info_jobs ]; then
+                prodstub_check_jobdata_3 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+            else
+                prodstub_check_jobdata_2 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+            fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_2 200 prod-b job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ecs/job-template.json
-            prodstub_check_jobdata_2 200 prod-c job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-b job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ecs/job-template.json
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
         if [ $ECS_VERSION == "V1-1" ]; then
             prodstub_check_jobdata 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
         else
-            prodstub_check_jobdata_2 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+            if [ $use_info_jobs ]; then
+                prodstub_check_jobdata_3 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+            else
+                prodstub_check_jobdata_2 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+            fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_2 200 prod-c job$(($i+$NUM_JOBS)) type103 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type103 $TARGET info-owner testdata/ecs/job-template.json
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
         if [ $ECS_VERSION == "V1-1" ]; then
             prodstub_check_jobdata 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
         else
-            prodstub_check_jobdata_2 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+            if [ $use_info_jobs ]; then
+                prodstub_check_jobdata_3 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+            else
+                prodstub_check_jobdata_2 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+            fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_2 200 prod-d job$(($i+$NUM_JOBS)) type104 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-d job$(($i+$NUM_JOBS)) type104 $TARGET info-owner testdata/ecs/job-template.json
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
         if [ $ECS_VERSION == "V1-1" ]; then
             prodstub_check_jobdata 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
         else
-            prodstub_check_jobdata_2 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+            if [ $use_info_jobs ]; then
+                prodstub_check_jobdata_3 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+            else
+                prodstub_check_jobdata_2 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+            fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_2 200 prod-d job$(($i+$NUM_JOBS)) type105 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-d job$(($i+$NUM_JOBS)) type105 $TARGET info-owner testdata/ecs/job-template.json
         fi
     fi
 done
@@ -619,7 +656,11 @@ do
     fi
 done
 
-ecs_equal json:ei-producer/v1/eiproducers 4
+if [ $use_info_jobs ]; then
+    ecs_equal json:data-producer/v1/info-producers 4
+else
+    ecs_equal json:ei-producer/v1/eiproducers 4
+fi
 
 ecs_api_edp_get_producer_status 200 prod-a ENABLED
 ecs_api_edp_get_producer_status 200 prod-b ENABLED

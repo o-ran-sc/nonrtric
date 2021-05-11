@@ -267,8 +267,6 @@ else
 
     ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
     ecs_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-
-    ecs_api_edp_delete_type_2 406 type1
 fi
 
 
@@ -332,7 +330,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    fi
 fi
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1
@@ -372,7 +374,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    fi
 fi
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ecs_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
@@ -456,7 +462,11 @@ prodstub_equal create/prod-b/job3 1
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
+    fi
 fi
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1 job2
@@ -580,7 +590,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
 else
-    prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+    else
+        prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+    fi
 fi
 
 ecs_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3
@@ -641,7 +655,11 @@ cr_api_check_all_ecs_events 200 job3-status ENABLED
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
 else
-    prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+    else
+        prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
+    fi
 fi
 
 ## Setup prod-d
@@ -663,7 +681,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
+    fi
 fi
 
 prodstub_equal create/prod-d/job8 1
@@ -757,7 +779,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+    fi
 fi
 
 prodstub_equal create/prod-e/job10 1
@@ -784,7 +810,11 @@ ecs_api_a1_get_job_ids 200 type6 NOWNER job10
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
+    fi
 fi
 
 prodstub_equal create/prod-f/job10 1
@@ -914,7 +944,11 @@ else
 fi
 
 # Wait for producer prod-a to be removed
-ecs_equal json:ei-producer/v1/eiproducers 5 1000
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    ecs_equal json:data-producer/v1/info-producers 5 1000
+else
+    ecs_equal json:ei-producer/v1/eiproducers 5 1000
+fi
 
 if [ $ECS_VERSION == "V1-1" ]; then
     ecs_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e prod-f
@@ -1011,14 +1045,22 @@ sleep_wait 120
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
 else
-    prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+    else
+        prodstub_check_jobdata_3 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+    fi
 fi
 
 prodstub_arm_producer 200 prod-f 400
 
 ecs_api_edp_get_producer_status 200 prod-f DISABLED 360
 
-ecs_equal json:ei-producer/v1/eiproducers 4 1000
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    ecs_equal json:data-producer/v1/info-producers 4 1000
+else
+    ecs_equal json:ei-producer/v1/eiproducers 4 1000
+fi
 
 if [ $ECS_VERSION == "V1-1" ]; then
     ecs_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e
@@ -1209,7 +1251,7 @@ ecs_api_edp_get_producer_jobs_2 200 prod-ia EMPTY
 ecs_api_idc_put_job 201 job101 type101 $TARGET101 info-owner-1 $INFOSTATUS101 testdata/ecs/job-template.json VALIDATE
 
 # Check the job data in the producer
-prodstub_check_jobdata_2 200 prod-ia job101 type101 $TARGET101 info-owner-1 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-ia job101 type101 $TARGET101 info-owner-1 testdata/ecs/job-template.json
 
 ecs_api_idc_get_job_ids 200 type101 NOWNER job101
 ecs_api_idc_get_job_ids 200 type101 info-owner-1 job101
@@ -1229,7 +1271,7 @@ ecs_api_edp_get_producer_jobs_2 200 prod-ia job101 type101 $TARGET101 info-owner
 ecs_api_idc_put_job 201 job102 type101 $TARGET102 info-owner-2 $INFOSTATUS102 testdata/ecs/job-template.json  VALIDATE
 
 # Check the job data in the producer
-prodstub_check_jobdata_2 200 prod-ia job102 type101 $TARGET102 info-owner-2 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-ia job102 type101 $TARGET102 info-owner-2 testdata/ecs/job-template.json
 ecs_api_idc_get_job_ids 200 type101 NOWNER job101 job102
 ecs_api_idc_get_job_ids 200 type101 info-owner-1 job101
 ecs_api_idc_get_job_ids 200 type101 info-owner-2 job102
@@ -1273,7 +1315,7 @@ ecs_api_idc_put_job 201 job103 type102 $TARGET103 info-owner-3 $INFOSTATUS103 te
 prodstub_equal create/prod-ib/job103 1
 
 # Check the job data in the producer
-prodstub_check_jobdata_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template.json
 
 ecs_api_idc_get_job_ids 200 type101 NOWNER job101 job102
 ecs_api_idc_get_job_ids 200 type102 NOWNER job103
@@ -1331,7 +1373,7 @@ ecs_api_edp_get_producer_status 200 prod-ib ENABLED
 ecs_api_idc_put_job 200 job103 type102 $TARGET103 info-owner-3 $INFOSTATUS103 testdata/ecs/job-template2.json  VALIDATE
 ecs_api_idc_get_job_status 200 job103 ENABLED
 
-prodstub_check_jobdata_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
+prodstub_check_jobdata_3 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
 
 ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job1 job2 job3 job8 job10
 ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ib prod-ic prod-b prod-c prod-d prod-e
@@ -1364,7 +1406,7 @@ cr_equal received_callbacks 8 30
 cr_equal received_callbacks?id=info-job103-status 2
 cr_api_check_all_ecs_events 200 info-job103-status ENABLED
 
-prodstub_check_jobdata_2 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
+prodstub_check_jobdata_3 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
 
 ## Setup prod-id
 ecs_api_edp_put_type_2 201 type104 testdata/ecs/info-type-4.json
@@ -1374,7 +1416,7 @@ ecs_api_idc_get_job_ids 200 type104 NOWNER EMPTY
 
 ecs_api_idc_put_job 201 job108 type104 $TARGET108 info-owner-4 $INFOSTATUS108 testdata/ecs/job-template.json  VALIDATE
 
-prodstub_check_jobdata_2 200 prod-id job108 type104 $TARGET108 info-owner-4 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-id job108 type104 $TARGET108 info-owner-4 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-id/job108 1
 prodstub_equal delete/prod-id/job108 0
@@ -1428,7 +1470,7 @@ ecs_api_idc_get_job_ids 200 type106 NOWNER EMPTY
 
 ecs_api_idc_put_job 201 job110 type106 $TARGET110 info-owner-4 $INFOSTATUS110 testdata/ecs/job-template.json  VALIDATE
 
-prodstub_check_jobdata_2 200 prod-ie job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-ie job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-ie/job110 1
 prodstub_equal delete/prod-ie/job110 0
@@ -1443,7 +1485,7 @@ ecs_api_edp_put_producer_2 201 prod-if $CB_JOB/prod-if $CB_SV/prod-if type106
 
 ecs_api_idc_get_job_ids 200 type106 NOWNER job110
 
-prodstub_check_jobdata_2 200 prod-if job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-if job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-if/job110 1
 prodstub_equal delete/prod-if/job110 0
@@ -1528,7 +1570,11 @@ ecs_api_idc_get_job_status 200 job108 ENABLED
 ecs_api_idc_get_job_status 200 job110 ENABLED
 
 # Wait for producer prod-ia to be removed
-ecs_equal json:ei-producer/v1/eiproducers 9 1000
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    ecs_equal json:data-producer/v1/info-producers 9 1000
+else
+    ecs_equal json:ei-producer/v1/eiproducers 9 1000
+fi
 
 ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-if  prod-b prod-c prod-d prod-e
 
@@ -1590,13 +1636,17 @@ ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-i
 #Wait for job to be updated
 sleep_wait 120
 
-prodstub_check_jobdata_2 200 prod-if job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template2.json
+prodstub_check_jobdata_3 200 prod-if job110 type106 $TARGET110 info-owner-4 testdata/ecs/job-template2.json
 
 prodstub_arm_producer 200 prod-if 400
 
 ecs_api_edp_get_producer_status 200 prod-if DISABLED 360
 
-ecs_equal json:ei-producer/v1/eiproducers 8 1000
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    ecs_equal json:data-producer/v1/info-producers 8 1000
+else
+    ecs_equal json:ei-producer/v1/eiproducers 8 1000
+fi
 
 ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-b prod-c prod-d prod-e
 
@@ -1650,7 +1700,7 @@ ecs_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 te
 ecs_api_idc_get_job_status 404 job150
 ecs_api_idc_get_job_status 200 job160 ENABLED 60
 
-prodstub_check_jobdata_2 200 prod-ig job160 type160 $TARGET160 info-owner-1 testdata/ecs/job-template.json
+prodstub_check_jobdata_3 200 prod-ig job160 type160 $TARGET160 info-owner-1 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-ig/job160 1
 prodstub_equal delete/prod-ig/job160 0

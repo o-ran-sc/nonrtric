@@ -223,7 +223,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    fi
 fi
 
 
@@ -239,7 +243,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    fi
 fi
 
 # Arm producer prod-a for supervision failure
@@ -248,7 +256,12 @@ prodstub_arm_producer 200 prod-a 400
 # Wait for producer prod-a to go disabled
 ecs_api_edp_get_producer_status 200 prod-a DISABLED 360
 
-ecs_equal json:ei-producer/v1/eiproducers 0 1000
+if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    ecs_equal json:data-producer/v1/info-producers 0 1000
+else
+    ecs_equal json:ei-producer/v1/eiproducers 0 1000
+fi
+
 
 echo -e $YELLOW"Verify that ECS has send status notification to the callback recevier"$EYELLOW
 echo -e $YELLOW"and check the source of the call in the log to be from the httpproxy"$EYELLOW

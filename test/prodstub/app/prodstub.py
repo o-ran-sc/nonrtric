@@ -312,6 +312,10 @@ def disarm_type(producer_id, type_id):
 
     if (recursive_search(producer_dict, "ei_job_type",type_id) is True):
         return "TYPE_IN_USE",400
+    elif (recursive_search(producer_dict, "ei_type_identity",type_id) is True):
+        return "TYPE_IN_USE",400
+    elif (recursive_search(producer_dict, "info_type_identity",type_id) is True):
+        return "TYPE_IN_USE",400
 
     type_list=producer_dict['types']
     type_list.remove(type_id)
@@ -339,17 +343,26 @@ def callback_create(producer_id):
     if (producer_dict is None):
         return PRODUCER_OR_JOB_NOT_FOUND,400
     type_list=producer_dict['types']
-    type_id=req_json_dict['ei_type_identity']
-    if (type_id not in type_list):
+
+
+    if 'ei_type_identity' in req_json_dict.keys():
+        type_key_name='ei_type_identity'
+        job_key_name='ei_job_identity'
+    elif 'info_type_identity' in req_json_dict.keys():
+        type_key_name='info_type_identity'
+        job_key_name='info_job_identity'
+    else:
         return TYPE_NOT_FOUND, 400
 
-    job_id=req_json_dict['ei_job_identity']
+    type_id=req_json_dict[type_key_name]
+    job_id=req_json_dict[job_key_name]
+
     job_dict=get_callback_dict(producer_id, job_id)
     if (job_dict is None):
         return PRODUCER_OR_JOB_NOT_FOUND,400
     return_code=0
     return_msg=""
-    if (req_json_dict['ei_job_identity'] == job_id):
+    if (req_json_dict[job_key_name] == job_id):
         print("Create callback received for producer: "+str(producer_id)+" and job: "+str(job_id))
         return_code=job_dict['create_response']
         if ((job_dict['create_response'] == 200) or (job_dict['create_response'] == 201)):

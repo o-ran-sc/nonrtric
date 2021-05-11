@@ -943,6 +943,7 @@ ecs_api_a1_put_job() {
 # Function prefix: ecs_api_edp
 
 # API Test function: GET /ei-producer/v1/eitypes
+# API Test function: GET /data-producer/v1/info-types
 # args: <response-code> [ EMPTY | <type-id>+]
 # (Function for test scripts)
 ecs_api_edp_get_type_ids() {
@@ -952,8 +953,11 @@ ecs_api_edp_get_type_ids() {
 		__print_err "<response-code> [ EMPTY | <type-id>+]" $@
 		return 1
 	fi
-
-	query="/ei-producer/v1/eitypes"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-types"
+	else
+		query="/ei-producer/v1/eitypes"
+	fi
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 
@@ -988,6 +992,7 @@ ecs_api_edp_get_type_ids() {
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/status
+# API Test function: GET /data-producer/v1/info-producers/{infoProducerId}/status
 # args: <response-code> <producer-id> [<status> [<timeout>]]
 # (Function for test scripts)
 ecs_api_edp_get_producer_status() {
@@ -997,8 +1002,11 @@ ecs_api_edp_get_producer_status() {
 		__print_err "<response-code> <producer-id> [<status> [<timeout>]]" $@
 		return 1
 	fi
-
-	query="/ei-producer/v1/eiproducers/$2/status"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-producers/$2/status"
+	else
+		query="/ei-producer/v1/eiproducers/$2/status"
+	fi
 	start=$SECONDS
 	for (( ; ; )); do
 		res="$(__do_curl_to_api ECS GET $query)"
@@ -1097,6 +1105,7 @@ ecs_api_edp_get_producer_ids() {
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers
+# API Test function: GET /data-producer/v1/info-producers
 # args (v1_2): <response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]
 # (Function for test scripts)
 ecs_api_edp_get_producer_ids_2() {
@@ -1106,10 +1115,16 @@ ecs_api_edp_get_producer_ids_2() {
 		__print_err "<response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]" $@
 		return 1
 	fi
-
-	query="/ei-producer/v1/eiproducers"
-	if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
-		query=$query"?ei_type_id=$2"
+    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-producers"
+		if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
+			query=$query"?info_type_id=$2"
+		fi
+	else
+		query="/ei-producer/v1/eiproducers"
+		if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
+			query=$query"?ei_type_id=$2"
+		fi
 	fi
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
@@ -1206,6 +1221,7 @@ ecs_api_edp_get_type() {
 }
 
 # API Test function: GET /ei-producer/v1/eitypes/{eiTypeId}
+# API Test function: GET /data-producer/v1/info-types/{infoTypeId}
 # args: (v1_2) <response-code> <type-id> [<job-schema-file> ]
 # (Function for test scripts)
 ecs_api_edp_get_type_2() {
@@ -1222,8 +1238,12 @@ ecs_api_edp_get_type_2() {
 		__print_err "<response-code> <type-id> [<job-schema-file> ]" $@
 		return 1
 	fi
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-types/$2"
+	else
+		query="/ei-producer/v1/eitypes/$2"
+	fi
 
-	query="/ei-producer/v1/eitypes/$2"
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 
@@ -1240,8 +1260,11 @@ ecs_api_edp_get_type_2() {
 			__log_test_fail_general "Job template file "$3", does not exist"
 			return 1
 		fi
-
-		targetJson="{\"ei_job_data_schema\":$schema}"
+		if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+			targetJson="{\"info_job_data_schema\":$schema}"
+		else
+			targetJson="{\"ei_job_data_schema\":$schema}"
+		fi
 
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
@@ -1256,6 +1279,7 @@ ecs_api_edp_get_type_2() {
 }
 
 # API Test function: PUT /ei-producer/v1/eitypes/{eiTypeId}
+# API Test function: PUT /data-producer/v1/info-types/{infoTypeId}
 # args: (v1_2) <response-code> <type-id> <job-schema-file>
 # (Function for test scripts)
 ecs_api_edp_put_type_2() {
@@ -1270,12 +1294,21 @@ ecs_api_edp_put_type_2() {
 		__log_test_fail_general "Job schema file "$3", does not exist"
 		return 1
 	fi
-	schema=$(cat $3)
-	input_json="{\"ei_job_data_schema\":$schema}"
-	file="./tmp/put_type.json"
-	echo $input_json > $file
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		schema=$(cat $3)
+		input_json="{\"info_job_data_schema\":$schema}"
+		file="./tmp/put_type.json"
+		echo $input_json > $file
 
-	query="/ei-producer/v1/eitypes/$2"
+		query="/data-producer/v1/info-types/$2"
+	else
+		schema=$(cat $3)
+		input_json="{\"ei_job_data_schema\":$schema}"
+		file="./tmp/put_type.json"
+		echo $input_json > $file
+
+		query="/ei-producer/v1/eitypes/$2"
+	fi
     res="$(__do_curl_to_api ECS PUT $query $file)"
     status=${res:${#res}-3}
 
@@ -1289,6 +1322,7 @@ ecs_api_edp_put_type_2() {
 }
 
 # API Test function: DELETE /ei-producer/v1/eitypes/{eiTypeId}
+# API Test function: DELETE /data-producer/v1/info-types/{infoTypeId}
 # args: (v1_2) <response-code> <type-id>
 # (Function for test scripts)
 ecs_api_edp_delete_type_2() {
@@ -1299,7 +1333,11 @@ ecs_api_edp_delete_type_2() {
 		return 1
 	fi
 
-	query="/ei-producer/v1/eitypes/$2"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-types/$2"
+	else
+		query="/ei-producer/v1/eitypes/$2"
+	fi
     res="$(__do_curl_to_api ECS DELETE $query)"
     status=${res:${#res}-3}
 
@@ -1382,6 +1420,7 @@ ecs_api_edp_get_producer() {
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}
+# API Test function: GET /data-producer/v1/info-producers/{infoProducerId}
 # args (v1_2): <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]
 # (Function for test scripts)
 ecs_api_edp_get_producer_2() {
@@ -1403,8 +1442,11 @@ ecs_api_edp_get_producer_2() {
 		__print_err "<response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]" $@
 		return 1
 	fi
-
-	query="/ei-producer/v1/eiproducers/$2"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-producers/$2"
+	else
+		query="/ei-producer/v1/eiproducers/$2"
+	fi
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 
@@ -1427,7 +1469,11 @@ ecs_api_edp_get_producer_2() {
 		fi
 		targetJson=$targetJson"]"
 		if [ $# -gt 4 ]; then
-			targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\"}"
+			if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+				targetJson="{\"supported_info_types\":$targetJson,\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\"}"
+			else
+				targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\"}"
+			fi
 		fi
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
@@ -1443,6 +1489,7 @@ ecs_api_edp_get_producer_2() {
 }
 
 # API Test function: DELETE /ei-producer/v1/eiproducers/{eiProducerId}
+# API Test function: DELETE /data-producer/v1/info-producers/{infoProducerId}
 # args: <response-code> <producer-id>
 # (Function for test scripts)
 ecs_api_edp_delete_producer() {
@@ -1452,8 +1499,11 @@ ecs_api_edp_delete_producer() {
 		__print_err "<response-code> <producer-id>" $@
 		return 1
 	fi
-
-	query="/ei-producer/v1/eiproducers/$2"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-producers/$2"
+	else
+		query="/ei-producer/v1/eiproducers/$2"
+	fi
     res="$(__do_curl_to_api ECS DELETE $query)"
     status=${res:${#res}-3}
 
@@ -1522,6 +1572,7 @@ ecs_api_edp_put_producer() {
 }
 
 # API Test function: PUT /ei-producer/v1/eiproducers/{eiProducerId}
+# API Test function: PUT /data-producer/v1/info-producers/{infoProducerId}
 # args: (v1_2) <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id>+]
 # (Function for test scripts)
 ecs_api_edp_put_producer_2() {
@@ -1549,15 +1600,27 @@ ecs_api_edp_put_producer_2() {
 			inputJson=$inputJson"\""${arr[$i]}"\""
 		done
 	fi
-	inputJson="\"supported_ei_types\":"$inputJson"]"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		inputJson="\"supported_info_types\":"$inputJson"]"
 
-	inputJson=$inputJson",\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\""
+		inputJson=$inputJson",\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\""
 
-	inputJson="{"$inputJson"}"
+		inputJson="{"$inputJson"}"
 
-	file="./tmp/.p.json"
-	echo "$inputJson" > $file
-	query="/ei-producer/v1/eiproducers/$2"
+		file="./tmp/.p.json"
+		echo "$inputJson" > $file
+		query="/data-producer/v1/info-producers/$2"
+	else
+		inputJson="\"supported_ei_types\":"$inputJson"]"
+
+		inputJson=$inputJson",\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\""
+
+		inputJson="{"$inputJson"}"
+
+		file="./tmp/.p.json"
+		echo "$inputJson" > $file
+		query="/ei-producer/v1/eiproducers/$2"
+	fi
     res="$(__do_curl_to_api ECS PUT $query $file)"
     status=${res:${#res}-3}
 
@@ -1635,6 +1698,7 @@ ecs_api_edp_get_producer_jobs() {
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/eijobs
+# API Test function: GET /data-producer/v1/info-producers/{infoProducerId}/info-jobs
 # args: (V1-2) <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
 # (Function for test scripts)
 ecs_api_edp_get_producer_jobs_2() {
@@ -1656,8 +1720,11 @@ ecs_api_edp_get_producer_jobs_2() {
 		__print_err "<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)" $@
 		return 1
 	fi
-
-	query="/ei-producer/v1/eiproducers/$2/eijobs"
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		query="/data-producer/v1/info-producers/$2/info-jobs"
+	else
+		query="/ei-producer/v1/eiproducers/$2/eijobs"
+	fi
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 	if [ $status -ne $1 ]; then
@@ -1680,7 +1747,11 @@ ecs_api_edp_get_producer_jobs_2() {
 					__log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
 					return 1
 				fi
-				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile, \"last_updated\":\"????\"}"
+				if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+					targetJson=$targetJson"{\"info_job_identity\":\"${arr[$i]}\",\"info_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"info_job_data\":$jobfile, \"last_updated\":\"????\"}"
+				else
+					targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile, \"last_updated\":\"????\"}"
+				fi
 			done
 		fi
 		targetJson=$targetJson"]"
@@ -1862,7 +1933,7 @@ ecs_api_idc_get_job() {
 			__log_test_fail_general "Job template file "$6", does not exist"
 			return 1
 		fi
-		targetJson="{\"infoTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+		targetJson="{\"info_type_id\": \"$3\", \"job_result_uri\": \"$4\",\"job_owner\": \"$5\",\"status_notification_uri\": \"$6\",\"job_definition\": $jobfile}"
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
@@ -1895,7 +1966,7 @@ ecs_api_idc_put_job() {
 		return 1
 	fi
 
-	inputJson="{\"infoTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+	inputJson="{\"info_type_id\": \"$3\", \"job_result_uri\": \"$4\",\"job_owner\": \"$5\",\"status_notification_uri\": \"$6\",\"job_definition\": $jobfile}"
 	file="./tmp/.p.json"
 	echo "$inputJson" > $file
 
@@ -1970,7 +2041,7 @@ ecs_api_idc_get_type() {
 			__log_test_fail_general "Schema file "$3", does not exist"
 			return 1
 		fi
-		targetJson="{\"consumer_job_data_schema\":$schema}"
+		targetJson="{\"job_data_schema\":$schema}"
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
@@ -2021,7 +2092,7 @@ ecs_api_idc_get_job_status() {
 		fi
 		if [ $# -ge 3 ] && [ $status -eq $1 ]; then
 			body=${res:0:${#res}-3}
-			targetJson="{\"eiJobStatus\": \"$3\"}"
+			targetJson="{\"info_job_status\": \"$3\"}"
 			echo " TARGET JSON: $targetJson" >> $HTTPLOG
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 

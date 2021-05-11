@@ -457,6 +457,32 @@ prodstub_check_jobdata_2() {
     return $?
 }
 
+# Prodstub API: Get job data for a job and compare with a target job json (info-jobs)
+# <response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>
+# (Function for test scripts)
+prodstub_check_jobdata_3() {
+	__log_test_start $@
+	if [ $# -ne 7 ]; then
+		__print_err "<response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>" $@
+		return 1
+	fi
+    if [ -f $7 ]; then
+        jobfile=$(cat $7)
+        jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
+    else
+    	__log_test_fail_general "Template file "$7" for jobdata, does not exist"
+        return 1
+    fi
+    targetJson="{\"info_job_identity\":\"$3\",\"info_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"info_job_data\":$jobfile,\"last_updated\":\"????\"}"
+    file="./tmp/.p.json"
+	echo "$targetJson" > $file
+
+    curlString="curl -X GET -skw %{http_code} $PROD_STUB_PATH/jobdata/$2/$3"
+
+    __execute_curl_to_prodstub TEST $1 "$curlString" $file
+    return $?
+}
+
 # Prodstub API: Delete the job data
 # <response-code> <producer-id> <job-id>
 # (Function for test scripts)

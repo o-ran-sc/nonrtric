@@ -1165,7 +1165,7 @@ To test, provide all the specified parameters.
 | `<template-job-file>` | Path to a job template for job parameters of the job  |
 
 ## Function: ecs_api_edp_get_type_ids() ##
-Test of GET '/ei-producer/v1/eitypes' and an optional check of the returned list of type ids.
+Test of GET '/ei-producer/v1/eitypes' or '/data-producer/v1/info-types' depending on ecs version and an optional check of the returned list of type ids.
 To test the response code only, provide the response code.
 To also test the response payload add list of expected type ids (or EMPTY if the list is expected to be empty).
 
@@ -1176,11 +1176,11 @@ To also test the response payload add list of expected type ids (or EMPTY if the
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
-| `<type-id>` | Id of the EI type  |
+| `<type-id>` | Id of the type  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
 ## Function: ecs_api_edp_get_producer_status() ##
-Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/status' and optional check of the returned status.
+Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/status' or '/data-producer/v1/info-producers/{infoProducerId}/status' depending on ecs version and optional check of the returned status.
 To test the response code only, provide the response code and producer id.
 To also test the response payload add the expected status.
 
@@ -1209,6 +1209,23 @@ To also test the response payload add the list of expected producer-ids (or EMPT
 | `<producer-id>` | Id of the producer  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
+## Function: ecs_api_edp_get_producer_ids_2() ##
+Test of GET '/ei-producer/v1/eiproducers' or '/data-producer/v1/info-producers' depending on ecs version and optional check of the returned producer ids.
+To test the response code only, provide the response.
+To also test the response payload add the type (if any) and a list of expected producer-ids (or EMPTY if the list of ids is expected to be empty).
+
+| arg list |
+|--|
+| `<response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the type  |
+| `EMPTY` | No type given  |
+| `<producer-id>` | Id of the producer  |
+| `EMPTY` | The expected list of type ids shall be empty  |
+
 ## Function: ecs_api_edp_get_type() ##
 Test of GET '/ei-producer/v1/eitypes/{eiTypeId}' and optional check of the returned type.
 To test the response code only, provide the response and the type-id.
@@ -1221,10 +1238,52 @@ To also test the response payload add a path to a job schema file and a list exp
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
-| `<type-id>` | Id of the EI type  |
+| `<type-id>` | Id of the type  |
 | `<job-schema-file>` | Path to a job schema file  |
 | `<producer-id>` | Id of the producer  |
 | `EMPTY` | The expected list of type ids shall be empty  |
+
+## Function: ecs_api_edp_get_type_2() ##
+Test of GET '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ecs version and optional check of the returned type.
+To test the response code only, provide the response and the type-id.
+To also test the response payload add a path to a job schema file.
+
+| arg list |
+|--|
+| `<response-code> <type-id> [<job-schema-file>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the type  |
+| `<job-schema-file>` | Path to a job schema file  |
+| `EMPTY` | The expected list of type ids shall be empty  |
+
+## Function: ecs_api_edp_put_type_2() ##
+Test of PUT '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ecs version and optional check of the returned type.
+
+| arg list |
+|--|
+| `<response-code> <type-id> [<job-schema-file>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the type  |
+| `<job-schema-file>` | Path to a job schema file  |
+| `EMPTY` | The expected list of type ids shall be empty  |
+
+## Function: ecs_api_edp_delete_type_2() ##
+Test of DELETE '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ecs version and optional check of the returned type.
+
+| arg list |
+|--|
+| `<response-code> <type-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<type-id>` | Id of the type  |
 
 ## Function: ecs_api_edp_get_producer() ##
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}' and optional check of the returned producer.
@@ -1242,12 +1301,31 @@ To also test the response payload add the remaining parameters defining thee pro
 | `<create-callback>` | Callback for create job  |
 | `<delete-callback>` | Callback for delete job  |
 | `<supervision-callback>` | Callback for producer supervision  |
-| `<type-id>` | Id of the EI type  |
+| `<type-id>` | Id of the type  |
 | `<schema-file>` | Path to a schema file  |
 | `EMPTY` | The expected list of type schema pairs shall be empty  |
 
+
+## Function: ecs_api_edp_get_producer_2() ##
+Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ecs version and optional check of the returned producer.
+To test the response code only, provide the response and the producer-id.
+To also test the response payload add the remaining parameters defining thee producer.
+
+| arg list |
+|--|
+| `<response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<producer-id>` | Id of the producer  |
+| `<job-callback>` | Callback for the url  |
+| `<supervision-callback>` | Callback for producer supervision  |
+| `<type-id>` | Id of the type  |
+| `EMPTY` | The expected list of types shall be empty  |
+
 ## Function: ecs_api_edp_delete_producer() ##
-Test of DELETE '/ei-producer/v1/eiproducers/{eiProducerId}'.
+Test of DELETE '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ecs version.
 To test, provide all parameters.
 
 | arg list |
@@ -1273,9 +1351,26 @@ To test, provide all parameters. The list of type/schema pair may be empty.
 | `<producer-id>` | Id of the producer  |
 | `<job-callback>` | Callback for create/delete job  |
 | `<supervision-callback>` | Callback for producer supervision  |
-| `<type-id>` | Id of the EI type  |
+| `<type-id>` | Id of the type  |
 | `<schema-file>` | Path to a schema file  |
 | `EMPTY` | The list of type/schema pairs is empty  |
+
+## Function: ecs_api_edp_put_producer_2() ##
+Test of PUT '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ecs version.
+To test, provide all parameters. The list of type/schema pair may be empty.
+
+| arg list |
+|--|
+| `<response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id>+]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<producer-id>` | Id of the producer  |
+| `<job-callback>` | Callback for create/delete job  |
+| `<supervision-callback>` | Callback for producer supervision  |
+| `<type-id>` | Id of the type  |
+| `NOTYPE` | The list of types is empty  |
 
 ## Function: ecs_api_edp_get_producer_jobs() ##
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs' and optional check of the returned producer job.
@@ -1292,6 +1387,26 @@ To also test the response payload add the remaining parameters.
 | `<producer-id>` | Id of the producer  |
 | `<job-id>` | Id of the job  |
 | `<type-id>` | Id of the EI type  |
+| `<target-url>` | Target url for data delivery  |
+| `<job-owner>` | Id of the job owner  |
+| `<template-job-file>` | Path to a job template file  |
+| `EMPTY` | The list of job/type/target/job-file tuples is empty  |
+
+## Function: ecs_api_edp_get_producer_jobs_2() ##
+Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs' or '/data-producer/v1/info-producers/{infoProducerId}/info-jobs' depending on ecs version and optional check of the returned producer job.
+To test the response code only, provide the response and the producer-id.
+To also test the response payload add the remaining parameters.
+
+| arg list |
+|--|
+| `<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<producer-id>` | Id of the producer  |
+| `<job-id>` | Id of the job  |
+| `<type-id>` | Id of the type  |
 | `<target-url>` | Target url for data delivery  |
 | `<job-owner>` | Id of the job owner  |
 | `<template-job-file>` | Path to a job template file  |
@@ -1388,7 +1503,7 @@ To test, provide all the specified parameters.
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
-| `<type-id>` | Id of the EI type  |
+| `<type-id>` | Id of the type  |
 | `<job-id>` | Id of the job  |
 
 ## Function: ecs_api_idc_get_type() ##
@@ -1479,7 +1594,7 @@ Sample test of pms api (status)
 | `<response-code>` | Expected http response code |
 
 ## Function: gateway_ecs_get_types ##
-Sample test of ecs api (get ei type)
+Sample test of ecs api (get types)
 Only response code tested - not payload
 | arg list |
 |--|
@@ -1690,6 +1805,40 @@ Remove a type for the producer in the rodstub. Can be called multiple times to r
 | `<type-id>` | Id of the type  |
 
 ## Function: prodstub_check_jobdata() ##
+Check a job in the prodstub towards the list of provided parameters.
+
+| arg list |
+|--|
+| `<response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<producer-id>` | Id of the producer  |
+| `<job-id>` | Id of the job  |
+| `<type-id>` | Id of the type  |
+| `<target-url>` | Target url for data delivery  |
+| `<job-owner>` | Id of the job owner  |
+| `<template-job-file>` | Path to a job template file  |
+
+## Function: prodstub_check_jobdata_2() ##
+Check a job in the prodstub towards the list of provided parameters.
+
+| arg list |
+|--|
+| `<response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<producer-id>` | Id of the producer  |
+| `<job-id>` | Id of the job  |
+| `<type-id>` | Id of the type  |
+| `<target-url>` | Target url for data delivery  |
+| `<job-owner>` | Id of the job owner  |
+| `<template-job-file>` | Path to a job template file  |
+
+## Function: prodstub_check_jobdata_3() ##
 Check a job in the prodstub towards the list of provided parameters.
 
 | arg list |

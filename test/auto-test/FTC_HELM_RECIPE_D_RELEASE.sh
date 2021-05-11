@@ -373,7 +373,11 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 else
-    prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    else
+        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    fi
 fi
 
 stop_ecs
