@@ -1,0 +1,200 @@
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nonrtric
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: dmaap-mr
+  namespace: nonrtric
+  labels:
+    app: dmaap-mr
+spec:
+  selector:
+    matchLabels:
+      app: dmaap-mr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dmaap-mr
+    spec:
+      containers:
+      - name: dmaap-mr
+        image: mrstub
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3904
+        - name: https
+          containerPort: 3905
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dmaap-mr
+  namespace: nonrtric
+  labels:
+    app: dmaap-mr
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3904
+    - name: https
+      protocol: TCP
+      port: 3905
+  selector:
+    app: dmaap-mr
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: message-generator
+  namespace: nonrtric
+  labels:
+    app: message-generator
+spec:
+  selector:
+    matchLabels:
+      app: message-generator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: message-generator
+    spec:
+      containers:
+      - name: message-generator
+        image: message-generator
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MR-HOST
+          value: http://dmaap-mr
+        - name: MR-PORT
+          value: "3904"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-generator
+  namespace: nonrtric
+  labels:
+    app: message-generator
+spec:
+  # type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+  selector:
+    app: message-generator
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: sdnr-simulator
+  namespace: nonrtric
+  labels:
+    app: sdnr-simulator
+spec:
+  selector:
+    matchLabels:
+      app: sdnr-simulator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sdnr-simulator
+    spec:
+      containers:
+      - name: sdnr-simulator
+        image: sdnr-simulator
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: tcp
+          containerPort: 9990
+        env:
+        - name: MR-HOST
+          value: http://dmaap-mr
+        - name: MR-PORT
+          value: "3904"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sdnr-simulator
+  namespace: nonrtric
+  labels:
+    app: sdnr-simulator
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 9990
+  selector:
+    app: sdnr-simulator
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: oru-app
+  namespace: nonrtric
+  labels:
+    app: oru-app
+spec:
+  selector:
+    matchLabels:
+      app: oru-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: oru-app
+    spec:
+      containers:
+      - name: oru-app
+        image: oru-app
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MR-HOST
+          value: http://dmaap-mr
+        - name: MR-PORT
+          value: "3904"
+        - name: SDNR-HOST
+          value: http://sdnr-simulator
+        - name: SDNR-PORT
+          value: "9990"
+        - name: VERBOSE
+          value: "on"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oru-app
+  namespace: nonrtric
+  labels:
+    app: oru-app
+spec:
+  # type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+  selector:
+    app: oru-app
