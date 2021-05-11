@@ -71,7 +71,7 @@ ECS_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
 ECS_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
 ECS_IMAGE_TAG_REMOTE="1.1.0"
 ECS_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
-
+#Note: Update var ECS_FEATURE_LEVEL if image version is changed
 
 #Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
@@ -247,6 +247,7 @@ ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_grou
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
 ECS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
+ECS_FEATURE_LEVEL="INFO-TYPES"                           # Space separated list of features
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
