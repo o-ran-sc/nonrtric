@@ -15,6 +15,10 @@
 #
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
+cd ${SHELL_FOLDER}
+kubectl delete -f linkfailure.yml
+
+# be careful if other stopped containers are on the same system
 docker stop $(docker ps -aq)
 docker system prune -f
 
@@ -29,23 +33,10 @@ docker build -f Dockerfile-sdnr-sim -t sdnr-simulator .
 # build message generator image
 docker build -f Dockerfile-message-generator -t message-generator .
 
-# start up dmaap message router
-cd ${SHELL_FOLDER}/../../../../../docker-compose/
-docker-compose -f docker-compose.yaml -f mr/docker-compose.yml up -d
+# build dmaap-mr sim
+cd ${SHELL_FOLDER}/../../../../mrstub/
+docker build -t mrstub .
 
-# wait until mr up & running
-for i in {1..60}; do
-    res=$(curl -o /dev/null -sw %{http_code} http://localhost:3904/topics)
-    echo "$res"
-    expect="200"
-    if [ "$res" == "$expect" ]; then
-        echo -e "dmaap-mr is alive!\n"
-        break;
-    else
-        sleep $i
-    fi
-done
-
-# start up oru, message-generator and sdnr-simulator
+# apply k8s yaml file
 cd ${SHELL_FOLDER}
-docker-compose up -d
+kubectl apply -f linkfailure.yml
