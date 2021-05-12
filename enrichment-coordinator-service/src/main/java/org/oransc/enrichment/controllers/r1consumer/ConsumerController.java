@@ -34,6 +34,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +45,11 @@ import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
-import org.oransc.enrichment.repository.EiJob;
-import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiType;
-import org.oransc.enrichment.repository.EiTypes;
+import org.oransc.enrichment.repository.InfoJob;
+import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoProducers;
+import org.oransc.enrichment.repository.InfoType;
+import org.oransc.enrichment.repository.InfoTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,13 +78,13 @@ public class ConsumerController {
     ApplicationConfig applicationConfig;
 
     @Autowired
-    private EiJobs jobs;
+    private InfoJobs jobs;
 
     @Autowired
-    private EiTypes infoTypes;
+    private InfoTypes infoTypes;
 
     @Autowired
-    private EiProducers infoProducers;
+    private InfoProducers infoProducers;
 
     @Autowired
     ProducerCallbacks producerCallbacks;
@@ -101,7 +103,7 @@ public class ConsumerController {
     public ResponseEntity<Object> getinfoTypeIdentifiers( //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiType infoType : this.infoTypes.getAllInfoTypes()) {
+        for (InfoType infoType : this.infoTypes.getAllInfoTypes()) {
             result.add(infoType.getId());
         }
 
@@ -124,7 +126,7 @@ public class ConsumerController {
     public ResponseEntity<Object> getInfoType( //
         @PathVariable("infoTypeId") String infoTypeId) {
         try {
-            EiType type = this.infoTypes.getType(infoTypeId);
+            InfoType type = this.infoTypes.getType(infoTypeId);
             ConsumerInfoTypeInfo info = toInfoTypeInfo(type);
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
@@ -133,7 +135,7 @@ public class ConsumerController {
     }
 
     @GetMapping(path = "/info-jobs", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "EI job identifiers", description = "query for information job identifiers")
+    @Operation(summary = "Information Job identifiers", description = "query for information job identifiers")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -159,7 +161,7 @@ public class ConsumerController {
         try {
             List<String> result = new ArrayList<>();
             if (owner != null) {
-                for (EiJob job : this.jobs.getJobsForOwner(owner)) {
+                for (InfoJob job : this.jobs.getJobsForOwner(owner)) {
                     if (infoTypeId == null || job.getTypeId().equals(infoTypeId)) {
                         result.add(job.getId());
                     }
@@ -193,7 +195,7 @@ public class ConsumerController {
     public ResponseEntity<Object> getIndividualEiJob( //
         @PathVariable("infoJobId") String infoJobId) {
         try {
-            EiJob job = this.jobs.getJob(infoJobId);
+            InfoJob job = this.jobs.getJob(infoJobId);
             return new ResponseEntity<>(gson.toJson(toInfoJobInfo(job)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -216,14 +218,14 @@ public class ConsumerController {
     public ResponseEntity<Object> getEiJobStatus( //
         @PathVariable("infoJobId") String jobId) {
         try {
-            EiJob job = this.jobs.getJob(jobId);
+            InfoJob job = this.jobs.getJob(jobId);
             return new ResponseEntity<>(gson.toJson(toInfoJobStatus(job)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    private ConsumerJobStatus toInfoJobStatus(EiJob job) {
+    private ConsumerJobStatus toInfoJobStatus(InfoJob job) {
         return this.infoProducers.isJobEnabled(job)
             ? new ConsumerJobStatus(ConsumerJobStatus.InfoJobStatusValues.ENABLED)
             : new ConsumerJobStatus(ConsumerJobStatus.InfoJobStatusValues.DISABLED);
@@ -241,7 +243,8 @@ public class ConsumerController {
             @ApiResponse(
                 responseCode = "204",
                 description = "Job deleted", //
-                content = @Content(schema = @Schema(implementation = VoidResponse.class))), // "Individual EI job"
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), // "Individual
+                                                                                            // Information Job"
             @ApiResponse(
                 responseCode = "404",
                 description = "Information subscription job is not found", //
@@ -250,7 +253,7 @@ public class ConsumerController {
     public ResponseEntity<Object> deleteIndividualEiJob( //
         @PathVariable("infoJobId") String jobId) {
         try {
-            EiJob job = this.jobs.getJob(jobId);
+            InfoJob job = this.jobs.getJob(jobId);
             this.jobs.remove(job, this.infoProducers);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
@@ -275,7 +278,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
             @ApiResponse(
                 responseCode = "404",
-                description = "Enrichment Information type is not found", //
+                description = "Information type is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public Mono<ResponseEntity<Object>> putIndividualInfoJob( //
@@ -299,20 +302,22 @@ public class ConsumerController {
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
 
-    private Mono<EiJob> startInfoSubscriptionJob(EiJob newInfoJob) {
+    private Mono<InfoJob> startInfoSubscriptionJob(InfoJob newInfoJob) {
         return this.producerCallbacks.startInfoSubscriptionJob(newInfoJob, infoProducers) //
             .doOnNext(noOfAcceptingProducers -> this.logger.debug("Started job {}, number of activated producers: {}",
                 newInfoJob.getId(), noOfAcceptingProducers)) //
             .flatMap(noOfAcceptingProducers -> Mono.just(newInfoJob));
     }
 
-    private Mono<EiJob> validatePutInfoJob(String jobId, ConsumerJobInfo jobInfo, boolean performTypeCheck) {
+    private Mono<InfoJob> validatePutInfoJob(String jobId, ConsumerJobInfo jobInfo, boolean performTypeCheck) {
         try {
             if (performTypeCheck) {
-                EiType infoType = this.infoTypes.getType(jobInfo.infoTypeId);
+                InfoType infoType = this.infoTypes.getType(jobInfo.infoTypeId);
                 validateJsonObjectAgainstSchema(infoType.getJobDataSchema(), jobInfo.jobDefinition);
             }
-            EiJob existingEiJob = this.jobs.get(jobId);
+            InfoJob existingEiJob = this.jobs.get(jobId);
+            validateUri(jobInfo.statusNotificationUri);
+            validateUri(jobInfo.jobResultUri);
 
             if (existingEiJob != null && !existingEiJob.getTypeId().equals(jobInfo.infoTypeId)) {
                 throw new ServiceException("Not allowed to change type for existing job", HttpStatus.CONFLICT);
@@ -320,6 +325,15 @@ public class ConsumerController {
             return Mono.just(toEiJob(jobInfo, jobId, jobInfo.infoTypeId));
         } catch (Exception e) {
             return Mono.error(e);
+        }
+    }
+
+    private void validateUri(String url) throws URISyntaxException, ServiceException {
+        if (url != null && !url.isEmpty()) {
+            URI uri = new URI(url);
+            if (!uri.isAbsolute()) {
+                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+            }
         }
     }
 
@@ -341,8 +355,8 @@ public class ConsumerController {
         }
     }
 
-    private EiJob toEiJob(ConsumerJobInfo info, String id, String typeId) {
-        return EiJob.builder() //
+    private InfoJob toEiJob(ConsumerJobInfo info, String id, String typeId) {
+        return InfoJob.builder() //
             .id(id) //
             .typeId(typeId) //
             .owner(info.owner) //
@@ -352,15 +366,11 @@ public class ConsumerController {
             .build();
     }
 
-    private EiJob toEiJob(ConsumerJobInfo info, String id, EiType type) {
-        return toEiJob(info, id, type.getId());
-    }
-
-    private ConsumerInfoTypeInfo toInfoTypeInfo(EiType type) {
+    private ConsumerInfoTypeInfo toInfoTypeInfo(InfoType type) {
         return new ConsumerInfoTypeInfo(type.getJobDataSchema());
     }
 
-    private ConsumerJobInfo toInfoJobInfo(EiJob s) {
+    private ConsumerJobInfo toInfoJobInfo(InfoJob s) {
         return new ConsumerJobInfo(s.getTypeId(), s.getJobData(), s.getOwner(), s.getTargetUrl(), s.getJobStatusUrl());
     }
 }

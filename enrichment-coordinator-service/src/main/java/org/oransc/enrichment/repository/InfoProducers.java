@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.immutables.value.Value.Immutable;
+import lombok.Builder;
+import lombok.Getter;
+
 import org.oransc.enrichment.controllers.a1e.A1eCallbacks;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
@@ -41,10 +43,10 @@ import org.springframework.stereotype.Component;
  */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 @Component
-public class EiProducers {
+public class InfoProducers {
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final Map<String, EiProducer> allEiProducers = new HashMap<>();
-    private final MultiMap<EiProducer> producersByType = new MultiMap<>();
+    private final Map<String, InfoProducer> allEiProducers = new HashMap<>();
+    private final MultiMap<InfoProducer> producersByType = new MultiMap<>();
 
     @Autowired
     private ProducerCallbacks producerCallbacks;
@@ -53,41 +55,42 @@ public class EiProducers {
     private A1eCallbacks consumerCallbacks;
 
     @Autowired
-    private EiJobs eiJobs;
+    private InfoJobs infoJobs;
 
-    @Immutable
-    public interface EiProducerRegistrationInfo {
-        String id();
+    @Builder
+    @Getter
+    public static class InfoProducerRegistrationInfo {
+        String id;
 
-        Collection<EiType> supportedTypes();
+        Collection<InfoType> supportedTypes;
 
-        String jobCallbackUrl();
+        String jobCallbackUrl;
 
-        String producerSupervisionCallbackUrl();
+        String producerSupervisionCallbackUrl;
     }
 
-    public EiProducer registerProducer(EiProducerRegistrationInfo producerInfo) {
-        final String producerId = producerInfo.id();
-        EiProducer previousDefinition = this.get(producerId);
+    public InfoProducer registerProducer(InfoProducerRegistrationInfo producerInfo) {
+        final String producerId = producerInfo.getId();
+        InfoProducer previousDefinition = this.get(producerId);
         if (previousDefinition != null) {
-            for (EiType type : previousDefinition.getEiTypes()) {
+            for (InfoType type : previousDefinition.getInfoTypes()) {
                 producersByType.remove(type.getId(), producerId);
             }
             allEiProducers.remove(producerId);
         }
 
-        EiProducer producer = createProducer(producerInfo);
+        InfoProducer producer = createProducer(producerInfo);
         allEiProducers.put(producer.getId(), producer);
-        for (EiType type : producer.getEiTypes()) {
+        for (InfoType type : producer.getInfoTypes()) {
             producersByType.put(type.getId(), producer.getId(), producer);
         }
 
-        Collection<EiType> previousTypes =
-            previousDefinition != null ? previousDefinition.getEiTypes() : new ArrayList<>();
+        Collection<InfoType> previousTypes =
+            previousDefinition != null ? previousDefinition.getInfoTypes() : new ArrayList<>();
 
-        producerCallbacks.startEiJobs(producer, this.eiJobs) //
+        producerCallbacks.startInfoJobs(producer, this.infoJobs) //
             .collectList() //
-            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(producer.getEiTypes())) //
+            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(producer.getInfoTypes())) //
             .collectList() //
             .flatMapMany(list -> consumerCallbacks.notifyJobStatus(previousTypes)) //
             .subscribe();
@@ -95,24 +98,24 @@ public class EiProducers {
         return producer;
     }
 
-    private EiProducer createProducer(EiProducerRegistrationInfo producerInfo) {
-        return new EiProducer(producerInfo.id(), producerInfo.supportedTypes(), producerInfo.jobCallbackUrl(),
-            producerInfo.producerSupervisionCallbackUrl());
+    private InfoProducer createProducer(InfoProducerRegistrationInfo producerInfo) {
+        return new InfoProducer(producerInfo.getId(), producerInfo.getSupportedTypes(),
+            producerInfo.getJobCallbackUrl(), producerInfo.getProducerSupervisionCallbackUrl());
     }
 
-    public synchronized Collection<EiProducer> getAllProducers() {
+    public synchronized Collection<InfoProducer> getAllProducers() {
         return new Vector<>(allEiProducers.values());
     }
 
-    public synchronized EiProducer getProducer(String id) throws ServiceException {
-        EiProducer p = allEiProducers.get(id);
+    public synchronized InfoProducer getProducer(String id) throws ServiceException {
+        InfoProducer p = allEiProducers.get(id);
         if (p == null) {
-            throw new ServiceException("Could not find EI producer: " + id);
+            throw new ServiceException("Could not find Information Producer: " + id);
         }
         return p;
     }
 
-    public synchronized EiProducer get(String id) {
+    public synchronized InfoProducer get(String id) {
         return allEiProducers.get(id);
     }
 
@@ -125,35 +128,35 @@ public class EiProducers {
         this.producersByType.clear();
     }
 
-    public void deregisterProducer(EiProducer producer) {
+    public void deregisterProducer(InfoProducer producer) {
         allEiProducers.remove(producer.getId());
-        for (EiType type : producer.getEiTypes()) {
+        for (InfoType type : producer.getInfoTypes()) {
             if (producersByType.remove(type.getId(), producer.getId()) == null) {
                 this.logger.error("Bug, no producer found");
             }
         }
-        this.consumerCallbacks.notifyJobStatus(producer.getEiTypes()) //
+        this.consumerCallbacks.notifyJobStatus(producer.getInfoTypes()) //
             .subscribe();
     }
 
-    public synchronized Collection<EiProducer> getProducersForType(EiType type) {
+    public synchronized Collection<InfoProducer> getProducersForType(InfoType type) {
         return this.producersByType.get(type.getId());
     }
 
-    public synchronized Collection<EiProducer> getProducersForType(String typeId) {
+    public synchronized Collection<InfoProducer> getProducersForType(String typeId) {
         return this.producersByType.get(typeId);
     }
 
     public synchronized Collection<String> getProducerIdsForType(String typeId) {
         Collection<String> producerIds = new ArrayList<>();
-        for (EiProducer p : this.getProducersForType(typeId)) {
+        for (InfoProducer p : this.getProducersForType(typeId)) {
             producerIds.add(p.getId());
         }
         return producerIds;
     }
 
-    public synchronized boolean isJobEnabled(EiJob job) {
-        for (EiProducer producer : this.producersByType.get(job.getTypeId())) {
+    public synchronized boolean isJobEnabled(InfoJob job) {
+        for (InfoProducer producer : this.producersByType.get(job.getTypeId())) {
             if (producer.isJobEnabled(job)) {
                 return true;
             }

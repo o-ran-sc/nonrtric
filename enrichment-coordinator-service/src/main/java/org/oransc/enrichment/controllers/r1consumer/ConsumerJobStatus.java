@@ -28,22 +28,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "JobStatus", description = "Status for an EI job")
+@Schema(name = "consumer_job_status", description = "Status for an Information Job")
 public class ConsumerJobStatus {
 
     @Gson.TypeAdapters
-    @Schema(name = "JobStatusValues", description = "Allowed values for EI job status")
+    @Schema(name = "info_job_status_values", description = "Allowed values for Information Job status")
     public enum InfoJobStatusValues {
         ENABLED, DISABLED
     }
 
     private static final String OPERATIONAL_STATE_DESCRIPTION = "values:\n" //
-        + "ENABLED: the A1-EI producer is able to deliver EI result for the EI job\n" //
-        + "DISABLED: the A1-EI producer is unable to deliver EI result for the EI job";
+        + "ENABLED: the A1-Information producer is able to deliver result for the Information Job\n" //
+        + "DISABLED: the A1-Information producer is unable to deliver result for the Information Job";
 
-    @Schema(name = "eiJobStatus", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
-    @SerializedName("eiJobStatus")
-    @JsonProperty(value = "eiJobStatus", required = true)
+    @Schema(name = "info_job_status", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
+    @SerializedName("info_job_status")
+    @JsonProperty(value = "info_job_status", required = true)
     public InfoJobStatusValues state;
 
     public ConsumerJobStatus() {

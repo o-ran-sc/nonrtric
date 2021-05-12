@@ -34,6 +34,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +45,11 @@ import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
-import org.oransc.enrichment.repository.EiJob;
-import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiType;
-import org.oransc.enrichment.repository.EiTypes;
+import org.oransc.enrichment.repository.InfoJob;
+import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoProducers;
+import org.oransc.enrichment.repository.InfoType;
+import org.oransc.enrichment.repository.InfoTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,13 +78,13 @@ public class A1eController {
     ApplicationConfig applicationConfig;
 
     @Autowired
-    private EiJobs eiJobs;
+    private InfoJobs eiJobs;
 
     @Autowired
-    private EiTypes eiTypes;
+    private InfoTypes eiTypes;
 
     @Autowired
-    private EiProducers eiProducers;
+    private InfoProducers infoProducers;
 
     @Autowired
     ProducerCallbacks producerCallbacks;
@@ -101,7 +103,7 @@ public class A1eController {
     public ResponseEntity<Object> getEiTypeIdentifiers( //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiType eiType : this.eiTypes.getAllInfoTypes()) {
+        for (InfoType eiType : this.eiTypes.getAllInfoTypes()) {
             result.add(eiType.getId());
         }
 
@@ -159,7 +161,7 @@ public class A1eController {
         try {
             List<String> result = new ArrayList<>();
             if (owner != null) {
-                for (EiJob job : this.eiJobs.getJobsForOwner(owner)) {
+                for (InfoJob job : this.eiJobs.getJobsForOwner(owner)) {
                     if (eiTypeId == null || job.getTypeId().equals(eiTypeId)) {
                         result.add(job.getId());
                     }
@@ -193,7 +195,7 @@ public class A1eController {
     public ResponseEntity<Object> getIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
-            EiJob job = this.eiJobs.getJob(eiJobId);
+            InfoJob job = this.eiJobs.getJob(eiJobId);
             return new ResponseEntity<>(gson.toJson(toEiJobInfo(job)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -216,15 +218,15 @@ public class A1eController {
     public ResponseEntity<Object> getEiJobStatus( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
-            EiJob job = this.eiJobs.getJob(eiJobId);
+            InfoJob job = this.eiJobs.getJob(eiJobId);
             return new ResponseEntity<>(gson.toJson(toEiJobStatus(job)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    private A1eEiJobStatus toEiJobStatus(EiJob job) {
-        return this.eiProducers.isJobEnabled(job) ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
+    private A1eEiJobStatus toEiJobStatus(InfoJob job) {
+        return this.infoProducers.isJobEnabled(job) ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
             : new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.DISABLED);
 
     }
@@ -249,8 +251,8 @@ public class A1eController {
     public ResponseEntity<Object> deleteIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId) {
         try {
-            EiJob job = this.eiJobs.getJob(eiJobId);
-            this.eiJobs.remove(job, this.eiProducers);
+            InfoJob job = this.eiJobs.getJob(eiJobId);
+            this.eiJobs.remove(job, this.infoProducers);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -290,18 +292,20 @@ public class A1eController {
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
 
-    private Mono<EiJob> startEiJob(EiJob newEiJob) {
-        return this.producerCallbacks.startInfoSubscriptionJob(newEiJob, eiProducers) //
+    private Mono<InfoJob> startEiJob(InfoJob newEiJob) {
+        return this.producerCallbacks.startInfoSubscriptionJob(newEiJob, infoProducers) //
             .doOnNext(noOfAcceptingProducers -> this.logger.debug(
                 "Started EI job {}, number of activated producers: {}", newEiJob.getId(), noOfAcceptingProducers)) //
             .flatMap(noOfAcceptingProducers -> Mono.just(newEiJob));
     }
 
-    private Mono<EiJob> validatePutEiJob(String eiJobId, A1eEiJobInfo eiJobInfo) {
+    private Mono<InfoJob> validatePutEiJob(String eiJobId, A1eEiJobInfo eiJobInfo) {
         try {
-            EiType eiType = this.eiTypes.getType(eiJobInfo.eiTypeId);
+            InfoType eiType = this.eiTypes.getType(eiJobInfo.eiTypeId);
             validateJsonObjectAgainstSchema(eiType.getJobDataSchema(), eiJobInfo.jobDefinition);
-            EiJob existingEiJob = this.eiJobs.get(eiJobId);
+            InfoJob existingEiJob = this.eiJobs.get(eiJobId);
+            validateUri(eiJobInfo.jobResultUri);
+            validateUri(eiJobInfo.statusNotificationUri);
 
             if (existingEiJob != null && !existingEiJob.getTypeId().equals(eiJobInfo.eiTypeId)) {
                 throw new ServiceException("Not allowed to change type for existing EI job", HttpStatus.CONFLICT);
@@ -309,6 +313,15 @@ public class A1eController {
             return Mono.just(toEiJob(eiJobInfo, eiJobId, eiType));
         } catch (Exception e) {
             return Mono.error(e);
+        }
+    }
+
+    private void validateUri(String url) throws URISyntaxException, ServiceException {
+        if (url != null && !url.isEmpty()) {
+            URI uri = new URI(url);
+            if (!uri.isAbsolute()) {
+                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+            }
         }
     }
 
@@ -330,8 +343,8 @@ public class A1eController {
         }
     }
 
-    private EiJob toEiJob(A1eEiJobInfo info, String id, EiType type) {
-        return EiJob.builder() //
+    private InfoJob toEiJob(A1eEiJobInfo info, String id, InfoType type) {
+        return InfoJob.builder() //
             .id(id) //
             .typeId(type.getId()) //
             .owner(info.owner) //
@@ -345,7 +358,7 @@ public class A1eController {
         return new A1eEiTypeInfo();
     }
 
-    private A1eEiJobInfo toEiJobInfo(EiJob s) {
+    private A1eEiJobInfo toEiJobInfo(InfoJob s) {
         return new A1eEiJobInfo(s.getTypeId(), s.getJobData(), s.getOwner(), s.getTargetUrl(), s.getJobStatusUrl());
     }
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * O-RAN-SC
  * %%
- * Copyright (C) 2020 Nordix Foundation
+ * Copyright (C) 2019 Nordix Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,20 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.r1producer;
+package org.oransc.enrichment.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+public class InfoType {
+    @Getter
+    private final String id;
 
-import org.immutables.gson.Gson;
+    @Getter
+    private final Object jobDataSchema;
 
-@Gson.TypeAdapters
-@Schema(name = "producer_ei_type_info", description = "Information for an EI type")
-public class ProducerEiTypeInfo {
-
-    @Schema(name = "ei_job_data_schema", description = "Json schema for the job data", required = true)
-    @SerializedName("ei_job_data_schema")
-    @JsonProperty(value = "ei_job_data_schema", required = true)
-    public Object jobDataSchema;
-
-    public ProducerEiTypeInfo(Object jobDataSchema) {
+    public InfoType(String id, Object jobDataSchema) {
+        this.id = id;
         this.jobDataSchema = jobDataSchema;
-    }
-
-    public ProducerEiTypeInfo() {
     }
 
 }

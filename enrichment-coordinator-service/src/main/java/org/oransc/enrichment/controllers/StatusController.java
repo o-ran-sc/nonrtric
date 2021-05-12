@@ -31,9 +31,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.immutables.gson.Gson;
-import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiTypes;
+import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoProducers;
+import org.oransc.enrichment.repository.InfoTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,13 +50,13 @@ public class StatusController {
     public static final String API_DESCRIPTION = "API for monitoring of the service";
 
     @Autowired
-    private EiJobs eiJobs;
+    private InfoJobs infoJobs;
 
     @Autowired
-    private EiTypes eiTypes;
+    private InfoTypes infoTypes;
 
     @Autowired
-    private EiProducers eiProducers;
+    private InfoProducers infoProducers;
 
     @Gson.TypeAdapters
     @Schema(name = "status_info")
@@ -66,22 +66,22 @@ public class StatusController {
         @JsonProperty(value = "status", required = true)
         public final String status;
 
-        @Schema(name = "no_of_producers", description = "Number of EI producers")
+        @Schema(name = "no_of_producers", description = "Number of Information Producers")
         @SerializedName("no_of_producers")
         @JsonProperty(value = "no_of_producers", required = true)
         public final int noOfProducers;
 
-        @Schema(name = "no_of_types", description = "Number of EI types")
+        @Schema(name = "no_of_types", description = "Number of Information Types")
         @SerializedName("no_of_types")
         @JsonProperty(value = "no_of_types", required = true)
         public final int noOfTypes;
 
-        @Schema(name = "no_of_jobs", description = "Number of EI jobs")
+        @Schema(name = "no_of_jobs", description = "Number of Information Jobs")
         @SerializedName("no_of_jobs")
         @JsonProperty(value = "no_of_jobs", required = true)
         public final int noOfJobs;
 
-        public StatusInfo(String status, EiProducers producers, EiTypes types, EiJobs jobs) {
+        public StatusInfo(String status, InfoProducers producers, InfoTypes types, InfoJobs jobs) {
             this.status = status;
             this.noOfJobs = jobs.size();
             this.noOfProducers = producers.size();
@@ -99,7 +99,7 @@ public class StatusController {
                 content = @Content(schema = @Schema(implementation = StatusInfo.class))) //
         })
     public Mono<ResponseEntity<Object>> getStatus() {
-        StatusInfo info = new StatusInfo("hunky dory", this.eiProducers, this.eiTypes, this.eiJobs);
+        StatusInfo info = new StatusInfo("hunky dory", this.infoProducers, this.infoTypes, this.infoJobs);
         return Mono.just(new ResponseEntity<>(info, HttpStatus.OK));
     }
 

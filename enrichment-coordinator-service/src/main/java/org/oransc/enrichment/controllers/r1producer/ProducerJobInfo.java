@@ -26,43 +26,43 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.immutables.gson.Gson;
-import org.oransc.enrichment.repository.EiJob;
+import org.oransc.enrichment.repository.InfoJob;
 
 @Gson.TypeAdapters
 @Schema(
-    name = "producer_ei_job_request",
-    description = "The body of the EI producer callbacks for EI job creation and deletion")
+    name = "producer_info_job_request",
+    description = "The body of the Information Producer callbacks for Information Job creation and deletion")
 public class ProducerJobInfo {
 
-    @Schema(name = "ei_job_identity", description = "Idenitity of the EI job", required = true)
-    @SerializedName("ei_job_identity")
-    @JsonProperty("ei_job_identity")
-    public String id;
+    @Schema(name = "info_job_identity", description = "Identity of the Information Job", required = true)
+    @SerializedName("info_job_identity")
+    @JsonProperty("info_job_identity")
+    public String id = "";
 
-    @Schema(name = "ei_type_identity", description = "Type idenitity for the job")
-    @SerializedName("ei_type_identity")
-    @JsonProperty("ei_type_identity")
-    public String typeId;
+    @Schema(name = "info_type_identity", description = "Type identity for the job")
+    @SerializedName("info_type_identity")
+    @JsonProperty("info_type_identity")
+    public String typeId = "";
 
-    @Schema(name = "ei_job_data", description = "Json for the job data")
-    @SerializedName("ei_job_data")
-    @JsonProperty("ei_job_data")
+    @Schema(name = "info_job_data", description = "Json for the job data")
+    @SerializedName("info_job_data")
+    @JsonProperty("info_job_data")
     public Object jobData;
 
-    @Schema(name = "target_uri", description = "URI for the target of the EI")
+    @Schema(name = "target_uri", description = "URI for the target of the produced Information")
     @SerializedName("target_uri")
     @JsonProperty("target_uri")
-    public String targetUri;
+    public String targetUri = "";
 
     @Schema(name = "owner", description = "The owner of the job")
     @SerializedName("owner")
     @JsonProperty("owner")
-    public String owner;
+    public String owner = "";
 
     @Schema(name = "last_updated", description = "The time when the job was last updated or created (ISO-8601)")
     @SerializedName("last_updated")
     @JsonProperty("last_updated")
-    public String lastUpdated;
+    public String lastUpdated = "";
 
     public ProducerJobInfo(Object jobData, String id, String typeId, String targetUri, String owner,
         String lastUpdated) {
@@ -74,7 +74,7 @@ public class ProducerJobInfo {
         this.lastUpdated = lastUpdated;
     }
 
-    public ProducerJobInfo(EiJob job) {
+    public ProducerJobInfo(InfoJob job) {
         this(job.getJobData(), job.getId(), job.getTypeId(), job.getTargetUrl(), job.getOwner(), job.getLastUpdated());
     }
 

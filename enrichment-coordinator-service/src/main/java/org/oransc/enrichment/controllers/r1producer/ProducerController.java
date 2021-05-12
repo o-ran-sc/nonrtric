@@ -32,6 +32,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,13 +41,12 @@ import java.util.List;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
 import org.oransc.enrichment.exceptions.ServiceException;
-import org.oransc.enrichment.repository.EiJob;
-import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducer;
-import org.oransc.enrichment.repository.EiProducers;
-import org.oransc.enrichment.repository.EiType;
-import org.oransc.enrichment.repository.EiTypes;
-import org.oransc.enrichment.repository.ImmutableEiProducerRegistrationInfo;
+import org.oransc.enrichment.repository.InfoJob;
+import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoProducer;
+import org.oransc.enrichment.repository.InfoProducers;
+import org.oransc.enrichment.repository.InfoType;
+import org.oransc.enrichment.repository.InfoTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,57 +67,61 @@ public class ProducerController {
     private static Gson gson = new GsonBuilder().create();
 
     @Autowired
-    private EiJobs eiJobs;
+    private InfoJobs infoJobs;
 
     @Autowired
-    private EiTypes eiTypes;
+    private InfoTypes infoTypes;
 
     @Autowired
-    private EiProducers eiProducers;
+    private InfoProducers infoProducers;
 
-    @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE) //
-    @Operation(summary = "EI type identifiers", description = "") //
+    @GetMapping(path = ProducerConsts.API_ROOT + "/info-types", produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = "Info Type identifiers", description = "") //
     @ApiResponses(
         value = { //
             @ApiResponse(
                 responseCode = "200",
-                description = "EI type identifiers", //
+                description = "Info Type identifiers", //
                 content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))) //
         })
-    public ResponseEntity<Object> getEiTypeIdentifiers( //
+    public ResponseEntity<Object> getInfoTypdentifiers( //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiType eiType : this.eiTypes.getAllInfoTypes()) {
-            result.add(eiType.getId());
+        for (InfoType infoType : this.infoTypes.getAllInfoTypes()) {
+            result.add(infoType.getId());
         }
 
         return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
     }
 
-    @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Individual EI type", description = "")
+    @GetMapping(
+        path = ProducerConsts.API_ROOT + "/info-types/{infoTypeId}",
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Individual Information Type", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
                 responseCode = "200",
-                description = "EI type", //
-                content = @Content(schema = @Schema(implementation = ProducerEiTypeInfo.class))), //
+                description = "Info Type", //
+                content = @Content(schema = @Schema(implementation = ProducerInfoTypeInfo.class))), //
             @ApiResponse(
                 responseCode = "404",
-                description = "Enrichment Information type is not found", //
+                description = "Information type is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
-    public ResponseEntity<Object> getEiType( //
-        @PathVariable("eiTypeId") String eiTypeId) {
+    public ResponseEntity<Object> getInfoType( //
+        @PathVariable("infoTypeId") String infoTypeId) {
         try {
-            EiType t = this.eiTypes.getType(eiTypeId);
-            ProducerEiTypeInfo info = toEiTypeInfo(t);
+            InfoType t = this.infoTypes.getType(infoTypeId);
+            ProducerInfoTypeInfo info = toInfoTypeInfo(t);
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    @PutMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(
+        path = ProducerConsts.API_ROOT + "/info-types/{infoTypeId}",
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -131,21 +136,23 @@ public class ProducerController {
                 responseCode = "400",
                 description = "Bad request", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
-    @Operation(summary = "Individual EI type", description = "")
-    public ResponseEntity<Object> putEiType( //
-        @PathVariable("eiTypeId") String eiTypeId, //
-        @RequestBody ProducerEiTypeInfo registrationInfo) {
+    @Operation(summary = "Individual Information Type", description = "")
+    public ResponseEntity<Object> putInfoType( //
+        @PathVariable("infoTypeId") String infoTypeId, //
+        @RequestBody ProducerInfoTypeInfo registrationInfo) {
 
-        EiType previousDefinition = this.eiTypes.get(eiTypeId);
+        InfoType previousDefinition = this.infoTypes.get(infoTypeId);
         if (registrationInfo.jobDataSchema == null) {
             return ErrorResponse.create("No schema provided", HttpStatus.BAD_REQUEST);
         }
-        this.eiTypes.put(new EiType(eiTypeId, registrationInfo.jobDataSchema));
+        this.infoTypes.put(new InfoType(infoTypeId, registrationInfo.jobDataSchema));
         return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
     }
 
-    @DeleteMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE) //
-    @Operation(summary = "Individual EI type", description = "") //
+    @DeleteMapping(
+        path = ProducerConsts.API_ROOT + "/info-types/{infoTypeId}",
+        produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = "Individual Information Type", description = "") //
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -158,73 +165,73 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
             @ApiResponse(
                 responseCode = "404",
-                description = "Enrichment Information type is not found", //
+                description = "Information type is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
             @ApiResponse(
                 responseCode = "406",
-                description = "The Enrichment Information type has one or several active producers", //
+                description = "The Information type has one or several active producers", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
-    public ResponseEntity<Object> deleteEiType( //
-        @PathVariable("eiTypeId") String eiTypeId) {
+    public ResponseEntity<Object> deleteInfoType( //
+        @PathVariable("infoTypeId") String infoTypeId) {
 
-        EiType type = this.eiTypes.get(eiTypeId);
+        InfoType type = this.infoTypes.get(infoTypeId);
         if (type == null) {
             return ErrorResponse.create("Information type not found", HttpStatus.NOT_FOUND);
         }
-        if (!this.eiProducers.getProducersForType(type).isEmpty()) {
-            String firstProducerId = this.eiProducers.getProducersForType(type).iterator().next().getId();
+        if (!this.infoProducers.getProducersForType(type).isEmpty()) {
+            String firstProducerId = this.infoProducers.getProducersForType(type).iterator().next().getId();
             return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.NOT_ACCEPTABLE);
         }
-        this.eiTypes.remove(type);
+        this.infoTypes.remove(type);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(path = ProducerConsts.API_ROOT + "/eiproducers", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "EI producer identifiers", description = "")
+    @GetMapping(path = ProducerConsts.API_ROOT + "/info-producers", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Information producer identifiers", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
                 responseCode = "200",
-                description = "EI producer identifiers", //
+                description = "Information producer identifiers", //
                 content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))) //
         })
-    public ResponseEntity<Object> getEiProducerIdentifiers( //
+    public ResponseEntity<Object> getInfoProducerIdentifiers( //
         @Parameter(
-            name = "ei_type_id",
+            name = "info_type_id",
             required = false,
             description = "If given, only the producers for the EI Data type is returned.") //
-        @RequestParam(name = "ei_type_id", required = false) String typeId //
+        @RequestParam(name = "info_type_id", required = false) String typeId //
     ) {
         List<String> result = new ArrayList<>();
-        for (EiProducer eiProducer : typeId == null ? this.eiProducers.getAllProducers()
-            : this.eiProducers.getProducersForType(typeId)) {
-            result.add(eiProducer.getId());
+        for (InfoProducer infoProducer : typeId == null ? this.infoProducers.getAllProducers()
+            : this.infoProducers.getProducersForType(typeId)) {
+            result.add(infoProducer.getId());
         }
 
         return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
     }
 
     @GetMapping(
-        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
+        path = ProducerConsts.API_ROOT + "/info-producers/{infoProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Individual EI producer", description = "")
+    @Operation(summary = "Individual Information Producer", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
                 responseCode = "200",
-                description = "EI producer", //
+                description = "Information producer", //
                 content = @Content(schema = @Schema(implementation = ProducerRegistrationInfo.class))), //
             @ApiResponse(
                 responseCode = "404",
-                description = "Enrichment Information producer is not found", //
+                description = "Information producer is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))//
         })
-    public ResponseEntity<Object> getEiProducer( //
-        @PathVariable("eiProducerId") String eiProducerId) {
+    public ResponseEntity<Object> getInfoProducer( //
+        @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            EiProducer p = this.eiProducers.getProducer(eiProducerId);
-            ProducerRegistrationInfo info = toEiProducerRegistrationInfo(p);
+            InfoProducer p = this.infoProducers.getProducer(infoProducerId);
+            ProducerRegistrationInfo info = toProducerRegistrationInfo(p);
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -232,28 +239,30 @@ public class ProducerController {
     }
 
     @GetMapping(
-        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}/eijobs",
+        path = ProducerConsts.API_ROOT + "/info-producers/{infoProducerId}/info-jobs",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "EI job definitions", description = "EI job definitions for one EI producer")
+    @Operation(
+        summary = "Information Job definitions",
+        description = "Information Job definitions for one Information Producer")
     @ApiResponses(
         value = { //
             @ApiResponse(
                 responseCode = "404",
-                description = "Enrichment Information producer is not found", //
+                description = "Information producer is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
             @ApiResponse(
                 responseCode = "200",
-                description = "EI producer", //
+                description = "Information producer", //
                 content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProducerJobInfo.class)))), //
         })
-    public ResponseEntity<Object> getEiProducerJobs( //
-        @PathVariable("eiProducerId") String eiProducerId) {
+    public ResponseEntity<Object> getInfoProducerJobs( //
+        @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            EiProducer producer = this.eiProducers.getProducer(eiProducerId);
+            InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             Collection<ProducerJobInfo> producerJobs = new ArrayList<>();
-            for (EiType type : producer.getEiTypes()) {
-                for (EiJob eiJob : this.eiJobs.getJobsForType(type)) {
-                    ProducerJobInfo request = new ProducerJobInfo(eiJob);
+            for (InfoType type : producer.getInfoTypes()) {
+                for (InfoJob infoJob : this.infoJobs.getJobsForType(type)) {
+                    ProducerJobInfo request = new ProducerJobInfo(infoJob);
                     producerJobs.add(request);
                 }
             }
@@ -265,31 +274,31 @@ public class ProducerController {
     }
 
     @GetMapping(
-        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}/status",
+        path = ProducerConsts.API_ROOT + "/info-producers/{infoProducerId}/status",
         produces = MediaType.APPLICATION_JSON_VALUE) //
-    @Operation(summary = "EI producer status") //
+    @Operation(summary = "Information producer status") //
     @ApiResponses(
         value = { //
             @ApiResponse(
                 responseCode = "200",
-                description = "EI producer status", //
+                description = "Information producer status", //
                 content = @Content(schema = @Schema(implementation = ProducerStatusInfo.class))), //
             @ApiResponse(
                 responseCode = "404",
-                description = "Enrichment Information producer is not found", //
+                description = "Information producer is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
-    public ResponseEntity<Object> getEiProducerStatus( //
-        @PathVariable("eiProducerId") String eiProducerId) {
+    public ResponseEntity<Object> getInfoProducerStatus( //
+        @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            EiProducer producer = this.eiProducers.getProducer(eiProducerId);
+            InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             return new ResponseEntity<>(gson.toJson(producerStatusInfo(producer)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    private ProducerStatusInfo producerStatusInfo(EiProducer producer) {
+    private ProducerStatusInfo producerStatusInfo(InfoProducer producer) {
         ProducerStatusInfo.OperationalState opState =
             producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
                 : ProducerStatusInfo.OperationalState.DISABLED;
@@ -297,9 +306,9 @@ public class ProducerController {
     }
 
     @PutMapping(
-        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}", //
+        path = ProducerConsts.API_ROOT + "/info-producers/{infoProducerId}", //
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Individual EI producer", description = "")
+    @Operation(summary = "Individual Information Producer", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -315,22 +324,35 @@ public class ProducerController {
                 description = "Producer not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
-    public ResponseEntity<Object> putEiProducer( //
-        @PathVariable("eiProducerId") String eiProducerId, //
+    public ResponseEntity<Object> putInfoProducer( //
+        @PathVariable("infoProducerId") String infoProducerId, //
         @RequestBody ProducerRegistrationInfo registrationInfo) {
         try {
-            EiProducer previousDefinition = this.eiProducers.get(eiProducerId);
-            this.eiProducers.registerProducer(toEiProducerRegistrationInfo(eiProducerId, registrationInfo));
+            validateUri(registrationInfo.jobCallbackUrl);
+            validateUri(registrationInfo.producerSupervisionCallbackUrl);
+            InfoProducer previousDefinition = this.infoProducers.get(infoProducerId);
+            this.infoProducers.registerProducer(toProducerRegistrationInfo(infoProducerId, registrationInfo));
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
+    private void validateUri(String url) throws URISyntaxException, ServiceException {
+        if (url != null && !url.isEmpty()) {
+            URI uri = new URI(url);
+            if (!uri.isAbsolute()) {
+                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+            }
+        } else {
+            throw new ServiceException("Missing required URL", HttpStatus.CONFLICT);
+        }
+    }
+
     @DeleteMapping(
-        path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
+        path = ProducerConsts.API_ROOT + "/info-producers/{infoProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Individual EI producer", description = "")
+    @Operation(summary = "Individual Information Producer", description = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -346,38 +368,38 @@ public class ProducerController {
                 description = "Producer is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
-    public ResponseEntity<Object> deleteEiProducer(@PathVariable("eiProducerId") String eiProducerId) {
+    public ResponseEntity<Object> deleteInfoProducer(@PathVariable("infoProducerId") String infoProducerId) {
         try {
-            final EiProducer producer = this.eiProducers.getProducer(eiProducerId);
-            this.eiProducers.deregisterProducer(producer);
+            final InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
+            this.infoProducers.deregisterProducer(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    private ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
+    private ProducerRegistrationInfo toProducerRegistrationInfo(InfoProducer p) {
         Collection<String> types = new ArrayList<>();
-        for (EiType type : p.getEiTypes()) {
+        for (InfoType type : p.getInfoTypes()) {
             types.add(type.getId());
         }
         return new ProducerRegistrationInfo(types, p.getJobCallbackUrl(), p.getProducerSupervisionCallbackUrl());
     }
 
-    private ProducerEiTypeInfo toEiTypeInfo(EiType t) {
-        return new ProducerEiTypeInfo(t.getJobDataSchema());
+    private ProducerInfoTypeInfo toInfoTypeInfo(InfoType t) {
+        return new ProducerInfoTypeInfo(t.getJobDataSchema());
     }
 
-    private EiProducers.EiProducerRegistrationInfo toEiProducerRegistrationInfo(String eiProducerId,
+    private InfoProducers.InfoProducerRegistrationInfo toProducerRegistrationInfo(String infoProducerId,
         ProducerRegistrationInfo info) throws ServiceException {
-        Collection<EiType> supportedTypes = new ArrayList<>();
+        Collection<InfoType> supportedTypes = new ArrayList<>();
         for (String typeId : info.supportedTypeIds) {
-            EiType type = this.eiTypes.getType(typeId);
+            InfoType type = this.infoTypes.getType(typeId);
             supportedTypes.add(type);
         }
 
-        return ImmutableEiProducerRegistrationInfo.builder() //
-            .id(eiProducerId) //
+        return InfoProducers.InfoProducerRegistrationInfo.builder() //
+            .id(infoProducerId) //
             .jobCallbackUrl(info.jobCallbackUrl) //
             .producerSupervisionCallbackUrl(info.producerSupervisionCallbackUrl) //
             .supportedTypes(supportedTypes) //

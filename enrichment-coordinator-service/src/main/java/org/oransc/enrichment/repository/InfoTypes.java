@@ -45,16 +45,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
 
 /**
- * Dynamic representation of all EI types in the system.
+ * Dynamic representation of all Information Types in the system.
  */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
-public class EiTypes {
+public class InfoTypes {
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final Map<String, EiType> allEiTypes = new HashMap<>();
+    private final Map<String, InfoType> allEiTypes = new HashMap<>();
     private final ApplicationConfig config;
     private final Gson gson;
 
-    public EiTypes(ApplicationConfig config) {
+    public InfoTypes(ApplicationConfig config) {
         this.config = config;
         GsonBuilder gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
@@ -67,33 +67,33 @@ public class EiTypes {
 
         for (File file : dbDir.listFiles()) {
             String json = Files.readString(file.toPath());
-            EiType type = gson.fromJson(json, EiType.class);
+            InfoType type = gson.fromJson(json, InfoType.class);
             allEiTypes.put(type.getId(), type);
         }
     }
 
-    public synchronized void put(EiType type) {
+    public synchronized void put(InfoType type) {
         allEiTypes.put(type.getId(), type);
         storeInFile(type);
     }
 
-    public synchronized Collection<EiType> getAllInfoTypes() {
+    public synchronized Collection<InfoType> getAllInfoTypes() {
         return new Vector<>(allEiTypes.values());
     }
 
-    public synchronized EiType getType(String id) throws ServiceException {
-        EiType type = allEiTypes.get(id);
+    public synchronized InfoType getType(String id) throws ServiceException {
+        InfoType type = allEiTypes.get(id);
         if (type == null) {
             throw new ServiceException("Information type not found: " + id);
         }
         return type;
     }
 
-    public synchronized EiType get(String id) {
+    public synchronized InfoType get(String id) {
         return allEiTypes.get(id);
     }
 
-    public synchronized void remove(EiType type) {
+    public synchronized void remove(InfoType type) {
         allEiTypes.remove(type.getId());
         try {
             Files.delete(getPath(type));
@@ -120,7 +120,7 @@ public class EiTypes {
         }
     }
 
-    private void storeInFile(EiType type) {
+    private void storeInFile(InfoType type) {
         try {
             try (PrintStream out = new PrintStream(new FileOutputStream(getFile(type)))) {
                 out.print(gson.toJson(type));
@@ -130,11 +130,11 @@ public class EiTypes {
         }
     }
 
-    private File getFile(EiType type) {
+    private File getFile(InfoType type) {
         return getPath(type).toFile();
     }
 
-    private Path getPath(EiType type) {
+    private Path getPath(InfoType type) {
         return getPath(type.getId());
     }
 

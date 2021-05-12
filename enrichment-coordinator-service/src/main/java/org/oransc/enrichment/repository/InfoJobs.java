@@ -46,13 +46,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
 
 /**
- * Dynamic representation of all existing EI jobs.
+ * Dynamic representation of all existing Information Jobs.
  */
-public class EiJobs {
-    private Map<String, EiJob> allEiJobs = new HashMap<>();
+public class InfoJobs {
+    private Map<String, InfoJob> allEiJobs = new HashMap<>();
 
-    private MultiMap<EiJob> jobsByType = new MultiMap<>();
-    private MultiMap<EiJob> jobsByOwner = new MultiMap<>();
+    private MultiMap<InfoJob> jobsByType = new MultiMap<>();
+    private MultiMap<InfoJob> jobsByOwner = new MultiMap<>();
     private final Gson gson;
 
     private final ApplicationConfig config;
@@ -60,7 +60,7 @@ public class EiJobs {
 
     private final ProducerCallbacks producerCallbacks;
 
-    public EiJobs(ApplicationConfig config, ProducerCallbacks producerCallbacks) {
+    public InfoJobs(ApplicationConfig config, ProducerCallbacks producerCallbacks) {
         this.config = config;
         GsonBuilder gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
@@ -74,53 +74,53 @@ public class EiJobs {
 
         for (File file : dbDir.listFiles()) {
             String json = Files.readString(file.toPath());
-            EiJob job = gson.fromJson(json, EiJob.class);
+            InfoJob job = gson.fromJson(json, InfoJob.class);
             this.doPut(job);
         }
     }
 
-    public synchronized void put(EiJob job) {
+    public synchronized void put(InfoJob job) {
         this.doPut(job);
         storeJobInFile(job);
     }
 
-    public synchronized Collection<EiJob> getJobs() {
+    public synchronized Collection<InfoJob> getJobs() {
         return new Vector<>(allEiJobs.values());
     }
 
-    public synchronized EiJob getJob(String id) throws ServiceException {
-        EiJob ric = allEiJobs.get(id);
+    public synchronized InfoJob getJob(String id) throws ServiceException {
+        InfoJob ric = allEiJobs.get(id);
         if (ric == null) {
             throw new ServiceException("Could not find Information job: " + id);
         }
         return ric;
     }
 
-    public synchronized Collection<EiJob> getJobsForType(String typeId) {
+    public synchronized Collection<InfoJob> getJobsForType(String typeId) {
         return jobsByType.get(typeId);
     }
 
-    public synchronized Collection<EiJob> getJobsForType(EiType type) {
+    public synchronized Collection<InfoJob> getJobsForType(InfoType type) {
         return jobsByType.get(type.getId());
     }
 
-    public synchronized Collection<EiJob> getJobsForOwner(String owner) {
+    public synchronized Collection<InfoJob> getJobsForOwner(String owner) {
         return jobsByOwner.get(owner);
     }
 
-    public synchronized EiJob get(String id) {
+    public synchronized InfoJob get(String id) {
         return allEiJobs.get(id);
     }
 
-    public synchronized EiJob remove(String id, EiProducers eiProducers) {
-        EiJob job = allEiJobs.get(id);
+    public synchronized InfoJob remove(String id, InfoProducers infoProducers) {
+        InfoJob job = allEiJobs.get(id);
         if (job != null) {
-            remove(job, eiProducers);
+            remove(job, infoProducers);
         }
         return job;
     }
 
-    public synchronized void remove(EiJob job, EiProducers eiProducers) {
+    public synchronized void remove(InfoJob job, InfoProducers infoProducers) {
         this.allEiJobs.remove(job.getId());
         jobsByType.remove(job.getTypeId(), job.getId());
         jobsByOwner.remove(job.getOwner(), job.getId());
@@ -130,7 +130,7 @@ public class EiJobs {
         } catch (IOException e) {
             logger.warn("Could not remove file: {}", e.getMessage());
         }
-        this.producerCallbacks.stopEiJob(job, eiProducers);
+        this.producerCallbacks.stopInfoJob(job, infoProducers);
     }
 
     public synchronized int size() {
@@ -153,13 +153,13 @@ public class EiJobs {
         }
     }
 
-    private void doPut(EiJob job) {
+    private void doPut(InfoJob job) {
         allEiJobs.put(job.getId(), job);
         jobsByType.put(job.getTypeId(), job.getId(), job);
         jobsByOwner.put(job.getOwner(), job.getId(), job);
     }
 
-    private void storeJobInFile(EiJob job) {
+    private void storeJobInFile(InfoJob job) {
         try {
             try (PrintStream out = new PrintStream(new FileOutputStream(getFile(job)))) {
                 out.print(gson.toJson(job));
@@ -169,11 +169,11 @@ public class EiJobs {
         }
     }
 
-    private File getFile(EiJob job) {
+    private File getFile(InfoJob job) {
         return getPath(job).toFile();
     }
 
-    private Path getPath(EiJob job) {
+    private Path getPath(InfoJob job) {
         return Path.of(getDatabaseDirectory(), job.getId());
     }
 

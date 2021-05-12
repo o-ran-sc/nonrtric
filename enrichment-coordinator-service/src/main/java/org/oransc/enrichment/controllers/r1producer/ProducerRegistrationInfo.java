@@ -30,26 +30,26 @@ import java.util.Collection;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "producer_registration_info", description = "Information for an EI producer")
+@Schema(name = "producer_registration_info", description = "Information for an Information Producer")
 public class ProducerRegistrationInfo {
 
-    @Schema(name = "supported_ei_types", description = "Supported EI type IDs", required = true)
-    @SerializedName("supported_ei_types")
-    @JsonProperty(value = "supported_ei_types", required = true)
+    @Schema(name = "supported_info_types", description = "Supported Information Type IDs", required = true)
+    @SerializedName("supported_info_types")
+    @JsonProperty(value = "supported_info_types", required = true)
     public Collection<String> supportedTypeIds;
 
-    @Schema(name = "ei_job_callback_url", description = "callback for EI job", required = true)
-    @SerializedName("ei_job_callback_url")
-    @JsonProperty(value = "ei_job_callback_url", required = true)
-    public String jobCallbackUrl;
+    @Schema(name = "info_job_callback_url", description = "callback for Information Job", required = true)
+    @SerializedName("info_job_callback_url")
+    @JsonProperty(value = "info_job_callback_url", required = true)
+    public String jobCallbackUrl = "";
 
     @Schema(
-        name = "ei_producer_supervision_callback_url",
+        name = "info_producer_supervision_callback_url",
         description = "callback for producer supervision",
         required = true)
-    @SerializedName("ei_producer_supervision_callback_url")
-    @JsonProperty(value = "ei_producer_supervision_callback_url", required = true)
-    public String producerSupervisionCallbackUrl;
+    @SerializedName("info_producer_supervision_callback_url")
+    @JsonProperty(value = "info_producer_supervision_callback_url", required = true)
+    public String producerSupervisionCallbackUrl = "";
 
     public ProducerRegistrationInfo(Collection<String> types, String jobCallbackUrl,
         String producerSupervisionCallbackUrl) {
