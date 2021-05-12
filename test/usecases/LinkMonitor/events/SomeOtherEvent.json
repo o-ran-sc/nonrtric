@@ -1,0 +1,38 @@
+{
+    "event": {
+        "commonEventHeader": {
+            "domain": "fault",
+            "eventId": "nt:network-topology/nt:topology/nt:node/nt:node-id",
+            "eventName": "fault_O-RAN-RU-Fault_Alarms_CUS_Link_Failure",
+            "eventType": "O-RAN-RU-Fault",
+            "sequence": 0,
+            "priority": "Normal",
+            "reportingEntityId": "SDNR",
+            "reportingEntityName": "@controllerName@",
+            "sourceId": "",
+            "sourceName": "ERICSSON-O-RU-11225",
+            "startEpochMicrosec": "@timestamp@",
+            "lastEpochMicrosec": "@timestamp@",
+            "nfNamingCode": "",
+            "nfVendorName": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-name",
+            "timeZoneOffset": "+00:00",
+            "version": "4.1",
+            "vesEventListenerVersion": "7.2.1"
+        },
+        "faultFields": {
+            "faultFieldsVersion": "4.0",
+            "alarmCondition": "1",
+            "alarmInterfaceA": "o-ran-fm:alarm-notif/fault-source",
+            "eventSourceType": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-model or \"O-RU\"",
+            "specificProblem": "",
+            "eventSeverity": "NORMAL",
+            "vfStatus": "Active",
+            "alarmAdditionalInformation": {
+                "eventTime": "@eventTime@",
+                "equipType": "@type@",
+                "vendor": "@vendor@",
+                "model": "@model@"
+            }
+        }
+    }
+}

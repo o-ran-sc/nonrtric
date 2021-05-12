@@ -1,0 +1,76 @@
+{
+    "engineServiceParameters": {
+        "name": "LinkMonitorApexEngine",
+        "version": "0.0.1",
+        "id": 101,
+        "instanceCount": 1,
+        "deploymentPort": 12345,
+        "engineParameters": {
+            "executorParameters": {
+                "JAVASCRIPT": {
+                    "parameterClassName": "org.onap.policy.apex.plugins.executor.javascript.JavascriptExecutorParameters"
+                }
+            },
+            "contextParameters": {
+                "parameterClassName": "org.onap.policy.apex.context.parameters.ContextParameters",
+                "schemaParameters": {
+                    "Avro": {
+                        "parameterClassName": "org.onap.policy.apex.plugins.context.schema.avro.AvroSchemaHelperParameters"
+                    }
+                }
+            }
+        }
+    },
+    "eventOutputParameters": {
+        "RestProducer": {
+            "carrierTechnologyParameters": {
+                "carrierTechnology": "RESTCLIENT",
+                "parameterClassName": "org.onap.policy.apex.plugins.event.carrier.restclient.RestClientCarrierTechnologyParameters",
+                "parameters": {
+                    "url": "http://sdnr-sim:9990/rests/data/network-topology:network-topology/topology=topology-netconf/node={OduId}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection={OruId}"
+                }
+            },
+            "eventProtocolParameters": {
+                "eventProtocol": "JSON",
+                "parameters": {
+                    "pojoField": "LinkFailureOutput"
+                }
+            },
+            "eventNameFilter": "LinkFailureOutputEvent"
+        },
+        "StdOutProducer": {
+            "carrierTechnologyParameters": {
+                "carrierTechnology": "FILE",
+                "parameters": {
+                    "standardIo": true
+                }
+            },
+            "eventProtocolParameters": {
+                "eventProtocol": "JSON",
+                "parameters": {
+                    "pojoField": "message"
+                }
+            },
+            "eventNameFilter": "ApexMessageOutputEvent"
+        }
+    },
+    "eventInputParameters": {
+        "DMaaPConsumer": {
+            "carrierTechnologyParameters": {
+                "carrierTechnology": "RESTCLIENT",
+                "parameterClassName": "org.onap.policy.apex.plugins.event.carrier.restclient.RestClientCarrierTechnologyParameters",
+                "parameters": {
+                    "url": "http://dmaap-mr:3904/events/unauthenticated.SEC_FAULT_OUTPUT/users/link-monitor-nonrtric?timeout=15000&limit=100"
+                }
+            },
+            "eventProtocolParameters": {
+                "eventProtocol": "JSON",
+                "parameters": {
+                    "versionAlias": "version",
+                    "pojoField": "LinkFailureInput"
+                }
+            },
+            "eventName": "LinkFailureInputEvent"
+        }
+    }
+}
