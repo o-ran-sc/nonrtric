@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e04604e1_de06edfa",
+        "filename": "test/usecases/LinkMonitor/models/CreateLinkFailureOutfieldsLogic.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-05-17T08:57:12Z",
+      "side": 1,
+      "message": "We probably should use the Apex \"Context\" functions for this. \nBut OK for now.",
+      "range": {
+        "startLine": 26,
+        "startChar": 1,
+        "endLine": 36,
+        "endChar": 1
+      },
+      "revId": "aea0b4bc5c108e5246be09b1afef6ffc4e812840",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
