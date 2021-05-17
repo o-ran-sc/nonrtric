@@ -46,12 +46,22 @@ using the command, with available params listed:
  `docker run --network [NETWORK NAME] --name message-generator -e MR-HOST=[HOST NAME OF MR] -e MR-PORT=[PORT OF MR] message-generator`.
 
 To build the image for the SDNR simulator, run the following command from the `simulators` folder:
-`docker build -f Dockerfile-sdnr-sim -t message-generator .`
+`docker build -f Dockerfile-sdnr-sim -t sdnr-simulator .`
 
 The SDNR simulator's container must be connected to the same network as the the other components are running in. Some of the
 parameters to the application can be provided with the `-e PARAM_NAME=PARAM_VALUE` notation. Start the container by
 using the command, with available params listed:
  `docker run --network [NETWORK NAME] --name sdnr-simulator -e MR-HOST=[HOST NAME OF MR] -e MR-PORT=[PORT OF MR] sdnr-simulator`.
+
+# Use docker-compose
+Go to the `docker-compose/` folder and run `bash start.sh`.
+
+This scripts will start up four components:
+dmaap-mr
+oru-app
+sdnr-simulator
+message-generator
+
 
 ## License
 
