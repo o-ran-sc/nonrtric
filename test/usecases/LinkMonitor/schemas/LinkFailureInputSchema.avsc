@@ -1,0 +1,154 @@
+{
+    "type": "record",
+    "name": "Link_Failure_Input",
+    "fields": [
+        {
+            "name": "event",
+            "type": {
+                "type": "record",
+                "name": "Event_Type",
+                "fields": [
+                    {
+                        "name": "commonEventHeader",
+                        "type": {
+                            "type": "record",
+                            "name": "Common_Event_Header_Type",
+                            "fields": [
+                                {
+                                    "name": "domain",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventType",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "sequence",
+                                    "type": "int"
+                                },
+                                {
+                                    "name": "priority",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "reportingEntityId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "reportingEntityName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "sourceId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "sourceName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "startEpochMicrosec",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "lastEpochMicrosec",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "nfNamingCode",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "nfVendorName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "timeZoneOffset",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "version",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "vesEventListenerVersion",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "faultFields",
+                        "type": {
+                            "type": "record",
+                            "name": "Fault_Fields_Type",
+                            "fields": [
+                                {
+                                    "name": "faultFieldsVersion",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "alarmCondition",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "alarmInterfaceA",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventSourceType",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "specificProblem",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventSeverity",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "vfStatus",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "alarmAdditionalInformation",
+                                    "type": {
+                                        "type": "record",
+                                        "name": "Alarm_Additional_Information_Type",
+                                        "fields": [
+                                            {
+                                                "name": "eventTime",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "equipType",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "vendor",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "model",
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

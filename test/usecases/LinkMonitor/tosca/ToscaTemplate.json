@@ -1,0 +1,17 @@
+{
+  "tosca_definitions_version": "tosca_simple_yaml_1_1_0",
+  "topology_template": {
+    "policies": [
+      {
+        "onap.policies.native.apex.Test": {
+          "type": "onap.policies.native.Apex",
+          "type_version": "1.0.0",
+          "name": "onap.policies.native.apex.Test",
+          "version": "1.0.0",
+          "properties": {
+          }
+        }
+      }
+    ]
+  }
+}

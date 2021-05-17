@@ -1,0 +1,26 @@
+{
+    "type": "record",
+    "name": "Link_Failure_Output",
+    "fields": [
+        {
+            "name": "o_DasH_ran_DasH_sc_DasH_du_DasH_hello_DasH_world_ColoN_du_DasH_to_DasH_ru_DasH_connection",
+            "type": {
+        	"type": "array",
+        	"items": {
+		    "name": "Config_Change_Message",
+                    "type": "record",
+                    "fields": [
+                        {
+                            "name": "name",
+                            "type": "string"
+                        },
+			{
+                            "name": "administrative_DasH_state",
+                            "type": "string"
+                        }
+                    ]
+                }
+	    }
+        }
+    ]
+}
