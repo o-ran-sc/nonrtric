@@ -81,7 +81,7 @@ public class AsyncRestClientFactory {
                 return new AsyncRestClient(baseUrl, this.sslContextFactory.createSslContext(),
                     useHttpProxy ? httpProxyConfig : null);
             } catch (Exception e) {
-                String exceptionString = e.toString();
+                var exceptionString = e.toString();
                 logger.error("Could not init SSL context, reason: {}", exceptionString);
             }
         }
@@ -151,8 +151,8 @@ public class AsyncRestClientFactory {
 
         private KeyManagerFactory createKeyManager() throws NoSuchAlgorithmException, CertificateException, IOException,
             UnrecoverableKeyException, KeyStoreException {
-            final KeyManagerFactory keyManager = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            final KeyStore keyStore = KeyStore.getInstance(this.clientConfig.keyStoreType());
+            final var keyManager = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            final var keyStore = KeyStore.getInstance(this.clientConfig.keyStoreType());
             final String keyStoreFile = this.clientConfig.keyStore();
             final String keyStorePassword = this.clientConfig.keyStorePassword();
             final String keyPassword = this.clientConfig.keyPassword();
@@ -166,7 +166,7 @@ public class AsyncRestClientFactory {
         private synchronized KeyStore getTrustStore(String trustStorePath, String trustStorePass)
             throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
 
-            KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
+            var store = KeyStore.getInstance(KeyStore.getDefaultType());
             store.load(new FileInputStream(ResourceUtils.getFile(trustStorePath)), trustStorePass.toCharArray());
             return store;
         }

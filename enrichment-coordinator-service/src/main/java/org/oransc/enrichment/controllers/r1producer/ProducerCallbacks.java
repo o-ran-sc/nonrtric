@@ -53,7 +53,7 @@ public class ProducerCallbacks {
     private final AsyncRestClient restClient;
 
     public ProducerCallbacks(ApplicationConfig config) {
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
+        var restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientNoHttpProxy("");
     }
 
@@ -75,12 +75,12 @@ public class ProducerCallbacks {
 
     /**
      * Start a job in all producers that suports the job type
-     * 
+     *
      * @param infoJob an Information Job
      * @return the number of producers that returned OK
      */
     public Mono<Integer> startInfoSubscriptionJob(InfoJob infoJob, InfoProducers infoProducers) {
-        Retry retrySpec = Retry.fixedDelay(1, Duration.ofSeconds(1));
+        var retrySpec = Retry.fixedDelay(1, Duration.ofSeconds(1));
         return Flux.fromIterable(getProducersForJob(infoJob, infoProducers)) //
             .flatMap(infoProducer -> startInfoJob(infoProducer, infoJob, retrySpec)) //
             .collectList() //
@@ -89,13 +89,13 @@ public class ProducerCallbacks {
 
     /**
      * Start all jobs for one producer
-     * 
+     *
      * @param producer
      * @param infoJobs
      */
     public Flux<String> startInfoJobs(InfoProducer producer, InfoJobs infoJobs) {
-        final int maxNoOfParalellRequests = 10;
-        Retry retrySpec = Retry.backoff(3, Duration.ofSeconds(1));
+        final var maxNoOfParalellRequests = 10;
+        var retrySpec = Retry.backoff(3, Duration.ofSeconds(1));
 
         return Flux.fromIterable(producer.getInfoTypes()) //
             .flatMap(type -> Flux.fromIterable(infoJobs.getJobsForType(type))) //
@@ -103,8 +103,8 @@ public class ProducerCallbacks {
     }
 
     public Mono<String> startInfoJob(InfoProducer producer, InfoJob infoJob, Retry retrySpec) {
-        ProducerJobInfo request = new ProducerJobInfo(infoJob);
-        String body = gson.toJson(request);
+        var request = new ProducerJobInfo(infoJob);
+        var body = gson.toJson(request);
 
         return restClient.post(producer.getJobCallbackUrl(), body) //
             .retryWhen(retrySpec) //

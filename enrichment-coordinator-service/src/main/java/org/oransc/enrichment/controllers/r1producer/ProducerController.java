@@ -41,7 +41,6 @@ import java.util.List;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
 import org.oransc.enrichment.exceptions.ServiceException;
-import org.oransc.enrichment.repository.InfoJob;
 import org.oransc.enrichment.repository.InfoJobs;
 import org.oransc.enrichment.repository.InfoProducer;
 import org.oransc.enrichment.repository.InfoProducers;
@@ -230,8 +229,8 @@ public class ProducerController {
     public ResponseEntity<Object> getInfoProducer( //
         @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            InfoProducer p = this.infoProducers.getProducer(infoProducerId);
-            ProducerRegistrationInfo info = toProducerRegistrationInfo(p);
+            var producer = this.infoProducers.getProducer(infoProducerId);
+            var info = toProducerRegistrationInfo(producer);
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -258,11 +257,11 @@ public class ProducerController {
     public ResponseEntity<Object> getInfoProducerJobs( //
         @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
+            var producer = this.infoProducers.getProducer(infoProducerId);
             Collection<ProducerJobInfo> producerJobs = new ArrayList<>();
             for (InfoType type : producer.getInfoTypes()) {
-                for (InfoJob infoJob : this.infoJobs.getJobsForType(type)) {
-                    ProducerJobInfo request = new ProducerJobInfo(infoJob);
+                for (var infoJob : this.infoJobs.getJobsForType(type)) {
+                    var request = new ProducerJobInfo(infoJob);
                     producerJobs.add(request);
                 }
             }
@@ -299,9 +298,8 @@ public class ProducerController {
     }
 
     private ProducerStatusInfo producerStatusInfo(InfoProducer producer) {
-        ProducerStatusInfo.OperationalState opState =
-            producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
-                : ProducerStatusInfo.OperationalState.DISABLED;
+        var opState = producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
+            : ProducerStatusInfo.OperationalState.DISABLED;
         return new ProducerStatusInfo(opState);
     }
 
@@ -340,7 +338,7 @@ public class ProducerController {
 
     private void validateUri(String url) throws URISyntaxException, ServiceException {
         if (url != null && !url.isEmpty()) {
-            URI uri = new URI(url);
+            var uri = new URI(url);
             if (!uri.isAbsolute()) {
                 throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
             }
@@ -370,7 +368,7 @@ public class ProducerController {
         })
     public ResponseEntity<Object> deleteInfoProducer(@PathVariable("infoProducerId") String infoProducerId) {
         try {
-            final InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
+            final var producer = this.infoProducers.getProducer(infoProducerId);
             this.infoProducers.deregisterProducer(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
@@ -380,7 +378,7 @@ public class ProducerController {
 
     private ProducerRegistrationInfo toProducerRegistrationInfo(InfoProducer p) {
         Collection<String> types = new ArrayList<>();
-        for (InfoType type : p.getInfoTypes()) {
+        for (var type : p.getInfoTypes()) {
             types.add(type.getId());
         }
         return new ProducerRegistrationInfo(types, p.getJobCallbackUrl(), p.getProducerSupervisionCallbackUrl());
@@ -405,5 +403,4 @@ public class ProducerController {
             .supportedTypes(supportedTypes) //
             .build();
     }
-
 }

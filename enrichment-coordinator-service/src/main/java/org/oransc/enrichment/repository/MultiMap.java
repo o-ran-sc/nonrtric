@@ -41,7 +41,7 @@ public class MultiMap<T> {
     public T remove(String key, String id) {
         Map<String, T> innerMap = this.map.get(key);
         if (innerMap != null) {
-            T removedElement = innerMap.remove(id);
+            var removedElement = innerMap.remove(id);
             if (innerMap.isEmpty()) {
                 this.map.remove(key);
             }

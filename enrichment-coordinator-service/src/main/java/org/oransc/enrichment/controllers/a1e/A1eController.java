@@ -318,7 +318,7 @@ public class A1eController {
 
     private void validateUri(String url) throws URISyntaxException, ServiceException {
         if (url != null && !url.isEmpty()) {
-            URI uri = new URI(url);
+            var uri = new URI(url);
             if (!uri.isAbsolute()) {
                 throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
             }
@@ -328,14 +328,14 @@ public class A1eController {
     private void validateJsonObjectAgainstSchema(Object schemaObj, Object object) throws ServiceException {
         if (schemaObj != null) { // schema is optional for now
             try {
-                ObjectMapper mapper = new ObjectMapper();
+                var mapper = new ObjectMapper();
 
-                String schemaAsString = mapper.writeValueAsString(schemaObj);
-                JSONObject schemaJSON = new JSONObject(schemaAsString);
-                org.everit.json.schema.Schema schema = org.everit.json.schema.loader.SchemaLoader.load(schemaJSON);
+                var schemaAsString = mapper.writeValueAsString(schemaObj);
+                var schemaJSON = new JSONObject(schemaAsString);
+                var schema = org.everit.json.schema.loader.SchemaLoader.load(schemaJSON);
 
-                String objectAsString = mapper.writeValueAsString(object);
-                JSONObject json = new JSONObject(objectAsString);
+                var objectAsString = mapper.writeValueAsString(object);
+                var json = new JSONObject(objectAsString);
                 schema.validate(json);
             } catch (Exception e) {
                 throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.CONFLICT);

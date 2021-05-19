@@ -69,7 +69,7 @@ public class HttpsRequestTest {
 
     @Test
     public void testSsl() {
-        assertEquals(this.webServerFactory.getSsl().isEnabled(), true);
+        assertEquals(true, this.webServerFactory.getSsl().isEnabled());
     }
 
     @Test

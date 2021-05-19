@@ -199,7 +199,7 @@ public class AsyncRestClient {
     }
 
     private HttpClient buildHttpClient() {
-        HttpClient httpClient = HttpClient.create() //
+        var httpClient = HttpClient.create() //
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .doOnConnected(connection -> {
                 connection.addHandlerLast(new ReadTimeoutHandler(30));
@@ -207,9 +207,7 @@ public class AsyncRestClient {
             });
 
         if (this.sslContext != null) {
-            httpClient = httpClient.secure(ssl -> {
-                ssl.sslContext(sslContext);
-            });
+            httpClient = httpClient.secure(ssl -> ssl.sslContext(sslContext));
         }
 
         if (isHttpProxyConfigured()) {
@@ -220,8 +218,8 @@ public class AsyncRestClient {
     }
 
     private WebClient buildWebClient(String baseUrl) {
-        final HttpClient httpClient = buildHttpClient();
-        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder() //
+        final var httpClient = buildHttpClient();
+        var exchangeStrategies = ExchangeStrategies.builder() //
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)) //
             .build();
         return WebClient.builder() //
