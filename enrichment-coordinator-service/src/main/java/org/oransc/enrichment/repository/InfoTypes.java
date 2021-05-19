@@ -56,18 +56,18 @@ public class InfoTypes {
 
     public InfoTypes(ApplicationConfig config) {
         this.config = config;
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        var gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
         this.gson = gsonBuilder.create();
     }
 
     public synchronized void restoreTypesFromDatabase() throws IOException {
         Files.createDirectories(Paths.get(getDatabaseDirectory()));
-        File dbDir = new File(getDatabaseDirectory());
+        var dbDir = new File(getDatabaseDirectory());
 
         for (File file : dbDir.listFiles()) {
-            String json = Files.readString(file.toPath());
-            InfoType type = gson.fromJson(json, InfoType.class);
+            var json = Files.readString(file.toPath());
+            var type = gson.fromJson(json, InfoType.class);
             allEiTypes.put(type.getId(), type);
         }
     }
@@ -82,7 +82,7 @@ public class InfoTypes {
     }
 
     public synchronized InfoType getType(String id) throws ServiceException {
-        InfoType type = allEiTypes.get(id);
+        var type = allEiTypes.get(id);
         if (type == null) {
             throw new ServiceException("Information type not found: " + id);
         }
@@ -122,7 +122,7 @@ public class InfoTypes {
 
     private void storeInFile(InfoType type) {
         try {
-            try (PrintStream out = new PrintStream(new FileOutputStream(getFile(type)))) {
+            try (var out = new PrintStream(new FileOutputStream(getFile(type)))) {
                 out.print(gson.toJson(type));
             }
         } catch (Exception e) {

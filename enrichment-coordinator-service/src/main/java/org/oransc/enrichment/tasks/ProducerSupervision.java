@@ -84,7 +84,7 @@ public class ProducerSupervision {
     }
 
     private Mono<?> checkProducerJobs(InfoProducer producer) {
-        final int MAX_CONCURRENCY = 10;
+        final var MAX_CONCURRENCY = 10;
         return getEiJobs(producer) //
             .filter(infoJob -> !producer.isJobEnabled(infoJob)) //
             .flatMap(infoJob -> producerCallbacks.startInfoJob(producer, infoJob, Retry.max(1)), MAX_CONCURRENCY) //

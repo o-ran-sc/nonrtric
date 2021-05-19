@@ -57,7 +57,7 @@ public class A1eCallbacks {
 
     @Autowired
     public A1eCallbacks(ApplicationConfig config, InfoJobs eiJobs, InfoProducers eiProducers) {
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
+        var restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientUseHttpProxy("");
         this.eiJobs = eiJobs;
         this.eiProducers = eiProducers;
@@ -73,7 +73,7 @@ public class A1eCallbacks {
 
     private Mono<String> noifyStatusToJobOwner(InfoJob job) {
         boolean isJobEnabled = this.eiProducers.isJobEnabled(job);
-        A1eEiJobStatus status = isJobEnabled ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
+        var status = isJobEnabled ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
             : new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.DISABLED);
         String body = gson.toJson(status);
         return this.restClient.post(job.getJobStatusUrl(), body) //
@@ -83,7 +83,5 @@ public class A1eCallbacks {
                 logger.warn("Consumer notify failed {} {}", job.getJobStatusUrl(), throwable.toString());
                 return Mono.empty();
             });
-
     }
-
 }

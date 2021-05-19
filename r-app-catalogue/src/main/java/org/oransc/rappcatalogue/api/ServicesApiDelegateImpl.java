@@ -59,7 +59,7 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
 
     @Override
     public ResponseEntity<Service> getIndividualService(String serviceName) throws ServiceNotFoundException {
-        Service service = registeredServices.get(serviceName);
+        var service = registeredServices.get(serviceName);
         if (service != null) {
             return ResponseEntity.ok(service);
         } else {
@@ -78,7 +78,7 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
         if (isServiceValid(inputService)) {
             if (registeredServices.put(serviceName, createService(serviceName, inputService)) == null) {
                 try {
-                    Optional<NativeWebRequest> request = getRequest();
+                    var request = getRequest();
                     if (request.isPresent()) {
                         addLocationHeaderToResponse(serviceName, request.get());
                     }
@@ -97,10 +97,10 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
 
     private void addLocationHeaderToResponse(String serviceName, NativeWebRequest request) throws HeaderException {
         try {
-            HttpServletRequest nativeRequest = request.getNativeRequest(HttpServletRequest.class);
-            HttpServletResponse nativeResponse = request.getNativeResponse(HttpServletResponse.class);
+            var nativeRequest = request.getNativeRequest(HttpServletRequest.class);
+            var nativeResponse = request.getNativeResponse(HttpServletResponse.class);
             if (nativeRequest != null && nativeResponse != null) {
-                StringBuffer requestURL = nativeRequest.getRequestURL();
+                var requestURL = nativeRequest.getRequestURL();
                 nativeResponse.addHeader(LOCATION_HEADER, requestURL.toString());
                 nativeResponse.getWriter().print("");
             } else {
@@ -125,12 +125,12 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
      */
     @SuppressWarnings("java:S2589")
     private boolean isServiceValid(InputService service) {
-        String version = service.getVersion();
+        var version = service.getVersion();
         return version != null && !version.isBlank();
     }
 
     private Service createService(String serviceName, InputService inputService) {
-        Service service = new Service();
+        var service = new Service();
         service.setName(serviceName);
         service.setDescription(inputService.getDescription());
         service.setDisplayName(inputService.getDisplayName());
@@ -141,7 +141,7 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
 
     private String getTodaysDate() {
         long millis = System.currentTimeMillis();
-        Date date = new Date(millis);
+        var date = new Date(millis);
         return date.toString();
     }
 }

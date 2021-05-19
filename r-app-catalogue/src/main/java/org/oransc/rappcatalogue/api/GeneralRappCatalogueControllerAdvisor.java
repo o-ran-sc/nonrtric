@@ -53,7 +53,7 @@ public class GeneralRappCatalogueControllerAdvisor extends ResponseEntityExcepti
     }
 
     private ErrorInformation getErrorInformation(Exception cause, HttpStatus status) {
-        ErrorInformation errorInfo = new ErrorInformation();
+        var errorInfo = new ErrorInformation();
         errorInfo.setDetail(cause.getMessage());
         errorInfo.setStatus(status.value());
         return errorInfo;

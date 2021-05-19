@@ -62,7 +62,7 @@ public class InfoJobs {
 
     public InfoJobs(ApplicationConfig config, ProducerCallbacks producerCallbacks) {
         this.config = config;
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        var gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
         this.gson = gsonBuilder.create();
         this.producerCallbacks = producerCallbacks;
@@ -70,11 +70,11 @@ public class InfoJobs {
 
     public synchronized void restoreJobsFromDatabase() throws IOException {
         Files.createDirectories(Paths.get(getDatabaseDirectory()));
-        File dbDir = new File(getDatabaseDirectory());
+        var dbDir = new File(getDatabaseDirectory());
 
         for (File file : dbDir.listFiles()) {
-            String json = Files.readString(file.toPath());
-            InfoJob job = gson.fromJson(json, InfoJob.class);
+            var json = Files.readString(file.toPath());
+            var job = gson.fromJson(json, InfoJob.class);
             this.doPut(job);
         }
     }
@@ -89,7 +89,7 @@ public class InfoJobs {
     }
 
     public synchronized InfoJob getJob(String id) throws ServiceException {
-        InfoJob ric = allEiJobs.get(id);
+        var ric = allEiJobs.get(id);
         if (ric == null) {
             throw new ServiceException("Could not find Information job: " + id);
         }
@@ -113,7 +113,7 @@ public class InfoJobs {
     }
 
     public synchronized InfoJob remove(String id, InfoProducers infoProducers) {
-        InfoJob job = allEiJobs.get(id);
+        var job = allEiJobs.get(id);
         if (job != null) {
             remove(job, infoProducers);
         }
@@ -161,7 +161,7 @@ public class InfoJobs {
 
     private void storeJobInFile(InfoJob job) {
         try {
-            try (PrintStream out = new PrintStream(new FileOutputStream(getFile(job)))) {
+            try (var out = new PrintStream(new FileOutputStream(getFile(job)))) {
                 out.print(gson.toJson(job));
             }
         } catch (Exception e) {

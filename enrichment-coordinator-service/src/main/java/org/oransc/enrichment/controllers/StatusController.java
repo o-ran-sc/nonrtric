@@ -99,7 +99,7 @@ public class StatusController {
                 content = @Content(schema = @Schema(implementation = StatusInfo.class))) //
         })
     public Mono<ResponseEntity<Object>> getStatus() {
-        StatusInfo info = new StatusInfo("hunky dory", this.infoProducers, this.infoTypes, this.infoJobs);
+        var info = new StatusInfo("hunky dory", this.infoProducers, this.infoTypes, this.infoJobs);
         return Mono.just(new ResponseEntity<>(info, HttpStatus.OK));
     }
 
