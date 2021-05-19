@@ -388,6 +388,8 @@ CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative
 CONTROL_PANEL_CONFIG_MOUNT_PATH=/etc/nginx               # Container internal path for config
 CONTROL_PANEL_NGINX_KUBE_RESOLVER="kube-dns.kube-system.svc.cluster.local valid=5s"  #nginx resolver for kube
 CONTROL_PANEL_NGINX_DOCKER_RESOLVER="127.0.0.11"         # nginx resolver for docker
+CONTROL_PANEL_PATH_POLICY_PREFIX="/a1-policy/"           # Path prefix for forwarding policy calls to NGW
+CONTROL_PANEL_PATH_ECS_PREFIX="/data-producer/"          # Path prefix for forwarding ecs calls to NGW
 
 NRT_GATEWAY_APP_NAME="nonrtricgateway"                   # Name of the Gateway container
 NRT_GATEWAY_DISPLAY_NAME="NonRT-RIC Gateway"

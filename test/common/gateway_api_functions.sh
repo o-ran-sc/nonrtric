@@ -192,7 +192,7 @@ start_gateway() {
 
 		if [ $retcode_i -eq 0 ]; then
 
-			echo -e " Creating $NGW_APP_NAME app and expose service"
+			echo -e " Creating $NRT_GATEWAY_APP_NAME app and expose service"
 
 			#Export all vars needed for service and deployment
 			export NRT_GATEWAY_APP_NAME
