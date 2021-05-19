@@ -1,15 +1,18 @@
 # Use case Health Check test
-# General
+
+## General
 
 The Health Check use case test provides a python script that regularly creates, reads, updates, and deletes a policy
 in all Near-RT RICs that support the type used by the script. A self refreshing web page provides a view of statistics
 for these regular checks.
 
-# Prerequisits
+## Prerequisits
+
 To run this script Python3 needs to be installed. To install the script's dependencies, run the following command from
 the `src` folder: `pip install -r requirements.txt`
 
-# How to run
+## How to run
+
 Go to the `src/` folder and run `python3 main.py`. The script will start and run until stopped. Use the `-h` option to
 see the options available for the script.
 

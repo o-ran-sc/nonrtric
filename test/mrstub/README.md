@@ -1,10 +1,10 @@
-## mrstub - stub interface to interact with the policy agent over Dmaap ##
+# mrstub - stub interface to interact with the policy agent over Dmaap
 
 The mrstub is intended for function tests to simulate a message router.
 The mrstub exposes the read and write urls, used by the agent, as configured in consul.
 In addition, request messages can be fed to the mrstub and the response messages can be read by polling.
 
-# Ports and certificates
+## Ports and certificates
 
 The MR normally opens the port 3905 for http. If a certificate and a key are provided the simulator will also open port 3906 for https.
 The certificate and key shall be placed in the same dir and the dir shall be mounted to /usr/src/app/cert in the container.
@@ -17,7 +17,7 @@ The certificate and key shall be placed in the same dir and the dir shall be mou
 The dir cert contains a self-signed cert. Use the script generate_cert_and_key.sh to generate a new certificate and key. The password of the certificate must be set 'test'.
 The same urls are availables on both the http port 3905 and the https port 3906. If using curl and https, the flag -k shall be given to make curl ignore checking the certificate.
 
-### Message Router interface ###
+### Message Router interface
 
 Messages from the MR can be read using this url using http(s) GET:<br>
 ```events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=<timeout>&limit=<limit>```<br>
@@ -31,7 +31,7 @@ Messages to the MR can be written using this url http(s) POST/PUT:<br>
 ```/events/A1-POLICY-AGENT-WRITE```<br>
 One or more messages can be written in the same operation.
 
-### Control interface ###
+### Control interface
 
 The control interface can be used by any test script.
 The following REST operations are available:
@@ -55,8 +55,7 @@ There are a number of counters that can be read to monitor the message processin
 ```/counter/current_requests``` - The current number of requests waiting to be picked up by the agent<br>
 ```/counter/current_responses``` - The current number of responses waiting to be picked up by the application<br>
 
-
-### Build and start ###
+### Build and start
 
 >Build image<br>
 ```docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t mrstub .```
@@ -71,24 +70,25 @@ file "key.crt" is the key file
 file "generate_cert_and_key.sh" is a shell script to generate certificate and key
 file "pass" stores the password when you run the shell script
 
-Start the a1-interface container without specifing external certificates:
+>Start the a1-interface container without specifing external certificates:<br>
 ```docker run --rm -it -p 3905:3905 -p 3906:3906 mrstub```
 
 It will listen to http 3905 port and https 3906 port(using default certificates) at the same time.
 
 This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
-In 'docker run', use field:
---volume "$PWD/certificate:/usr/src/app/cert" a1test
-```docker run --rm -it -p 3905:3905 -p 3906:3906 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" mrstub```
-In 'docker-compose.yml', use field:
-volumes:
-      - ./certificate:/usr/src/app/cert:ro
+In 'docker run', use field:<br>
+>```-v "$PWD/certificate:/usr/src/app/cert"```<br>
 
-The script ```mrstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the mrstub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
-```docker run --rm -it -p 3905:3905 --network nonrtric-docker-net --name message-router mrstub```
+eg:<br>
+>```docker run --rm -it -p 3905:3905 -p 3906:3906 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" mrstub```<br>
 
+In 'docker-compose.yml', use field:<br>
+>```volumes: - ./certificate:/usr/src/app/cert:ro```
 
-### Basic test ###
+The script ```mrstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the mrstub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).<br>
+>```docker run --rm -it -p 3905:3905 --network nonrtric-docker-net --name message-router mrstub```
+
+### Basic test
 
 Basic test is made with the script ```basic_test.sh nonsecure|secure``` which tests all the available urls with a subset of the possible operations. Choose nonsecure for http and secure for https. Use the script ```mrstub-build-start.sh``` to start the mrstub in a container first.
 
