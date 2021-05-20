@@ -1,12 +1,12 @@
-## producer stub - a stub interface to simulate data producers ##
+# producer stub - a stub interface to simulate data producers
 
 The producer stub is intended for function tests of simulate data producers.
 The simulator handles the callbacks for supervision of producers as well as create/update and delete jobs.
 As an intial step, the indended job and producers, with supported types, are setup (armed) in the simulator.
 In addition, specific response codes can configured for each callback request.
 
+## Ports and certificates
 
-# Ports and certificates
 The prodstub normally opens the port 8092 for http. If a certificate and a key are provided the simulator will also open port 8093 for https.
 The certificate and key shall be placed in the same dir and the dir shall be mounted to /usr/src/app/cert in the container.
 
@@ -18,8 +18,7 @@ The certificate and key shall be placed in the same dir and the dir shall be mou
 The dir cert contains a self-signed cert. Use the script generate_cert_and_key.sh to generate a new certificate and key. The password of the certificate must be set 'test'.
 The same urls are availables on both the http port 8092 and the https port 8093. If using curl and https, the flag -k shall be given to make curl ignore checking the certificate.
 
-
-### Prodstub interface ###
+### Prodstub interface
 
 >Create callback<br>
 This method receives a callback for create job. The request shall contain a job json. The request is checked towards what has been setup (armed) and the response will be set accordingly. <br>
@@ -36,8 +35,7 @@ This method receives a callback for producer supervision. The request is checked
 ```URI and payload, (GET): /callbacks/supervision/<producer_id>```<br>
 ```response: 200 (or configured response) or 400 for other errors```
 
-
-### Control interface ###
+### Control interface
 
 The control interface can be used by any test script.
 The following REST operations are available:
@@ -46,7 +44,6 @@ The following REST operations are available:
 This method arms a job for creation and sets an optional response code for create/update<br>
 ```URI and payload, (PUT): /arm/create/<producer_id>/<job_id>[?response=<resonsecode>]```<br>
 ```response: 200 or 400 for other errors```
-
 >Arm a job delete<br>
 This method arms a job for deletion and sets an optional response code for delete<br>
 ```URI and payload, (PUT): /arm/delete/<producer_id>/<job_id>[?response=<resonsecode>]```<br>
@@ -107,8 +104,7 @@ This method makes a full reset by removing all producers and jobs<br>
 ```URI and payload, (GET or PUT or POST): /reset```<br>
 ```response: <json> 200 or 400 for other errors```
 
-
-### Build and start ###
+### Build and start
 
 >Build image<br>
 ```docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t producer-stub .```
@@ -125,29 +121,27 @@ file "key.crt" is the key file
 file "generate_cert_and_key.sh" is a shell script to generate certificate and key
 file "pass" stores the password when you run the shell script
 
-Start the container without specifing external certificates:
+>Start the container without specifing external certificates:<br>
 ```docker run --rm -it --p 8092:8092 -p 8093:8093 producer-stub```
 
 It will listen to http 8092 port and https 8093 port(using default certificates) at the same time.
 
 This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
 In 'docker run', use field:
---volume "$PWD/certificate:/usr/src/app/cert" a1test
-```docker run --rm -it --p 8092:8092 -p 8093:8093 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" producer-stub```
-In 'docker-compose.yml', use field:
-volumes:
-      - ./certificate:/usr/src/app/cert:ro
+>```-v "$PWD/certificate:/usr/src/app/cert"```
+
+eg:
+>```docker run --rm -it --p 8092:8092 -p 8093:8093 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" producer-stub```<br>
+
+In 'docker-compose.yml', use field:<br>
+>```volumes: - ./certificate:/usr/src/app/cert:ro```
 
 The script ```prodstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the producer-stub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
 ```docker run --rm -it -p 8092:8092 -p 8093:8093 --name producer-stub producer-stub```
 
-
-### Basic test ###
+### Basic test
 
 Basic test is made with the script ```basic_test.sh nonsecure|secure``` which tests all the available urls with a subset of the possible operations. Choose nonsecure for http and secure for https. Use the script ```prodstub-build-start.sh``` to start the producer-stub in a container first.
-
-
-
 
 ## License
 

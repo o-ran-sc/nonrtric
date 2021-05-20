@@ -1,10 +1,10 @@
-## callback receiver - a stub interface to receive callbacks ##
+# callback receiver - a stub interface to receive callbacks
 
 The callback receiver is intended for function tests to simulate a RAPP.
 The callback receiver exposes the read and write urls, used by the agent, as configured in service.
 The callback receiver receives notifications from PMS when synchronization happens between PMS and RICs. However, the callback receiver can be uses to receive any json payload from any source.
 
-# Ports and certificates
+## Ports and certificates
 
 The CR normally opens the port 8090 for http. If a certificate and a key are provided the simulator will also open port 8091 for https.
 The certificate and key shall be placed in the same dir and the dir shall be mounted to /usr/src/app/cert in the container.
@@ -17,7 +17,7 @@ The certificate and key shall be placed in the same dir and the dir shall be mou
 The dir cert contains a self-signed cert. Use the script generate_cert_and_key.sh to generate a new certificate and key. The password of the certificate must be set 'test'.
 The same urls are available on both the http port 8090 and the https port 8091. If using curl and https, the flag -k shall be given to make curl ignore checking the certificate.
 
-### Control interface ###
+### Control interface
 
 The control interface can be used by any test script.
 The following REST operations are available:
@@ -50,7 +50,7 @@ There are a number of counters that can be read to monitor the message processin
 All counters also support the query parameter "id" to fetch counter for one individual id, eg ```/counter/current_messages?id=my-id```
 
 
-### Build and start ###
+### Build and start
 
 >Build image<br>
 ```docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t callback-receiver .```
@@ -67,20 +67,22 @@ file "generate_cert_and_key.sh" is a shell script to generate certificate and ke
 file "pass" stores the password when you run the shell script
 
 This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
-In 'docker run', use field:
---volume "$PWD/certificate:/usr/src/app/cert" a1test
-```docker run --rm -it -p 8090:8090 -p 8091:8091 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" callback-receiver```
+In 'docker run', use field:<br>
+>```-v "$PWD/certificate:/usr/src/app/cert"```<br/>
+
+eg:
+>```docker run --rm -it -p 8090:8090 -p 8091:8091 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" callback-receiver```
+
 In 'docker-compose.yml', use field:
-volumes:
-      - ./certificate:/usr/src/app/cert:ro
+>```volumes: - ./certificate:/usr/src/app/cert:ro```
 
 The script ```cr-build-start.sh``` do the above two steps in one go. This starts the callback-receiver container in stand-alone mode for basic test.<br>If the callback-receiver should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be aligned with the other components, i.e. the host named given in all callback urls).
-```docker run --rm -it -p 8090:8090 -p 8091:8091 --network nonrtric-docker-net --name callback-receiver callback-receiver```
+>```docker run --rm -it -p 8090:8090 -p 8091:8091 --network nonrtric-docker-net --name callback-receiver callback-receiver```
 
 >Start the image on http only<br>
 ```docker run --rm -it -p 8090:8090 callback-receiver```
 
-### Basic test ###
+### Basic test
 
 Basic test is made with the script ```basic_test.sh nonsecure|secure``` which tests all the available urls with a subset of the possible operations. Use the script ```cr-build-start.sh``` to start the callback-receiver in a container first.
 

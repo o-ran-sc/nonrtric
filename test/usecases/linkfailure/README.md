@@ -1,5 +1,6 @@
 # Use case Link Failure
-# General
+
+## General
 
 The Link Failure use case test provides a python script that regularly polls DMaaP Message Router (MR) for "CUS Link Failure"
 messages.
@@ -10,7 +11,8 @@ When such a message appears with the "eventSeverity" set to anything but "NORMAL
 When such a message appears with the "eventSeverity" set to "NORMAL" a printout will be made to signal that the
 alarm has been cleared, provided that the verbose option has been used when the test was started.
 
-# Prerequisits
+## Prerequisits
+
 To run this script Python3 needs to be installed. To install the script's dependencies, run the following command from
 the `app` folder: `pip install -r requirements.txt`
 
@@ -25,12 +27,13 @@ a different file when starting the application.
 
 For convenience, a message generator and a change event endpoint simulator are provided.
 
-# How to run from command line
+## How to run from command line
+
 Go to the `app/` folder and run `python3 main.py`. The script will start and run until stopped. Use the `-h` option to
 see the options available for the script.
 
+## How to run in Docker
 
-# How to run in Docker
 Go to the `app/` folder and run `docker build -t oru-app .`.
 
 The container must be connected to the same network as the MR and SDNR are running in. Some of the parameters to the application
@@ -53,7 +56,8 @@ parameters to the application can be provided with the `-e PARAM_NAME=PARAM_VALU
 using the command, with available params listed:
  `docker run --network [NETWORK NAME] --name sdnr-simulator -e MR-HOST=[HOST NAME OF MR] -e MR-PORT=[PORT OF MR] sdnr-simulator`.
 
-# Use docker-compose
+## Use docker-compose
+
 Go to the `docker-compose/` folder and run `bash start.sh`.
 
 This scripts will start up four components:
@@ -61,7 +65,6 @@ dmaap-mr
 oru-app
 sdnr-simulator
 message-generator
-
 
 ## License
 
