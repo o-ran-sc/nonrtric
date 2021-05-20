@@ -15,6 +15,17 @@ The Policy Management is implemented in ONAP. For documentation see `readthedocs
 .. _readthedocs: https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html
 .. _wiki: https://wiki.onap.org/pages/viewpage.action?pageId=84644984
 
+Enrichment Coordinator Service
+------------------------------
+The Enrichment Coordinator Service is a Java 11 web application built using the Spring Framework.
+Using Spring Boot dependencies, it runs as a standalone application.
+
+Its main functionality is to act as a data subscription broker and to decouple data 
+producer from data consumers.
+
+See the ./config/README file on how to create and setup the cerificates and private keys needed for HTTPS. 
+
+
 rAPP Catalogue
 --------------
 
