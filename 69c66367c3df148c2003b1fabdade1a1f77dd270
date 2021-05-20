@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b8b9712_9d38dde4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-05-20T14:33:06Z",
+      "side": 1,
+      "message": "Waiting for a ticket, https://jira.linuxfoundation.org/plugins/servlet/theme/portal/2/IT-22116, to turn off the rule \"Local-Variable Type Inference should be used\" causing most of the changes in this commit",
+      "revId": "69c66367c3df148c2003b1fabdade1a1f77dd270",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "830441d3_ac857c47",
