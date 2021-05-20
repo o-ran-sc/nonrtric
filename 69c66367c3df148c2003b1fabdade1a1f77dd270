@@ -22,6 +22,30 @@
       },
       "revId": "69c66367c3df148c2003b1fabdade1a1f77dd270",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb8aa426_fd5ea3ca",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-05-20T13:11:44Z",
+      "side": 1,
+      "message": "Agree. \u0026 as per Dan\u0027s comment in ONAP",
+      "parentUuid": "830441d3_ac857c47",
+      "range": {
+        "startLine": 202,
+        "startChar": 7,
+        "endLine": 202,
+        "endChar": 47
+      },
+      "revId": "69c66367c3df148c2003b1fabdade1a1f77dd270",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
