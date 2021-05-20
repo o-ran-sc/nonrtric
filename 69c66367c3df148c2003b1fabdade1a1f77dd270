@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "830441d3_ac857c47",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-05-20T09:28:44Z",
+      "side": 1,
+      "message": "This is an example the rule is just silly. \nYou would have to check the return type from the function HttpClient.create() to see which \ntype it is. \n\nIf a type would be complex, as an example: \nCollection\u003cCollection\u003cCollection\u003cInteger\u003e\u003e\u003e \n\nit could increase the readability to just use var. \n\nThere is no such constructions in the component, so I would prefer to keep it like it was and just disable the sonar warning.",
+      "range": {
+        "startLine": 202,
+        "startChar": 7,
+        "endLine": 202,
+        "endChar": 47
+      },
+      "revId": "69c66367c3df148c2003b1fabdade1a1f77dd270",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
