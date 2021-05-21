@@ -1,6 +1,7 @@
 This module builds the platform-logic-installer which contains the DG's but A1 controller in O-RAN doesn't support DG.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

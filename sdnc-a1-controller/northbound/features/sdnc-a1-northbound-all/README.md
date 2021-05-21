@@ -1,6 +1,7 @@
 This module creates the sdnc-a1-northbound-all feature from sdnc-nonrt-ric-api feature.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

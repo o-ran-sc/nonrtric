@@ -1,6 +1,7 @@
 This module should contains the Directed Graphs (DG) but A1 controller in O-RAN doesn't support DG.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

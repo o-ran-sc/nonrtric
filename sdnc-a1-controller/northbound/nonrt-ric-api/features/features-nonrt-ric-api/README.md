@@ -1,6 +1,7 @@
 This module creates the features-nonrt-ric-api feature from sdnc-nonrt-ric-api feature
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

@@ -1,6 +1,7 @@
 This module is responsible for creating sdnc-a1-northbound-features-installer installer which contains sdnc-a1-northbound-all feature. This is then installed into Karaf Server when deployed.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

@@ -1,6 +1,7 @@
 This module installs the sdnc-nonrt-ric-api feature into the Karaf Server.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

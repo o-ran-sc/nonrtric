@@ -1,6 +1,7 @@
 This module contains the yang definition of the A1 northbound API and creates the nonrt-ric-api-model bundle.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

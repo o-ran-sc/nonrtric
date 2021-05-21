@@ -1,6 +1,7 @@
 This module is responsible for creating Docker images. The feature installers are added into the docker images so that it can be installed in karaf server.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

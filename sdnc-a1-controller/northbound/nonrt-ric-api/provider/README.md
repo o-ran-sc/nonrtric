@@ -1,6 +1,7 @@
 This module provides the implementation for the A1 Northbound API and creates the nonrt-ric-api-provider bundle.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

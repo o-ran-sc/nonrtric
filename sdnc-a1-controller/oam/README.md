@@ -1,6 +1,7 @@
 This module builds the submodule sdnc-a1 which inturn creates the SDNC A1 docker image
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

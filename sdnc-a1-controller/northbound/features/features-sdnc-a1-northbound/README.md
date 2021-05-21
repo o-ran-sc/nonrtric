@@ -1,6 +1,7 @@
 This module creates features-sdnc-a1-northbound features from sdnc-a1-northbound-all feature.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

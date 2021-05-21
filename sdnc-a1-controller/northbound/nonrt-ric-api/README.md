@@ -1,6 +1,7 @@
 This module builds the model, provider, install & features to create the bundles, features & installers.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

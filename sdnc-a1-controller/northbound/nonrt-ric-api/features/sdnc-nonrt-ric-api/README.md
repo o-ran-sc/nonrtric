@@ -1,6 +1,7 @@
 This module creates the sdnc-nonrt-ric-api feature from the nonrt-ric-api-model & nonrt-ric-api-provider bundles.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

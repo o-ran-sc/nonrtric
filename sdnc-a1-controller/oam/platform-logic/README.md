@@ -1,6 +1,7 @@
 This module builds the submodule setup & installer
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

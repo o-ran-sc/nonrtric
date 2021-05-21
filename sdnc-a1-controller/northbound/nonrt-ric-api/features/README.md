@@ -1,6 +1,7 @@
 This module builds the two submodules sdnc-nonrt-ric-api & features-nonrt-ric-api which creates the A1 northbound feature.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 

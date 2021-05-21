@@ -6,7 +6,8 @@ It also contains the keystore, the script to start OpenDaylight, and the healthc
 
 The docker-compose file is also included in this directory.
 
-To compile, run "mvn clean install".
+To compile, run
+>`mvn clean install`
 
 ## License
 
