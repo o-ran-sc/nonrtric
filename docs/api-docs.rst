@@ -43,19 +43,19 @@ See `ECS API <./ecs-api.html>`_ for how to use the API.
    "ECS API", ":download:`link <../enrichment-coordinator-service/api/ecs-api.json>`", ":download:`link <../enrichment-coordinator-service/api/ecs-api.yaml>`"
 
 
-rAPP Catalogue
-==============
+Service Catalogue
+=================
 
 The Non RT-RIC Service Catalogue provides a way for services to register themselves for other services to discover.
 
-See `RAC API <./rac-api.html>`_ for how to use the API.
+See `SC API <./rac-api.html>`_ for how to use the API.
 
 
 .. csv-table::
    :header: "API name", "|swagger-icon|", "|yaml-icon|"
    :widths: 10,5, 5
 
-   "RAC API", ":download:`link <../r-app-catalogue/api/rac-api.json>`", ":download:`link <../r-app-catalogue/api/rac-api.yaml>`"
+   "SC API", ":download:`link <../r-app-catalogue/api/rac-api.json>`", ":download:`link <../r-app-catalogue/api/rac-api.yaml>`"
 
 Complementary tools
 ===================
