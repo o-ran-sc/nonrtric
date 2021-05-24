@@ -10,10 +10,9 @@ This document provides a quickstart for developers of the Non-RT RIC.
 A1 Policy Management Service
 ----------------------------
 
-The Policy Management is implemented in ONAP. For documentation see `readthedocs`_ and `wiki`_.
+The A1 Policy Management Service is implemented in ONAP. For documentation see `ONAP CCSDK documentation <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_ and `wiki`_.
 
-.. _readthedocs: https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html
-.. _wiki: https://wiki.onap.org/pages/viewpage.action?pageId=84644984
+.. _wiki: https://wiki.onap.org/pages/viewpage.action?pageId=84672221
 
 Enrichment Coordinator Service
 ------------------------------
@@ -26,14 +25,13 @@ producer from data consumers.
 See the ./config/README file on how to create and setup the cerificates and private keys needed for HTTPS. 
 
 
-rAPP Catalogue
---------------
+Service Catalogue
+-----------------
 
 See the README.md file in the r-app-catalogue folder for how to run the component.
 
-End-to-end call
----------------
+Kubernetes deployment
+^^^^^^^^^^^^^^^^^^^^^
 
-In order to make a complete end-to-end call, follow the instructions given in this `guide`_.
-
-.. _guide: https://wiki.o-ran-sc.org/pages/viewpage.action?pageId=12157166
+Non-RT RIC can be also deploy as a kubernetes cluster, it/dep repository hosts deployment and integration artifacts and can be clone from this `page <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_. Instructions and helm charts to deploy the Non-RT-RIC functions in OSC's integrated test environment can be found in the ./nonrtric directory.
+For more information see `Integration and Testing documentation <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_
