@@ -1,0 +1,200 @@
+#
+# ===========LICENSE_START====================================================
+#  Copyright (C) 2020-2021 AT&T Intellectual Property. All rights reserved.
+#  Modifications Copyright (C) 2021 Bell Canada. All rights reserved.
+#  Modifications Copyright (C) 2021 Nordix Foundation. All rights reserved.
+# ============================================================================
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============LICENSE_END=====================================================
+#
+version: '2'
+services:
+   mariadb:
+      image: nexus3.onap.org:10001/mariadb:10.5.8
+      container_name: mariadb
+      hostname: mariadb
+      command: ['--lower-case-table-names=1', '--wait_timeout=28800']
+      env_file: config/db/db.conf
+      volumes:
+         - ./config/db:/docker-entrypoint-initdb.d:ro
+      expose:
+       - 3306
+   dmaap-simulator:
+      image: nexus3.onap.org:10001/onap/policy-models-simulator:latest
+      container_name: dmaap-simulator
+      hostname: dmaap-simulator
+      volumes:
+       - ./config/sim-all:/opt/app/policy/simulators/etc/mounted:ro
+      ports:
+       - "3904:3904"
+      expose:
+       - 3904
+   api:
+      image: nexus3.onap.org:10001/onap/policy-api:2.4.2
+      container_name: policy-api
+      depends_on:
+       - mariadb
+      hostname: policy-api
+      ports:
+       - "6969:6969"
+      expose:
+       - 6969
+      volumes:
+       - ./config/ks.jks:/opt/app/policy/api/etc/ssl/policy-keystore.jks:ro
+       - ./wait_for_port.sh:/opt/app/policy/api/bin/wait_for_port.sh:ro
+      entrypoint: ./wait_for_port.sh
+      command: [
+        '-c', './policy-api.sh',
+        'mariadb', '3306'
+        ]
+   pap:
+      image: nexus3.onap.org:10001/onap/policy-pap:2.4.2
+      container_name: policy-pap
+      depends_on:
+       - mariadb
+       - dmaap-simulator
+       - api
+      hostname: policy-pap
+      ports:
+       - "6868:6969"
+      expose:
+       - 6868
+      volumes:
+       - ./config/pap/defaultConfig.json:/opt/app/policy/pap/etc/defaultConfig.json:ro
+       - ./config/ks.jks:/opt/app/policy/pap/etc/ssl/policy-keystore.jks:ro
+       - ./wait_for_port.sh:/opt/app/policy/pap/bin/wait_for_port.sh:ro
+      entrypoint: ./wait_for_port.sh
+      command: [
+        '-c', './policy-pap.sh',
+        'mariadb', '3306',
+        'dmaap-simulator', '3904',
+        'api', '6969'
+        ]
+   xacml-pdp:
+      image: nexus3.onap.org:10001/onap/policy-xacml-pdp:2.4.2
+      container_name: policy-xacml-pdp
+      depends_on:
+       - mariadb
+       - dmaap-simulator
+       - pap
+      hostname: policy-xacml-pdp
+      expose:
+       - 6969
+      volumes:
+       - ./config/xacml-pdp/defaultConfig.json:/opt/app/policy/pdpx/etc/defaultConfig.json:ro
+       - ./config/ks.jks:/opt/app/policy/pdpx/etc/ssl/policy-keystore.jks:ro
+       - ./wait_for_port.sh:/opt/app/policy/pdpx/bin/wait_for_port.sh:ro
+      entrypoint: ./wait_for_port.sh
+      command: [
+        '-c', './policy-pdpx.sh',
+        'mariadb', '3306',
+        'dmaap-simulator', '3904',
+        'pap', '6969'
+        ]
+   drools:
+      image: nexus3.onap.org:10001/onap/policy-drools:1.8.2
+      container_name: drools
+      depends_on:
+       - mariadb
+       - dmaap-simulator
+       - pap
+      hostname: drools
+      expose:
+       - 6969
+       - 9696
+      volumes:
+       - ./config/drools/custom:/tmp/policy-install/config:ro
+       - ./wait_for_port.sh:/opt/app/policy/bin/wait_for_port.sh:ro
+      env_file:
+        - config/drools/env/base.conf
+      entrypoint: /opt/app/policy/bin/wait_for_port.sh
+      command: [
+        '-c', '/opt/app/policy/bin/pdpd-entrypoint.sh boot',
+        'mariadb', '3306',
+        'dmaap-simulator', '3904'
+        ]
+   drools-apps:
+      image: nexus3.onap.org:10001/onap/policy-pdpd-cl:1.8.2
+      container_name: drools-apps
+      depends_on:
+       - mariadb
+       - dmaap-simulator
+       - pap
+       - xacml-pdp
+      hostname: drools-apps
+      expose:
+       - 6969
+       - 9696
+      volumes:
+       - ./config/drools-apps/custom:/tmp/policy-install/config:ro
+       - ./config/drools-apps/custom/feature-lifecycle.properties:/opt/app/policy/features/lifecycle/config/feature-lifecycle.properties:ro
+       - ./wait_for_port.sh:/opt/app/policy/bin/wait_for_port.sh:ro
+      env_file:
+        - config/drools-apps/env/base.conf
+        - config/drools-apps/env/feature-healthcheck.conf
+        - config/drools-apps/env/feature-pooling-dmaap.conf
+      entrypoint: /opt/app/policy/bin/wait_for_port.sh
+      command: [
+        '-c', '/opt/app/policy/bin/pdpd-cl-entrypoint.sh boot',
+        'mariadb', '3306',
+        'dmaap-simulator', '3904',
+        'pap', '6969',
+        'dmaap-simulator', '6666',
+        'dmaap-simulator', '6668',
+        'dmaap-simulator', '6669',
+        'dmaap-simulator', '6670'
+        ]
+   apex-pdp:
+      image: onap/policy-apex-pdp:latest
+      container_name: policy-apex-pdp
+      depends_on:
+       - mariadb
+       - dmaap-simulator
+       - pap
+      hostname: policy-apex-pdp
+      expose:
+       - 6969
+       - 23324
+      volumes:
+       - ./config/apex-pdp/OnapPfConfig.json:/opt/app/policy/apex-pdp/etc/onappf/config/OnapPfConfig.json:ro
+       - ./config/ks.jks:/opt/app/policy/apex-pdp/etc/ssl/policy-keystore.jks:ro
+       - ./wait_for_port.sh:/opt/app/policy/bin/wait_for_port.sh:ro
+      entrypoint: /opt/app/policy/bin/wait_for_port.sh
+      command: [
+        '-c', '/opt/app/policy/apex-pdp/bin/apexOnapPf.sh -c /opt/app/policy/apex-pdp/etc/onappf/config/OnapPfConfig.json',
+        'mariadb', '3306',
+        'dmaap-simulator', '3904',
+        'pap', '6969'
+        ]
+   distribution:
+      image: nexus3.onap.org:10001/onap/policy-distribution:2.5.2
+      container_name: policy-distribution
+      depends_on:
+       - mariadb
+       - api
+       - pap
+       - apex-pdp
+      hostname: policy-distribution
+      volumes:
+       - ./config/distribution/defaultConfig.json:/opt/app/policy/distribution/etc/defaultConfig.json:ro
+       - ./config/ks.jks:/opt/app/policy/distribution/etc/ssl/policy-keystore.jks:ro
+       - ./distribution/config/temp/:/opt/app/policy/distribution/etc/temp/:ro
+       - ./wait_for_port.sh:/opt/app/policy/bin/wait_for_port.sh:ro
+      entrypoint: /opt/app/policy/bin/wait_for_port.sh
+      command: [
+        '-c', './policy-dist.sh',
+        'mariadb', '3306',
+        'dmaap-simulator', '3904',
+        'pap', '6969',
+        'apex-pdp', '6969'
+        ]

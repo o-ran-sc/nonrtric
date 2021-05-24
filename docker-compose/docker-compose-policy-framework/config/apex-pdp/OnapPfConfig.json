@@ -1,0 +1,43 @@
+{
+    "name":"OnapPfParameterGroup",
+     "restServerParameters": {
+        "host": "0.0.0.0",
+        "port": 6969,
+        "userName": "healthcheck",
+        "password": "zb!XztG34",
+        "https": true
+    },
+    "pdpStatusParameters":{
+        "pdpGroup": "defaultGroup",
+        "timeIntervalMs": 120000,
+        "pdpType":"apex",
+        "desiredInstanceCount": 2,
+        "description":"Pdp Heartbeat",
+        "supportedPolicyTypes": [
+            {
+              "name": "onap.policies.controlloop.operational.common.Apex",
+              "version": "1.0.0"
+            },
+            {
+                "name": "onap.policies.native.Apex",
+                "version": "1.0.0"
+            }
+        ]
+    },
+    "topicParameterGroup": {
+        "topicSources" : [{
+            "topic" : "POLICY-PDP-PAP",
+            "servers" : [ "dmaap-simulator" ],
+            "topicCommInfrastructure" : "dmaap",
+            "useHttps" : false,
+            "allowSelfSignedCerts" : true
+        }],
+        "topicSinks" : [{
+            "topic" : "POLICY-PDP-PAP",
+            "servers" : [ "dmaap-simulator" ],
+            "topicCommInfrastructure" : "dmaap",
+            "useHttps" : false,
+            "allowSelfSignedCerts" : true
+        }]
+    }
+}
