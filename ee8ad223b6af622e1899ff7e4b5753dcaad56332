@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8b68d33_e13cc81a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-05-25T16:34:54Z",
+      "side": 1,
+      "message": "We probably need to remove the DMaaP simulator ... assuming there is a DMaaP MR (or simulator) already running .... ",
+      "revId": "ee8ad223b6af622e1899ff7e4b5753dcaad56332",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
