@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cda20ff2_c97473ee",
+        "filename": "docs/developer-guide.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "cloned?",
+      "range": {
+        "startLine": 36,
+        "startChar": 127,
+        "endLine": 36,
+        "endChar": 132
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df6b5561_402230ae",
+        "filename": "docs/developer-guide.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "deployed?",
+      "range": {
+        "startLine": 36,
+        "startChar": 23,
+        "endLine": 36,
+        "endChar": 29
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83bc1c3c_46ea05ba",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "Perhaps add this abbreviation in the first section also, line 1",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 12
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7208478_05e8860f",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "No management so far I think - only viewing.",
+      "range": {
+        "startLine": 41,
+        "startChar": 13,
+        "endLine": 41,
+        "endChar": 29
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8580e96a_b952f2da",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "? How?",
+      "range": {
+        "startLine": 65,
+        "startChar": 46,
+        "endLine": 65,
+        "endChar": 63
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2edf8b21_76eeb920",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "How?",
+      "range": {
+        "startLine": 68,
+        "startChar": 44,
+        "endLine": 68,
+        "endChar": 60
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2308a35_7e5d53f2",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "Should describe info jobs as well?",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 197
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a524969b_9f37e285",
+        "filename": "docs/requirements.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2021-05-25T08:42:47Z",
+      "side": 1,
+      "message": "Question to the team: Should be state current compliance level to these requirements?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 89
+      },
+      "revId": "643fa16ffec490a71bfa28f7ed0b017c3f830b13",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
