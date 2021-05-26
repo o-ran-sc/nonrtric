@@ -83,7 +83,5 @@ public class A1eCallbacks {
                 logger.warn("Consumer notify failed {} {}", job.getJobStatusUrl(), throwable.toString());
                 return Mono.empty();
             });
-
     }
-
 }

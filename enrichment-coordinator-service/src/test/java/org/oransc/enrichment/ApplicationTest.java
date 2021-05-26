@@ -543,7 +543,7 @@ class ApplicationTest {
         putInfoType(TYPE_ID);
         String url = ProducerConsts.API_ROOT + "/info-types/" + TYPE_ID;
         restClient().delete(url).block();
-        assertThat(this.infoTypes.size()).isEqualTo(0);
+        assertThat(this.infoTypes.size()).isZero();
 
         testErrorCode(restClient().delete(url), HttpStatus.NOT_FOUND, "Information type not found");
     }
@@ -598,7 +598,7 @@ class ApplicationTest {
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         assertThat(this.infoTypes.size()).isEqualTo(1);
-        assertThat(this.infoProducers.getProducersForType(TYPE_ID).size()).isEqualTo(1);
+        assertThat(this.infoProducers.getProducersForType(TYPE_ID)).hasSize(1);
         assertThat(this.infoProducers.size()).isEqualTo(1);
         assertThat(this.infoProducers.get("infoProducerId").getInfoTypes().iterator().next().getId())
             .isEqualTo(TYPE_ID);
@@ -794,7 +794,7 @@ class ApplicationTest {
 
         // After 3 failed checks, the producer shall be deregisterred
         this.producerSupervision.createTask().blockLast();
-        assertThat(this.infoProducers.size()).isEqualTo(0); // The producer is removed
+        assertThat(this.infoProducers.size()).isZero(); // The producer is removed
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains
 
         // Now we have one disabled job, and no producer.
@@ -864,7 +864,7 @@ class ApplicationTest {
             // Restore the jobs, no jobs in database
             InfoJobs jobs = new InfoJobs(this.applicationConfig, this.producerCallbacks);
             jobs.restoreJobsFromDatabase();
-            assertThat(jobs.size()).isEqualTo(0);
+            assertThat(jobs.size()).isZero();
         }
         logger.warn("Test removing a job when the db file is gone");
         this.infoJobs.remove("jobId1", this.infoProducers);
@@ -892,11 +892,11 @@ class ApplicationTest {
             InfoTypes types = new InfoTypes(this.applicationConfig);
             types.clear();
             types.restoreTypesFromDatabase();
-            assertThat(types.size()).isEqualTo(0);
+            assertThat(types.size()).isZero();
         }
         logger.warn("Test removing a job when the db file is gone");
         this.infoTypes.remove(this.infoTypes.getType(TYPE_ID));
-        assertThat(this.infoJobs.size()).isEqualTo(0);
+        assertThat(this.infoJobs.size()).isZero();
     }
 
     private void deleteEiProducer(String infoProducerId) {

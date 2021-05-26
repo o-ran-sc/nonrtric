@@ -332,7 +332,7 @@ public class A1eController {
 
                 String schemaAsString = mapper.writeValueAsString(schemaObj);
                 JSONObject schemaJSON = new JSONObject(schemaAsString);
-                org.everit.json.schema.Schema schema = org.everit.json.schema.loader.SchemaLoader.load(schemaJSON);
+                var schema = org.everit.json.schema.loader.SchemaLoader.load(schemaJSON);
 
                 String objectAsString = mapper.writeValueAsString(object);
                 JSONObject json = new JSONObject(objectAsString);

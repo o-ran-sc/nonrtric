@@ -230,8 +230,8 @@ public class ProducerController {
     public ResponseEntity<Object> getInfoProducer( //
         @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            InfoProducer p = this.infoProducers.getProducer(infoProducerId);
-            ProducerRegistrationInfo info = toProducerRegistrationInfo(p);
+            InfoProducer  producer = this.infoProducers.getProducer(infoProducerId);
+            ProducerRegistrationInfo info = toProducerRegistrationInfo(producer);
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -299,9 +299,8 @@ public class ProducerController {
     }
 
     private ProducerStatusInfo producerStatusInfo(InfoProducer producer) {
-        ProducerStatusInfo.OperationalState opState =
-            producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
-                : ProducerStatusInfo.OperationalState.DISABLED;
+        var opState = producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
+            : ProducerStatusInfo.OperationalState.DISABLED;
         return new ProducerStatusInfo(opState);
     }
 
@@ -405,5 +404,4 @@ public class ProducerController {
             .supportedTypes(supportedTypes) //
             .build();
     }
-
 }

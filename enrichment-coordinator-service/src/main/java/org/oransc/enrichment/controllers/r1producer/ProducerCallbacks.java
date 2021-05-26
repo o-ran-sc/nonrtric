@@ -75,7 +75,7 @@ public class ProducerCallbacks {
 
     /**
      * Start a job in all producers that suports the job type
-     * 
+     *
      * @param infoJob an Information Job
      * @return the number of producers that returned OK
      */
@@ -89,7 +89,7 @@ public class ProducerCallbacks {
 
     /**
      * Start all jobs for one producer
-     * 
+     *
      * @param producer
      * @param infoJobs
      */

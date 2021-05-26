@@ -207,9 +207,7 @@ public class AsyncRestClient {
             });
 
         if (this.sslContext != null) {
-            httpClient = httpClient.secure(ssl -> {
-                ssl.sslContext(sslContext);
-            });
+            httpClient = httpClient.secure(ssl -> ssl.sslContext(sslContext));
         }
 
         if (isHttpProxyConfigured()) {
