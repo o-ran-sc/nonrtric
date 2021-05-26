@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56136ec0_a1b7f810",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-05-26T19:51:52Z",
+      "side": 1,
+      "message": "I think this review might be obsoleted by https://gerrit.o-ran-sc.org/r/c/nonrtric/+/6123 ",
+      "revId": "e2d8ed4c9f4f84d4fa7ef7371cae7ef580e63366",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
