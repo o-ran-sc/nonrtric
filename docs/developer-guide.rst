@@ -31,6 +31,14 @@ rAPP Catalogue
 
 See the README.md file in the r-app-catalogue folder for how to run the component.
 
+
+Gateway in Nonrtric
+-------------------
+Nonrtric currently supports Spring Cloud Gateway & Kong Gateway, follow the instructions give in this `page`_.
+
+.. _page: https://wiki.o-ran-sc.org/display/RICNR/Release+D
+
+
 End-to-end call
 ---------------
 
