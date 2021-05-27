@@ -3,10 +3,10 @@
   "topology_template": {
     "policies": [
       {
-        "onap.policies.native.apex.Test": {
+        "onap.policies.native.apex.LinkMonitor": {
           "type": "onap.policies.native.Apex",
           "type_version": "1.0.0",
-          "name": "onap.policies.native.apex.Test",
+          "name": "onap.policies.native.apex.LinkMonitor",
           "version": "1.0.0",
           "properties": {
           }
