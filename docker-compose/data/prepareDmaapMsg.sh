@@ -69,7 +69,7 @@ curl -X PUT -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/policytype?id=
 echo -e "\n"
 
 echo "create policy type 2 to ric3:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v1_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v1/policy_type.json
+curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v1_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v2/policy_type.json
 echo -e "\n"
 
 for i in {1..12}; do
@@ -91,7 +91,7 @@ echo "create service 1 to policy agent via dmaap_mr:"
 curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-service-create.json
 echo -e "\n"
 
-echo "ger result from mr of previous request:"
+echo "get result from mr of previous request:"
 curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
@@ -99,7 +99,7 @@ echo "create policies to ric1 & ric2 & ric3 with type1 and service1 via dmaa_mr:
 curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-policy-create.json
 echo -e "\n"
 
-echo "ger result from mr of previous request:"
+echo "get result from mr of previous request:"
 curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
@@ -107,7 +107,7 @@ echo "get policy from policy agent via dmaap_mr:"
 curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-policy-get.json
 echo -e "\n"
 
-echo "ger result from mr of previous request:"
+echo "get result from mr of previous request:"
 curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
@@ -116,7 +116,7 @@ echo "create service 2 to policy agent via dmaap_mr:"
 curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-service-create.json
 echo -e "\n"
 
-echo "ger result from mr of previous request:"
+echo "get result from mr of previous request:"
 curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
@@ -124,7 +124,7 @@ echo "create policies to ric1 & ric2 & ric3 with type1 and service1 via dmaa_mr:
 curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-policy-create.json
 echo -e "\n"
 
-echo "ger result from mr of previous request:"
+echo "get result from mr of previous request:"
 curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
@@ -132,7 +132,7 @@ echo "get policy from policy agent via dmaap_mr:"
 curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-policy-get.json
 echo -e "\n"
 
-echo "ger result from mr of previous request:"
+echo "get result from mr of previous request:"
 curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users/policy-agent?timeout=15000&limit=100" -H "accept: application/json" -H "Content-Type: application/json" | jq .
 echo -e "\n"
 
