@@ -20,28 +20,19 @@
 
 executor.logger.info("Task Execution: '"+executor.subject.id+"'. Input Fields: '"+executor.inFields+"'");
 
-var fileReaderClass = java.io.FileReader;
-var bufferedReaderClass = java.io.BufferedReader;
-var oruOduMap;
-try {
-    var br = new bufferedReaderClass(new fileReaderClass("/home/apexuser/examples/LinkMonitor/config/o-ru-to-o-du-map.json"));
-    var jsonString = "";
-    var line;
-    while ((line = br.readLine()) != null) {
-        jsonString += line;
-    }
-    oruOduMap = JSON.parse(jsonString);
-} catch (err) {
-    executor.logger.info("Failed to read o-ru-to-o-du-map.json file " + err);
-}
-
+var returnValue = true;
 var linkFailureInput = executor.inFields.get("LinkFailureInput");
 var oruId = linkFailureInput.get("event").get("commonEventHeader").get("sourceName");
-var oduId = oruOduMap[oruId];
+var oruOduMap = JSON.parse(executor.parameters.get("ORU-ODU-Map"));
 
-executor.outFields.put("OruId", oruId);
-executor.outFields.put("OduId", oduId);
+if (oruId in oruOduMap) {
+    var oduId = oruOduMap[oruId];
+    executor.outFields.put("OruId", oruId);
+    executor.outFields.put("OduId", oduId);
+    executor.logger.info(executor.outFields);
+} else {
+    executor.message = "No O-RU found in the config with this ID: " + oruId;
+    returnValue = false;
+}
 
-executor.logger.info(executor.outFields);
-
-true;
+returnValue;
