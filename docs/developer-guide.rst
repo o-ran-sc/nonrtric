@@ -5,15 +5,12 @@
 Developer Guide
 ===============
 
-This document provides a quickstart for developers of the Non-RT RIC.
+Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+D>`_
 
-A1 Policy Management Service
-----------------------------
+A1 Policy Management Service & SDNC/A1 Controller & A1 Adapter
+--------------------------------------------------------------
 
-The Policy Management is implemented in ONAP. For documentation see `readthedocs`_ and `wiki`_.
-
-.. _readthedocs: https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html
-.. _wiki: https://wiki.onap.org/pages/viewpage.action?pageId=84644984
+The A1 Policy Management Service is implemented in ONAP. For documentation see `ONAP CCSDK documentation <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_ and `wiki <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_.
 
 Enrichment Coordinator Service
 ------------------------------
@@ -23,17 +20,15 @@ Using Spring Boot dependencies, it runs as a standalone application.
 Its main functionality is to act as a data subscription broker and to decouple data 
 producer from data consumers.
 
-See the ./config/README file on how to create and setup the cerificates and private keys needed for HTTPS. 
+See the ./config/README file in the *enrichment-coordinator-service* directory Gerrit repo on how to create and setup the certificates and private keys needed for HTTPS. 
 
+Initial Non-RT-RIC App Catalogue
+--------------------------------
 
-rAPP Catalogue
---------------
+See the README.md file in the *r-app-catalogue* directory in the Gerrit repo for more details how to run the component.
 
-See the README.md file in the r-app-catalogue folder for how to run the component.
+Kubernetes deployment
+=====================
 
-End-to-end call
----------------
-
-In order to make a complete end-to-end call, follow the instructions given in this `guide`_.
-
-.. _guide: https://wiki.o-ran-sc.org/pages/viewpage.action?pageId=12157166
+Non-RT RIC can be also deployed in a Kubernetes cluster, `it/dep repository <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_ hosts deployment and integration artifacts. Instructions and helm charts to deploy the Non-RT-RIC functions in the OSC NONRTRIC integrated test environment can be found in the *./nonrtric* directory.
+For more information see `Integration and Testing documentation on the O-RAN-SC wiki <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_

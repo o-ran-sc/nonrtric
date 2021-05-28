@@ -13,6 +13,7 @@ Non-RT RIC
    ./developer-guide.rst
    ./api-docs.rst
    ./use-cases.rst
+   ./requirements.rst
    ./release-notes.rst
 
 * :ref:`search`
