@@ -110,7 +110,7 @@ def sendrequest(o_du_id, o_ru_id):
     alarm_clear_thread = AlarmClearThread(random_time, o_ru_id)
     alarm_clear_thread.start()
 
-    return Response(status=201)
+    return Response(status=200)
 
 
 if __name__ == "__main__":
