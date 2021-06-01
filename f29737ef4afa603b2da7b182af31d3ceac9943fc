@@ -22,6 +22,30 @@
       },
       "revId": "f29737ef4afa603b2da7b182af31d3ceac9943fc",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01a0273d_7e13da46",
+        "filename": "docker-compose/docker-compose-policy-framework/wait_for_port.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-06-01T10:51:04Z",
+      "side": 1,
+      "message": "This file comes from ONAP Policy framework and I have not modified it. So, I think we should not change the copyright.",
+      "parentUuid": "d7b9e896_a39881e1",
+      "range": {
+        "startLine": 3,
+        "startChar": 22,
+        "endLine": 3,
+        "endChar": 48
+      },
+      "revId": "f29737ef4afa603b2da7b182af31d3ceac9943fc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
