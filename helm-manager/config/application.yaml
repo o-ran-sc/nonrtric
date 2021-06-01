@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: prod
+
+participant:
+  file: src/main/resources/config/KubernetesParticipantConfig.json
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "loggers,logfile,health,info,metrics,threaddump,heapdump"
+server:
+  # Configuration of the HTTP/REST server. The parameters are defined and handled by the springboot framework.
+  # See springboot documentation.
+  http-port : 8083
+
+logging:
+  # Configuration of logging
+  level:
+    ROOT: INFO
+    org.springframework: ERROR
+    org.springframework.data: ERROR
+    org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
+  file:
+    name: /var/log/helm-manager/application.log

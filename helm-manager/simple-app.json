@@ -1,0 +1,7 @@
+{
+    "releaseName": "simpleapp",
+    "chartName": "simple-app",
+    "version": "0.1.0",
+    "namespace": "ckhm",
+    "repository": "cm"
+}

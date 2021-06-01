@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chartrepo
+  namespace: nonrtric
+  labels:
+    run: chartrepo
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    run: chartrepo
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: chartrepo
+  namespace: nonrtric
+  labels:
+    run: chartrepo
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+  - name: chartrepo
+    image: ghcr.io/helm/chartmuseum:v0.13.1
+    imagePullPolicy: Always
+    ports:
+    - name: http
+      containerPort: 8080
+    env:
+    - name: DEBUG
+      value: "1"
+    - name: STORAGE
+      value: "local"
+    - name: STORAGE_LOCAL_ROOTDIR
+      value: "/var/chartrepo/charts"
+    - name: DISABLE_API
+      value: "false"
+    volumeMounts:
+    - mountPath: /var/chartrepo/charts
+      name: chartrepo-pv
+  volumes:
+  - name: chartrepo-pv
+    persistentVolumeClaim:
+      claimName: chartrepo-pvc
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: chartrepo-pv
+  annotations:
+    pv.beta.kubernetes.io/gid: "999"
+  labels:
+    run: chartrepo
+spec:
+  storageClassName: chartrepo-standard
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/tmp/chartrepo"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chartrepo-pvc
+  namespace: nonrtric
+  labels:
+    run: chartrepo
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+  storageClassName: chartrepo-standard
+  volumeMode: Filesystem
