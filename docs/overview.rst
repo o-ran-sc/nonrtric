@@ -169,6 +169,6 @@ Stateful A1 test stub.
 Implementation:
 
 * Implemented as a Python application
-* Repo: *portal/nonrtric-controlpanel*
+* Repo: *sim/a1-interface*
 
 More details available at the `A1 Simulator documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-sim-a1-interface>`_
