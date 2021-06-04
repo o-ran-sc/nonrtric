@@ -75,7 +75,7 @@
                 "carrierTechnology": "RESTCLIENT",
                 "parameterClassName": "org.onap.policy.apex.plugins.event.carrier.restclient.RestClientCarrierTechnologyParameters",
                 "parameters": {
-                    "url": "http://dmaap-mr:3904/events/unauthenticated.SEC_FAULT_OUTPUT/users/link-monitor-nonrtric?timeout=15000&limit=100"
+                    "url": "http://onap-dmaap:3904/events/unauthenticated.SEC_FAULT_OUTPUT/users/link-monitor-nonrtric?timeout=15000&limit=100"
                 }
             },
             "eventProtocolParameters": {
