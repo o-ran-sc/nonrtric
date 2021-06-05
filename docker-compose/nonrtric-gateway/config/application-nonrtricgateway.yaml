@@ -26,22 +26,18 @@ spring:
       httpserver:
         wiretap: true
       routes:
-      - id: policytypes
-        uri: https://policy-agent:8433
+      - id: A1-Policy
+        uri: http://policy-agent:8081
         predicates:
-        - Path=/a1-policy/v2/policy-types/**
-      - id: policies
-        uri: https://policy-agent:8433
+        - Path=/a1-policy/**
+      - id: A1-EI
+        uri: http://ecs:8083
         predicates:
-        - Path=/a1-policy/v2/policies/**
-      - id: rics
-        uri: https://policy-agent:8433
+        - Path=/ei-producer/**
+      - id: A1-EI2
+        uri: http://ecs:8083
         predicates:
-        - Path=/a1-policy/v2/rics/**
-      - id: ei-producer
-        uri: https://ecs:8434
-        predicates:
-        - Path=/ei-producer/v1/eiproducers/**
+        - Path=/data-producer/**
 management:
   endpoint:
     gateway:

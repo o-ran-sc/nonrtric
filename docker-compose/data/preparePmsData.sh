@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -25,46 +25,68 @@
 # one policy in a1-sim-STD
 
 # Run command:
-# ./preparePmsData.sh [policy-agent port] [a1-sim-OSC port] [a1-sim-STD port] [a1-sim-STD-v2 port] [http/https]
+# ./preparePmsData.sh [policy-agent port] [a1-sim-OSC port] [a1-sim-STD port] [http/https]
 
 policy_agent_port=${1:-8081}
 a1_sim_OSC_port=${2:-30001}
-a1_sim_STD_port=${3:-30003}
-a1_sim_STD_v2_port=${4:-30005}
-httpx=${5:-"http"}
+a1_sim_STD_port=${3:-30005}
+httpx=${4:-"http"}
+SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
 echo "using policy_agent port: "$policy_agent_port
 echo "using a1-sim-OSC port: "$a1_sim_OSC_port
 echo "using a1-sim-STD port: "$a1_sim_STD_port
-echo "using a1-sim-STD-v2 port: "$a1_sim_STD_v2_port
 echo "using protocol: "$httpx
 echo -e "\n"
 
+checkRes (){
+  if [ "$res" != "$expect" ]; then
+      echo "$res is not expected! exit!"
+      exit 1;
+  fi
+}
+
 echo "policy agent status:"
-curl -skw %{http_code} $httpx://localhost:$policy_agent_port/status
+curlString="curl -skw %{http_code} $httpx://localhost:$policy_agent_port/status"
+res=$($curlString)
+echo "$res"
+expect="hunky dory200"
+checkRes
 echo -e "\n"
 
 echo "ric1 version:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/counter/interface
+curlString="curl -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/counter/interface"
+res=$($curlString)
+echo "$res"
+expect="OSC_2.1.0200"
+checkRes
 echo -e "\n"
 
 echo "ric2 version:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/counter/interface
-echo -e "\n"
-
-echo "ric3 version:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v2_port/counter/interface
+curlString="curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/counter/interface"
+res=$($curlString)
+echo "$res"
+expect="STD_2.0.0200"
+checkRes
 echo -e "\n"
 
 echo "create policy type 1 to ric1:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @testdata/OSC/policy_type.json
+curlString="curl -X PUT -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @${SHELL_FOLDER}/testdata/OSC/policy_type.json"
+res=$($curlString)
+echo "$res"
+expect="Policy type 1 is OK.201"
+checkRes
 echo -e "\n"
 
-echo "create policy type 2 to ric3:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v2_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v2/policy_type.json
+echo "create policy type 2 to ric2:"
+curlString="curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @${SHELL_FOLDER}/testdata/v2/policy_type.json"
+res=$($curlString)
+echo "$res"
+expect="Policy type 2 is OK.201"
+checkRes
 echo -e "\n"
 
-for i in {1..12}; do
+for i in {1..60}; do
 	echo "policy types from policy agent:"
     curlString="curl -skw %{http_code} $httpx://localhost:$policy_agent_port/a1-policy/v2/policy-types"
     res=$($curlString)
@@ -79,29 +101,57 @@ for i in {1..12}; do
 done
 
 echo "create service ric-registration to policy agent:"
-curl -k -X PUT -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/a1-policy/v2/services" --data-binary @testdata/v2/service.json
+curlString="curl -k -X PUT -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/a1-policy/v2/services" --data-binary @${SHELL_FOLDER}/testdata/v2/service.json"
+res=$($curlString)
+echo "$res"
+expect="201"
+checkRes
 echo -e "\n"
 
 echo "create policy aa8feaa88d944d919ef0e83f2172a5000 to ric1 with type 1 and service controlpanel via policy agent:"
-curl -k -X PUT -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/a1-policy/v2/policies" --data-binary @testdata/v2/policy_osc.json
+curlString="curl -k -X PUT -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/a1-policy/v2/policies" --data-binary @${SHELL_FOLDER}/testdata/v2/policy_osc.json"
+res=$($curlString)
+echo "$res"
+expect="201"
+checkRes
 echo -e "\n"
 
 echo "policy numbers from ric1:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/counter/num_instances
+curlString="curl -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/counter/num_instances"
+res=$($curlString)
+echo "$res"
+expect="1200"
+checkRes
 echo -e "\n"
 
 echo "create policy aa8feaa88d944d919ef0e83f2172a5100 to ric2 with type 2 and service controlpanel via policy agent:"
-curl -k -X PUT -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/a1-policy/v2/policies" --data-binary @testdata/v2/policy_std_v2.json
+curlString="curl -k -X PUT -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/a1-policy/v2/policies" --data-binary @${SHELL_FOLDER}/testdata/v2/policy_std_v2.json"
+res=$($curlString)
+echo "$res"
+expect="201"
+checkRes
 echo -e "\n"
 
-echo "policy numbers from ric3:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v2_port/counter/num_instances
+echo "policy numbers from ric2:"
+curlString="curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/counter/num_instances"
+res=$($curlString)
+echo "$res"
+expect="1200"
+checkRes
 echo -e "\n"
 
 echo "policy id aa8feaa88d944d919ef0e83f2172a5000 from policy agent:"
-curl -k -X GET -sw %{http_code} $httpx://localhost:$policy_agent_port/a1-policy/v2/policies/aa8feaa88d944d919ef0e83f2172a5000
+curlString="curl -s -o /dev/null -I -w %{http_code} $httpx://localhost:$policy_agent_port/a1-policy/v2/policies/aa8feaa88d944d919ef0e83f2172a5000"
+res=$($curlString)
+echo "$res"
+expect="200"
+checkRes
 echo -e "\n"
 
 echo "policy id aa8feaa88d944d919ef0e83f2172a5100 from policy agent:"
-curl -k -X GET -sw %{http_code} $httpx://localhost:$policy_agent_port/a1-policy/v2/policies/aa8feaa88d944d919ef0e83f2172a5100
+curlString="curl -s -o /dev/null -I -w %{http_code} $httpx://localhost:$policy_agent_port/a1-policy/v2/policies/aa8feaa88d944d919ef0e83f2172a5100"
+res=$($curlString)
+echo "$res"
+expect="200"
+checkRes
 echo -e "\n"

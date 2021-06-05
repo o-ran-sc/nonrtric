@@ -1,5 +1,5 @@
 {
-    "supported_ei_types":["type1"],
-    "ei_job_callback_url": "https://producer-stub:8093/callbacks/job/prod-a",
-    "ei_producer_supervision_callback_url": "https://producer-stub:8093/callbacks/supervision/prod-a"
+    "supported_info_types": ["type1"],
+    "info_job_callback_url": "https://producer-stub:8093/callbacks/job/prod-a",
+    "info_producer_supervision_callback_url": "https://producer-stub:8093/callbacks/supervision/prod-a"
 }
