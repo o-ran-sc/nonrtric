@@ -138,11 +138,7 @@ services:
         '-c', '/opt/app/policy/bin/pdpd-cl-entrypoint.sh boot',
         'mariadb', '3306',
         'dmaap-mr', '3904',
-        'pap', '6969',
-        'dmaap-mr', '6666',
-        'dmaap-mr', '6668',
-        'dmaap-mr', '6669',
-        'dmaap-mr', '6670'
+        'pap', '6969'
         ]
    apex-pdp:
       image: onap/policy-apex-pdp:latest
