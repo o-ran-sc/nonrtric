@@ -23,14 +23,14 @@
     "topicParameterGroup": {
         "topicSources" : [{
             "topic" : "POLICY-PDP-PAP",
-            "servers" : [ "dmaap-mr" ],
+            "servers" : [ "onap-dmaap" ],
             "topicCommInfrastructure" : "dmaap",
             "useHttps" : false,
             "allowSelfSignedCerts" : true
         }],
         "topicSinks" : [{
             "topic" : "POLICY-PDP-PAP",
-            "servers" : [ "dmaap-mr" ],
+            "servers" : [ "onap-dmaap" ],
             "topicCommInfrastructure" : "dmaap",
             "useHttps" : false,
             "allowSelfSignedCerts" : true

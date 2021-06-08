@@ -70,7 +70,7 @@ services:
       command: [
         '-c', './policy-pap.sh',
         'mariadb', '3306',
-        'dmaap-mr', '3904',
+        'onap-dmaap', '3904',
         'api', '6969'
         ]
    xacml-pdp:
@@ -90,7 +90,7 @@ services:
       command: [
         '-c', './policy-pdpx.sh',
         'mariadb', '3306',
-        'dmaap-mr', '3904',
+        'onap-dmaap', '3904',
         'pap', '6969'
         ]
    drools:
@@ -112,7 +112,7 @@ services:
       command: [
         '-c', '/opt/app/policy/bin/pdpd-entrypoint.sh boot',
         'mariadb', '3306',
-        'dmaap-mr', '3904'
+        'onap-dmaap', '3904'
         ]
    drools-apps:
       image: nexus3.onap.org:10001/onap/policy-pdpd-cl:1.8.2
@@ -137,7 +137,7 @@ services:
       command: [
         '-c', '/opt/app/policy/bin/pdpd-cl-entrypoint.sh boot',
         'mariadb', '3306',
-        'dmaap-mr', '3904',
+        'onap-dmaap', '3904',
         'pap', '6969'
         ]
    apex-pdp:
@@ -158,7 +158,7 @@ services:
       command: [
         '-c', '/opt/app/policy/apex-pdp/bin/apexOnapPf.sh -c /opt/app/policy/apex-pdp/etc/onappf/config/OnapPfConfig.json',
         'mariadb', '3306',
-        'dmaap-mr', '3904',
+        'onap-dmaap', '3904',
         'pap', '6969'
         ]
    distribution:
@@ -179,7 +179,7 @@ services:
       command: [
         '-c', './policy-dist.sh',
         'mariadb', '3306',
-        'dmaap-mr', '3904',
+        'onap-dmaap', '3904',
         'pap', '6969',
         'apex-pdp', '6969'
         ]
