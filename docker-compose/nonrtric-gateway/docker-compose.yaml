@@ -22,7 +22,7 @@ networks:
 
 services:
   nonrtric-gateway:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-gateway:0.0.1
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-gateway:1.0.0
     container_name: nonrtric-gateway
     networks:
       default:
