@@ -89,6 +89,23 @@ def read_o_ru_to_o_du_map_from_file(map_file):
     return dictionary
 
 
+def poll_and_handle_messages(mr_address, sdnr_address):
+    while True:
+        try:
+            verboseprint("Polling")
+            response = requests.get(mr_address)
+            messages = response.json()
+            for message in messages:
+                if (is_message_new_link_failure(message)):
+                    handle_link_failure(message, o_ru_to_o_du_map, sdnr_address)
+                elif (is_message_clear_link_failure(message)):
+                    handle_clear_link_failure(message)
+        except Exception as inst:
+            print(inst)
+
+        time.sleep(pollTime)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='PROG')
     parser.add_argument('--mrHost', help='The URL of the MR host (default: %(default)s)', default="http://message-router.onap")
@@ -135,17 +152,4 @@ if __name__ == '__main__':
     mr_address = mr_host + ":" + str(mr_port) + MR_PATH.replace("[TOPIC]", mr_topic)
     sdnr_address = sdnr_host + ":" + str(sdnr_port)
 
-    while True:
-        try:
-            verboseprint("Polling")
-            response = requests.get(mr_address)
-            messages = response.json()
-            for message in messages:
-                if (is_message_new_link_failure(message)):
-                    handle_link_failure(message, o_ru_to_o_du_map, sdnr_address)
-                elif (is_message_clear_link_failure(message)):
-                    handle_clear_link_failure(message)
-        except Exception as inst:
-            print(inst)
-
-        time.sleep(pollTime)
+    poll_and_handle_messages(mr_address, sdnr_address)
