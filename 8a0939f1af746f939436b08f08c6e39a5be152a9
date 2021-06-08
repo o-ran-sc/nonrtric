@@ -22,6 +22,30 @@
       },
       "revId": "8a0939f1af746f939436b08f08c6e39a5be152a9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e009b1c_bf2f97fc",
+        "filename": "docker-compose/nonrtric-gateway/config/application-nonrtricgateway.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-06-08T15:02:32Z",
+      "side": 1,
+      "message": "you are correct.\nline 37-40 is needed,\nline 33-36 can be removed.",
+      "parentUuid": "1a455cab_740e446f",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 32
+      },
+      "revId": "8a0939f1af746f939436b08f08c6e39a5be152a9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
