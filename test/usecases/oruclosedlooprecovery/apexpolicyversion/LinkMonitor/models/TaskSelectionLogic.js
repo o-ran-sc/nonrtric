@@ -33,9 +33,9 @@ if (domain == "fault") {
     var faultFields = linkFailureInput.get("event").get("faultFields");
     var alarmCondition = faultFields.get("alarmCondition");
     var eventSeverity = faultFields.get("eventSeverity");
-    if (alarmCondition == "30" && eventSeverity != "NORMAL") {
+    if (alarmCondition == "28" && eventSeverity != "NORMAL") {
         taskFailure.copyTo(executor.selectedTask);
-    } else if (alarmCondition == "30" && eventSeverity == "NORMAL") {
+    } else if (alarmCondition == "28" && eventSeverity == "NORMAL") {
         taskCleared.copyTo(executor.selectedTask);
     } else {
         taskDefault.copyTo(executor.selectedTask);

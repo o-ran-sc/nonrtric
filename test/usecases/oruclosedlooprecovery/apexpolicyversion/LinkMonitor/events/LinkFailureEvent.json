@@ -21,7 +21,7 @@
         },
         "faultFields": {
             "faultFieldsVersion": "4.0",
-            "alarmCondition": "30",
+            "alarmCondition": "28",
             "alarmInterfaceA": "o-ran-fm:alarm-notif/fault-source",
             "eventSourceType": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-model or \"O-RU\"",
             "specificProblem": "",
