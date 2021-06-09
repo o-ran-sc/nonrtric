@@ -29,6 +29,7 @@ import time
 mr_host = "http://localhost"
 mr_port = "3904"
 MR_PATH = "/events/unauthenticated.SEC_FAULT_OUTPUT"
+FAULT_ID = "28"
 
 linkFailureMessage = {
     "event": {
@@ -53,7 +54,7 @@ linkFailureMessage = {
         },
         "faultFields": {
             "faultFieldsVersion": "4.0",
-            "alarmCondition": "30",
+            "alarmCondition": FAULT_ID,
             "alarmInterfaceA": "o-ran-fm:alarm-notif/fault-source",
             "eventSourceType": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-model or \"O-RU\"",
             "specificProblem": "",
@@ -90,13 +91,15 @@ heartBeatMessage = {
    }
  }
 
-def sendPostRequest(url ,msg):
+
+def sendPostRequest(url, msg):
     try:
         requests.post(url, json=msg)
     except Exception as e:
         print(type(e))
         print(e.args)
         print(e)
+
 
 if __name__ == "__main__":
     if os.getenv("MR-HOST") is not None:

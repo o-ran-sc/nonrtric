@@ -25,6 +25,7 @@ import time
 
 MR_PATH = "/events/[TOPIC]/users/test/"
 SDNR_PATH = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=[O-RU-ID]"
+FAUILT_ID = "28"
 
 UNLOCK_MESSAGE = {
     "o-ran-sc-du-hello-world:du-to-ru-connection": [
@@ -43,7 +44,7 @@ def is_message_new_link_failure(message):
     link_failure = False
     if (event_headers["domain"] == "fault"):
         fault_fields = msg_as_json["event"]["faultFields"]
-        link_failure = fault_fields["alarmCondition"] == "30" and fault_fields["eventSeverity"] != "NORMAL"
+        link_failure = fault_fields["alarmCondition"] == FAUILT_ID and fault_fields["eventSeverity"] != "NORMAL"
 
     return link_failure
 
@@ -55,7 +56,7 @@ def is_message_clear_link_failure(message):
     link_failure_clear = False
     if (event_headers["domain"] == "fault"):
         fault_fields = msg_as_json["event"]["faultFields"]
-        link_failure_clear = fault_fields["alarmCondition"] == "30" and fault_fields["eventSeverity"] == "NORMAL"
+        link_failure_clear = fault_fields["alarmCondition"] == FAUILT_ID and fault_fields["eventSeverity"] == "NORMAL"
 
     return link_failure_clear
 

@@ -39,6 +39,8 @@ HOST_IP = "::"
 HOST_PORT = 9990
 APP_URL = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=<string:o_du_id>/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=<string:o_ru_id>"
 
+FAULT_ID = "28"
+
 linkFailureMessage = {
     "event": {
         "commonEventHeader": {
@@ -62,7 +64,7 @@ linkFailureMessage = {
         },
         "faultFields": {
             "faultFieldsVersion": "4.0",
-            "alarmCondition": "30",
+            "alarmCondition": FAULT_ID,
             "alarmInterfaceA": "o-ran-fm:alarm-notif/fault-source",
             "eventSourceType": "ietf-hardware (RFC8348) /hardware/component[not(parent)][1]/mfg-model or \"O-RU\"",
             "specificProblem": "",
