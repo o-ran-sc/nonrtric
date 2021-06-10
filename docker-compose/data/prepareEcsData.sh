@@ -39,37 +39,37 @@ echo -e "\n"
 
 # Create EiType
 echo "Create EiType:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eitypes/type1 -H accept:application/json -H Content-Type:application/json --data-binary @testdata/ECS/EiType.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-types/type1 -H accept:application/json -H Content-Type:application/json --data-binary @testdata/ECS/EiType.json
 echo -e "\n"
 
 # Get EiTypes
 echo "Get EiTypes:"
-curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eitypes -H Content-Type:application/json | jq
+curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-types -H Content-Type:application/json | jq
 echo -e "\n"
 
 # Get Individual EiType
 echo "Get Individual EiType:"
-curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eitypes/type1 -H Content-Type:application/json | jq
+curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-types/type1 -H Content-Type:application/json | jq
 echo -e "\n"
 
 # Create EiProducer
 echo "Create EiProducer:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eiproducers/1 -H Content-Type:application/json --data-binary @testdata/ECS/EiProducer.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-producers/1 -H Content-Type:application/json --data-binary @testdata/ECS/EiProducer.json
 echo -e "\n"
 
 # Get EiProducers
 echo "Get EiProducers:"
-curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eiproducers -H Content-Type:application/json | jq
+curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-producers -H Content-Type:application/json | jq
 echo -e "\n"
 
 # Get Individual EiProducer
 echo "Get Individual EiProducer:"
-curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eiproducers/1 -H Content-Type:application/json | jq
+curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-producers/1 -H Content-Type:application/json | jq
 echo -e "\n"
 
 # Get Individual EiProducer Status
 echo "Get Individual EiProducer:"
-curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/ei-producer/v1/eiproducers/1/status -H Content-Type:application/json | jq
+curl -X GET -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-producers/1/status -H Content-Type:application/json | jq
 echo -e "\n"
 
 # Create EiJob
