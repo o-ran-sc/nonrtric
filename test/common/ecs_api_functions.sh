@@ -185,7 +185,8 @@ start_ecs() {
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $ECS_APP_NAME deployment and service"
 			echo " Setting ECS replicas=1"
-			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 
 		# Check if app shall be fully managed by the test script
@@ -366,7 +367,8 @@ stop_ecs() {
 		__check_prestarted_image "ECS"
 		if [ $? -eq 0 ]; then
 			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
+			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
 			return 0
 		fi
 
@@ -403,7 +405,8 @@ start_stopped_ecs() {
 		__check_prestarted_image "ECS"
 		if [ $? -eq 0 ]; then
 			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 			__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
 			return 0
 		fi
@@ -2185,7 +2188,13 @@ ecs_api_admin_reset() {
 ecs_kube_pvc_reset() {
 	__log_test_start $@
 
-	__kube_clean_pvc $ECS_APP_NAME nonrtric enrichmentservice-pvc /var/enrichment-coordinator-service/database
+	pvc_name=$(kubectl get pvc -n nonrtric  --no-headers -o custom-columns=":metadata.name" | grep enrichment)
+	if [ -z "$pvc_name" ]; then
+		pvc_name=enrichmentservice-pvc
+	fi
+	echo " Trying to reset pvc: "$pvc_name
+
+	__kube_clean_pvc $ECS_APP_NAME nonrtric $pvc_name /var/enrichment-coordinator-service/database
 
 	__log_test_pass
 	return 0

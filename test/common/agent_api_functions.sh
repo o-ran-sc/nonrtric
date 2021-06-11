@@ -183,7 +183,8 @@ start_policy_agent() {
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $POLICY_AGENT_APP_NAME deployment and service"
 			echo " Setting $POLICY_AGENT_APP_NAME replicas=1"
-			__kube_scale deployment $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			res_type=$(__kube_get_resource_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 
 		if [ $retcode_i -eq 0 ]; then
@@ -382,7 +383,8 @@ stop_policy_agent() {
 		__check_prestarted_image "PA"
 		if [ $? -eq 0 ]; then
 			echo -e $YELLOW" Persistency may not work for app $POLICY_AGENT_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			__kube_scale deployment $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
+			res_type=$(__kube_get_resource_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
 			return 0
 		fi
 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
@@ -418,7 +420,8 @@ start_stopped_policy_agent() {
 		__check_prestarted_image "PA"
 		if [ $? -eq 0 ]; then
 			echo -e $YELLOW" Persistency may not work for app $POLICY_AGENT_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			__kube_scale deployment $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			res_type=$(__kube_get_resource_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 			__check_service_start $POLICY_AGENT_APP_NAME $PA_PATH$POLICY_AGENT_ALIVE_URL
 			return 0
 		fi
@@ -2205,7 +2208,12 @@ api_get_configuration() {
 pms_kube_pvc_reset() {
 	__log_test_start $@
 
-	__kube_clean_pvc $POLICY_AGENT_APP_NAME nonrtric policymanagementservice-vardata-pvc /var/policy-management-service/database
+	pvc_name=$(kubectl get pvc -n nonrtric  --no-headers -o custom-columns=":metadata.name" | grep policy)
+	if [ -z "$pvc_name" ]; then
+		pvc_name=policymanagementservice-vardata-pvc
+	fi
+	echo " Trying to reset pvc: "$pvc_name
+	__kube_clean_pvc $POLICY_AGENT_APP_NAME nonrtric $pvc_name /var/policy-management-service/database
 
 	__log_test_pass
 	return 0

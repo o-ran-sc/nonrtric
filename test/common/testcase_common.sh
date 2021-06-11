@@ -1619,6 +1619,23 @@ __clean_containers() {
 ### Functions for kube management
 ###################################
 
+# Get resource type for scaling
+# args: <resource-name> <namespace>
+__kube_get_resource_type() {
+	kubectl get deployment $1 -n $2 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -eq 0 ]; then
+		echo "deployment"
+		return 0
+	fi
+	kubectl get sts $1 -n $2 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -eq 0 ]; then
+		echo "sts"
+		return 0
+	fi
+	echo "unknown-resource-type"
+	return 1
+}
+
 # Scale a kube resource to a specific count
 # args: <resource-type> <resource-name> <namespace> <target-count>
 # (Not for test scripts)
@@ -1973,7 +1990,7 @@ __kube_clean_pvc() {
 
 	envsubst < $input_yaml > $output_yaml
 
-	kubectl delete -f $output_yaml #> /dev/null 2>&1    # Delete the previous terminated pod - if existing
+	kubectl delete -f $output_yaml 1> /dev/null 2> /dev/null   # Delete the previous terminated pod - if existing
 
 	__kube_create_instance pod pvc-cleaner $input_yaml $output_yaml
 	if [ $? -ne 0 ]; then
@@ -2149,13 +2166,6 @@ __start_container() {
 	shift
 	appcount=$1
 	shift
-
-	os_version=$(uname -a 2> /dev/null | awk '{print tolower($0)}' | grep "microsoft")
-	if [[ "$os_version" == *"microsoft"* ]]; then
-		echo -e $YELLOW" Workaround for Linux on Win - delay container start, 1 sec, to make sure files mounted in the container are available on disk - WLS problem"$EYELLOW
-		sleep 1
-	fi
-
 
 	if [ "$compose_args" == "NODOCKERARGS" ]; then
 		docker-compose -f $compose_file up -d &> .dockererr

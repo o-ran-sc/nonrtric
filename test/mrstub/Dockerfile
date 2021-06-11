@@ -19,18 +19,19 @@ ARG NEXUS_PROXY_REPO
 
 FROM ${NEXUS_PROXY_REPO}python:3.8-slim-buster
 
-COPY app/ /usr/src/app/
-COPY cert/ /usr/src/app/cert/
-
-WORKDIR /usr/src/app/
-
-RUN chmod +x start.sh
+# Change order to fix problem with WSL
 
 #install nginx
 RUN apt-get update
 RUN apt-get install -y nginx=1.14.*
 
-#start mrstub
+COPY app/ /usr/src/app/
+COPY cert/ /usr/src/app/cert/
+
+WORKDIR /usr/src/app
+
 RUN pip install -r requirements.txt
+
+RUN chmod +x start.sh
 
 CMD [ "./start.sh" ]
