@@ -25,6 +25,8 @@ import com.google.gson.annotations.SerializedName;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.Collection;
+
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
@@ -41,16 +43,24 @@ public class ConsumerJobStatus {
         + "ENABLED: the A1-Information producer is able to deliver result for the Information Job\n" //
         + "DISABLED: the A1-Information producer is unable to deliver result for the Information Job";
 
+    private static final String PRODUCERS_DESCRIPTION = "An array of all registerred Information Producer Identifiers.";
+
     @Schema(name = "info_job_status", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
     @SerializedName("info_job_status")
     @JsonProperty(value = "info_job_status", required = true)
     public InfoJobStatusValues state;
 
+    @Schema(name = "producers", description = PRODUCERS_DESCRIPTION, required = true)
+    @SerializedName("producers")
+    @JsonProperty(value = "producers", required = true)
+    public Collection<String> producers;
+
     public ConsumerJobStatus() {
     }
 
-    public ConsumerJobStatus(InfoJobStatusValues state) {
+    public ConsumerJobStatus(InfoJobStatusValues state, Collection<String> producers) {
         this.state = state;
+        this.producers = producers;
     }
 
 }

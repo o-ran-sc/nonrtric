@@ -230,7 +230,7 @@ public class ProducerController {
     public ResponseEntity<Object> getInfoProducer( //
         @PathVariable("infoProducerId") String infoProducerId) {
         try {
-            InfoProducer  producer = this.infoProducers.getProducer(infoProducerId);
+            InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             ProducerRegistrationInfo info = toProducerRegistrationInfo(producer);
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {

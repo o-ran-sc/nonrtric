@@ -948,6 +948,7 @@ components:
     consumer_job_status:
       required:
       - info_job_status
+      - producers
       type: object
       properties:
         info_job_status:
@@ -956,6 +957,12 @@ components:
           enum:
           - ENABLED
           - DISABLED
+        producers:
+          type: array
+          description: An array of all registerred Information Producer Identifiers.
+          items:
+            type: string
+            description: An array of all registerred Information Producer Identifiers.
       description: Status for an Information Job
     EiJobObject:
       required:
