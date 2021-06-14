@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9df52254_2b1aef83",
+        "filename": "helm-manager/config/KubernetesParticipantConfig.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-06-14T17:32:28Z",
+      "side": 1,
+      "message": "Based on a review comment, the control loop team will move this to application.yaml. \nJust a heads up...",
+      "range": {
+        "startLine": 3,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 60
+      },
+      "revId": "843ba8679386bb7544c5ac3bdd2df4f993141ab0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
