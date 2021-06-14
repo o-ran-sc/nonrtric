@@ -141,7 +141,7 @@ services:
         'pap', '6969'
         ]
    apex-pdp:
-      image: onap/policy-apex-pdp:latest
+      image: nexus3.onap.org:10003/onap/policy-apex-pdp:latest
       container_name: policy-apex-pdp
       depends_on:
        - mariadb
