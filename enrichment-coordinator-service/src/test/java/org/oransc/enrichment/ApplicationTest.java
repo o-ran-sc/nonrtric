@@ -352,6 +352,7 @@ class ApplicationTest {
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId/status";
         String rsp = restClient().get(url).block();
         assertThat(rsp).contains("ENABLED");
+        assertThat(rsp).contains(PRODUCER_ID);
     }
 
     @Test

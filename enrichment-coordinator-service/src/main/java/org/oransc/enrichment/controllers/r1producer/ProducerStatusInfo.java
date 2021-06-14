@@ -38,8 +38,8 @@ public class ProducerStatusInfo {
     }
 
     private static final String OPERATIONAL_STATE_DESCRIPTION = "Operational state, values:\n" //
-        + "ENABLED: TBD\n" //
-        + "DISABLED: TBD.";
+        + "ENABLED: the producer is operational\n" //
+        + "DISABLED: the producer is not operational";
 
     @Schema(name = "operational_state", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
     @SerializedName("operational_state")

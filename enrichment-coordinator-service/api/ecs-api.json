@@ -103,15 +103,28 @@
         "consumer_job_status": {
             "description": "Status for an Information Job",
             "type": "object",
-            "required": ["info_job_status"],
-            "properties": {"info_job_status": {
-                "description": "Allowed values for Information Job status",
-                "type": "string",
-                "enum": [
-                    "ENABLED",
-                    "DISABLED"
-                ]
-            }}
+            "required": [
+                "info_job_status",
+                "producers"
+            ],
+            "properties": {
+                "info_job_status": {
+                    "description": "Allowed values for Information Job status",
+                    "type": "string",
+                    "enum": [
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                },
+                "producers": {
+                    "description": "An array of all registerred Information Producer Identifiers.",
+                    "type": "array",
+                    "items": {
+                        "description": "An array of all registerred Information Producer Identifiers.",
+                        "type": "string"
+                    }
+                }
+            }
         },
         "EiJobObject": {
             "description": "Information for an Enrichment Information Job",
