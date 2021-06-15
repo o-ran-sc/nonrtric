@@ -672,6 +672,37 @@ if [ $? -ne 0 ] || [ -z tmp ]; then
 		echo -e $RED"kubectl is required to run the test environment in kubernetes mode, pls install"$ERED
 		exit 1
 	fi
+else
+	if [ $RUNMODE == "KUBE" ]; then
+		res=$(kubectl cluster-info 2>&1)
+		if [ $? -ne 0 ]; then
+			echo -e "$BOLD$RED############################################# $ERED$EBOLD"
+			echo -e  $BOLD$RED"Command 'kubectl cluster-info' returned error $ERED$EBOLD"
+			echo -e "$BOLD$RED############################################# $ERED$EBOLD"
+			echo " "
+			echo "kubectl response:"
+			echo $res
+			echo " "
+			echo "This script may have been started with user with no permission to run kubectl"
+			echo "Try running with 'sudo' or set 'KUBECONFIG'"
+			echo "Do either 1, 2 or 3 "
+			echo " "
+			echo "1"
+			echo "Run with sudo"
+			echo -e $BOLD"sudo <test-script-and-parameters>"$EBOLD
+			echo " "
+			echo "2"
+			echo "Export KUBECONFIG and pass env to sudo - (replace user)"
+			echo -e $BOLD"export KUBECONFIG='/home/<user>/.kube/config'"$EBOLD
+			echo -e $BOLD"sudo -E <test-script-and-parameters>"$EBOLD
+			echo " "
+			echo "3"
+			echo "Set KUBECONFIG inline (replace user)"
+			echo -e $BOLD"sudo  KUBECONFIG='/home/<user>/.kube/config' <test-script-and-parameters>"$EBOLD
+
+			exit 1
+		fi
+	fi
 fi
 
 echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
