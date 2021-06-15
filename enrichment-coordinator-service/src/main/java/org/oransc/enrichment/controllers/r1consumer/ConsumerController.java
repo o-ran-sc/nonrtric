@@ -37,6 +37,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -226,9 +227,11 @@ public class ConsumerController {
     }
 
     private ConsumerJobStatus toInfoJobStatus(InfoJob job) {
+        Collection<String> producerIds = new ArrayList<>();
+        this.infoProducers.getProducersForType(job.getTypeId()).forEach(producer -> producerIds.add(producer.getId()));
         return this.infoProducers.isJobEnabled(job)
-            ? new ConsumerJobStatus(ConsumerJobStatus.InfoJobStatusValues.ENABLED)
-            : new ConsumerJobStatus(ConsumerJobStatus.InfoJobStatusValues.DISABLED);
+            ? new ConsumerJobStatus(ConsumerJobStatus.InfoJobStatusValues.ENABLED, producerIds)
+            : new ConsumerJobStatus(ConsumerJobStatus.InfoJobStatusValues.DISABLED, producerIds);
 
     }
 

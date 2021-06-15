@@ -57,6 +57,7 @@ import org.oransc.enrichment.controllers.a1e.A1eEiTypeInfo;
 import org.oransc.enrichment.controllers.r1consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.r1consumer.ConsumerInfoTypeInfo;
 import org.oransc.enrichment.controllers.r1consumer.ConsumerJobInfo;
+import org.oransc.enrichment.controllers.r1consumer.ConsumerJobStatus;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.controllers.r1producer.ProducerConsts;
 import org.oransc.enrichment.controllers.r1producer.ProducerInfoTypeInfo;
@@ -352,6 +353,10 @@ class ApplicationTest {
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId/status";
         String rsp = restClient().get(url).block();
         assertThat(rsp).contains("ENABLED");
+        assertThat(rsp).contains(PRODUCER_ID);
+
+        ConsumerJobStatus status = gson.fromJson(rsp, ConsumerJobStatus.class);
+        assertThat(status.producers).contains(PRODUCER_ID);
     }
 
     @Test
