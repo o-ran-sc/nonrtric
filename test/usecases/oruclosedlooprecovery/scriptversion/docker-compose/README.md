@@ -2,7 +2,7 @@
 
 `bash start.sh`
 
-This scripts will build images and start up four components in k8s enviroment by applying k8s yaml file:
+This scripts will build images and start up four components in docker enviroment by applying docker-compose yaml file:
 - dmaap-mr
 - oru-app
 - sdnr-simulator
