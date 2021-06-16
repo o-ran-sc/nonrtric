@@ -36,6 +36,7 @@
         <module>policy-agent</module>
         <module>enrichment-coordinator-service</module>
         <module>r-app-catalogue</module>
+        <module>helm-manager</module>
     </modules>
     <build>
         <plugins>
