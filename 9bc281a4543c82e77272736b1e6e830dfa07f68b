@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "9bc281a4543c82e77272736b1e6e830dfa07f68b",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42705d43_23ef446e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-06-16T11:28:20Z",
+      "side": 1,
+      "message": "Could not find artifact org.onap.policy.clamp.participant:policy-clamp-participant-impl-kubernetes:jar:6.1.2-SNAPSHOT in snapshots (https://nexus.o-ran-sc.org/content/repositories/snapshots/)",
+      "revId": "9bc281a4543c82e77272736b1e6e830dfa07f68b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
