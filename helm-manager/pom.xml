@@ -39,6 +39,18 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+    <repositories>
+        <repository>
+            <id>onap-releases</id>
+            <name>onap-releases</name>
+            <url>https://nexus.onap.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>onap-snapshots</id>
+            <name>onap-snapshots</name>
+            <url>https://nexus.onap.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
     <properties>
         <!-- Update this when a new version of the dependency jar shall be included -->
         <policy-clamp-participant-impl-kubernetes.version>6.1.2-SNAPSHOT</policy-clamp-participant-impl-kubernetes.version>
