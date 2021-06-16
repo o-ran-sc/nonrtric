@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "085ffc3e_cd523659",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-06-16T14:24:28Z",
+      "side": 1,
+      "message": "This fix is needed since the OSC Jenkins cannot find ONAP repos, and hence the Clamp participant cannot be fetched.",
+      "revId": "da5d41fece755550d0df5c7114c297fc5849ab84",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
