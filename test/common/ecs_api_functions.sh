@@ -2059,6 +2059,7 @@ ecs_api_idc_get_type() {
 }
 
 # API Test function: GET /data-consumer/v1/info-jobs/{infoJobId}/status
+# This test only status during an optional timeout. No test of the list of producers
 # args: <response-code> <job-id> [<status> [<timeout>]]
 # (Function for test scripts)
 ecs_api_idc_get_job_status() {
@@ -2123,6 +2124,103 @@ ecs_api_idc_get_job_status() {
 	return 0
 }
 
+# API Test function: GET /data-consumer/v1/info-jobs/{infoJobId}/status
+# This function test status and the list of producers with and optional timeout
+# args: <response-code> <job-id> [<status> EMPTYPROD|( <prod-count> <producer-id>+ ) [<timeout>]]
+# (Function for test scripts)
+ecs_api_idc_get_job_status2() {
+
+	__log_test_start $@
+	param_error=0
+	if [ $# -lt 2 ]; then
+		param_error=1
+	fi
+	args=("$@")
+	timeout=0
+	if [ $# -gt 2 ]; then
+		if [ $# -lt 4 ]; then
+			param_error=1
+		fi
+		targetJson="{\"info_job_status\": \"$3\""
+		if [ "$4" == "EMPTYPROD" ]; then
+			targetJson=$targetJson",\"producers\": []}"
+			if [ $# -gt 4 ]; then
+				timeout=$5
+			fi
+		else
+			targetJson=$targetJson",\"producers\": ["
+			if [ $# -eq $(($4+5)) ]; then
+				idx=$(($4+4))
+				timeout=${args[$idx]}
+			fi
+			for ((ecs_i = 0 ; ecs_i < $4 ; ecs_i++)); do
+				idx=$(($ecs_i+4))
+				if [ $ecs_i -gt 0 ]; then
+					targetJson=$targetJson","
+				fi
+				targetJson=$targetJson"\""${args[$idx]}"\""
+			done
+			targetJson=$targetJson"]}"
+		fi
+	fi
+
+	if [ $param_error -ne 0 ]; then
+		__print_err "<response-code> <job-id> [<status> EMPTYPROD|( <prod-count> <producer-id>+ ) [<timeout>]]" $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-jobs/$2/status"
+
+	start=$SECONDS
+	for (( ; ; )); do
+		res="$(__do_curl_to_api ECS GET $query)"
+		status=${res:${#res}-3}
+
+		if [ $# -gt 2 ]; then
+			duration=$((SECONDS-start))
+			echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
+			if [ $duration -gt $timeout ]; then
+				echo ""
+				duration=-1  #Last iteration
+			fi
+		else
+			duration=-1 #single test, no wait
+		fi
+
+		if [ $status -ne $1 ]; then
+			if [ $duration -eq -1 ]; then
+				__log_test_fail_status_code $1 $status
+				return 1
+			fi
+		fi
+		if [ $# -gt 2 ] && [ $status -eq $1 ]; then
+			body=${res:0:${#res}-3}
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				if [ $duration -eq -1 ]; then
+					__log_test_fail_body
+					return 1
+				fi
+			else
+				duration=-1  #Goto pass
+			fi
+		fi
+		if [ $duration -eq -1 ]; then
+			if [ $# -eq 4 ]; then
+				echo ""
+			fi
+			__log_test_pass
+			return 0
+		else
+			sleep 1
+		fi
+	done
+
+	__log_test_pass
+	return 0
+}
 
 ##########################################
 ####          Reset jobs              ####

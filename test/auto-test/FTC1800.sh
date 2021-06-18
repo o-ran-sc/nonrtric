@@ -82,7 +82,6 @@ CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
 TARGET="http://localhost:80/target"  # Dummy target
 
 NUM_JOBS=10000
-
 use_info_jobs=false  #Set flag if interface supporting info-types is used
 if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
     use_info_jobs=true
@@ -236,7 +235,7 @@ do
         fi
         if [ $use_info_jobs ]; then
             ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
@@ -248,7 +247,7 @@ do
         fi
         if [ $use_info_jobs ]; then
             ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
@@ -260,7 +259,7 @@ do
         fi
         if [ $use_info_jobs ]; then
             ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
@@ -272,7 +271,7 @@ do
         fi
         if [ $use_info_jobs ]; then
             ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
@@ -284,7 +283,7 @@ do
         fi
         if [ $use_info_jobs ]; then
             ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
 done
@@ -370,7 +369,7 @@ do
             ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) DISABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
@@ -380,7 +379,7 @@ do
             ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) DISABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
@@ -390,7 +389,7 @@ do
             ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) DISABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
@@ -400,7 +399,7 @@ do
             ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) DISABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
@@ -410,7 +409,7 @@ do
             ecs_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) DISABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
 done
@@ -466,7 +465,7 @@ do
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
@@ -476,7 +475,7 @@ do
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
@@ -486,7 +485,7 @@ do
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
@@ -496,7 +495,7 @@ do
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
@@ -506,7 +505,7 @@ do
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status 200 job$(($i+$NUM_JOBS)) ENABLED 120
+            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
 done
