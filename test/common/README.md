@@ -1626,20 +1626,40 @@ To also test the response payload add a path to the expected schema file.
 
 ## Function: ecs_api_idc_get_job_status() ##
 
-Test of GET '/data-consumer/v1/info-jobs/{infoJobId}/status' and optional check of the returned status.
-To test the response code only, provide the response code, type id and job id.
+Test of GET '/data-consumer/v1/info-jobs/{infoJobId}/status' and optional check of the returned status and timeout.
+To test the response code only, provide the response code and job id.
 To also test the response payload add the expected status.
 
 | arg list |
 |--|
-| `<response-code> <type-id> <job-id> [<status>]` |
+| `<response-code> <job-id> [<status> [ <timeout>]]` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
-| `<type-id>` | Id of the Info type  |
 | `<job-id>` | Id of the job  |
 | `<status>` | Expected status  |
+| `<timeout>` | Timeout |
+
+## Function: ecs_api_idc_get_job_status2() ##
+
+Test of GET '/data-consumer/v1/info-jobs/{infoJobId}/status' with returned producers and optional check of the returned status and timeout.
+To test the response code only, provide the response code and job id.
+To also test the response payload add the expected status.
+
+| arg list |
+|--|
+| `<response-code> <job-id> [<status> EMPTYPROD|( <prod-count> <producer-id>+ ) [<timeout>]]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<job-id>` | Id of the job  |
+| `<status>` | Expected status  |
+| `<EMPTYPROD>` | Indicated for empty list of producer  |
+| `<prod-count>` | Number of expected producer  |
+| `<producer-id>` |Id of the producer  |
+| `<timeout>` | Timeout |
 
 ## Function: ecs_api_admin_reset() ##
 
