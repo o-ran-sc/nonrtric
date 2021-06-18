@@ -18,6 +18,7 @@
 
 from flask import Flask
 from flask import Response
+from flask_httpauth import HTTPBasicAuth
 import json
 import os
 import random
@@ -29,6 +30,7 @@ import time
 # Stores the ID of the O-DU and randomly, after between 0 and 10 seconds, sends an Alarm Notification that clears the
 # "CUS Link Failure" alarm event to MR.
 app = Flask(__name__)
+auth = HTTPBasicAuth()
 
 mr_host = "http://localhost"
 mr_port = "3904"
@@ -38,6 +40,9 @@ MR_PATH = "/events/unauthenticated.SEC_FAULT_OUTPUT"
 HOST_IP = "::"
 HOST_PORT = 9990
 APP_URL = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=<string:o_du_id>/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=<string:o_ru_id>"
+
+USERNAME = "admin"
+PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"
 
 FAULT_ID = "28"
 
@@ -104,8 +109,15 @@ def index():
     return 'OK', 200
 
 
+@auth.verify_password
+def verify_password(username, password):
+    if username == USERNAME and password == PASSWORD:
+        return username
+
+
 @app.route(APP_URL,
-    methods=['POST'])
+    methods=['PUT'])
+@auth.login_required
 def sendrequest(o_du_id, o_ru_id):
     print("Got request with O-DU ID: " + o_du_id + " and O-RU ID: " + o_ru_id)
     random_time = int(10 * random.random())
