@@ -21,8 +21,8 @@ For more information about it, see the README file in the use case's folder.
 O-RU closed loop recovery
 -------------------------
 
-This use case is a non-real-world closed-loop use case to demonstrate automated recovery when the front-haul connection between and O-DU and O-RU is reset. 
-An application in the NONRTRIC sense the fault from the O-RU (O1-FM) and initiates a NETCONF reset operation (O1-CM) using the OAM controller. 
+This use case is a non-real-world closed-loop use case to demonstrate automated recovery when the front-haul connection between an O-DU and O-RU is reset. 
+An application in the NONRTRIC senses the fault from the O-RU (O1-FM) and initiates a NETCONF reset operation (O1-CM) using the OAM controller. 
 More details about the use case can be found on the O-RAN SC wiki: `(RSAC) <https://wiki.o-ran-sc.org/pages/viewpage.action?pageId=20878423>`_ and `(OAM) <https://wiki.o-ran-sc.org/display/OAM/Closed+loop+use+case>`_.
 
 Non-RT RIC provides two implementation versions of the recovery part of the use case. One in the form of a python
@@ -36,7 +36,19 @@ change messages sent from the script and responds with alarm cleared messages to
 
 All parts are Dockerized and can be started as individual containers, in the same network, in Docker.
 
+The script based solution can be found in
+this `link <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=test/usecases/oruclosedlooprecovery/scriptversion;b=HEAD>`_.
+
 ONAP Policy Solution
 ++++++++++++++++++++
 
-**<ToDo>**
+There is also another solution for performing the fronthaul recovery that is based on ONAP Policy Framework.
+A TOSCA Policy has been created that listens to DMaaP Message Router and sends a configuration change message via
+REST call to the OAM controller. The policy based solution can be
+found `here <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=test/usecases/oruclosedlooprecovery/apexpolicyversion;b=HEAD>`_.
+
+There is a `docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose/docker-compose-policy-framework;b=HEAD>`_ available
+in the nonrtric repo for bringing up the complete standalone version of ONAP Policy Framework.
+
+The detailed instructions for deploying and running this policy are provided in
+the `wiki <https://wiki.o-ran-sc.org/pages/viewpage.action?pageId=35881325>`_.
