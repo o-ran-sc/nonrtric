@@ -32,7 +32,7 @@
     <groupId>org.o-ran-sc.nonrtric</groupId>
     <artifactId>helm-manager</artifactId>
     <!-- Update this when stepping version of the helm-manager -->
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -53,7 +53,7 @@
     </repositories>
     <properties>
         <!-- Update this when a new version of the dependency jar shall be included -->
-        <policy-clamp-participant-impl-kubernetes.version>6.1.2-SNAPSHOT</policy-clamp-participant-impl-kubernetes.version>
+        <policy-clamp-participant-impl-kubernetes.version>6.1.2</policy-clamp-participant-impl-kubernetes.version>
         <docker-maven-plugin.version>0.36.0</docker-maven-plugin.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     </properties>
