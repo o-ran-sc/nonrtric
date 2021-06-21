@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8180c170_67b1567d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-06-21T09:21:44Z",
+      "side": 1,
+      "message": "Why remove the Amber release notes? ",
+      "revId": "56f0715b7ed902b16d6921744e8eb018bca0d4fb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
