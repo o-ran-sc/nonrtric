@@ -46,16 +46,15 @@
             <url>https://nexus.onap.org/content/repositories/releases/</url>
         </repository>
         <repository>
-            <id>onap-snapshots</id>
-            <name>onap-snapshots</name>
-            <url>https://nexus.onap.org/content/repositories/snapshots/</url>
+            <id>nordix</id>
+            <name>39bf7eabe020-releases</name>
+            <url>https://artifactory.nordix.org/artifactory/onap-policy-clamp-participant-maven-local</url>
         </repository>
     </repositories>
     <properties>
         <!-- Update this when a new version of the dependency jar shall be included -->
-        <policy-clamp-participant-impl-kubernetes.version>6.1.2-SNAPSHOT</policy-clamp-participant-impl-kubernetes.version>
+        <policy-clamp-participant-impl-kubernetes.version>6.1.2</policy-clamp-participant-impl-kubernetes.version>
         <docker-maven-plugin.version>0.36.0</docker-maven-plugin.version>
-        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -70,7 +69,6 @@
                 <!-- Make the jar file of the dependency available as a file for inclusion in the docker image-->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin.version}</version>
                 <executions>
                 <execution>
                     <id>copy</id>
