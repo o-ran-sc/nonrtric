@@ -33,7 +33,7 @@ spring:
       - id: A1-EI
         uri: https://ecs:8434
         predicates:
-        - Path=/data-producer/**
+        - Path=/data-producer/**,/data-consumer/**
 management:
   endpoint:
     gateway:
