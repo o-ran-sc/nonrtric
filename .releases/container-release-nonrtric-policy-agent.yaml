@@ -1,10 +1,10 @@
 ---
 distribution_type: container
-container_release_tag: 2.1.0
+container_release_tag: 2.2.0
 container_pull_registry: nexus3.o-ran-sc.org:10004
 container_push_registry: nexus3.o-ran-sc.org:10002
 project: nonrtric
-ref: 90ce16238dd6970153e1c0fbddb15e32c68c504f
+ref: d6624171da70a1c71e3d5b8263855fabf613a06e
 containers:
     - name: nonrtric-policy-agent
-      version: 2.1.0
+      version: 2.2.0
