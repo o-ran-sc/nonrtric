@@ -22,11 +22,12 @@ ARG JAR
 #Install curl
 RUN apt-get update
 RUN apt-get install -y curl
+RUN apt-get install -y wget
 
 #Install helm
-RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-RUN chmod 700 get_helm.sh
-RUN ./get_helm.sh
+RUN wget -O helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
+RUN tar -zxvf helm.tar.gz
+RUN mv linux-amd64/helm /usr/local/bin/helm
 
 #Install kubectl and configure
 RUN curl -LO https://dl.k8s.io/release/v1.20.2/bin/linux/amd64/kubectl
