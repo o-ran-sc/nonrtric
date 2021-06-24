@@ -37,7 +37,7 @@ spring:
       - id: A1-EI2
         uri: https://${ECS_DOMAIN_NAME}:${ECS_EXTERNAL_SECURE_PORT}
         predicates:
-        - Path=/data-producer/**
+        - Path=/data-producer/**,/data-consumer/**
 management:
   endpoint:
     gateway:
