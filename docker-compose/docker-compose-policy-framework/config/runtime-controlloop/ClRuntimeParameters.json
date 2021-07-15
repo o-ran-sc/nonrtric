@@ -1,0 +1,63 @@
+{
+    "name": "ControlLoopRuntimeGroup",
+    "supervisionScannerIntervalSec": 1000,
+    "participantStateChangeIntervalSec": 1000,
+    "participantClUpdateIntervalSec": 1000,
+    "participantClStateChangeIntervalSec": 1000,
+    "restServerParameters": {
+        "host": "0.0.0.0",
+        "port": 6969,
+        "userName": "healthcheck",
+        "password": "zb!XztG34",
+        "https": true,
+        "aaf": false
+    },
+    "participantParameters": {
+        "heartBeatMs": 120000,
+        "updateParameters": {
+            "maxRetryCount": 1,
+            "maxWaitMs": 30000
+        },
+        "stateChangeParameters": {
+            "maxRetryCount": 1,
+            "maxWaitMs": 30000
+        }
+    },
+    "databaseProviderParameters": {
+        "name": "PolicyProviderParameterGroup",
+        "implementation": "org.onap.policy.models.provider.impl.DatabasePolicyModelsProviderImpl",
+        "databaseDriver": "org.mariadb.jdbc.Driver",
+        "databaseUrl": "jdbc:mariadb://localhost:3306/controlloop",
+        "databaseUser": "policy",
+        "databasePassword": "P01icY",
+        "persistenceUnit": "CommissioningMariaDb"
+    },
+    "topicParameterGroup": {
+        "topicSources": [
+            {
+                "topic": "POLICY-CLRUNTIME-PARTICIPANT",
+                "servers": [
+                    "localhost"
+                ],
+                "topicCommInfrastructure": "dmaap",
+                "fetchTimeout": 15000
+            }
+        ],
+        "topicSinks": [
+            {
+                "topic": "POLICY-CLRUNTIME-PARTICIPANT",
+                "servers": [
+                    "localhost"
+                ],
+                "topicCommInfrastructure": "dmaap"
+            },
+            {
+                "topic": "POLICY-NOTIFICATION",
+                "servers": [
+                    "localhost"
+                ],
+                "topicCommInfrastructure": "dmaap"
+            }
+        ]
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "orderedState": "RUNNING",
+    "controlLoopIdentifierList": [
+        {
+            "name": "LinkMonitorInstance0",
+            "version": "1.0.1"
+        }
+    ]
+}

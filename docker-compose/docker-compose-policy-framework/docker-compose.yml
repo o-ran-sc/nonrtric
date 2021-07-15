@@ -27,10 +27,13 @@ services:
       image: nexus3.onap.org:10001/mariadb:10.5.8
       container_name: mariadb
       hostname: mariadb
-      command: ['--lower-case-table-names=1', '--wait_timeout=28800']
-      env_file: config/db/db.conf
       volumes:
-         - ./config/db:/docker-entrypoint-initdb.d:ro
+       - db-vol:/var/lib/mysql
+       - "./config/db/:/docker-entrypoint-initdb.d:rw"
+      environment:
+       - MYSQL_ROOT_PASSWORD=strong_pitchou
+      ports:
+       - "3306:3306"
       expose:
        - 3306
    api:
@@ -40,10 +43,11 @@ services:
        - mariadb
       hostname: policy-api
       ports:
-       - "6969:6969"
+       - "6869:6969"
       expose:
-       - 6969
+       - 6869
       volumes:
+       - ./config/api/defaultConfig.json:/opt/app/policy/api/etc/defaultConfig.json:ro
        - ./config/ks.jks:/opt/app/policy/api/etc/ssl/policy-keystore.jks:ro
        - ./wait_for_port.sh:/opt/app/policy/api/bin/wait_for_port.sh:ro
       entrypoint: ./wait_for_port.sh
@@ -183,3 +187,5 @@ services:
         'pap', '6969',
         'apex-pdp', '6969'
         ]
+volumes:
+  db-vol:

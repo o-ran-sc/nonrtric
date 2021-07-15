@@ -1,0 +1,53 @@
+{
+    "name": "ApiGroup",
+    "restServerParameters": {
+        "host": "0.0.0.0",
+        "port": 6969,
+        "userName": "healthcheck",
+        "password": "zb!XztG34",
+        "https": false,
+        "aaf": false
+    },
+    "databaseProviderParameters": {
+        "name": "PolicyProviderParameterGroup",
+        "implementation": "org.onap.policy.models.provider.impl.DatabasePolicyModelsProviderImpl",
+        "databaseDriver": "org.mariadb.jdbc.Driver",
+        "databaseUrl": "jdbc:mariadb://mariadb:3306/policyadmin",
+        "databaseUser": "root",
+        "databasePassword": "strong_pitchou",
+        "persistenceUnit": "PolicyMariaDb"
+    },
+    "preloadPolicyTypes": [
+        "policytypes/onap.policies.monitoring.tcagen2.yaml",
+        "policytypes/onap.policies.monitoring.dcaegen2.collectors.datafile.datafile-app-server.yaml",
+        "policytypes/onap.policies.monitoring.dcae-restconfcollector.yaml",
+        "policytypes/onap.policies.Optimization.yaml",
+        "policytypes/onap.policies.optimization.Resource.yaml",
+        "policytypes/onap.policies.optimization.Service.yaml",
+        "policytypes/onap.policies.optimization.resource.AffinityPolicy.yaml",
+        "policytypes/onap.policies.optimization.resource.DistancePolicy.yaml",
+        "policytypes/onap.policies.optimization.resource.HpaPolicy.yaml",
+        "policytypes/onap.policies.optimization.resource.OptimizationPolicy.yaml",
+        "policytypes/onap.policies.optimization.resource.PciPolicy.yaml",
+        "policytypes/onap.policies.optimization.service.QueryPolicy.yaml",
+        "policytypes/onap.policies.optimization.service.SubscriberPolicy.yaml",
+        "policytypes/onap.policies.optimization.resource.Vim_fit.yaml",
+        "policytypes/onap.policies.optimization.resource.VnfPolicy.yaml",
+        "policytypes/onap.policies.controlloop.guard.Common.yaml",
+        "policytypes/onap.policies.controlloop.guard.common.Blacklist.yaml",
+        "policytypes/onap.policies.controlloop.guard.common.FrequencyLimiter.yaml",
+        "policytypes/onap.policies.controlloop.guard.common.MinMax.yaml",
+        "policytypes/onap.policies.controlloop.guard.common.Filter.yaml",
+        "policytypes/onap.policies.controlloop.guard.coordination.FirstBlocksSecond.yaml",
+        "policytypes/onap.policies.Naming.yaml",
+        "policytypes/onap.policies.Match.yaml",
+        "policytypes/onap.policies.native.Drools.yaml",
+        "policytypes/onap.policies.native.Xacml.yaml",
+        "policytypes/onap.policies.native.Apex.yaml",
+        "policytypes/onap.policies.controlloop.operational.Common.yaml",
+        "policytypes/onap.policies.controlloop.operational.common.Drools.yaml"
+    ],
+    "preloadPolicies" : [
+        "policies/sdnc.policy.naming.input.tosca.yaml"
+    ]
+}

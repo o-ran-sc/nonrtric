@@ -24,8 +24,8 @@
         "implementation": "org.onap.policy.models.provider.impl.DatabasePolicyModelsProviderImpl",
         "databaseDriver": "org.mariadb.jdbc.Driver",
         "databaseUrl": "jdbc:mariadb://mariadb:3306/policyadmin",
-        "databaseUser": "policy_user",
-        "databasePassword": "policy_user",
+        "databaseUser": "root",
+        "databasePassword": "strong_pitchou",
         "persistenceUnit": "PolicyMariaDb"
     },
     "topicParameterGroup": {
@@ -57,7 +57,7 @@
         "port": 6969,
         "userName": "healthcheck",
         "password": "zb!XztG34",
-        "useHttps": true,
+        "useHttps": false,
         "allowSelfSignedCerts" : true,
         "basePath": "policy/api/v1/healthcheck"
     }]

@@ -1,0 +1,31 @@
+{
+    "controlLoopList": [
+        {
+            "name": "LinkMonitorInstance0",
+            "version": "1.0.1",
+            "definition": {
+                "name": "org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition",
+                "version": "1.2.3"
+            },
+            "state": "UNINITIALISED",
+            "orderedState": "UNINITIALISED",
+            "description": "Link Monitor control loop instance 0",
+            "elements": {
+                "709c62b3-8918-41b9-a747-d21eb79c6c22": {
+                    "id": "709c62b3-8918-41b9-a747-d21eb79c6c22",
+                    "definition": {
+                        "name": "org.onap.domain.linkmonitor.LinkMonitorPolicyControlLoopElement",
+                        "version": "1.2.3"
+                    },
+                    "participantType": {
+                        "name": "org.onap.policy.controlloop.PolicyControlLoopParticipant",
+                        "version": "2.3.1"
+                    },
+                    "state": "UNINITIALISED",
+                    "orderedState": "UNINITIALISED",
+                    "description": "Link Monitor Policy Control Loop Element"
+                }
+            }
+        }
+    ]
+}
