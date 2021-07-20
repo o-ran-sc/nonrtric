@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e6e74a9_6cee54a2",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/helm/sdnr-simulator/Chart.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-07-20T14:19:47Z",
+      "side": 1,
+      "message": "May I ask why downgrade apiVersion to v1?",
+      "revId": "72951a9e46961aa98d20b4674cc091039917a494",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
