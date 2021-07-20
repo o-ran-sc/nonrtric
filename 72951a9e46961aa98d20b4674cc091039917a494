@@ -34,6 +34,24 @@
       "parentUuid": "3e6e74a9_6cee54a2",
       "revId": "72951a9e46961aa98d20b4674cc091039917a494",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c5f868f_1f1bc4b4",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/helm/sdnr-simulator/Chart.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-07-20T23:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6c4e099_091fd9b2",
+      "revId": "72951a9e46961aa98d20b4674cc091039917a494",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
