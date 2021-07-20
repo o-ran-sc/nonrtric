@@ -1,0 +1,73 @@
+{
+    "controlLoopList": [
+        {
+            "name": "LinkMonitorInstance0",
+            "version": "1.0.1",
+            "definition": {
+                "name": "org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition",
+                "version": "1.2.3"
+            },
+            "state": "UNINITIALISED",
+            "orderedState": "UNINITIALISED",
+            "description": "Link Monitor control loop instance 0",
+            "elements": {
+                "709c62b3-8918-41b9-a747-d21eb79c6c22": {
+                    "id": "709c62b3-8918-41b9-a747-d21eb79c6c22",
+                    "definition": {
+                        "name": "org.onap.domain.linkmonitor.OruAppK8SMicroserviceControlLoopElement",
+                        "version": "1.2.3"
+                    },
+                    "participantType": {
+                        "name": "org.onap.k8s.controlloop.K8SControlLoopParticipant",
+                        "version": "2.3.4"
+                    },
+                    "state": "UNINITIALISED",
+                    "orderedState": "UNINITIALISED",
+                    "description": "Oru App k8s Control Loop Element"
+                },
+                "709c62b3-8918-41b9-a747-d21eb79c6c23": {
+                    "id": "709c62b3-8918-41b9-a747-d21eb79c6c23",
+                    "definition": {
+                        "name": "org.onap.domain.linkmonitor.MessageGeneratorK8SMicroserviceControlLoopElement",
+                        "version": "1.2.3"
+                    },
+                    "participantType": {
+                        "name": "org.onap.k8s.controlloop.K8SControlLoopParticipant",
+                        "version": "2.3.4"
+                    },
+                    "state": "UNINITIALISED",
+                    "orderedState": "UNINITIALISED",
+                    "description": "Message Generator k8s Control Loop Element"
+                },
+                "709c62b3-8918-41b9-a747-d21eb79c6c24": {
+                    "id": "709c62b3-8918-41b9-a747-d21eb79c6c24",
+                    "definition": {
+                        "name": "org.onap.domain.linkmonitor.SdnrSimulatorK8SMicroserviceControlLoopElement",
+                        "version": "1.2.3"
+                    },
+                    "participantType": {
+                        "name": "org.onap.k8s.controlloop.K8SControlLoopParticipant",
+                        "version": "2.3.4"
+                    },
+                    "state": "UNINITIALISED",
+                    "orderedState": "UNINITIALISED",
+                    "description": "Sdnr Simulator k8s Control Loop Element"
+                },
+                "709c62b3-8918-41b9-a747-d21eb79c6c25": {
+                    "id": "709c62b3-8918-41b9-a747-d21eb79c6c25",
+                    "definition": {
+                        "name": "org.onap.domain.linkmonitor.DmaapMrK8SMicroserviceControlLoopElement",
+                        "version": "1.2.3"
+                    },
+                    "participantType": {
+                        "name": "org.onap.k8s.controlloop.K8SControlLoopParticipant",
+                        "version": "2.3.4"
+                    },
+                    "state": "UNINITIALISED",
+                    "orderedState": "UNINITIALISED",
+                    "description": "Dmaap Mr k8s Control Loop Element"
+                }
+            }
+        }
+    ]
+}

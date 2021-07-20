@@ -1,0 +1,183 @@
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+tosca_definitions_version: tosca_simple_yaml_1_1_0
+data_types:
+  onap.datatypes.ToscaConceptIdentifier:
+    derived_from: tosca.datatypes.Root
+    properties:
+      name:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+node_types:
+  org.onap.policy.clamp.controlloop.Participant:
+    version: 1.0.1
+    derived_from: tosca.nodetypes.Root
+    properties:
+      provider:
+        type: string
+        requred: false
+  org.onap.policy.clamp.controlloop.ControlLoop:
+    version: 1.0.1
+    derived_from: tosca.nodetypes.Root
+    properties:
+      provider:
+        type: string
+        requred: false
+      elements:
+        type: list
+        required: true
+        entry_schema:
+          type: onap.datatypes.ToscaConceptIdentifier
+  org.onap.policy.clamp.controlloop.ControlLoopElement:
+    version: 1.0.1
+    derived_from: tosca.nodetypes.Root
+    properties:
+      provider:
+        type: string
+        requred: false
+      participant_id:
+        type: onap.datatypes.ToscaConceptIdentifier
+        requred: true
+  org.onap.policy.clamp.controlloop.K8SMicroserviceControlLoopElement:
+    version: 1.0.1
+    derived_from: org.onap.policy.clamp.controlloop.ControlLoopElement
+    properties:
+      chart:
+        type: string
+        required: true
+      configs:
+        type: list
+        required: false
+      requirements:
+        type: string
+        requred: false
+      templates:
+        type: list
+        required: false
+        entry_schema:
+      values:
+        type: string
+        requred: true
+topology_template:
+  node_templates:
+    org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition:
+      version: 1.2.3
+      type: org.onap.policy.clamp.controlloop.ControlLoop
+      type_version: 1.0.1
+      description: Control loop for Link Monitor
+      properties:
+        provider: Ericsson
+        elements:
+        - name: org.onap.domain.linkmonitor.OruAppK8SMicroserviceControlLoopElement
+          version: 1.2.3
+        - name: org.onap.domain.linkmonitor.MessageGeneratorK8SMicroserviceControlLoopElement
+          version: 1.2.3
+        - name: org.onap.domain.linkmonitor.SdnrSimulatorK8SMicroserviceControlLoopElement
+          version: 1.2.3
+        - name: org.onap.domain.linkmonitor.DmaapMrK8SMicroserviceControlLoopElement
+          version: 1.2.3
+    org.onap.k8s.controlloop.K8SControlLoopParticipant:
+      version: 2.3.4
+      type: org.onap.policy.clamp.controlloop.Participant
+      type_version: 1.0.1
+      description: Participant for k8s
+      properties:
+        provider: ONAP
+    org.onap.domain.linkmonitor.OruAppK8SMicroserviceControlLoopElement:
+      version: 1.2.3
+      type: org.onap.policy.clamp.controlloop.K8SMicroserviceControlLoopElement
+      type_version: 1.0.1
+      description: Control loop element for oru-app
+      properties:
+        provider: ONAP
+        participant_id:
+          name: org.onap.k8s.controlloop.K8SControlLoopParticipant
+          version: 2.3.4
+        uninitializedToPassiveTimeout: 180
+        podStatusCheckInterval: 30
+        chart:
+          chartId:
+            name: oru-app
+            version: 0.1.0
+          releaseName: oru-app
+	  # repository can point to a helm repo or a path in local file system where chart is stored
+          repository: local
+          namespace: nonrtric
+    org.onap.domain.linkmonitor.MessageGeneratorK8SMicroserviceControlLoopElement:
+      version: 1.2.3
+      type: org.onap.policy.clamp.controlloop.K8SMicroserviceControlLoopElement
+      type_version: 1.0.1
+      description: Control loop element for message-generator
+      properties:
+        provider: ONAP
+        participant_id:
+          name: org.onap.k8s.controlloop.K8SControlLoopParticipant
+          version: 2.3.4
+        uninitializedToPassiveTimeout: 180
+        podStatusCheckInterval: 30
+        chart:
+          chartId:
+            name: message-generator
+            version: 0.1.0
+          releaseName: message-generator
+	  # repository can point to a helm repo or a path in local file system where chart is stored
+          repository: local
+          namespace: nonrtric
+          overrideParams:
+            image.tag: v2
+    org.onap.domain.linkmonitor.SdnrSimulatorK8SMicroserviceControlLoopElement:
+      version: 1.2.3
+      type: org.onap.policy.clamp.controlloop.K8SMicroserviceControlLoopElement
+      type_version: 1.0.1
+      description: Control loop element for sdnr-simulator
+      properties:
+        provider: ONAP
+        participant_id:
+          name: org.onap.k8s.controlloop.K8SControlLoopParticipant
+          version: 2.3.4
+        uninitializedToPassiveTimeout: 180
+        podStatusCheckInterval: 30
+        chart:
+          chartId:
+            name: sdnr-simulator
+            version: 0.1.0
+          releaseName: sdnr-simulator
+	  # repository can point to a helm repo or a path in local file system where chart is stored
+          repository: local
+          namespace: nonrtric
+    org.onap.domain.linkmonitor.DmaapMrK8SMicroserviceControlLoopElement:
+      version: 1.2.3
+      type: org.onap.policy.clamp.controlloop.K8SMicroserviceControlLoopElement
+      type_version: 1.0.1
+      description: Control loop element for dmaap-mr
+      properties:
+        provider: ONAP
+        participant_id:
+          name: org.onap.k8s.controlloop.K8SControlLoopParticipant
+          version: 2.3.4
+        uninitializedToPassiveTimeout: 180
+        podStatusCheckInterval: 30
+        chart:
+          chartId:
+            name: dmaap-mr
+            version: 0.1.0
+          releaseName: dmaap-mr
+	  # repository can point to a helm repo or a path in local file system where chart is stored
+          repository: local
+          namespace: nonrtric

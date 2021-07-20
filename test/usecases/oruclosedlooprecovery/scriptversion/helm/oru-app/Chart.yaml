@@ -13,7 +13,7 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 
-apiVersion: v2
+apiVersion: v1
 name: oru-app
 description: A Helm chart for Kubernetes
 
