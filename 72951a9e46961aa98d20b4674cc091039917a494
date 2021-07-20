@@ -16,6 +16,24 @@
       "message": "May I ask why downgrade apiVersion to v1?",
       "revId": "72951a9e46961aa98d20b4674cc091039917a494",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6c4e099_091fd9b2",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/helm/sdnr-simulator/Chart.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2021-07-20T14:25:27Z",
+      "side": 1,
+      "message": "I was getting an error when using v2. Probably something to do with my env.\nSince all our other charts in it/dep are also using v1, so I changed it back to v1. I guess it will not change any functionality, so it should not really matter,",
+      "parentUuid": "3e6e74a9_6cee54a2",
+      "revId": "72951a9e46961aa98d20b4674cc091039917a494",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
