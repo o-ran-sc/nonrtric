@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "456f53cf_554634fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-07-28T15:45:32Z",
+      "side": 1,
+      "message": "There doesn\u0027t seem to be a dedicated verify job for the Bronze branch, so no automated verfied +1 ",
+      "revId": "6187004e913ff41e49a204ea1ee370cd863082cb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
