@@ -1,0 +1,108 @@
+#  ============LICENSE_START===============================================
+#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: chartrepo
+  namespace: nonrtric
+  labels:
+    run: chartrepo
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    run: chartrepo
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: chartrepo
+  namespace: nonrtric
+  labels:
+    run: chartrepo
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+  - name: chartrepo
+    image: ghcr.io/helm/chartmuseum:v0.13.1
+    imagePullPolicy: Always
+    ports:
+    - name: http
+      containerPort: 8080
+    env:
+    - name: DEBUG
+      value: "1"
+    - name: STORAGE
+      value: "local"
+    - name: STORAGE_LOCAL_ROOTDIR
+      value: "/var/chartrepo/charts"
+    - name: DISABLE_API
+      value: "false"
+    volumeMounts:
+    - mountPath: /var/chartrepo/charts
+      name: chartrepo-pv
+  volumes:
+  - name: chartrepo-pv
+    persistentVolumeClaim:
+      claimName: chartrepo-pvc
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: chartrepo-pv
+  annotations:
+    pv.beta.kubernetes.io/gid: "999"
+  labels:
+    run: chartrepo
+spec:
+  storageClassName: chartrepo-standard
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/tmp/chartrepo"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chartrepo-pvc
+  namespace: nonrtric
+  labels:
+    run: chartrepo
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+  storageClassName: chartrepo-standard
+  volumeMode: Filesystem
