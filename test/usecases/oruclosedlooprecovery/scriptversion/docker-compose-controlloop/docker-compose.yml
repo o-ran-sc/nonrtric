@@ -1,0 +1,80 @@
+#
+# ===========LICENSE_START====================================================
+# Copyright (C) 2021 Nordix Foundation. All rights reserved.
+# ============================================================================
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============LICENSE_END=====================================================
+#
+version: '2'
+networks:
+  default:
+    driver: bridge
+    name: nonrtric-docker-net
+services:
+   mariadb:
+      image: nexus3.onap.org:10001/mariadb:10.5.8
+      container_name: mariadb
+      hostname: mariadb
+      volumes:
+       - db-vol:/var/lib/mysql
+       - "./config/db/:/docker-entrypoint-initdb.d:rw"
+      environment:
+       - MYSQL_ROOT_PASSWORD=strong_pitchou
+      ports:
+       - "3306:3306"
+      expose:
+       - 3306
+   controlloop-runtime:
+      image: nexus3.onap.org:10001/onap/policy-controlloop-runtime:6.1.2-SNAPSHOT
+      container_name: controlloop-runtime
+      depends_on:
+       - mariadb
+      hostname: controlloop-runtime
+      ports:
+       - "6969:6969"
+      expose:
+       - 6969
+      volumes:
+       - ./config/ks.jks:/opt/app/policy/clamp/etc/ssl/policy-keystore.jks:ro
+      environment:
+       - TOPICSERVER=onap-dmaap
+       - MARIADB_HOST=mariadb
+       - MARIADB_PORT=3306
+   k8s-participant:
+      image: nexus3.onap.org:10001/onap/kubernetes-participant:6.1.2-SNAPSHOT
+      container_name: k8s-participant
+      depends_on:
+       - mariadb
+       - controlloop-runtime
+       - chartmuseum
+      hostname: k8s-participant
+      volumes:
+       - ./config/ks.jks:/opt/app/policy/clamp/etc/ssl/policy-keystore.jks:ro
+       - ./../helm:/home/policy/helm
+       - <PATH TO kube-config>:/home/policy/.kube/config:ro
+      environment:
+       - TOPICSERVER=onap-dmaap
+       - KEYSTORE=/opt/app/policy/clamp/etc/ssl/policy-keystore.jks
+       - KEYSTORE_PASSWD=Pol1cy_0nap
+      entrypoint: sh -c "/home/policy/helm/chartmuseum_init.sh && /opt/app/policy/clamp/bin/kubernetes-participant.sh"
+   chartmuseum:
+      image: ghcr.io/helm/chartmuseum:v0.13.1
+      container_name: chartmuseum
+      hostname: chartmuseum
+      volumes:
+       - ./charts:/charts
+      environment:
+       - STORAGE=local
+       - STORAGE_LOCAL_ROOTDIR=/charts
+volumes:
+  db-vol:

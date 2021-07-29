@@ -117,7 +117,7 @@ topology_template:
             version: 0.1.0
           releaseName: oru-app
 	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: local
+          repository: chartmuseum
           namespace: nonrtric
     org.onap.domain.linkmonitor.MessageGeneratorK8SMicroserviceControlLoopElement:
       version: 1.2.3
@@ -137,7 +137,7 @@ topology_template:
             version: 0.1.0
           releaseName: message-generator
 	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: local
+          repository: chartmuseum
           namespace: nonrtric
           overrideParams:
             image.tag: v2
@@ -159,7 +159,7 @@ topology_template:
             version: 0.1.0
           releaseName: sdnr-simulator
 	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: local
+          repository: chartmuseum
           namespace: nonrtric
     org.onap.domain.linkmonitor.DmaapMrK8SMicroserviceControlLoopElement:
       version: 1.2.3
@@ -179,5 +179,5 @@ topology_template:
             version: 0.1.0
           releaseName: dmaap-mr
 	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: local
+          repository: chartmuseum
           namespace: nonrtric
