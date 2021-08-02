@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e50097a_9e6e8af5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-08-02T09:35:13Z",
+      "side": 1,
+      "message": "Current pom file was not pulling the latest code from onap repo. This commit is a fix.",
+      "revId": "e2053a5c41b76c049e32c046995184f6b84f1d21",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
