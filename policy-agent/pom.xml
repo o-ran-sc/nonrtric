@@ -366,6 +366,7 @@
                                 <argument>update</argument>
                                 <argument>--init</argument>
                                 <argument>--recursive</argument>
+                                <argument>--remote</argument>
                             </arguments>
                         </configuration>
                         <goals>
