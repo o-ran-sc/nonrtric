@@ -130,7 +130,7 @@ The script can be started with these arguments
 
 | arg list |
 |--|
-| `remote\|remote-remove docker\|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address>] [--repo-policy local\|remote] [--cluster-timeout <timeout-in-seconds>]` |
+| `remote\|remote-remove docker\|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address>] [--repo-policy local\|remote] [--cluster-timeout <timeout-in-seconds>]  [--print-stats]` |
 
 | parameter | description |
 |-|-|
@@ -150,6 +150,7 @@ The script can be started with these arguments
 | `--image-repo` |  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo |
 | `-repo-policy` |  Policy controlling which images to re-tag and push to image repo in param --image-repo. Can be set to 'local' (push on locally built images) or 'remote' (push locally built images and images from nexus repo). Default is 'local' |
 | `--cluster-timeout` |  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds |
+| `--print-stats` |  Prints the number of tests, failed tests, failed configuration and deviations after each individual test or config |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
 ## Function: setup_testenvironment ##

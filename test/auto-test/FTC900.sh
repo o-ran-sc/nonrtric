@@ -33,7 +33,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -46,6 +46,7 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 . ../common/consul_cbs_functions.sh
 . ../common/kube_proxy_api_functions.sh
 . ../common/gateway_api_functions.sh
+. ../common/cr_api_functions.sh
 
 setup_testenvironment
 

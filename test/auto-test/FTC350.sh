@@ -28,7 +28,7 @@ KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
 KUBE_PRESTARTED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -229,6 +229,8 @@ for interface in $TESTED_VARIANTS ; do
 
     if [ "$PMS_VERSION" == "V2" ]; then
 
+        api_equal json:policy-types 5 120
+
         echo "Check the number of types in the agent for each ric"
         api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
@@ -241,6 +243,8 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy-types?ric_id=ricsim_g1_9 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_10 0 120
     else
+
+        api_equal json:policy_types 5 120
 
         echo "Check the number of types in the agent for each ric"
         api_equal json:policy_types?ric=ricsim_g1_1 1 120
@@ -304,6 +308,9 @@ for interface in $TESTED_VARIANTS ; do
     fi
 
     if [ "$PMS_VERSION" == "V2" ]; then
+
+        api_equal json:policy-types 5 120
+
         echo "Check the number of types in the agent for each ric"
         api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
@@ -314,6 +321,9 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy-types?ric_id=ricsim_g1_7 3 120
         api_equal json:policy-types?ric_id=ricsim_g1_8 2 120
     else
+
+        api_equal json:policy_types 5 120
+
         echo "Check the number of types in the agent for each ric"
         api_equal json:policy_types?ric=ricsim_g1_1 1 120
         api_equal json:policy_types?ric=ricsim_g1_2 2 120
@@ -354,6 +364,9 @@ for interface in $TESTED_VARIANTS ; do
     api_equal json:rics 10 120
 
     if [ "$PMS_VERSION" == "V2" ]; then
+
+        api_equal json:policy-types 5 120
+
         echo "Check the number of types in the agent for each ric"
         api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
@@ -366,6 +379,9 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy-types?ric_id=ricsim_g1_9 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_10 0 120
     else
+
+        api_equal json:policy_types 5 120
+
         echo "Check the number of types in the agent for each ric"
         api_equal json:policy_types?ric=ricsim_g1_1 1 120
         api_equal json:policy_types?ric=ricsim_g1_2 2 120
@@ -409,6 +425,9 @@ for interface in $TESTED_VARIANTS ; do
     sleep_wait 120
 
     if [ "$PMS_VERSION" == "V2" ]; then
+
+        api_equal json:policy-types 5 120
+
         api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
         api_equal json:policy-types?ric_id=ricsim_g1_3 3 120
@@ -420,6 +439,9 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy-types?ric_id=ricsim_g1_9 1 120
         api_equal json:policy-types?ric_id=ricsim_g1_10 0 120
     else
+
+        api_equal json:policy_types 5 120
+
         api_equal json:policy_types?ric=ricsim_g1_1 1 120
         api_equal json:policy_types?ric=ricsim_g1_2 2 120
         api_equal json:policy_types?ric=ricsim_g1_3 3 120
@@ -446,8 +468,10 @@ for interface in $TESTED_VARIANTS ; do
     sim_delete_policy_type 204 ricsim_g1_8 4
 
     if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy-types 5 120
         api_equal json:policy-types?ric_id=ricsim_g1_8 1 120
     else
+        api_equal json:policy_types 5 120
         api_equal json:policy_types?ric=ricsim_g1_8 1 120
     fi
 

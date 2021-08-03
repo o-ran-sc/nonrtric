@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="Resync of RIC via changes in the consul config or pushed confi
 DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER"
 
@@ -36,6 +36,7 @@ SUPPORTED_RUNMODES="DOCKER"
 . ../common/control_panel_api_functions.sh
 . ../common/controller_api_functions.sh
 . ../common/consul_cbs_functions.sh
+. ../common/gateway_api_functions.sh
 
 setup_testenvironment
 
@@ -72,7 +73,7 @@ for consul_conf in $TESTED_VARIANTS ; do
 
     start_cr
 
-    start_control_panel
+    start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
     if [ $consul_conf == "CONSUL" ]; then
         start_consul_cbs

@@ -27,7 +27,7 @@ __print_args() {
 	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
-	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>]"
+	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -55,6 +55,8 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--image-repo          -  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo"
 	echo "--repo-policy         -  Policy controlling which images to re-tag and push if param --image-repo is set. Default is 'local'"
 	echo "--cluster-timeout     -  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds. "
+	echo "--print-stats         -  Print current test stats after each test."
+
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -194,6 +196,9 @@ RES_FAIL=0
 RES_CONF_FAIL=0
 RES_DEVIATION=0
 
+#Var to control if current stats shall be printed
+PRINT_CURRENT_STATS=0
+
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
 rm $DEVIATION_FILE &> /dev/null
@@ -204,6 +209,7 @@ trap_fnc() {
 	if [ $? -eq 127 ]; then
 		echo -e $RED"Function not found, setting script to FAIL"$ERED
 		((RES_CONF_FAIL++))
+		__print_current_stats
 	fi
 }
 trap trap_fnc ERR
@@ -220,10 +226,18 @@ __log_test_start() {
 	((TEST_SEQUENCE_NR++))
 }
 
+# Function to print current statistics
+__print_current_stats() {
+	if [ $PRINT_CURRENT_STATS -ne 0 ]; then
+		echo " Currrent stats - tests, passes, fails, conf fails, deviations: $RES_TEST, $RES_PASS, $RES_FAIL, $RES_CONF_FAIL, $RES_DEVIATION"
+	fi
+}
+
 # General function to log a failed test case
 __log_test_fail_general() {
 	echo -e $RED" FAIL."$1 $ERED
 	((RES_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -231,6 +245,7 @@ __log_test_fail_general() {
 __log_test_fail_status_code() {
 	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
 	((RES_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -238,6 +253,7 @@ __log_test_fail_status_code() {
 __log_test_fail_body() {
 	echo -e $RED" FAIL, returned body not correct"$ERED
 	((RES_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -245,6 +261,7 @@ __log_test_fail_body() {
 __log_test_fail_not_supported() {
 	echo -e $RED" FAIL, function not supported"$ERED
 	((RES_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -255,6 +272,7 @@ __log_test_pass() {
 	fi
 	((RES_PASS++))
 	echo -e $GREEN" PASS"$EGREEN
+	__print_current_stats
 }
 
 #Counter for configurations
@@ -272,6 +290,7 @@ __log_conf_start() {
 __log_conf_fail_general() {
 	echo -e $RED" FAIL."$1 $ERED
 	((RES_CONF_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -279,6 +298,7 @@ __log_conf_fail_general() {
 __log_conf_fail_status_code() {
 	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
 	((RES_CONF_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -286,6 +306,7 @@ __log_conf_fail_status_code() {
 __log_conf_fail_body() {
 	echo -e $RED" FAIL, returned body not correct"$ERED
 	((RES_CONF_FAIL++))
+	__print_current_stats
 	__check_stop_at_error
 }
 
@@ -295,6 +316,7 @@ __log_conf_ok() {
 		echo $@
 	fi
 	echo -e $GREEN" OK"$EGREEN
+	__print_current_stats
 }
 
 #Var for measuring execution time
@@ -574,6 +596,14 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 				shift;
 				foundparm=0
 			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--print-stats" ]; then
+			PRINT_CURRENT_STATS=1
+			echo "Option set - Print stats"
+			shift;
+			foundparm=0
 		fi
 	fi
 done
@@ -1506,6 +1536,7 @@ deviation() {
 	((RES_DEVIATION++))
 	echo -e $BOLD$YELLOW" Test case deviation: ${@:1}"$EYELLOW$EBOLD
 	echo "Line: ${BASH_LINENO[0]} - ${@:1}" >> $DEVIATION_FILE
+	__print_current_stats
 	echo ""
 }
 
@@ -2496,6 +2527,7 @@ __var_test() {
 				if [ $duration -gt $6 ]; then
 					((RES_FAIL++))
 					echo -e $RED" FAIL${ERED} - ${3} ${4} ${5} not reached in ${6} seconds, result = ${result}"
+					__print_current_stats
 					__check_stop_at_error
 					return
 				fi
@@ -2503,26 +2535,31 @@ __var_test() {
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
+				__print_current_stats
 				return
 			elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
+				__print_current_stats
 				return
 			elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
+				__print_current_stats
 				return
 			elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
+				__print_current_stats
 				return
 			else
 				if [ $duration -gt $6 ]; then
 					((RES_FAIL++))
 					echo -e $RED" FAIL${ERED} - ${3} ${4} ${5} not reached in ${6} seconds, result = ${result}"
+					__print_current_stats
 					__check_stop_at_error
 					return
 				fi
@@ -2551,22 +2588,28 @@ __var_test() {
 		if [ $retcode -ne 0 ]; then
 			((RES_FAIL++))
 			echo -e $RED" FAIL ${ERED}- ${3} ${4} ${5} not reached, result = ${result}"
+			__print_current_stats
 			__check_stop_at_error
 		elif [ $4 = "=" ] && [ "$result" -eq $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
+			__print_current_stats
 		elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
+			__print_current_stats
 		elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
+			__print_current_stats
 		elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
+			__print_current_stats
 		else
 			((RES_FAIL++))
 			echo -e $RED" FAIL${ERED} - ${3} ${4} ${5} not reached, result = ${result}"
+			__print_current_stats
 			__check_stop_at_error
 		fi
 	else
