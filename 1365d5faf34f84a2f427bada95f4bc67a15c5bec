@@ -33,6 +33,69 @@
       "message": "recheck",
       "revId": "1365d5faf34f84a2f427bada95f4bc67a15c5bec",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9c388df_7215cd0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-08-04T09:53:26Z",
+      "side": 1,
+      "message": "Looking good ",
+      "revId": "1365d5faf34f84a2f427bada95f4bc67a15c5bec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10a64162_01d5c9e4",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/docker-compose-controlloop/config/db/create-db.sql",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-08-04T09:53:26Z",
+      "side": 1,
+      "message": "What does this database do? Is it for the internals of the CL manager?",
+      "range": {
+        "startLine": 5,
+        "startChar": 31,
+        "endLine": 5,
+        "endChar": 38
+      },
+      "revId": "1365d5faf34f84a2f427bada95f4bc67a15c5bec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7ff787b_3e5a1696",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/docker-compose-controlloop/docker-compose.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-08-04T09:53:26Z",
+      "side": 1,
+      "message": "Does this need a bit more description?, e.g. in the Readme below?",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 30
+      },
+      "revId": "1365d5faf34f84a2f427bada95f4bc67a15c5bec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
