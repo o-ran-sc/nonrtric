@@ -1,0 +1,56 @@
+################################################################################
+#   Copyright (c) 2021 Nordix Foundation.                                      #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+################################################################################
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ template "helmmanager.name" . }}
+  namespace: {{ template "helmmanager.namespace" . }}
+  labels:
+    {{- include "helmmanager.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "helmmanager.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "helmmanager.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ template "helmmanager.name" . }}-sa
+      containers:
+        - name: helmmanager
+          image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.service.http.containerPort }}
+            protocol: TCP
+          - containerPort: {{ .Values.service.tls.containerPort }}
+            protocol: TCP
+          volumeMounts:
+            - name: {{ template "helmmanager.name" . }}-pv
+              mountPath: /var/helm-manager-service
+          readinessProbe:
+{{ toYaml .Values.readinessProbe | indent 12 }}
+          livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 12 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: {{ template "helmmanager.name" . }}-pv
+        persistentVolumeClaim:
+          claimName: {{ template "helmmanager.name" . }}-pvc
