@@ -99,6 +99,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f539abc2_4cffe44b",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/docker-compose-controlloop/config/db/create-db.sql",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-08-05T09:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fe375f5_f09dc1b1",
+      "range": {
+        "startLine": 5,
+        "startChar": 31,
+        "endLine": 5,
+        "endChar": 38
+      },
+      "revId": "1365d5faf34f84a2f427bada95f4bc67a15c5bec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d7ff787b_3e5a1696",
@@ -136,6 +160,30 @@
       "side": 1,
       "message": "I have already added the following in README file:\n\nFor example, in case of minikube, the following should be added under k8s-participant (assuming that kube-config file of the host machine has been copied into the config directory):\n\nvolumes:\n - ./config/kube-config:/home/policy/.kube/config:ro\n - ~/.minikube/profiles/minikube:/home/policy/.minikube/profiles/minikube",
       "parentUuid": "d7ff787b_3e5a1696",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 30
+      },
+      "revId": "1365d5faf34f84a2f427bada95f4bc67a15c5bec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0be8c17_ab1ffde9",
+        "filename": "test/usecases/oruclosedlooprecovery/scriptversion/docker-compose-controlloop/docker-compose.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-08-05T09:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47047b16_3cd3f4d9",
       "range": {
         "startLine": 64,
         "startChar": 9,
