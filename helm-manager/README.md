@@ -1,3 +1,10 @@
+# O-RAN-SC Non-RT RIC Helm Manager
+
+The O-RAN Non-RT RIC Helm Manager provides a service to manages application helm charts.
+
+For further details and build and run, see this page [NONRTRIC Development Guide](https://wiki.o-ran-sc.org/display/RICNR/NONRTRIC+Development+Guide) for instructions of the applicable release.
+
+
 ## License
 Copyright (C) 2021 Nordix Foundation.
 Licensed under the Apache License, Version 2.0 (the "License")
@@ -13,11 +20,3 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 For more information about license please see the [LICENSE](LICENSE.txt) file for details.
-
-## Helm Manager for Kubernetes
-The helm manager is a service for managing helm charts.  The service provides a REST API for onboarding of charts as well as installation and uninstallation of applications based on these charts.
-
-```bash
-$ helm package charts
-$ helm install helmmanager helmmanager-2.0.0.tgz --namespace nonrtric -f overridefile.yaml
-```
