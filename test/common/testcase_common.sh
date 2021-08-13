@@ -1228,8 +1228,11 @@ setup_testenvironment() {
 		echo -e $RED"One or more images could not be pulled or containers using the images could not be stopped/removed"$ERED
 		echo -e $RED"Or local image, overriding remote image, does not exist"$ERED
 		if [ $IMAGE_CATEGORY == "DEV" ]; then
-			echo -e $RED"Note that SNAPSHOT images may be purged from nexus after a certain period."$ERED
-			echo -e $RED"In that case, switch to use a released image instead."$ERED
+		    echo ""
+			echo -e $RED"Note that SNAPSHOT and staging images may be purged from nexus after a certain period."$ERED
+			echo -e $RED"In addition, the image may not have been updated in the current release so no SNAPSHOT or staging image exists"$ERED
+			echo -e $RED"In these cases, switch to use a released image instead, use the flag '--use-release-image <App-short-name>'"$ERED
+			echo -e $RED"Use the 'App-short-name' for the applicable image from the above table: 'Images configured for start arg'."$ERED
 		fi
 		echo "#################################################################################################"
 		echo ""
