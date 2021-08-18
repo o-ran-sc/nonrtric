@@ -28,8 +28,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "consumer_information_type", description = "Information for an Information type")
-public class ConsumerInfoTypeInfo {
+@Schema(name = "consumer_type_registration_info", description = "Information for an Information type")
+public class ConsumerTypeRegistrationInfo {
+
+    @Schema(name = "info_type_id", description = "Information type identifier", required = true)
+    @SerializedName("info_type_id")
+    @JsonProperty(value = "info_type_id", required = true)
+    public String infoTypeId;
 
     @Schema(name = "job_data_schema", description = "Json schema for the job data", required = true)
     @SerializedName("job_data_schema")
@@ -37,32 +42,27 @@ public class ConsumerInfoTypeInfo {
     public Object jobDataSchema;
 
     @Gson.TypeAdapters
-    @Schema(name = "consumer_type_status_values", description = STATUS_DESCRIPTION)
+    @Schema(name = "consumer_type_registration_values", description = REGISTRATION_DESCRIPTION)
     public enum ConsumerTypeStatusValues {
-        ENABLED, DISABLED
+        REGISTERED, DEREGISTERED
     }
 
-    private static final String STATUS_DESCRIPTION = "Allowed values: <br/>" //
-        + "ENABLED: one or several producers for the information type are available <br/>" //
-        + "DISABLED: no producers for the information type are available";
+    private static final String REGISTRATION_DESCRIPTION = "Allowed values: <br/>" //
+        + "REGISTERED: the information type has been registered <br/>" //
+        + "DEREGISTERED: the information type has been removed";
 
-    @Schema(name = "type_status", description = STATUS_DESCRIPTION, required = true)
-    @SerializedName("type_status")
-    @JsonProperty(value = "type_status", required = true)
+    @Schema(name = "status", description = REGISTRATION_DESCRIPTION, required = true)
+    @SerializedName("status")
+    @JsonProperty(value = "status", required = true)
     public ConsumerTypeStatusValues state;
 
-    @Schema(name = "no_of_producers", description = "The number of registered producers for the type", required = true)
-    @SerializedName("no_of_producers")
-    @JsonProperty(value = "no_of_producers", required = true)
-    public int noOfProducers;
-
-    public ConsumerInfoTypeInfo(Object jobDataSchema, ConsumerTypeStatusValues state, int noOfProducers) {
+    public ConsumerTypeRegistrationInfo(Object jobDataSchema, ConsumerTypeStatusValues state, String infoTypeId) {
         this.jobDataSchema = jobDataSchema;
         this.state = state;
-        this.noOfProducers = noOfProducers;
+        this.infoTypeId = infoTypeId;
     }
 
-    public ConsumerInfoTypeInfo() {
+    public ConsumerTypeRegistrationInfo() {
     }
 
 }

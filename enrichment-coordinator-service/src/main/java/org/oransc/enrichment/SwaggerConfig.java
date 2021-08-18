@@ -89,6 +89,7 @@ public class SwaggerConfig {
         + "<ul>" //
         + "<li>Querying of available types of data to consume.</li>" //
         + "<li>Management of data subscription jobs</li>" //
+        + "<li>Optional callback API provided by consumers to get notification on added and removed information types.</li>" //
         + "</ul>" //
         + "</p>" //
         + "<h4>Service status</h4>" //

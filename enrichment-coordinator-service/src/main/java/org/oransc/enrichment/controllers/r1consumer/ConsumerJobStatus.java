@@ -34,16 +34,16 @@ import org.immutables.gson.Gson;
 public class ConsumerJobStatus {
 
     @Gson.TypeAdapters
-    @Schema(name = "info_job_status_values", description = "Allowed values for Information Job status")
+    @Schema(name = "info_job_status_values", description = OPERATIONAL_STATE_DESCRIPTION)
     public enum InfoJobStatusValues {
         ENABLED, DISABLED
     }
 
-    private static final String OPERATIONAL_STATE_DESCRIPTION = "values:\n" //
-        + "ENABLED: the A1-Information producer is able to deliver result for the Information Job\n" //
+    private static final String OPERATIONAL_STATE_DESCRIPTION = "Allowed values: <br/>" //
+        + "ENABLED: the A1-Information producer is able to deliver result for the Information Job <br/>" //
         + "DISABLED: the A1-Information producer is unable to deliver result for the Information Job";
 
-    private static final String PRODUCERS_DESCRIPTION = "An array of all registerred Information Producer Identifiers.";
+    private static final String PRODUCERS_DESCRIPTION = "An array of all registered Information Producer Identifiers.";
 
     @Schema(name = "info_job_status", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
     @SerializedName("info_job_status")
