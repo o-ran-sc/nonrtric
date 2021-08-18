@@ -56,11 +56,11 @@ public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String JOB_URL = "/producer_simulator/info_job";
-    public static final String JOB_ERROR_URL = "/producer_simulator/info_job_error";
+    public static final String JOB_URL = "/example_dataproducer/info_job";
+    public static final String JOB_ERROR_URL = "/example_dataproducer/info_job_error";
 
-    public static final String SUPERVISION_URL = "/producer_simulator/health_check";
-    public static final String SUPERVISION_ERROR_URL = "/producer_simulator/health_check_error";
+    public static final String SUPERVISION_URL = "/example_dataproducer/health_check";
+    public static final String SUPERVISION_ERROR_URL = "/example_dataproducer/health_check_error";
 
     public static class TestResults {
 
@@ -111,7 +111,7 @@ public class ProducerSimulatorController {
         }
     }
 
-    @DeleteMapping(path = "/producer_simulator/info_job/{infoJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = JOB_URL + "/{infoJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
         summary = "Callback for Information Job deletion",
         description = "The call is invoked to terminate a data subscription. The endpoint is provided by the Information Producer.")

@@ -58,6 +58,8 @@ import org.oransc.enrichment.controllers.r1consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.r1consumer.ConsumerInfoTypeInfo;
 import org.oransc.enrichment.controllers.r1consumer.ConsumerJobInfo;
 import org.oransc.enrichment.controllers.r1consumer.ConsumerJobStatus;
+import org.oransc.enrichment.controllers.r1consumer.ConsumerTypeRegistrationInfo;
+import org.oransc.enrichment.controllers.r1consumer.ConsumerTypeSubscriptionInfo;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.controllers.r1producer.ProducerConsts;
 import org.oransc.enrichment.controllers.r1producer.ProducerInfoTypeInfo;
@@ -70,6 +72,7 @@ import org.oransc.enrichment.repository.InfoJobs;
 import org.oransc.enrichment.repository.InfoProducer;
 import org.oransc.enrichment.repository.InfoProducers;
 import org.oransc.enrichment.repository.InfoType;
+import org.oransc.enrichment.repository.InfoTypeSubscriptions;
 import org.oransc.enrichment.repository.InfoTypes;
 import org.oransc.enrichment.tasks.ProducerSupervision;
 import org.slf4j.Logger;
@@ -134,6 +137,9 @@ class ApplicationTest {
 
     @Autowired
     ProducerCallbacks producerCallbacks;
+
+    @Autowired
+    InfoTypeSubscriptions infoTypeSubscriptions;
 
     private static Gson gson = new GsonBuilder().create();
 
@@ -227,6 +233,8 @@ class ApplicationTest {
         ConsumerInfoTypeInfo info = gson.fromJson(rsp, ConsumerInfoTypeInfo.class);
         assertThat(info).isNotNull();
         assertThat(info.jobDataSchema).isNotNull();
+        assertThat(info.state).isEqualTo(ConsumerInfoTypeInfo.ConsumerTypeStatusValues.ENABLED);
+        assertThat(info.noOfProducers).isEqualTo(1);
     }
 
     @Test
@@ -352,8 +360,9 @@ class ApplicationTest {
 
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId/status";
         String rsp = restClient().get(url).block();
-        assertThat(rsp).contains("ENABLED");
-        assertThat(rsp).contains(PRODUCER_ID);
+        assertThat(rsp) //
+            .contains("ENABLED") //
+            .contains(PRODUCER_ID);
 
         ConsumerJobStatus status = gson.fromJson(rsp, ConsumerJobStatus.class);
         assertThat(status.producers).contains(PRODUCER_ID);
@@ -546,11 +555,12 @@ class ApplicationTest {
     @Test
     void producerDeleteEiType() throws Exception {
         putInfoType(TYPE_ID);
-        String url = ProducerConsts.API_ROOT + "/info-types/" + TYPE_ID;
-        restClient().delete(url).block();
+        deleteInfoType(TYPE_ID);
+
         assertThat(this.infoTypes.size()).isZero();
 
-        testErrorCode(restClient().delete(url), HttpStatus.NOT_FOUND, "Information type not found");
+        testErrorCode(restClient().delete(deleteInfoTypeUrl(TYPE_ID)), HttpStatus.NOT_FOUND,
+            "Information type not found");
     }
 
     @Test
@@ -714,12 +724,13 @@ class ApplicationTest {
         deleteEiProducer("infoProducerId");
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains
         assertThat(this.infoJobs.size()).isEqualTo(1); // The job remains
-        await().untilAsserted(() -> assertThat(consumerCalls.status.size()).isEqualTo(1));
-        assertThat(consumerCalls.status.get(0).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(1));
+        assertThat(consumerCalls.eiJobStatusCallbacks.get(0).state)
+            .isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
 
         putInfoProducerWithOneType("infoProducerId", TYPE_ID);
-        await().untilAsserted(() -> assertThat(consumerCalls.status.size()).isEqualTo(2));
-        assertThat(consumerCalls.status.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(2));
+        assertThat(consumerCalls.eiJobStatusCallbacks.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
     }
 
     @Test
@@ -734,13 +745,14 @@ class ApplicationTest {
         putInfoProducerWithOneType(PRODUCER_ID, "junk");
         verifyJobStatus(EI_JOB_ID, "DISABLED");
         ConsumerSimulatorController.TestResults consumerCalls = this.consumerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(consumerCalls.status.size()).isEqualTo(1));
-        assertThat(consumerCalls.status.get(0).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(1));
+        assertThat(consumerCalls.eiJobStatusCallbacks.get(0).state)
+            .isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
 
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
         verifyJobStatus(EI_JOB_ID, "ENABLED");
-        await().untilAsserted(() -> assertThat(consumerCalls.status.size()).isEqualTo(2));
-        assertThat(consumerCalls.status.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(2));
+        assertThat(consumerCalls.eiJobStatusCallbacks.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
     }
 
     @Test
@@ -781,8 +793,9 @@ class ApplicationTest {
             verifyJobStatus(EI_JOB_ID, "ENABLED");
             deleteEiProducer(PRODUCER_ID);
             // A Job disabled status notification shall now be received
-            await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
-            assertThat(consumerResults.status.get(0).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
+            await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(1));
+            assertThat(consumerResults.eiJobStatusCallbacks.get(0).state)
+                .isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
             verifyJobStatus(EI_JOB_ID, "DISABLED");
         }
 
@@ -797,7 +810,7 @@ class ApplicationTest {
         assertThat(this.infoProducers.size()).isEqualTo(1);
         assertProducerOpState("simulateProducerError", ProducerStatusInfo.OperationalState.DISABLED);
 
-        // After 3 failed checks, the producer shall be deregisterred
+        // After 3 failed checks, the producer shall be deregistered
         this.producerSupervision.createTask().blockLast();
         assertThat(this.infoProducers.size()).isZero(); // The producer is removed
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains
@@ -805,8 +818,9 @@ class ApplicationTest {
         // Now we have one disabled job, and no producer.
         // PUT a producer, then a Job ENABLED status notification shall be received
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(2));
-        assertThat(consumerResults.status.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
+        await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(2));
+        assertThat(consumerResults.eiJobStatusCallbacks.get(1).state)
+            .isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
         verifyJobStatus(EI_JOB_ID, "ENABLED");
     }
 
@@ -829,8 +843,9 @@ class ApplicationTest {
         // Run the supervision and wait for the job to get started in the producer
         this.producerSupervision.createTask().blockLast();
         ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
-        assertThat(consumerResults.status.get(0).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
+        await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(1));
+        assertThat(consumerResults.eiJobStatusCallbacks.get(0).state)
+            .isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
         verifyJobStatus(EI_JOB_ID, "ENABLED");
     }
 
@@ -902,6 +917,81 @@ class ApplicationTest {
         logger.warn("Test removing a job when the db file is gone");
         this.infoTypes.remove(this.infoTypes.getType(TYPE_ID));
         assertThat(this.infoJobs.size()).isZero();
+    }
+
+    @Test
+    void testConsumerTypeSubscription() throws Exception {
+
+        final String callbackUrl = baseUrl() + ConsumerSimulatorController.getTypeStatusCallbackUrl();
+        final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(callbackUrl, "owner");
+
+        {
+            // PUT a subscription
+            String body = gson.toJson(info);
+            ResponseEntity<String> resp =
+                restClient().putForEntity(typeSubscriptionUrl() + "/subscriptionId", body).block();
+            assertThat(this.infoTypeSubscriptions.size()).isEqualTo(1);
+            assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            resp = restClient().putForEntity(typeSubscriptionUrl() + "/subscriptionId", body).block();
+            assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
+        {
+            // GET IDs
+            ResponseEntity<String> resp = restClient().getForEntity(typeSubscriptionUrl()).block();
+            assertThat(resp.getBody()).isEqualTo("[\"subscriptionId\"]");
+            resp = restClient().getForEntity(typeSubscriptionUrl() + "?owner=owner").block();
+            assertThat(resp.getBody()).isEqualTo("[\"subscriptionId\"]");
+            resp = restClient().getForEntity(typeSubscriptionUrl() + "?owner=junk").block();
+            assertThat(resp.getBody()).isEqualTo("[]");
+        }
+
+        {
+            // GET the individual subscription
+            ResponseEntity<String> resp = restClient().getForEntity(typeSubscriptionUrl() + "/subscriptionId").block();
+            ConsumerTypeSubscriptionInfo respInfo = gson.fromJson(resp.getBody(), ConsumerTypeSubscriptionInfo.class);
+            assertThat(respInfo).isEqualTo(info);
+        }
+
+        {
+            // Test the callbacks
+            final ConsumerSimulatorController.TestResults consumerCalls = this.consumerSimulator.getTestResults();
+
+            // Test callback for PUT type
+            this.putInfoType(TYPE_ID);
+            await().untilAsserted(() -> assertThat(consumerCalls.typeRegistrationInfoCallbacks.size()).isEqualTo(1));
+            assertThat(consumerCalls.typeRegistrationInfoCallbacks.get(0).state)
+                .isEqualTo(ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.REGISTERED);
+
+            // Test callback for DELETE type
+            this.deleteInfoType(TYPE_ID);
+            await().untilAsserted(() -> assertThat(consumerCalls.typeRegistrationInfoCallbacks.size()).isEqualTo(2));
+            assertThat(consumerCalls.typeRegistrationInfoCallbacks.get(1).state)
+                .isEqualTo(ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.DEREGISTERED);
+        }
+
+        {
+            // DELETE the subscription
+            ResponseEntity<String> resp =
+                restClient().deleteForEntity(typeSubscriptionUrl() + "/subscriptionId").block();
+            assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(this.infoTypeSubscriptions.size()).isZero();
+            resp = restClient().getForEntity(typeSubscriptionUrl()).block();
+            assertThat(resp.getBody()).isEqualTo("[]");
+        }
+    }
+
+    @Test
+    void testTypeSubscriptionErrorCodes() throws Exception {
+
+        testErrorCode(restClient().get(typeSubscriptionUrl() + "/junk"), HttpStatus.NOT_FOUND,
+            "Could not find Information subscription: junk");
+
+        testErrorCode(restClient().delete(typeSubscriptionUrl() + "/junk"), HttpStatus.NOT_FOUND,
+            "Could not find Information subscription: junk");
+    }
+
+    private String typeSubscriptionUrl() {
+        return ConsumerConsts.API_ROOT + "/info-type-subscription";
     }
 
     private void deleteEiProducer(String infoProducerId) {
@@ -1007,7 +1097,14 @@ class ApplicationTest {
         ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
         this.infoTypes.getType(infoTypeId);
         return resp.getStatusCode();
+    }
 
+    private String deleteInfoTypeUrl(String typeId) {
+        return ProducerConsts.API_ROOT + "/info-types/" + typeId;
+    }
+
+    private void deleteInfoType(String typeId) {
+        restClient().delete(deleteInfoTypeUrl(typeId)).block();
     }
 
     private InfoType putEiProducerWithOneTypeRejecting(String producerId, String infoTypeId)

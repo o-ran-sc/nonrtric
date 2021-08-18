@@ -32,13 +32,13 @@ import org.immutables.gson.Gson;
 public class A1eEiJobStatus {
 
     @Gson.TypeAdapters
-    @Schema(name = "EiJobStatusValues", description = "Allowed values for EI job status")
+    @Schema(name = "EiJobStatusValues", description = OPERATIONAL_STATE_DESCRIPTION)
     public enum EiJobStatusValues {
         ENABLED, DISABLED
     }
 
-    private static final String OPERATIONAL_STATE_DESCRIPTION = "values:\n" //
-        + "ENABLED: the A1-EI producer is able to deliver EI result for the EI job\n" //
+    private static final String OPERATIONAL_STATE_DESCRIPTION = "Allowed values for EI job status: <br/>" //
+        + "ENABLED: the A1-EI producer is able to deliver EI result for the EI job <br/>" //
         + "DISABLED: the A1-EI producer is unable to deliver EI result for the EI job";
 
     @Schema(name = "eiJobStatus", description = OPERATIONAL_STATE_DESCRIPTION, required = true)
