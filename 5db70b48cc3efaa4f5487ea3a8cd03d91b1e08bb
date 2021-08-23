@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ddb204c4_ba44c4f1",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/InfoTypeSubscriptions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-08-23T14:19:45Z",
+      "side": 1,
+      "message": "Maybe a good idea to add JavaDoc here to explain the difference between the two get methods? This will save a user of this method to have to look in this code to learn the difference.",
+      "revId": "5db70b48cc3efaa4f5487ea3a8cd03d91b1e08bb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd774d82_0c8970a7",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/InfoTypeSubscriptions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-08-23T14:19:45Z",
+      "side": 1,
+      "message": "What will this method return if there are no subscriptions for the owner? Maybe a JavaDoc that specifies that? Why I ask is because the \"get\" method of this class returns \"null\" if there is no subscription registered.",
+      "revId": "5db70b48cc3efaa4f5487ea3a8cd03d91b1e08bb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
