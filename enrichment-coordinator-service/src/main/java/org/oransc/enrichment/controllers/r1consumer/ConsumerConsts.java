@@ -25,10 +25,11 @@ public class ConsumerConsts {
     public static final String API_ROOT = "/data-consumer/v1";
 
     public static final String CONSUMER_API_NAME = "Data consumer";
+    public static final String CONSUMER_API_CALLBACKS_NAME = "Data consumer (callbacks)";
     public static final String CONSUMER_API_DESCRIPTION = "API for data consumers";
 
     public static final String OWNER_PARAM = "owner";
-    public static final String OWNER_PARAM_DESCRIPTION = "selects subscription jobs for one job owner";
+    public static final String OWNER_PARAM_DESCRIPTION = "selects result for one owner";
 
     public static final String INDIVIDUAL_JOB = "Individual data subscription job";
 
@@ -41,6 +42,12 @@ public class ConsumerConsts {
     public static final String PERFORM_TYPE_CHECK_PARAM = "typeCheck";
     public static final String PERFORM_TYPE_CHECK_PARAM_DESCRIPTION =
         "when true, a validation of that the type exists and that the job matches the type schema.";
+
+    public static final String INDIVIDUAL_TYPE_SUBSCRIPTION =
+        "Individual subscription for information types (registration/deregistration)";
+
+    public static final String TYPE_SUBSCRIPTION_DESCRIPTION =
+        "This service operation is used to subscribe to notifications for changes in the availability of data types.";
 
     private ConsumerConsts() {
     }

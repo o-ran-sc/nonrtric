@@ -3,17 +3,36 @@
         "consumer_information_type": {
             "description": "Information for an Information type",
             "type": "object",
-            "required": ["job_data_schema"],
-            "properties": {"job_data_schema": {
-                "description": "Json schema for the job data",
-                "type": "object"
-            }}
+            "required": [
+                "job_data_schema",
+                "no_of_producers",
+                "type_status"
+            ],
+            "properties": {
+                "no_of_producers": {
+                    "format": "int32",
+                    "description": "The number of registered producers for the type",
+                    "type": "integer"
+                },
+                "type_status": {
+                    "description": "Allowed values: <br/>ENABLED: one or several producers for the information type are available <br/>DISABLED: no producers for the information type are available",
+                    "type": "string",
+                    "enum": [
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                },
+                "job_data_schema": {
+                    "description": "Json schema for the job data",
+                    "type": "object"
+                }
+            }
         },
         "EiTypeObject": {
             "description": "Information for an EI type",
             "type": "object"
         },
-        "status_info": {
+        "service_status_info": {
             "type": "object",
             "required": [
                 "no_of_jobs",
@@ -70,6 +89,33 @@
                 }
             }
         },
+        "consumer_type_registration_info": {
+            "description": "Information for an Information type",
+            "type": "object",
+            "required": [
+                "info_type_id",
+                "job_data_schema",
+                "status"
+            ],
+            "properties": {
+                "info_type_id": {
+                    "description": "Information type identifier",
+                    "type": "string"
+                },
+                "job_data_schema": {
+                    "description": "Json schema for the job data",
+                    "type": "object"
+                },
+                "status": {
+                    "description": "Allowed values: <br/>REGISTERED: the information type has been registered <br/>DEREGISTERED: the information type has been removed",
+                    "type": "string",
+                    "enum": [
+                        "REGISTERED",
+                        "DEREGISTERED"
+                    ]
+                }
+            }
+        },
         "ProblemDetails": {
             "description": "A problem detail to carry details in a HTTP response according to RFC 7807",
             "type": "object",
@@ -92,7 +138,7 @@
             "type": "object",
             "required": ["eiJobStatus"],
             "properties": {"eiJobStatus": {
-                "description": "Allowed values for EI job status",
+                "description": "Allowed values for EI job status: <br/>ENABLED: the A1-EI producer is able to deliver EI result for the EI job <br/>DISABLED: the A1-EI producer is unable to deliver EI result for the EI job",
                 "type": "string",
                 "enum": [
                     "ENABLED",
@@ -109,7 +155,7 @@
             ],
             "properties": {
                 "info_job_status": {
-                    "description": "Allowed values for Information Job status",
+                    "description": "Allowed values: <br/>ENABLED: the A1-Information producer is able to deliver result for the Information Job <br/>DISABLED: the A1-Information producer is unable to deliver result for the Information Job",
                     "type": "string",
                     "enum": [
                         "ENABLED",
@@ -117,10 +163,10 @@
                     ]
                 },
                 "producers": {
-                    "description": "An array of all registerred Information Producer Identifiers.",
+                    "description": "An array of all registered Information Producer Identifiers.",
                     "type": "array",
                     "items": {
-                        "description": "An array of all registerred Information Producer Identifiers.",
+                        "description": "An array of all registered Information Producer Identifiers.",
                         "type": "string"
                     }
                 }
@@ -199,7 +245,7 @@
             }
         },
         "consumer_job": {
-            "description": "Information for an Enrichment  Information Job",
+            "description": "Information for an Enrichment Information Job",
             "type": "object",
             "required": [
                 "info_type_id",
@@ -246,10 +292,44 @@
         "Void": {
             "description": "Void/empty ",
             "type": "object"
+        },
+        "consumer_type_subscription_info": {
+            "description": "Information for an information type subscription",
+            "type": "object",
+            "required": [
+                "owner",
+                "status_result_uri"
+            ],
+            "properties": {
+                "owner": {
+                    "description": "Identity of the owner of the subscription",
+                    "type": "string"
+                },
+                "status_result_uri": {
+                    "description": "The target URI of the subscribed information",
+                    "type": "string"
+                }
+            }
         }
     }},
     "openapi": "3.0.1",
     "paths": {
+        "/example_dataproducer/info_job/{infoJobId}": {"delete": {
+            "summary": "Callback for Information Job deletion",
+            "description": "The call is invoked to terminate a data subscription. The endpoint is provided by the Information Producer.",
+            "operationId": "jobDeletedCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoJobId",
+                "required": true
+            }],
+            "tags": ["Data producer (callbacks)"]
+        }},
         "/data-producer/v1/info-types": {"get": {
             "summary": "Info Type identifiers",
             "operationId": "getInfoTypdentifiers",
@@ -282,6 +362,20 @@
                 "required": true
             }],
             "tags": ["A1-EI (registration)"]
+        }},
+        "/example_dataproducer/info_job": {"post": {
+            "summary": "Callback for Information Job creation/modification",
+            "requestBody": {
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/producer_info_job_request"}}},
+                "required": true
+            },
+            "description": "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the Information Producer.",
+            "operationId": "jobCreatedCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "tags": ["Data producer (callbacks)"]
         }},
         "/data-producer/v1/info-types/{infoTypeId}": {
             "get": {
@@ -364,6 +458,90 @@
                 "tags": ["Data producer (registration)"]
             }
         },
+        "/data-consumer/v1/info-type-subscription/{subscriptionId}": {
+            "get": {
+                "summary": "Individual subscription for information types (registration/deregistration)",
+                "operationId": "getIndividualTypeSubscription",
+                "responses": {
+                    "200": {
+                        "description": "Type subscription",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_type_subscription_info"}}}
+                    },
+                    "404": {
+                        "description": "Subscription is not found",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                    }
+                },
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "subscriptionId",
+                    "required": true
+                }],
+                "tags": ["Data consumer"]
+            },
+            "delete": {
+                "summary": "Individual subscription for information types (registration/deregistration)",
+                "operationId": "deleteIndividualTypeSubscription",
+                "responses": {
+                    "200": {
+                        "description": "Not used",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "204": {
+                        "description": "Subscription deleted",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "404": {
+                        "description": "Subscription is not found",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                    }
+                },
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "subscriptionId",
+                    "required": true
+                }],
+                "tags": ["Data consumer"]
+            },
+            "put": {
+                "summary": "Individual subscription for information types (registration/deregistration)",
+                "requestBody": {
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_type_subscription_info"}}},
+                    "required": true
+                },
+                "description": "This service operation is used to subscribe to notifications for changes in the availability of data types.",
+                "operationId": "putIndividualTypeSubscription",
+                "responses": {
+                    "200": {
+                        "description": "Subscription updated",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "201": {
+                        "description": "Subscription created",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    }
+                },
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "subscriptionId",
+                    "required": true
+                }],
+                "tags": ["Data consumer"]
+            }
+        },
+        "/example_dataproducer/health_check": {"get": {
+            "summary": "Producer supervision",
+            "description": "The endpoint is provided by the Information Producer and is used for supervision of the producer.",
+            "operationId": "producerSupervision",
+            "responses": {"200": {
+                "description": "The producer is OK",
+                "content": {"application/json": {"schema": {"type": "string"}}}
+            }},
+            "tags": ["Data producer (callbacks)"]
+        }},
         "/A1-EI/v1/eitypes": {"get": {
             "summary": "EI type identifiers",
             "operationId": "getEiTypeIdentifiers",
@@ -465,30 +643,34 @@
                 "tags": ["Data producer (registration)"]
             }
         },
-        "/producer_simulator/info_job/{infoJobId}": {"delete": {
-            "summary": "Callback for Information Job deletion",
-            "description": "The call is invoked to terminate a data subscription. The endpoint is provided by the Information Producer.",
-            "operationId": "jobDeletedCallback",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
-            }},
-            "parameters": [{
-                "schema": {"type": "string"},
-                "in": "path",
-                "name": "infoJobId",
-                "required": true
-            }],
-            "tags": ["Data producer (callbacks)"]
-        }},
         "/status": {"get": {
             "summary": "Returns status and statistics of this service",
             "operationId": "getStatus",
             "responses": {"200": {
                 "description": "Service is living",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/status_info"}}}
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/service_status_info"}}}
             }},
             "tags": ["Service status"]
+        }},
+        "/data-consumer/v1/info-type-subscription": {"get": {
+            "summary": "Information type subscription identifiers",
+            "description": "query for information type subscription identifiers",
+            "operationId": "getInfoTypeSubscriptions",
+            "responses": {"200": {
+                "description": "Information type subscription identifiers",
+                "content": {"application/json": {"schema": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }}}
+            }},
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "query",
+                "name": "owner",
+                "description": "selects result for one owner",
+                "required": false
+            }],
+            "tags": ["Data consumer"]
         }},
         "/A1-EI/v1/eijobs/{eiJobId}": {
             "get": {
@@ -567,16 +749,6 @@
                 "tags": ["A1-EI (registration)"]
             }
         },
-        "/producer_simulator/health_check": {"get": {
-            "summary": "Producer supervision",
-            "description": "The endpoint is provided by the Information Producer and is used for supervision of the producer.",
-            "operationId": "producerSupervision",
-            "responses": {"200": {
-                "description": "The producer is OK",
-                "content": {"application/json": {"schema": {"type": "string"}}}
-            }},
-            "tags": ["Data producer (callbacks)"]
-        }},
         "/data-consumer/v1/info-jobs": {"get": {
             "summary": "Information Job identifiers",
             "description": "query for information job identifiers",
@@ -606,7 +778,7 @@
                     "schema": {"type": "string"},
                     "in": "query",
                     "name": "owner",
-                    "description": "selects subscription jobs for one job owner",
+                    "description": "selects result for one owner",
                     "required": false
                 }
             ],
@@ -741,20 +913,6 @@
                 "required": true
             }],
             "tags": ["Data consumer"]
-        }},
-        "/producer_simulator/info_job": {"post": {
-            "summary": "Callback for Information Job creation/modification",
-            "requestBody": {
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/producer_info_job_request"}}},
-                "required": true
-            },
-            "description": "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the Information Producer.",
-            "operationId": "jobCreatedCallback",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
-            }},
-            "tags": ["Data producer (callbacks)"]
         }},
         "/example_dataconsumer/info_jobs/{infoJobId}/status": {"post": {
             "summary": "Callback for changed Information Job status",
@@ -898,6 +1056,20 @@
                 "required": true
             }],
             "tags": ["Data consumer"]
+        }},
+        "/example_dataconsumer/info_type_status": {"post": {
+            "summary": "Callback for changed Information type registration status",
+            "requestBody": {
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_type_registration_info"}}},
+                "required": true
+            },
+            "description": "The primitive is implemented by the data consumer and is invoked when a Information type status has been changed. <br/>Subscription are managed by primitives in 'Data consumer'",
+            "operationId": "typeStatusCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "tags": ["Data consumer (callbacks)"]
         }}
     },
     "info": {
@@ -905,7 +1077,7 @@
             "name": "Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.",
             "url": "http://www.apache.org/licenses/LICENSE-2.0"
         },
-        "description": "<h1>API documentation<\/h1><h2>General<\/h2><p>  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types.<\/p><h2>APIs provided by the service<\/h2><h4>A1-EI<\/h4><p>  This API is between Near-RT RIC and the Non-RT RIC.  The Near-RT RIC is a data consumer, which creates Information Jobs to subscribe for data.  In this context, the information is referred to as 'Enrichment Information', EI.<\/p><h4>Data producer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data producers and provides support for:<ul><li>Registry of supported information types and which parameters needed to setup a subscription.<\/li><li>Registry of existing data producers.<\/li><li>Callback API provided by producers to setup subscriptions.<\/li><\/ul><\/p><h4>Data consumer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data consumers and provides support for:<ul><li>Querying of available types of data to consume.<\/li><li>Management of data subscription jobs<\/li><\/ul><\/p><h4>Service status<\/h4><p>  This API provides a means to monitor the health of this service.<\/p>",
+        "description": "<h1>API documentation<\/h1><h2>General<\/h2><p>  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types.<\/p><h2>APIs provided by the service<\/h2><h4>A1-EI<\/h4><p>  This API is between Near-RT RIC and the Non-RT RIC.  The Near-RT RIC is a data consumer, which creates Information Jobs to subscribe for data.  In this context, the information is referred to as 'Enrichment Information', EI.<\/p><h4>Data producer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data producers and provides support for:<ul><li>Registry of supported information types and which parameters needed to setup a subscription.<\/li><li>Registry of existing data producers.<\/li><li>Callback API provided by producers to setup subscriptions.<\/li><\/ul><\/p><h4>Data consumer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data consumers and provides support for:<ul><li>Querying of available types of data to consume.<\/li><li>Management of data subscription jobs<\/li><li>Optional callback API provided by consumers to get notification on added and removed information types.<\/li><\/ul><\/p><h4>Service status<\/h4><p>  This API provides a means to monitor the health of this service.<\/p>",
         "title": "Data management and exposure",
         "version": "1.0"
     },

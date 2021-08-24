@@ -46,6 +46,7 @@ import org.oransc.enrichment.repository.InfoJobs;
 import org.oransc.enrichment.repository.InfoProducer;
 import org.oransc.enrichment.repository.InfoProducers;
 import org.oransc.enrichment.repository.InfoType;
+import org.oransc.enrichment.repository.InfoTypeSubscriptions;
 import org.oransc.enrichment.repository.InfoTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,6 +75,9 @@ public class ProducerController {
 
     @Autowired
     private InfoProducers infoProducers;
+
+    @Autowired
+    private InfoTypeSubscriptions typeSubscriptions;
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/info-types", produces = MediaType.APPLICATION_JSON_VALUE) //
     @Operation(summary = "Info Type identifiers", description = "") //
@@ -145,7 +149,9 @@ public class ProducerController {
         if (registrationInfo.jobDataSchema == null) {
             return ErrorResponse.create("No schema provided", HttpStatus.BAD_REQUEST);
         }
-        this.infoTypes.put(new InfoType(infoTypeId, registrationInfo.jobDataSchema));
+        InfoType newDefinition = new InfoType(infoTypeId, registrationInfo.jobDataSchema);
+        this.infoTypes.put(newDefinition);
+        this.typeSubscriptions.notifyTypeRegistered(newDefinition);
         return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
     }
 
@@ -184,6 +190,7 @@ public class ProducerController {
             return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.NOT_ACCEPTABLE);
         }
         this.infoTypes.remove(type);
+        this.typeSubscriptions.notifyTypeRemoved(type);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

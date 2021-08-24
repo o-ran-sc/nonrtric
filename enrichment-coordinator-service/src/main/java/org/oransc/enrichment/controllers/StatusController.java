@@ -59,7 +59,7 @@ public class StatusController {
     private InfoProducers infoProducers;
 
     @Gson.TypeAdapters
-    @Schema(name = "status_info")
+    @Schema(name = "service_status_info")
     public static class StatusInfo {
         @Schema(name = "status", description = "status text")
         @SerializedName("status")

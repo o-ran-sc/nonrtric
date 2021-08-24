@@ -48,8 +48,10 @@ import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.InfoJob;
 import org.oransc.enrichment.repository.InfoJobs;
+import org.oransc.enrichment.repository.InfoProducer;
 import org.oransc.enrichment.repository.InfoProducers;
 import org.oransc.enrichment.repository.InfoType;
+import org.oransc.enrichment.repository.InfoTypeSubscriptions;
 import org.oransc.enrichment.repository.InfoTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +90,13 @@ public class ConsumerController {
     private InfoProducers infoProducers;
 
     @Autowired
-    ProducerCallbacks producerCallbacks;
+    private ConsumerCallbacks consumerCallbacks;
+
+    @Autowired
+    private ProducerCallbacks producerCallbacks;
+
+    @Autowired
+    private InfoTypeSubscriptions infoTypeSubscriptions;
 
     private static Gson gson = new GsonBuilder().create();
 
@@ -305,6 +313,132 @@ public class ConsumerController {
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
 
+    @GetMapping(path = "/info-type-subscription", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Information type subscription identifiers",
+        description = "query for information type subscription identifiers")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Information type subscription identifiers", //
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
+    public ResponseEntity<Object> getInfoTypeSubscriptions( //
+
+        @Parameter(
+            name = ConsumerConsts.OWNER_PARAM,
+            required = false, //
+            description = ConsumerConsts.OWNER_PARAM_DESCRIPTION) //
+        @RequestParam(name = ConsumerConsts.OWNER_PARAM, required = false) String owner) {
+        try {
+            List<String> result = new ArrayList<>();
+            if (owner != null) {
+                this.infoTypeSubscriptions.getSubscriptionsForOwner(owner)
+                    .forEach(subscription -> result.add(subscription.getId()));
+            } else {
+                this.infoTypeSubscriptions.getAllSubscriptions()
+                    .forEach(subscription -> result.add(subscription.getId()));
+            }
+            return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
+        } catch (Exception e) {
+            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(path = "/info-type-subscription/{subscriptionId}", produces = MediaType.APPLICATION_JSON_VALUE) //
+    @Operation(summary = ConsumerConsts.INDIVIDUAL_TYPE_SUBSCRIPTION, description = "") //
+    @ApiResponses(
+        value = { //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Type subscription", //
+                content = @Content(schema = @Schema(implementation = ConsumerTypeSubscriptionInfo.class))), //
+            @ApiResponse(
+                responseCode = "404",
+                description = "Subscription is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
+    public ResponseEntity<Object> getIndividualTypeSubscription( //
+        @PathVariable("subscriptionId") String subscriptionId) {
+        try {
+            InfoTypeSubscriptions.SubscriptionInfo subscription =
+                this.infoTypeSubscriptions.getSubscription(subscriptionId);
+            return new ResponseEntity<>(gson.toJson(toTypeSuscriptionInfo(subscription)), HttpStatus.OK);
+        } catch (Exception e) {
+            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping(
+        path = "/info-type-subscription/{subscriptionId}", //
+        produces = MediaType.APPLICATION_JSON_VALUE, //
+        consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = ConsumerConsts.INDIVIDUAL_TYPE_SUBSCRIPTION,
+        description = ConsumerConsts.TYPE_SUBSCRIPTION_DESCRIPTION)
+    @ApiResponses(
+        value = { //
+            @ApiResponse(
+                responseCode = "201",
+                description = "Subscription created", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Subscription updated", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+        })
+    public Mono<ResponseEntity<Object>> putIndividualTypeSubscription( //
+        @PathVariable("subscriptionId") String subscriptionId, //
+        @RequestBody ConsumerTypeSubscriptionInfo subscription) {
+
+        final boolean isNewSubscription = this.infoTypeSubscriptions.get(subscriptionId) == null;
+        this.infoTypeSubscriptions.put(toTypeSuscriptionInfo(subscription, subscriptionId));
+        return Mono.just(new ResponseEntity<>(isNewSubscription ? HttpStatus.CREATED : HttpStatus.OK));
+    }
+
+    @DeleteMapping(path = "/info-type-subscription/{subscriptionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = ConsumerConsts.INDIVIDUAL_TYPE_SUBSCRIPTION, description = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(
+                responseCode = "200",
+                description = "Not used", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))),
+            @ApiResponse(
+                responseCode = "204",
+                description = "Subscription deleted", //
+                content = @Content(schema = @Schema(implementation = VoidResponse.class))),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Subscription is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+        })
+    public ResponseEntity<Object> deleteIndividualTypeSubscription( //
+        @PathVariable("subscriptionId") String subscriptionId) {
+        try {
+            InfoTypeSubscriptions.SubscriptionInfo subscription =
+                this.infoTypeSubscriptions.getSubscription(subscriptionId);
+            this.infoTypeSubscriptions.remove(subscription);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private ConsumerTypeSubscriptionInfo toTypeSuscriptionInfo(InfoTypeSubscriptions.SubscriptionInfo s) {
+        return new ConsumerTypeSubscriptionInfo(s.getCallbackUrl(), s.getOwner());
+    }
+
+    private InfoTypeSubscriptions.SubscriptionInfo toTypeSuscriptionInfo(ConsumerTypeSubscriptionInfo s,
+        String subscriptionId) {
+        return InfoTypeSubscriptions.SubscriptionInfo.builder() //
+            .callback(this.consumerCallbacks) //
+            .owner(s.owner) //
+            .id(subscriptionId) //
+            .callbackUrl(s.statusResultUri).build();
+
+    }
+
     private Mono<InfoJob> startInfoSubscriptionJob(InfoJob newInfoJob) {
         return this.producerCallbacks.startInfoSubscriptionJob(newInfoJob, infoProducers) //
             .doOnNext(noOfAcceptingProducers -> this.logger.debug("Started job {}, number of activated producers: {}",
@@ -370,7 +504,17 @@ public class ConsumerController {
     }
 
     private ConsumerInfoTypeInfo toInfoTypeInfo(InfoType type) {
-        return new ConsumerInfoTypeInfo(type.getJobDataSchema());
+        return new ConsumerInfoTypeInfo(type.getJobDataSchema(), typeStatus(type),
+            this.infoProducers.getProducerIdsForType(type.getId()).size());
+    }
+
+    private ConsumerInfoTypeInfo.ConsumerTypeStatusValues typeStatus(InfoType type) {
+        for (InfoProducer producer : this.infoProducers.getProducersForType(type)) {
+            if (producer.isAvailable()) {
+                return ConsumerInfoTypeInfo.ConsumerTypeStatusValues.ENABLED;
+            }
+        }
+        return ConsumerInfoTypeInfo.ConsumerTypeStatusValues.DISABLED;
     }
 
     private ConsumerJobInfo toInfoJobInfo(InfoJob s) {
