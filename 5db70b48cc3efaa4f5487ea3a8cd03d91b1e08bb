@@ -18,6 +18,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "044f65ba_26756a60",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/InfoTypeSubscriptions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-08-24T08:23:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ddb204c4_ba44c4f1",
+      "revId": "5db70b48cc3efaa4f5487ea3a8cd03d91b1e08bb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fd774d82_0c8970a7",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-08-23T14:19:45Z",
       "side": 1,
       "message": "What will this method return if there are no subscriptions for the owner? Maybe a JavaDoc that specifies that? Why I ask is because the \"get\" method of this class returns \"null\" if there is no subscription registered.",
+      "revId": "5db70b48cc3efaa4f5487ea3a8cd03d91b1e08bb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd983d4b_97de0cc4",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/InfoTypeSubscriptions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-08-24T08:23:46Z",
+      "side": 1,
+      "message": "An empty collection ... I will insert a java dock comment.",
+      "parentUuid": "fd774d82_0c8970a7",
       "revId": "5db70b48cc3efaa4f5487ea3a8cd03d91b1e08bb",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
