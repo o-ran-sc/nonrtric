@@ -103,13 +103,13 @@ public class InfoTypeSubscriptions {
     }
 
     public synchronized void clear() {
-        this.allSubscriptions.clear();
-        this.subscriptionsByOwner.clear();
+        allSubscriptions.clear();
+        subscriptionsByOwner.clear();
     }
 
     public void remove(SubscriptionInfo subscription) {
         allSubscriptions.remove(subscription.getId());
-        this.subscriptionsByOwner.remove(subscription.owner, subscription.id);
+        subscriptionsByOwner.remove(subscription.owner, subscription.id);
         logger.debug("Removed type status subscription {}", subscription.id);
     }
 
@@ -121,17 +121,15 @@ public class InfoTypeSubscriptions {
      * @return
      */
     public synchronized Collection<SubscriptionInfo> getSubscriptionsForOwner(String owner) {
-        return this.subscriptionsByOwner.get(owner);
+        return subscriptionsByOwner.get(owner);
     }
 
     public synchronized void notifyTypeRegistered(InfoType type) {
-        this.allSubscriptions
-            .forEach((id, subscription) -> subscription.callback.notifyTypeRegistered(type, subscription));
+        allSubscriptions.forEach((id, subscription) -> subscription.callback.notifyTypeRegistered(type, subscription));
     }
 
     public synchronized void notifyTypeRemoved(InfoType type) {
-        this.allSubscriptions
-            .forEach((id, subscription) -> subscription.callback.notifyTypeRemoved(type, subscription));
+        allSubscriptions.forEach((id, subscription) -> subscription.callback.notifyTypeRemoved(type, subscription));
     }
 
 }
