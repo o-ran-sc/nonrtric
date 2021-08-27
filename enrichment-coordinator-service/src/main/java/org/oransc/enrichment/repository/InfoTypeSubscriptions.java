@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Function;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,9 @@ import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Subscriptions of callbacks for type registrations
@@ -45,9 +49,9 @@ public class InfoTypeSubscriptions {
     private final MultiMap<SubscriptionInfo> subscriptionsByOwner = new MultiMap<>();
 
     public interface Callbacks {
-        void notifyTypeRegistered(InfoType type, SubscriptionInfo subscriptionInfo);
+        Mono<String> notifyTypeRegistered(InfoType type, SubscriptionInfo subscriptionInfo);
 
-        void notifyTypeRemoved(InfoType type, SubscriptionInfo subscriptionInfo);
+        Mono<String> notifyTypeRemoved(InfoType type, SubscriptionInfo subscriptionInfo);
     }
 
     @Builder
@@ -116,7 +120,7 @@ public class InfoTypeSubscriptions {
     /**
      * returns all subscriptions for an owner. The colllection can contain 0..n
      * subscriptions.
-     * 
+     *
      * @param owner
      * @return
      */
@@ -125,11 +129,22 @@ public class InfoTypeSubscriptions {
     }
 
     public synchronized void notifyTypeRegistered(InfoType type) {
-        allSubscriptions.forEach((id, subscription) -> subscription.callback.notifyTypeRegistered(type, subscription));
+        notifyAllSubscribers(subscription -> subscription.callback.notifyTypeRegistered(type, subscription));
     }
 
     public synchronized void notifyTypeRemoved(InfoType type) {
-        allSubscriptions.forEach((id, subscription) -> subscription.callback.notifyTypeRemoved(type, subscription));
+        notifyAllSubscribers(subscription -> subscription.callback.notifyTypeRemoved(type, subscription));
+    }
+
+    private synchronized void notifyAllSubscribers(Function<? super SubscriptionInfo, Mono<String>> notifyFunc) {
+        final int CONCURRENCY = 5;
+        Flux.fromIterable(allSubscriptions.values()) //
+            .flatMap(notifyFunc::apply, CONCURRENCY) //
+            .onErrorResume(throwable -> {
+                logger.warn("Post failed for consumer callback {}", throwable.getMessage());
+                return Flux.empty();
+            }) //
+            .subscribe();
     }
 
 }

@@ -23,17 +23,14 @@ package org.oransc.enrichment.controllers.r1consumer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.lang.invoke.MethodHandles;
-
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.InfoType;
 import org.oransc.enrichment.repository.InfoTypeSubscriptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 /**
  * Callbacks to the Consumer. Notifies consumer according to the API (which this
@@ -43,7 +40,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsumerCallbacks implements InfoTypeSubscriptions.Callbacks {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static Gson gson = new GsonBuilder().create();
 
     private final AsyncRestClient restClient;
@@ -54,28 +50,21 @@ public class ConsumerCallbacks implements InfoTypeSubscriptions.Callbacks {
     }
 
     @Override
-    public void notifyTypeRegistered(InfoType type, InfoTypeSubscriptions.SubscriptionInfo subscriptionInfo) {
+    public Mono<String> notifyTypeRegistered(InfoType type, InfoTypeSubscriptions.SubscriptionInfo subscriptionInfo) {
         ConsumerTypeRegistrationInfo info = new ConsumerTypeRegistrationInfo(type.getJobDataSchema(),
             ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.REGISTERED, type.getId());
         String body = gson.toJson(info);
 
-        post(subscriptionInfo.getCallbackUrl(), body);
+        return restClient.post(subscriptionInfo.getCallbackUrl(), body);
 
     }
 
     @Override
-    public void notifyTypeRemoved(InfoType type, InfoTypeSubscriptions.SubscriptionInfo subscriptionInfo) {
+    public Mono<String> notifyTypeRemoved(InfoType type, InfoTypeSubscriptions.SubscriptionInfo subscriptionInfo) {
         ConsumerTypeRegistrationInfo info = new ConsumerTypeRegistrationInfo(type.getJobDataSchema(),
             ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.DEREGISTERED, type.getId());
         String body = gson.toJson(info);
-        post(subscriptionInfo.getCallbackUrl(), body);
-
-    }
-
-    private void post(String url, String body) {
-        restClient.post(url, body) //
-            .subscribe(response -> logger.debug("Post OK {}", url), //
-                throwable -> logger.warn("Post failed for consumer callback {} {}", url, body), null);
+        return restClient.post(subscriptionInfo.getCallbackUrl(), body);
     }
 
 }
