@@ -2017,13 +2017,13 @@ ecs_api_idc_delete_job() {
 }
 
 # API Test function: GET ​/data-consumer/v1/info-types/{infoTypeId}
-# args: <response-code> <type-id> [<schema-file>]
+# args: <response-code> <type-id> [<schema-file> [<type-status> <producers-count]]
 # (Function for test scripts)
 ecs_api_idc_get_type() {
 	__log_test_start $@
 
-    if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-		__print_err "<response-code> <type-id> [<schema-file>]" $@
+    if [ $# -lt 2 ] || [ $# -gt 5 ]; then
+		__print_err "<response-code> <type-id> [<schema-file> [<type-status> <producers-count]]" $@
 		return 1
 	fi
 
@@ -2036,7 +2036,7 @@ ecs_api_idc_get_type() {
 		return 1
 	fi
 
-	if [ $# -eq 3 ]; then
+	if [ $# -gt 2 ]; then
 		body=${res:0:${#res}-3}
 		if [ -f $3 ]; then
 			schema=$(cat $3)
@@ -2044,7 +2044,11 @@ ecs_api_idc_get_type() {
 			__log_test_fail_general "Schema file "$3", does not exist"
 			return 1
 		fi
-		targetJson="{\"job_data_schema\":$schema}"
+		if [ $# -eq 5 ]; then
+			targetJson="{\"job_data_schema\":$schema, \"type_status\":\"$4\", \"no_of_producers\":$5}"
+		else
+			targetJson="{\"job_data_schema\":$schema}"
+		fi
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
@@ -2217,6 +2221,148 @@ ecs_api_idc_get_job_status2() {
 			sleep 1
 		fi
 	done
+
+	__log_test_pass
+	return 0
+}
+
+##########################################
+####     Type subscriptions           ####
+##########################################
+
+# API Test function: GET /data-consumer/v1/info-type-subscription
+# args: <response-code>  <owner-id>|NOOWNER [ EMPTY | <subscription-id>+]
+# (Function for test scripts)
+ecs_api_idc_get_subscription_ids() {
+	__log_test_start $@
+
+    if [ $# -lt 3 ]; then
+		__print_err "<response-code> <owner-id>|NOOWNER [ EMPTY | <subscription-id>+]" $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-type-subscription"
+	search=""
+	if [ $2 != "NOOWNER" ]; then
+		search="?owner="$2
+	fi
+
+    res="$(__do_curl_to_api ECS GET $query$search)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+		if [ $3 != "EMPTY" ]; then
+			for pid in ${@:3} ; do
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				targetJson=$targetJson"\"$pid\""
+			done
+		fi
+		targetJson=$targetJson"]"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: GET /data-consumer/v1/info-type-subscription/{subscriptionId}
+# args: <response-code>  <subscription-id> [ <owner-id> <status-uri> ]
+# (Function for test scripts)
+ecs_api_idc_get_subscription() {
+	__log_test_start $@
+
+    if [ $# -ne 2 ] && [ $# -ne 4 ]; then
+		__print_err "<response-code>  <subscription-id> [ <owner-id> <status-uri> ]" $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-type-subscription/$2"
+    res="$(__do_curl_to_api ECS GET $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="{\"owner\":\"$3\",\"status_result_uri\":\"$4\"}"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: PUT /data-consumer/v1/info-type-subscription/{subscriptionId}
+# args: <response-code>  <subscription-id> <owner-id> <status-uri>
+# (Function for test scripts)
+ecs_api_idc_put_subscription() {
+	__log_test_start $@
+
+    if [ $# -ne 4 ]; then
+		__print_err "<response-code>  <subscription-id> <owner-id> <status-uri>" $@
+		return 1
+	fi
+
+	inputJson="{\"owner\": \"$3\",\"status_result_uri\": \"$4\"}"
+	file="./tmp/.p.json"
+	echo "$inputJson" > $file
+
+	query="/data-consumer/v1/info-type-subscription/$2"
+    res="$(__do_curl_to_api ECS PUT $query $file)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# API Test function: DELETE /data-consumer/v1/info-type-subscription/{subscriptionId}
+# args: <response-code>  <subscription-id>
+# (Function for test scripts)
+ecs_api_idc_delete_subscription() {
+	__log_test_start $@
+
+	if [ $# -ne 2 ]; then
+		__print_err "<response-code>  <subscription-id> " $@
+		return 1
+	fi
+
+	query="/data-consumer/v1/info-type-subscription/$2"
+    res="$(__do_curl_to_api ECS DELETE $query)"
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
 
 	__log_test_pass
 	return 0
