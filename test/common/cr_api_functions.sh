@@ -391,3 +391,87 @@ cr_api_check_all_ecs_events() {
 	__log_test_pass
 	return 0
 }
+
+# CR API: Check the contents of all current type subscription events for one id from ECS
+# <response-code> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]
+# (Function for test scripts)
+cr_api_check_all_ecs_subscription_events() {
+	__log_test_start $@
+
+	#Valid number of parameter 2,3,7,11
+	paramError=1
+	if [ $# -eq 2 ]; then
+		paramError=0
+	fi
+	if [ $# -eq 3 ] && [ "$3" == "EMPTY" ]; then
+		paramError=0
+	fi
+	variablecount=$(($#-2))
+	if [ $# -gt 3 ] && [ $(($variablecount%3)) -eq 0 ]; then
+		paramError=0
+	fi
+	if [ $paramError -eq 1 ]; then
+		__print_err "<response-code> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]" $@
+		return 1
+	fi
+
+	query="/get-all-events/"$2
+	res="$(__do_curl_to_api CR GET $query)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+		if [ $# -gt 3 ]; then
+			arr=(${@:3})
+			for ((i=0; i<$(($#-3)); i=i+3)); do
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				if [ -f ${arr[$i+1]} ]; then
+					jobfile=$(cat ${arr[$i+1]})
+				else
+					__log_test_fail_general "Job schema file "${arr[$i+1]}", does not exist"
+					return 1
+				fi
+				targetJson=$targetJson"{\"info_type_id\":\"${arr[$i]}\",\"job_data_schema\":$jobfile,\"status\":\"${arr[$i+2]}\"}"
+			done
+		fi
+		targetJson=$targetJson"]"
+
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+
+# CR API: Reset all events and counters
+# Arg: -
+# (Function for test scripts)
+cr_api_reset() {
+	__log_conf_start $@
+
+	res="$(__do_curl_to_api CR GET /reset)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne 200 ]; then
+		__log_conf_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_conf_ok
+	return 0
+}

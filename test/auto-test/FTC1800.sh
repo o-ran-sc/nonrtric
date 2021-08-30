@@ -88,6 +88,21 @@ if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
     NUM_JOBS=5000 # 5K ei jobs and 5K info jobs
 fi
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    #Type registration status callbacks
+    TYPESTATUS1="$CR_SERVICE_PATH/type-status1"
+    TYPESTATUS2="$CR_SERVICE_PATH/type-status2"
+
+    ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+
+    ecs_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
+
+    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+
+fi
+
 # Setup prodstub sim to accept calls for producers, types and jobs
 prodstub_arm_producer 200 prod-a
 prodstub_arm_producer 200 prod-b
@@ -309,11 +324,43 @@ if [ $use_info_jobs ]; then
     ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 $(($NUM_JOBS/5))
 fi
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 20 30
+
+else
+    cr_equal received_callbacks 0 30
+
+fi
+
 stop_ecs
+
+cr_api_reset
 
 start_stopped_ecs
 
 set_ecs_trace
+
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+
+    ecs_api_idc_get_subscription_ids 200 NOOWNER EMPTY
+    ecs_api_idc_get_subscription_ids 200 NOOWNER EMPTY
+
+    if [ $use_info_jobs ]; then
+        ecs_equal json:data-producer/v1/info-types 10 1000
+    else
+        ecs_equal json:ei-producer/v1/eitypes 5 1000
+    fi
+
+    ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+
+    ecs_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
+
+    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+
+fi
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
@@ -686,6 +733,12 @@ if [ $use_info_jobs ]; then
     ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 0
     ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 0
     ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 0
+fi
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 0 30
+else
+    cr_equal received_callbacks 0 30
 fi
 
 check_ecs_logs

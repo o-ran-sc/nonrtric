@@ -127,6 +127,76 @@ INFOSTATUS110="$CR_SERVICE_PATH/info-job110-status"
 INFOSTATUS150="$CR_SERVICE_PATH/info-job150-status"
 INFOSTATUS160="$CR_SERVICE_PATH/info-job160-status"
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    #Type registration status callbacks
+    TYPESTATUS1="$CR_SERVICE_PATH/type-status1"
+    TYPESTATUS2="$CR_SERVICE_PATH/type-status2"
+
+    ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_get_subscription_ids 200 NOOWNER subscription-id-1
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+
+    ecs_api_idc_get_subscription_ids 200 test EMPTY
+
+    ecs_api_idc_get_subscription 200 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_get_subscription 404 test
+
+    ecs_api_idc_put_subscription 200 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_put_subscription 200 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
+
+    ecs_api_idc_get_subscription_ids 200 NOOWNER subscription-id-1 subscription-id-2
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+
+    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+
+    ecs_api_idc_get_subscription 200 subscription-id-1 owner1 $TYPESTATUS1
+    ecs_api_idc_get_subscription 200 subscription-id-2 owner2 $TYPESTATUS2
+
+    ecs_api_idc_delete_subscription 204 subscription-id-2
+
+    ecs_api_idc_get_subscription_ids 200 NOOWNER subscription-id-1
+
+    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
+
+    cr_equal received_callbacks 1 30
+    cr_equal received_callbacks?id=type-status1 1
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json REGISTERED
+
+    ecs_api_edp_delete_type_2 204 type1
+
+    cr_equal received_callbacks 2 30
+    cr_equal received_callbacks?id=type-status1 2
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json DEREGISTERED
+
+    ecs_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
+    ecs_api_idc_get_subscription_ids 200 NOOWNER subscription-id-1 subscription-id-2
+
+    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
+
+    cr_equal received_callbacks 4 30
+    cr_equal received_callbacks?id=type-status1 3
+    cr_equal received_callbacks?id=type-status2 1
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json REGISTERED
+
+    ecs_api_idc_delete_subscription 204 subscription-id-2
+
+    ecs_api_edp_delete_type_2 204 type1
+
+    cr_equal received_callbacks 5 30
+    cr_equal received_callbacks?id=type-status1 4
+    cr_equal received_callbacks?id=type-status2 1
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json DEREGISTERED
+
+    cr_api_reset
+fi
+
 ### Setup prodstub sim to accept calls for producers, types and jobs
 ## prod-a type1
 ## prod-b type1 and type2
@@ -267,6 +337,14 @@ else
 
     ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
     ecs_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+
+    if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+        cr_equal received_callbacks 3 30
+        cr_equal received_callbacks?id=type-status1 3
+        cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json REGISTERED type1 testdata/ecs/ei-type-1.json DEREGISTERED type1 testdata/ecs/ei-type-1.json REGISTERED
+    else
+        cr_equal received_callbacks 0
+    fi
 fi
 
 
@@ -411,6 +489,13 @@ if [ $ECS_VERSION == "V1-1" ]; then
 else
     ecs_api_edp_put_type_2 201 type2 testdata/ecs/ei-type-2.json
     ecs_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
+    if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+        cr_equal received_callbacks 4 30
+        cr_equal received_callbacks?id=type-status1 4
+        cr_api_check_all_ecs_subscription_events 200 type-status1 type2 testdata/ecs/ei-type-2.json REGISTERED
+    else
+        cr_equal received_callbacks 0
+    fi
 fi
 
 
@@ -629,9 +714,16 @@ else
     ecs_api_a1_get_job_status 200 job3 DISABLED
 fi
 
-cr_equal received_callbacks 1 30
-cr_equal received_callbacks?id=job3-status 1
-cr_api_check_all_ecs_events 200 job3-status DISABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 5 30
+    cr_equal received_callbacks?id=type-status1 4
+    cr_equal received_callbacks?id=job3-status 1
+    cr_api_check_all_ecs_events 200 job3-status DISABLED
+else
+    cr_equal received_callbacks 1 30
+    cr_equal received_callbacks?id=job3-status 1
+    cr_api_check_all_ecs_events 200 job3-status DISABLED
+fi
 
 # Re-create the producer
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -648,9 +740,16 @@ else
     ecs_api_a1_get_job_status 200 job3 ENABLED
 fi
 
-cr_equal received_callbacks 2 30
-cr_equal received_callbacks?id=job3-status 2
-cr_api_check_all_ecs_events 200 job3-status ENABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 6 30
+    cr_equal received_callbacks?id=type-status1 4
+    cr_equal received_callbacks?id=job3-status 2
+    cr_api_check_all_ecs_events 200 job3-status ENABLED
+else
+    cr_equal received_callbacks 2 30
+    cr_equal received_callbacks?id=job3-status 2
+    cr_api_check_all_ecs_events 200 job3-status ENABLED
+fi
 
 if [ $ECS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
@@ -666,8 +765,14 @@ fi
 if [ $ECS_VERSION == "V1-1" ]; then
     ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json
 else
-    ecs_api_edp_put_type_2 201 type4 testdata/ecs/ei-type-1.json
+    ecs_api_edp_put_type_2 201 type4 testdata/ecs/ei-type-4.json
     ecs_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4
+fi
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 7 30
+    cr_equal received_callbacks?id=type-status1 5
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type4 testdata/ecs/ei-type-4.json REGISTERED
 fi
 
 ecs_api_a1_get_job_ids 200 type4 NOWNER EMPTY
@@ -719,9 +824,16 @@ else
     ecs_api_a1_get_job_status 200 job8 DISABLED
 fi
 
-cr_equal received_callbacks 3 30
-cr_equal received_callbacks?id=job8-status 1
-cr_api_check_all_ecs_events 200 job8-status DISABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 8 30
+    cr_equal received_callbacks?id=type-status1 5
+    cr_equal received_callbacks?id=job8-status 1
+    cr_api_check_all_ecs_events 200 job8-status DISABLED
+else
+    cr_equal received_callbacks 3 30
+    cr_equal received_callbacks?id=job8-status 1
+    cr_api_check_all_ecs_events 200 job8-status DISABLED
+fi
 
 prodstub_equal create/prod-d/job8 1
 prodstub_equal delete/prod-d/job8 0
@@ -752,13 +864,21 @@ ecs_api_edp_get_producer_status 200 prod-b ENABLED
 ecs_api_edp_get_producer_status 200 prod-c ENABLED
 ecs_api_edp_get_producer_status 200 prod-d ENABLED
 
-cr_equal received_callbacks 4 30
-cr_equal received_callbacks?id=job8-status 2
-cr_api_check_all_ecs_events 200 job8-status ENABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 10 30
+    cr_equal received_callbacks?id=type-status1 6
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type4 testdata/ecs/ei-type-4.json REGISTERED
+
+    cr_equal received_callbacks?id=job8-status 2
+    cr_api_check_all_ecs_events 200 job8-status ENABLED
+else
+    cr_equal received_callbacks 4 30
+    cr_equal received_callbacks?id=job8-status 2
+    cr_api_check_all_ecs_events 200 job8-status ENABLED
+fi
 
 prodstub_equal create/prod-d/job8 2
 prodstub_equal delete/prod-d/job8 0
-
 
 ## Setup prod-e
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -766,6 +886,12 @@ if [ $ECS_VERSION == "V1-1" ]; then
 else
     ecs_api_edp_put_type_2 201 type6 testdata/ecs/ei-type-6.json
     ecs_api_edp_put_producer_2 201 prod-e $CB_JOB/prod-e $CB_SV/prod-e type6
+fi
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 11 30
+    cr_equal received_callbacks?id=type-status1 7
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type6 testdata/ecs/ei-type-6.json REGISTERED
 fi
 
 ecs_api_a1_get_job_ids 200 type6 NOWNER EMPTY
@@ -803,6 +929,12 @@ if [ $ECS_VERSION == "V1-1" ]; then
 else
     ecs_api_edp_put_type_2 200 type6 testdata/ecs/ei-type-6.json
     ecs_api_edp_put_producer_2 201 prod-f $CB_JOB/prod-f $CB_SV/prod-f type6
+fi
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 12 30
+    cr_equal received_callbacks?id=type-status1 8
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type6 testdata/ecs/ei-type-6.json REGISTERED
 fi
 
 ecs_api_a1_get_job_ids 200 type6 NOWNER job10
@@ -978,7 +1110,12 @@ else
     ecs_api_a1_get_job_status 200 job10 ENABLED
 fi
 
-cr_equal received_callbacks 6 30
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 14 30
+else
+    cr_equal received_callbacks 6 30
+fi
+
 cr_equal received_callbacks?id=job1-status 1
 cr_equal received_callbacks?id=job2-status 1
 
@@ -1089,7 +1226,11 @@ else
     ecs_api_a1_get_job_status 200 job10 ENABLED
 fi
 
-cr_equal received_callbacks 6
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 14 30
+else
+    cr_equal received_callbacks 6 30
+fi
 
 
 if [[ "$ECS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
@@ -1223,9 +1364,13 @@ ecs_api_edp_put_producer_2 200 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
 
 ecs_api_edp_delete_type_2 406 type101
 
-
-#ecs_api_idc_get_type_ids 200 type101
-#ecs_api_idc_get_type 200 type101 testdata/ecs/empty-type.json
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 17 30
+    cr_equal received_callbacks?id=type-status1 11
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type101 testdata/ecs/info-type-1.json REGISTERED type101 testdata/ecs/info-type-1.json DEREGISTERED type101 testdata/ecs/info-type-1.json REGISTERED
+else
+    cr_equal received_callbacks 6
+fi
 
 ecs_api_edp_get_type_ids 200 type101 type1 type2 type4 type6
 ecs_api_edp_get_type_2 200 type101 testdata/ecs/info-type-1.json
@@ -1290,12 +1435,25 @@ ecs_api_edp_get_producer_jobs_2 200 prod-ia job101 type101 $TARGET101 info-owner
 ecs_api_edp_put_type_2 201 type102 testdata/ecs/info-type-2.json
 ecs_api_edp_put_producer_2 201 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 18 30
+    cr_equal received_callbacks?id=type-status1 12
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type102 testdata/ecs/info-type-2.json REGISTERED
+else
+    cr_equal received_callbacks 6
+fi
 
 ecs_api_idc_get_type_ids 200 type101 type102 type1 type2 type4 type6
 
-ecs_api_idc_get_type 200 type101 testdata/ecs/info-type-1.json
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    ecs_api_idc_get_type 200 type101 testdata/ecs/info-type-1.json ENABLED 1
 
-ecs_api_idc_get_type 200 type102 testdata/ecs/info-type-2.json
+    ecs_api_idc_get_type 200 type102 testdata/ecs/info-type-2.json ENABLED 1
+else
+    ecs_api_idc_get_type 200 type101 testdata/ecs/info-type-1.json
+
+    ecs_api_idc_get_type 200 type102 testdata/ecs/info-type-2.json
+fi
 
 ecs_api_edp_get_type_ids 200 type101 type102 type1 type2 type4 type6
 ecs_api_edp_get_type_2 200 type101 testdata/ecs/info-type-1.json
@@ -1391,9 +1549,16 @@ ecs_api_edp_get_producer_ids_2 200 NOTYPE prod-ia prod-ic prod-b prod-c prod-d p
 
 ecs_api_idc_get_job_status2 200 job103 DISABLED EMPTYPROD
 
-cr_equal received_callbacks 7 30
-cr_equal received_callbacks?id=info-job103-status 1
-cr_api_check_all_ecs_events 200 info-job103-status DISABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 19 30
+
+    cr_equal received_callbacks?id=info-job103-status 1
+    cr_api_check_all_ecs_events 200 info-job103-status DISABLED
+else
+    cr_equal received_callbacks 7 30
+    cr_equal received_callbacks?id=info-job103-status 1
+    cr_api_check_all_ecs_events 200 info-job103-status DISABLED
+fi
 
 # Re-create the producer
 ecs_api_edp_put_producer_2 201 prod-ib $CB_JOB/prod-ib $CB_SV/prod-ib type102
@@ -1402,9 +1567,15 @@ ecs_api_edp_get_producer_status 200 prod-ib ENABLED
 
 ecs_api_idc_get_job_status2 200 job103 ENABLED 1 prod-ib
 
-cr_equal received_callbacks 8 30
-cr_equal received_callbacks?id=info-job103-status 2
-cr_api_check_all_ecs_events 200 info-job103-status ENABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 20 30
+    cr_equal received_callbacks?id=info-job103-status 2
+    cr_api_check_all_ecs_events 200 info-job103-status ENABLED
+else
+    cr_equal received_callbacks 8 30
+    cr_equal received_callbacks?id=info-job103-status 2
+    cr_api_check_all_ecs_events 200 info-job103-status ENABLED
+fi
 
 prodstub_check_jobdata_3 200 prod-ib job103 type102 $TARGET103 info-owner-3 testdata/ecs/job-template2.json
 
@@ -1433,9 +1604,18 @@ ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job108  job1 job2
 
 ecs_api_idc_get_job_status2 200 job108 DISABLED EMPTYPROD
 
-cr_equal received_callbacks 9 30
-cr_equal received_callbacks?id=info-job108-status 1
-cr_api_check_all_ecs_events 200 info-job108-status DISABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 22 30
+    cr_equal received_callbacks?id=type-status1 13
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type104 testdata/ecs/info-type-4.json REGISTERED
+
+    cr_equal received_callbacks?id=info-job108-status 1
+    cr_api_check_all_ecs_events 200 info-job108-status DISABLED
+else
+    cr_equal received_callbacks 9 30
+    cr_equal received_callbacks?id=info-job108-status 1
+    cr_api_check_all_ecs_events 200 info-job108-status DISABLED
+fi
 
 prodstub_equal create/prod-id/job108 1
 prodstub_equal delete/prod-id/job108 0
@@ -1443,6 +1623,7 @@ prodstub_equal delete/prod-id/job108 0
 ## Re-setup prod-id
 ecs_api_edp_put_type_2 200 type104 testdata/ecs/info-type-4.json
 ecs_api_edp_put_producer_2 200 prod-id $CB_JOB/prod-id $CB_SV/prod-id type104
+
 
 ecs_api_idc_get_job_ids 200 type104 NOWNER job108
 ecs_api_idc_get_job_ids 200 NOTYPE NOWNER job101 job102 job103 job108 job1 job2 job3 job8 job10
@@ -1454,9 +1635,19 @@ ecs_api_edp_get_producer_status 200 prod-ib ENABLED
 ecs_api_edp_get_producer_status 200 prod-ic ENABLED
 ecs_api_edp_get_producer_status 200 prod-id ENABLED
 
-cr_equal received_callbacks 10 30
-cr_equal received_callbacks?id=info-job108-status 2
-cr_api_check_all_ecs_events 200 info-job108-status ENABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 24 30
+
+    cr_equal received_callbacks?id=type-status1 14
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type104 testdata/ecs/info-type-4.json REGISTERED
+
+    cr_equal received_callbacks?id=info-job108-status 2
+    cr_api_check_all_ecs_events 200 info-job108-status ENABLED
+else
+    cr_equal received_callbacks 10 30
+    cr_equal received_callbacks?id=info-job108-status 2
+    cr_api_check_all_ecs_events 200 info-job108-status ENABLED
+fi
 
 prodstub_equal create/prod-id/job108 2
 prodstub_equal delete/prod-id/job108 0
@@ -1482,6 +1673,14 @@ ecs_api_idc_get_job_status2 200 job110 ENABLED 1 prod-ie
 ## Setup prod-if
 ecs_api_edp_put_type_2 200 type106 testdata/ecs/info-type-6.json
 ecs_api_edp_put_producer_2 201 prod-if $CB_JOB/prod-if $CB_SV/prod-if type106
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 26 30
+
+    cr_equal received_callbacks?id=type-status1 16
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type106 testdata/ecs/info-type-6.json REGISTERED type106 testdata/ecs/info-type-6.json REGISTERED
+fi
+
 
 ecs_api_idc_get_job_ids 200 type106 NOWNER job110
 
@@ -1592,12 +1791,22 @@ ecs_api_idc_get_job_status2 200 job103 ENABLED 1 prod-ib
 ecs_api_idc_get_job_status2 200 job108 ENABLED 1 prod-id
 ecs_api_idc_get_job_status2 200 job110 ENABLED 2 prod-ie prod-if
 
-cr_equal received_callbacks 12 30
-cr_equal received_callbacks?id=info-job101-status 1
-cr_equal received_callbacks?id=info-job102-status 1
 
-cr_api_check_all_ecs_events 200 info-job101-status DISABLED
-cr_api_check_all_ecs_events 200 info-job102-status DISABLED
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 28 30
+
+    cr_equal received_callbacks?id=info-job101-status 1
+    cr_equal received_callbacks?id=info-job102-status 1
+    cr_api_check_all_ecs_events 200 info-job101-status DISABLED
+    cr_api_check_all_ecs_events 200 info-job102-status DISABLED
+else
+    cr_equal received_callbacks 12 30
+
+    cr_equal received_callbacks?id=info-job101-status 1
+    cr_equal received_callbacks?id=info-job102-status 1
+    cr_api_check_all_ecs_events 200 info-job101-status DISABLED
+    cr_api_check_all_ecs_events 200 info-job102-status DISABLED
+fi
 
 
 # Arm producer prod-ie for supervision failure
@@ -1663,8 +1872,11 @@ ecs_api_idc_get_job_status2 200 job103 ENABLED 1 prod-ib
 ecs_api_idc_get_job_status2 200 job108 ENABLED 1 prod-id
 ecs_api_idc_get_job_status2 200 job110 ENABLED 1 prod-ie
 
-cr_equal received_callbacks 12
-
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 28
+else
+    cr_equal received_callbacks 12
+fi
 ### Test of pre and post validation
 
 ecs_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106
@@ -1710,6 +1922,14 @@ prodstub_arm_type 200 prod-ig type150
 ecs_api_edp_put_type_2 201 type150 testdata/ecs/info-type-50.json
 ecs_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106 type160 type150
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 30 30
+    cr_equal received_callbacks?id=type-status1 18
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type160 testdata/ecs/info-type-60.json REGISTERED type150 testdata/ecs/info-type-50.json REGISTERED
+else
+    cr_equal received_callbacks 12
+fi
+
 ecs_api_edp_put_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160 type150
 ecs_api_edp_get_producer_status 200 prod-ig ENABLED 360
 
@@ -1723,7 +1943,12 @@ ecs_api_idc_put_job 201 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 te
 ecs_api_idc_get_job_status2 200 job150 ENABLED  1 prod-ig 60
 ecs_api_idc_get_job_status2 200 job160 ENABLED  1 prod-ig
 
-cr_equal received_callbacks 12
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 30 30
+    cr_equal received_callbacks?id=type-status1 18
+else
+    cr_equal received_callbacks 12
+fi
 
 check_ecs_logs
 

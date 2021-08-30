@@ -229,7 +229,7 @@ __log_test_start() {
 # Function to print current statistics
 __print_current_stats() {
 	if [ $PRINT_CURRENT_STATS -ne 0 ]; then
-		echo " Currrent stats - tests, passes, fails, conf fails, deviations: $RES_TEST, $RES_PASS, $RES_FAIL, $RES_CONF_FAIL, $RES_DEVIATION"
+		echo " Current stats - exe-time, tests, passes, fails, conf fails, deviations: $(($SECONDS-$TCTEST_START)), $RES_TEST, $RES_PASS, $RES_FAIL, $RES_CONF_FAIL, $RES_DEVIATION"
 	fi
 }
 
@@ -2500,13 +2500,15 @@ __do_curl() {
 
 __var_test() {
 	checkjsonarraycount=0
-
+	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 	if [ $# -eq 6 ]; then
 		if [[ $3 == "json:"* ]]; then
 			checkjsonarraycount=1
 		fi
 
 		echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
+        echo "TEST $TEST_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds" >> $HTTPLOG
+
 		((RES_TEST++))
 		((TEST_SEQUENCE_NR++))
 		start=$SECONDS
@@ -2575,6 +2577,7 @@ __var_test() {
 		fi
 
 		echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}"$EBOLD
+		echo "TEST $TEST_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}" >> $HTTPLOG
 		((RES_TEST++))
 		((TEST_SEQUENCE_NR++))
 		if [ $checkjsonarraycount -eq 0 ]; then

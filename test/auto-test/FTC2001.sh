@@ -195,6 +195,15 @@ prodstub_arm_job_create 200 prod-a job2
 ### ecs status
 ecs_api_service_status 200
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    #Type registration status callbacks
+    TYPESTATUS1="$CR_SERVICE_PATH/type-status1"
+
+    ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+fi
+
 ## Setup prod-a
 if [ $ECS_VERSION == "V1-1" ]; then
     ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
@@ -262,6 +271,16 @@ else
     ecs_equal json:ei-producer/v1/eiproducers 0 1000
 fi
 
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal received_callbacks 3 30
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json REGISTERED
+    cr_api_check_all_ecs_events 200 job1-status DISABLED
+    cr_api_check_all_ecs_events 200 job2-status DISABLED
+else
+    cr_equal received_callbacks 2 30
+    cr_api_check_all_ecs_events 200 job1-status DISABLED
+    cr_api_check_all_ecs_events 200 job2-status DISABLED
+fi
 
 echo -e $YELLOW"Verify that ECS has send status notification to the callback recevier"$EYELLOW
 echo -e $YELLOW"and check the source of the call in the log to be from the httpproxy"$EYELLOW

@@ -1038,6 +1038,48 @@ Check the contents of all ric events received for a callback id.
 | `EMPTY` | Indicator for an empty list  |
 | `<ric-id>` | Id of the ric  |
 
+## Function: cr_api_check_all_ecs_events() ##
+
+Check the contents of all current status events for one id from ECS
+
+| arg list |
+|--|
+| `<response-code> <id> [ EMPTY \| ( <status> )+ ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<id>` | Id of the callback destination  |
+| `EMPTY` | Indicator for an empty list  |
+| `<status>` | Status string  |
+
+## Function: cr_api_check_all_ecs_subscription_events() ##
+
+Check the contents of all current subscription events for one id from ECS
+
+| arg list |
+|--|
+| `<response-code> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<id>` | Id of the callback destination  |
+| `EMPTY` | Indicator for an empty list  |
+| `<type-id>` | Id of the data type  |
+| `<schema>` | Path to typeschema file  |
+| `<registration-status>` | Status string  |
+
+
+## Function: cr_api_reset() ##
+
+Reset the callback receiver
+
+| arg list |
+|--|
+| - |
+
+
 # Description of functions in ecs_api_functions.sh #
 
 ## Function: use_ecs_rest_http ##
@@ -1661,6 +1703,64 @@ To also test the response payload add the expected status.
 | `<prod-count>` | Number of expected producer  |
 | `<producer-id>` |Id of the producer  |
 | `<timeout>` | Timeout |
+
+
+## Function: ecs_api_idc_get_subscription_ids() ##
+Test of GET '/data-consumer/v1/info-type-subscription' with the returned list of subscription ids
+
+| arg list |
+|--|
+| `<response-code>  <owner-id>|NOOWNER [ EMPTY | <subscription-id>+]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<owner-id>` | Id of the owner  |
+| `<NOOWNER>` | Indicator for empty owner  |
+| `<EMPTY>` | Indicated for empty list of subscription ids  |
+| `<subscription-id>` |Id of the subscription  |
+
+## Function: ecs_api_idc_get_subscription() ##
+Test of GET '/data-consumer/v1/info-type-subscription/{subscriptionId}' with the subscription information
+
+| arg list |
+|--|
+| `<response-code>  <subscription-id> [ <owner-id> <status-uri> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<subscription-id>` |Id of the subscription  |
+| `<owner-id>` | Id of the owner  |
+| `<status-uri>` | Url for status notifications  |
+
+
+## Function: ecs_api_idc_put_subscription() ##
+Test of PUT '/data-consumer/v1/info-type-subscription/{subscriptionId}' with the subscription information
+
+| arg list |
+|--|
+| `<response-code>  <subscription-id> <owner-id> <status-uri>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<subscription-id>` |Id of the subscription  |
+| `<owner-id>` | Id of the owner  |
+| `<status-uri>` | Url for status notifications  |
+
+## Function: ecs_api_idc_delete_subscription() ##
+Test of DELETE /data-consumer/v1/info-type-subscription/{subscriptionId}
+
+| arg list |
+|--|
+| `<response-code>  <subscription-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<subscription-id>` |Id of the subscription  |
+
 
 ## Function: ecs_api_admin_reset() ##
 
