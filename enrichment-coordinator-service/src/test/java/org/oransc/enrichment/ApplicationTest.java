@@ -555,9 +555,12 @@ class ApplicationTest {
     @Test
     void producerDeleteEiType() throws Exception {
         putInfoType(TYPE_ID);
+        this.putEiJob(TYPE_ID, "job1");
+        this.putEiJob(TYPE_ID, "job2");
         deleteInfoType(TYPE_ID);
 
         assertThat(this.infoTypes.size()).isZero();
+        assertThat(this.infoJobs.size()).isZero(); // Test that also the job is deleted
 
         testErrorCode(restClient().delete(deleteInfoTypeUrl(TYPE_ID)), HttpStatus.NOT_FOUND,
             "Information type not found");

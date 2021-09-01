@@ -190,6 +190,7 @@ public class ProducerController {
             return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.NOT_ACCEPTABLE);
         }
         this.infoTypes.remove(type);
+        infoJobs.getJobsForType(type).forEach(job -> infoJobs.remove(job, infoProducers)); // Delete jobs for the type
         this.typeSubscriptions.notifyTypeRemoved(type);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
