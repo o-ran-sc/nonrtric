@@ -15,12 +15,12 @@
 #  ============LICENSE_END=================================================
 #
 
-FROM openjdk:11-jre-slim
+FROM adoptopenjdk/openjdk11:jre-11.0.11_9-alpine
 
 ARG JAR
 
 #Install wget
-RUN apt-get update && apt-get install -y wget
+RUN apk update && apk add wget
 
 #Install helm
 RUN wget -O helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
