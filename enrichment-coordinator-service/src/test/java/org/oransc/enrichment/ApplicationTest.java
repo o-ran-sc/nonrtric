@@ -162,6 +162,7 @@ class ApplicationTest {
         this.infoJobs.clear();
         this.infoTypes.clear();
         this.infoProducers.clear();
+        this.infoTypeSubscriptions.clear();
         this.producerSimulator.getTestResults().reset();
         this.consumerSimulator.getTestResults().reset();
     }
@@ -475,7 +476,6 @@ class ApplicationTest {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
 
         verifyJobStatus(EI_JOB_ID, "ENABLED");
-
     }
 
     @Test
@@ -908,7 +908,6 @@ class ApplicationTest {
             InfoTypes types = new InfoTypes(this.applicationConfig);
             types.restoreTypesFromDatabase();
             assertThat(types.size()).isEqualTo(1);
-
         }
         {
             // Restore the jobs, no jobs in database
@@ -920,6 +919,24 @@ class ApplicationTest {
         logger.warn("Test removing a job when the db file is gone");
         this.infoTypes.remove(this.infoTypes.getType(TYPE_ID));
         assertThat(this.infoJobs.size()).isZero();
+    }
+
+    @Test
+    void testConsumerTypeSubscriptionDatabase() {
+        final String callbackUrl = baseUrl() + ConsumerSimulatorController.getTypeStatusCallbackUrl();
+        final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(callbackUrl, "owner");
+        // PUT a subscription
+        String body = gson.toJson(info);
+        restClient().putForEntity(typeSubscriptionUrl() + "/subscriptionId", body).block();
+        assertThat(this.infoTypeSubscriptions.size()).isEqualTo(1);
+
+        InfoTypeSubscriptions restoredSubscriptions = new InfoTypeSubscriptions(this.applicationConfig);
+        assertThat(restoredSubscriptions.size()).isEqualTo(1);
+
+        // Delete the subscription
+        restClient().deleteForEntity(typeSubscriptionUrl() + "/subscriptionId").block();
+        restoredSubscriptions = new InfoTypeSubscriptions(this.applicationConfig);
+        assertThat(restoredSubscriptions.size()).isZero();
     }
 
     @Test
@@ -981,6 +998,21 @@ class ApplicationTest {
             resp = restClient().getForEntity(typeSubscriptionUrl()).block();
             assertThat(resp.getBody()).isEqualTo("[]");
         }
+    }
+
+    @Test
+    void testRemovingNonWorkingSubscription() throws Exception {
+        // Test that subscriptions are removed for a unresponsive consumer
+
+        // PUT a subscription with a junk callback
+        final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(baseUrl() + "JUNK", "owner");
+        String body = gson.toJson(info);
+        restClient().putForEntity(typeSubscriptionUrl() + "/subscriptionId", body).block();
+        assertThat(this.infoTypeSubscriptions.size()).isEqualTo(1);
+
+        this.putInfoType(TYPE_ID);
+        // The callback will fail and the subscription will be removed
+        await().untilAsserted(() -> assertThat(this.infoTypeSubscriptions.size()).isZero());
     }
 
     @Test

@@ -36,35 +36,38 @@ import reactor.core.publisher.Mono;
  * Callbacks to the Consumer. Notifies consumer according to the API (which this
  * class adapts to)
  */
-@SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 @Component
-public class ConsumerCallbacks implements InfoTypeSubscriptions.Callbacks {
+public class ConsumerCallbacks implements InfoTypeSubscriptions.ConsumerCallbackHandler {
 
     private static Gson gson = new GsonBuilder().create();
 
     private final AsyncRestClient restClient;
 
-    public ConsumerCallbacks(@Autowired ApplicationConfig config) {
+    public static final String API_VERSION = "version_1";
+
+    public ConsumerCallbacks(@Autowired ApplicationConfig config,
+        @Autowired InfoTypeSubscriptions infoTypeSubscriptions) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientNoHttpProxy("");
+        infoTypeSubscriptions.registerCallbackhandler(this, API_VERSION);
     }
 
     @Override
     public Mono<String> notifyTypeRegistered(InfoType type, InfoTypeSubscriptions.SubscriptionInfo subscriptionInfo) {
-        ConsumerTypeRegistrationInfo info = new ConsumerTypeRegistrationInfo(type.getJobDataSchema(),
-            ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.REGISTERED, type.getId());
-        String body = gson.toJson(info);
-
+        String body = body(type, ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.REGISTERED);
         return restClient.post(subscriptionInfo.getCallbackUrl(), body);
-
     }
 
     @Override
     public Mono<String> notifyTypeRemoved(InfoType type, InfoTypeSubscriptions.SubscriptionInfo subscriptionInfo) {
-        ConsumerTypeRegistrationInfo info = new ConsumerTypeRegistrationInfo(type.getJobDataSchema(),
-            ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.DEREGISTERED, type.getId());
-        String body = gson.toJson(info);
+        String body = body(type, ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.DEREGISTERED);
         return restClient.post(subscriptionInfo.getCallbackUrl(), body);
+    }
+
+    private String body(InfoType type, ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues status) {
+        ConsumerTypeRegistrationInfo info =
+            new ConsumerTypeRegistrationInfo(type.getJobDataSchema(), status, type.getId());
+        return gson.toJson(info);
     }
 
 }

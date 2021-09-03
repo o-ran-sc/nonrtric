@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
 import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
@@ -70,35 +69,28 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
-@RestController("Consumer registry")
+@RestController("Consumer API")
 @Tag(name = ConsumerConsts.CONSUMER_API_NAME)
 @RequestMapping(path = ConsumerConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsumerController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    @Autowired
-    ApplicationConfig applicationConfig;
-
-    @Autowired
-    private InfoJobs jobs;
-
-    @Autowired
-    private InfoTypes infoTypes;
-
-    @Autowired
-    private InfoProducers infoProducers;
-
-    @Autowired
-    private ConsumerCallbacks consumerCallbacks;
-
-    @Autowired
-    private ProducerCallbacks producerCallbacks;
-
-    @Autowired
-    private InfoTypeSubscriptions infoTypeSubscriptions;
-
+    private final InfoJobs infoJobs;
+    private final InfoTypes infoTypes;
+    private final InfoProducers infoProducers;
+    private final ProducerCallbacks producerCallbacks;
+    private final InfoTypeSubscriptions infoTypeSubscriptions;
     private static Gson gson = new GsonBuilder().create();
+
+    public ConsumerController(@Autowired InfoJobs jobs, @Autowired InfoTypes infoTypes,
+        @Autowired InfoProducers infoProducers, @Autowired ProducerCallbacks producerCallbacks,
+        @Autowired InfoTypeSubscriptions infoTypeSubscriptions) {
+        this.infoProducers = infoProducers;
+        this.infoJobs = jobs;
+        this.infoTypeSubscriptions = infoTypeSubscriptions;
+        this.infoTypes = infoTypes;
+        this.producerCallbacks = producerCallbacks;
+    }
 
     @GetMapping(path = "/info-types", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Information type identifiers", description = "")
@@ -170,15 +162,15 @@ public class ConsumerController {
         try {
             List<String> result = new ArrayList<>();
             if (owner != null) {
-                for (InfoJob job : this.jobs.getJobsForOwner(owner)) {
+                for (InfoJob job : this.infoJobs.getJobsForOwner(owner)) {
                     if (infoTypeId == null || job.getTypeId().equals(infoTypeId)) {
                         result.add(job.getId());
                     }
                 }
             } else if (infoTypeId != null) {
-                this.jobs.getJobsForType(infoTypeId).forEach(job -> result.add(job.getId()));
+                this.infoJobs.getJobsForType(infoTypeId).forEach(job -> result.add(job.getId()));
             } else {
-                this.jobs.getJobs().forEach(job -> result.add(job.getId()));
+                this.infoJobs.getJobs().forEach(job -> result.add(job.getId()));
             }
             return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         } catch (
@@ -204,7 +196,7 @@ public class ConsumerController {
     public ResponseEntity<Object> getIndividualEiJob( //
         @PathVariable("infoJobId") String infoJobId) {
         try {
-            InfoJob job = this.jobs.getJob(infoJobId);
+            InfoJob job = this.infoJobs.getJob(infoJobId);
             return new ResponseEntity<>(gson.toJson(toInfoJobInfo(job)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -227,7 +219,7 @@ public class ConsumerController {
     public ResponseEntity<Object> getEiJobStatus( //
         @PathVariable("infoJobId") String jobId) {
         try {
-            InfoJob job = this.jobs.getJob(jobId);
+            InfoJob job = this.infoJobs.getJob(jobId);
             return new ResponseEntity<>(gson.toJson(toInfoJobStatus(job)), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -264,8 +256,8 @@ public class ConsumerController {
     public ResponseEntity<Object> deleteIndividualEiJob( //
         @PathVariable("infoJobId") String jobId) {
         try {
-            InfoJob job = this.jobs.getJob(jobId);
-            this.jobs.remove(job, this.infoProducers);
+            InfoJob job = this.infoJobs.getJob(jobId);
+            this.infoJobs.remove(job, this.infoProducers);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -304,11 +296,11 @@ public class ConsumerController {
             defaultValue = "false") boolean performTypeCheck,
         @RequestBody ConsumerJobInfo informationJobObject) {
 
-        final boolean isNewJob = this.jobs.get(jobId) == null;
+        final boolean isNewJob = this.infoJobs.get(jobId) == null;
 
         return validatePutInfoJob(jobId, informationJobObject, performTypeCheck) //
             .flatMap(this::startInfoSubscriptionJob) //
-            .doOnNext(newEiJob -> this.jobs.put(newEiJob)) //
+            .doOnNext(this.infoJobs::put) //
             .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
@@ -432,11 +424,10 @@ public class ConsumerController {
     private InfoTypeSubscriptions.SubscriptionInfo toTypeSuscriptionInfo(ConsumerTypeSubscriptionInfo s,
         String subscriptionId) {
         return InfoTypeSubscriptions.SubscriptionInfo.builder() //
-            .callback(this.consumerCallbacks) //
+            .apiVersion(ConsumerCallbacks.API_VERSION) //
             .owner(s.owner) //
             .id(subscriptionId) //
             .callbackUrl(s.statusResultUri).build();
-
     }
 
     private Mono<InfoJob> startInfoSubscriptionJob(InfoJob newInfoJob) {
@@ -452,7 +443,7 @@ public class ConsumerController {
                 InfoType infoType = this.infoTypes.getType(jobInfo.infoTypeId);
                 validateJsonObjectAgainstSchema(infoType.getJobDataSchema(), jobInfo.jobDefinition);
             }
-            InfoJob existingEiJob = this.jobs.get(jobId);
+            InfoJob existingEiJob = this.infoJobs.get(jobId);
             validateUri(jobInfo.statusNotificationUri);
             validateUri(jobInfo.jobResultUri);
 
