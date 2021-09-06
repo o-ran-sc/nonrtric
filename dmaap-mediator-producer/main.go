@@ -39,8 +39,11 @@ func init() {
 	}
 
 	log.Debug("Initializing DMaaP Mediator Producer")
-	if configuration.JobResultUri == "" {
-		log.Fatal("Missing JOB_RESULT_URI")
+	if configuration.InfoJobCallbackUrl == "" {
+		log.Fatal("Missing INFO_JOB_CALLBACK_URL")
+	}
+	if configuration.InfoProducerSupervisionCallbackUrl == "" {
+		log.Fatal("Missing INFO_PRODUCER_SUPERVISION_CALLBACK_URL")
 	}
 
 	registrator := config.NewRegistratorImpl(configuration.InfoCoordinatorAddress)
@@ -50,6 +53,14 @@ func init() {
 		}
 	} else {
 		log.Fatalf("Unable to get types to register due to: %v", err)
+	}
+	producer := config.ProducerRegistrationInfo{
+		InfoProducerSupervisionCallbackUrl: configuration.InfoProducerSupervisionCallbackUrl,
+		SupportedInfoTypes:                 jobtypes.GetSupportedTypes(),
+		InfoJobCallbackUrl:                 configuration.InfoJobCallbackUrl,
+	}
+	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
+		log.Fatalf("Unable to register producer due to: %v", err)
 	}
 }
 

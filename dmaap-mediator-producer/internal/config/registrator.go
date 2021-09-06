@@ -21,6 +21,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -31,9 +32,11 @@ import (
 )
 
 const registerTypePath = "/data-producer/v1/info-types/"
+const registerProducerPath = "/data-producer/v1/info-producers/"
 
 type Registrator interface {
 	RegisterTypes(types []*jobtypes.Type) error
+	RegisterProducer(producerId string, producerInfo *ProducerRegistrationInfo)
 }
 
 type RegistratorImpl struct {
@@ -49,10 +52,22 @@ func NewRegistratorImpl(infoCoordAddr string) *RegistratorImpl {
 func (r RegistratorImpl) RegisterTypes(jobTypes []*jobtypes.Type) error {
 	for _, jobType := range jobTypes {
 		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, jobType.Schema)
-		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.Name), []byte(body)); error != nil {
+		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.TypeId), []byte(body)); error != nil {
 			return error
 		}
 		log.Debugf("Registered type: %v", jobType)
 	}
 	return nil
+}
+
+func (r RegistratorImpl) RegisterProducer(producerId string, producerInfo *ProducerRegistrationInfo) error {
+	if body, marshalErr := json.Marshal(producerInfo); marshalErr == nil {
+		if putErr := restclient.Put(r.infoCoordinatorAddress+registerProducerPath+url.PathEscape(producerId), []byte(body)); putErr != nil {
+			return putErr
+		}
+		log.Debugf("Registered producer: %v", producerId)
+		return nil
+	} else {
+		return marshalErr
+	}
 }

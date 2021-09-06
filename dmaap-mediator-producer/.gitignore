@@ -3,3 +3,4 @@
 coverage.*
 main
 dmaapmediatorproducer
+__debug_bin*

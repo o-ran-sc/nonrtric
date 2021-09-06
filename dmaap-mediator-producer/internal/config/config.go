@@ -25,16 +25,24 @@ import (
 )
 
 type Config struct {
-	LogLevel               string
-	JobResultUri           string
-	InfoCoordinatorAddress string
+	LogLevel                           string
+	InfoJobCallbackUrl                 string
+	InfoCoordinatorAddress             string
+	InfoProducerSupervisionCallbackUrl string
+}
+
+type ProducerRegistrationInfo struct {
+	InfoProducerSupervisionCallbackUrl string   `json:"info_producer_supervision_callback_url"`
+	SupportedInfoTypes                 []string `json:"supported_info_types"`
+	InfoJobCallbackUrl                 string   `json:"info_job_callback_url"`
 }
 
 func New() *Config {
 	return &Config{
-		LogLevel:               getEnv("LOG_LEVEL", "Info"),
-		JobResultUri:           getEnv("JOB_RESULT_URI", ""),
-		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
+		LogLevel:                           getEnv("LOG_LEVEL", "Info"),
+		InfoJobCallbackUrl:                 getEnv("INFO_JOB_CALLBACK_URL", ""),
+		InfoCoordinatorAddress:             getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
+		InfoProducerSupervisionCallbackUrl: getEnv("INFO_PRODUCER_SUPERVISION_CALLBACK_URL", ""),
 	}
 }
 

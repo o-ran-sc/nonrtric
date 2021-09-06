@@ -28,13 +28,15 @@ import (
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "Debug")
-	os.Setenv("JOB_RESULT_URI", "testUrl")
-	os.Setenv("INFO_COORD_ADDR", "testAddr")
+	os.Setenv("INFO_JOB_CALLBACK_URL", "jobCallbackUrl")
+	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
+	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_URL", "supervisionCallbackUrl")
 	defer os.Clearenv()
 	wantConfig := Config{
-		LogLevel:               "Debug",
-		JobResultUri:           "testUrl",
-		InfoCoordinatorAddress: "testAddr",
+		LogLevel:                           "Debug",
+		InfoJobCallbackUrl:                 "jobCallbackUrl",
+		InfoCoordinatorAddress:             "infoCoordAddr",
+		InfoProducerSupervisionCallbackUrl: "supervisionCallbackUrl",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -43,9 +45,10 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 
 func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
 	wantConfig := Config{
-		LogLevel:               "Info",
-		JobResultUri:           "",
-		InfoCoordinatorAddress: "http://enrichmentservice:8083",
+		LogLevel:                           "Info",
+		InfoJobCallbackUrl:                 "",
+		InfoCoordinatorAddress:             "http://enrichmentservice:8083",
+		InfoProducerSupervisionCallbackUrl: "",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
