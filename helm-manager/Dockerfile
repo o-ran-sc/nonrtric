@@ -19,8 +19,16 @@ FROM openjdk:11-jre-slim
 
 ARG JAR
 
+#Install apt-transport-https to support packages installation over https
+RUN apt-get update && apt-get install -y --no-install-recommend \
+    apt-transport-https \
+    && rm -rf /var/lib/apt/lists/*
+
 #Install curl and wget
-RUN apt-get update && apt-get install -y --no-install-recommends curl wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 #Install helm
 RUN wget -O helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
