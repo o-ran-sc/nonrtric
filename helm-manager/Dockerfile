@@ -20,7 +20,11 @@ FROM openjdk:11-jre-slim
 ARG JAR
 
 #Install curl and wget
-RUN apt-get update && apt-get install -y --no-install-recommends curl wget && rm -rf /var/lib/apt/lists/*
+RUN set -eux; rm -rf /var/lib/apt/lists/*; apt-get update; apt-get install -y --no-install-recommends wget curl; rm -rf /var/lib/apt/lists/*;
+#RUN rm -rf /var/lib/apt/lists/*
+#RUN apt-get update -y
+#RUN apt-get install -y curl
+#RUN apt-get install -y wget
 
 #Install helm
 RUN wget -O helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
