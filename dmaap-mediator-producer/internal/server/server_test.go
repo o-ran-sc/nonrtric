@@ -21,12 +21,18 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
+	"oransc.org/nonrtric/dmaapmediatorproducer/mocks"
 )
 
 func TestStatusHandler(t *testing.T) {
@@ -60,12 +66,12 @@ func TestStatusHandler(t *testing.T) {
 			wantedBody:   "404 not found.\n",
 		},
 		{
-			name: "StatusHandler with incorrect method, should return NotFound",
+			name: "StatusHandler with incorrect method, should return MethodNotAllowed",
 			args: args{
 				responseRecorder: httptest.NewRecorder(),
 				r:                newRequest("PUT", "/", nil, t),
 			},
-			wantedStatus: http.StatusNotFound,
+			wantedStatus: http.StatusMethodNotAllowed,
 			wantedBody:   "Method is not supported.\n",
 		},
 	}
@@ -80,7 +86,89 @@ func TestStatusHandler(t *testing.T) {
 	}
 }
 
-func newRequest(method string, url string, body io.Reader, t *testing.T) *http.Request {
+func TestCreateInfoJobHandler(t *testing.T) {
+	assertions := require.New(t)
+	jobHandlerMock := mocks.JobHandler{}
+
+	goodJobInfo := jobs.JobInfo{
+		Owner:            "owner",
+		LastUpdated:      "now",
+		InfoJobIdentity:  "jobId",
+		TargetUri:        "target",
+		InfoJobData:      "{}",
+		InfoTypeIdentity: "type",
+	}
+	badJobInfo := jobs.JobInfo{
+		Owner: "bad",
+	}
+	jobHandlerMock.On("AddJob", goodJobInfo).Return(nil)
+	jobHandlerMock.On("AddJob", badJobInfo).Return(errors.New("error"))
+	jobs.Handler = &jobHandlerMock
+
+	type args struct {
+		responseRecorder *httptest.ResponseRecorder
+		r                *http.Request
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantedStatus int
+		wantedBody   string
+	}{
+		{
+			name: "CreateInfoJobHandler with correct path and method, should return OK",
+			args: args{
+				responseRecorder: httptest.NewRecorder(),
+				r:                newRequest("POST", "/producer_simulator/info_job", &goodJobInfo, t),
+			},
+			wantedStatus: http.StatusOK,
+			wantedBody:   "",
+		},
+		{
+			name: "CreateInfoJobHandler with incorrect job info, should return BadRequest",
+			args: args{
+				responseRecorder: httptest.NewRecorder(),
+				r:                newRequest("POST", "/producer_simulator/info_job", &badJobInfo, t),
+			},
+			wantedStatus: http.StatusBadRequest,
+			wantedBody:   "Invalid job info. Cause: error\n",
+		},
+		{
+			name: "CreateInfoJobHandler with incorrect path, should return NotFound",
+			args: args{
+				responseRecorder: httptest.NewRecorder(),
+				r:                newRequest("GET", "/wrong", nil, t),
+			},
+			wantedStatus: http.StatusNotFound,
+			wantedBody:   "404 not found.\n",
+		},
+		{
+			name: "CreateInfoJobHandler with incorrect method, should return MethodNotAllowed",
+			args: args{
+				responseRecorder: httptest.NewRecorder(),
+				r:                newRequest("PUT", "/producer_simulator/info_job", nil, t),
+			},
+			wantedStatus: http.StatusMethodNotAllowed,
+			wantedBody:   "Method is not supported.\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handler := http.HandlerFunc(CreateInfoJobHandler)
+			handler.ServeHTTP(tt.args.responseRecorder, tt.args.r)
+			assertions.Equal(tt.wantedStatus, tt.args.responseRecorder.Code)
+
+			assertions.Equal(tt.wantedBody, tt.args.responseRecorder.Body.String())
+		})
+	}
+}
+
+func newRequest(method string, url string, jobInfo *jobs.JobInfo, t *testing.T) *http.Request {
+	var body io.Reader
+	if jobInfo != nil {
+		bodyAsBytes, _ := json.Marshal(jobInfo)
+		body = ioutil.NopCloser(bytes.NewReader(bodyAsBytes))
+	}
 	if req, err := http.NewRequest(method, url, body); err == nil {
 		return req
 	} else {
