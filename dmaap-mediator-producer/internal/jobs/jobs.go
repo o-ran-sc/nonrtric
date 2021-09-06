@@ -18,7 +18,7 @@
 //   ========================LICENSE_END===================================
 //
 
-package jobtypes
+package jobs
 
 import (
 	"os"
@@ -31,8 +31,45 @@ type Type struct {
 	Schema string
 }
 
-var typeDir = "configs"
-var supportedTypes = make([]string, 0)
+type JobInfo struct {
+	Owner            string `json:"owner"`
+	LastUpdated      string `json:"last_updated"`
+	InfoJobIdentity  string `json:"info_job_identity"`
+	TargetUri        string `json:"target_uri"`
+	InfoJobData      string `json:"info_job_data"`
+	InfoTypeIdentity string `json:"info_type_identity"`
+}
+
+type JobHandler interface {
+	AddJob(JobInfo) error
+}
+
+var (
+	typeDir = "configs"
+	Handler JobHandler
+	allJobs = make(map[string]map[string]JobInfo)
+)
+
+func init() {
+	Handler = newJobHandlerImpl()
+}
+
+type jobHandlerImpl struct{}
+
+func newJobHandlerImpl() *jobHandlerImpl {
+	return &jobHandlerImpl{}
+}
+
+func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
+	if jobs, ok := allJobs[ji.InfoTypeIdentity]; ok {
+		if _, ok := jobs[ji.InfoJobIdentity]; ok {
+			// TODO: Update job
+		} else {
+			jobs[ji.InfoJobIdentity] = ji
+		}
+	}
+	return nil
+}
 
 func GetTypes() ([]*Type, error) {
 	types := make([]*Type, 0, 1)
@@ -55,7 +92,15 @@ func GetTypes() ([]*Type, error) {
 }
 
 func GetSupportedTypes() []string {
+	supportedTypes := []string{}
+	for k := range allJobs {
+		supportedTypes = append(supportedTypes, k)
+	}
 	return supportedTypes
+}
+
+func AddJob(job JobInfo) error {
+	return Handler.AddJob(job)
 }
 
 func getType(path string) (*Type, error) {
@@ -67,7 +112,9 @@ func getType(path string) (*Type, error) {
 			TypeId: typeName,
 			Schema: string(typeSchema),
 		}
-		supportedTypes = append(supportedTypes, typeName)
+		if _, ok := allJobs[typeName]; !ok {
+			allJobs[typeName] = make(map[string]JobInfo)
+		}
 		return &typeInfo, nil
 	} else {
 		return nil, err

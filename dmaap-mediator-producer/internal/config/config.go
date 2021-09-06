@@ -22,14 +22,17 @@ package config
 
 import (
 	"os"
+	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Config struct {
 	LogLevel                            string
 	InfoProducerSupervisionCallbackHost string
-	InfoProducerSupervisionCallbackPort string
+	InfoProducerSupervisionCallbackPort int
 	InfoJobCallbackHost                 string
-	InfoJobCallbackPort                 string
+	InfoJobCallbackPort                 int
 	InfoCoordinatorAddress              string
 }
 
@@ -43,9 +46,9 @@ func New() *Config {
 	return &Config{
 		LogLevel:                            getEnv("LOG_LEVEL", "Info"),
 		InfoProducerSupervisionCallbackHost: getEnv("INFO_PRODUCER_SUPERVISION_CALLBACK_HOST", ""),
-		InfoProducerSupervisionCallbackPort: getEnv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "8085"),
+		InfoProducerSupervisionCallbackPort: getEnvAsInt("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", 8085),
 		InfoJobCallbackHost:                 getEnv("INFO_JOB_CALLBACK_HOST", ""),
-		InfoJobCallbackPort:                 getEnv("INFO_JOB_CALLBACK_PORT", "8086"),
+		InfoJobCallbackPort:                 getEnvAsInt("INFO_JOB_CALLBACK_PORT", 8086),
 		InfoCoordinatorAddress:              getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
 	}
 }
@@ -53,6 +56,17 @@ func New() *Config {
 func getEnv(key string, defaultVal string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
+	}
+
+	return defaultVal
+}
+
+func getEnvAsInt(name string, defaultVal int) int {
+	valueStr := getEnv(name, "")
+	if value, err := strconv.Atoi(valueStr); err == nil {
+		return value
+	} else if valueStr != "" {
+		log.Warnf("Invalid int value: %v for variable: %v. Default value: %v will be used", valueStr, name, defaultVal)
 	}
 
 	return defaultVal

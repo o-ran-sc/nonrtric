@@ -21,25 +21,29 @@
 package config
 
 import (
+	"bytes"
 	"os"
 	"reflect"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "Debug")
 	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_HOST", "supervisionCallbackHost")
-	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "supervisionCallbackPort")
+	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "8095")
 	os.Setenv("INFO_JOB_CALLBACK_HOST", "jobCallbackHost")
-	os.Setenv("INFO_JOB_CALLBACK_PORT", "jobCallbackPort")
+	os.Setenv("INFO_JOB_CALLBACK_PORT", "8096")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
 	defer os.Clearenv()
 	wantConfig := Config{
 		LogLevel:                            "Debug",
 		InfoProducerSupervisionCallbackHost: "supervisionCallbackHost",
-		InfoProducerSupervisionCallbackPort: "supervisionCallbackPort",
+		InfoProducerSupervisionCallbackPort: 8095,
 		InfoJobCallbackHost:                 "jobCallbackHost",
-		InfoJobCallbackPort:                 "jobCallbackPort",
+		InfoJobCallbackPort:                 8096,
 		InfoCoordinatorAddress:              "infoCoordAddr",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
@@ -47,13 +51,40 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	}
 }
 
-func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
+func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T) {
+	os.Clearenv()
+	assertions := require.New(t)
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+
+	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "wrong")
+	defer os.Clearenv()
 	wantConfig := Config{
 		LogLevel:                            "Info",
 		InfoProducerSupervisionCallbackHost: "",
-		InfoProducerSupervisionCallbackPort: "8085",
+		InfoProducerSupervisionCallbackPort: 8085,
 		InfoJobCallbackHost:                 "",
-		InfoJobCallbackPort:                 "8086",
+		InfoJobCallbackPort:                 8086,
+		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
+	}
+	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
+		t.Errorf("New() = %v, want %v", got, &wantConfig)
+	}
+	logString := buf.String()
+	assertions.Contains(logString, "Invalid int value: wrong for variable: INFO_PRODUCER_SUPERVISION_CALLBACK_PORT. Default value: 8085 will be used")
+}
+
+func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
+	os.Clearenv()
+	wantConfig := Config{
+		LogLevel:                            "Info",
+		InfoProducerSupervisionCallbackHost: "",
+		InfoProducerSupervisionCallbackPort: 8085,
+		InfoJobCallbackHost:                 "",
+		InfoJobCallbackPort:                 8086,
 		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {

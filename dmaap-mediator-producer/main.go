@@ -22,11 +22,11 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
-	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobtypes"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/server"
 )
 
@@ -54,7 +54,7 @@ func init() {
 	jobInfoCallbackAddress = fmt.Sprintf("%v:%v", configuration.InfoJobCallbackHost, configuration.InfoJobCallbackPort)
 
 	registrator := config.NewRegistratorImpl(configuration.InfoCoordinatorAddress)
-	if types, err := jobtypes.GetTypes(); err == nil {
+	if types, err := jobs.GetTypes(); err == nil {
 		if regErr := registrator.RegisterTypes(types); regErr != nil {
 			log.Fatalf("Unable to register all types due to: %v", regErr)
 		}
@@ -63,7 +63,7 @@ func init() {
 	}
 	producer := config.ProducerRegistrationInfo{
 		InfoProducerSupervisionCallbackUrl: supervisionCallbackAddress,
-		SupportedInfoTypes:                 jobtypes.GetSupportedTypes(),
+		SupportedInfoTypes:                 jobs.GetSupportedTypes(),
 		InfoJobCallbackUrl:                 jobInfoCallbackAddress,
 	}
 	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
@@ -73,11 +73,25 @@ func init() {
 
 func main() {
 	log.Debug("Starting DMaaP Mediator Producer")
-	log.Debugf("Starting status callback server at port %v", configuration.InfoProducerSupervisionCallbackPort)
-	http.HandleFunc("/", server.StatusHandler)
+	wg := new(sync.WaitGroup)
 
-	if err := http.ListenAndServe(":"+configuration.InfoProducerSupervisionCallbackPort, nil); err != nil {
-		log.Fatal(err)
-	}
+	// add two goroutines to `wg` WaitGroup, one for each avilable server
+	wg.Add(2)
+
+	log.Debugf("Starting status callback server at port %v", configuration.InfoProducerSupervisionCallbackPort)
+	go func() {
+		server := server.CreateServer(configuration.InfoProducerSupervisionCallbackPort, server.StatusHandler)
+		log.Warn(server.ListenAndServe())
+		wg.Done()
+	}()
+
+	go func() {
+		server := server.CreateServer(configuration.InfoJobCallbackPort, server.CreateInfoJobHandler)
+		log.Warn(server.ListenAndServe())
+		wg.Done()
+	}()
+
+	// wait until WaitGroup is done
+	wg.Wait()
 	log.Debug("Stopping DMaaP Mediator Producer")
 }

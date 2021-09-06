@@ -27,7 +27,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobtypes"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
 
@@ -35,7 +35,7 @@ const registerTypePath = "/data-producer/v1/info-types/"
 const registerProducerPath = "/data-producer/v1/info-producers/"
 
 type Registrator interface {
-	RegisterTypes(types []*jobtypes.Type) error
+	RegisterTypes(types []*jobs.Type) error
 	RegisterProducer(producerId string, producerInfo *ProducerRegistrationInfo)
 }
 
@@ -49,7 +49,7 @@ func NewRegistratorImpl(infoCoordAddr string) *RegistratorImpl {
 	}
 }
 
-func (r RegistratorImpl) RegisterTypes(jobTypes []*jobtypes.Type) error {
+func (r RegistratorImpl) RegisterTypes(jobTypes []*jobs.Type) error {
 	for _, jobType := range jobTypes {
 		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, jobType.Schema)
 		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.TypeId), []byte(body)); error != nil {

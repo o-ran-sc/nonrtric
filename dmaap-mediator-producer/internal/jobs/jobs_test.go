@@ -18,7 +18,7 @@
 //   ========================LICENSE_END===================================
 //
 
-package jobtypes
+package jobs
 
 import (
 	"os"
@@ -53,4 +53,21 @@ func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *tes
 
 	supportedTypes := GetSupportedTypes()
 	assertions.EqualValues([]string{"type1"}, supportedTypes)
+}
+
+func TestAddJob_shouldAddJobToAllJobsMap(t *testing.T) {
+	assertions := require.New(t)
+	allJobs["type1"] = make(map[string]JobInfo)
+	jobInfo := JobInfo{
+		Owner:            "owner",
+		LastUpdated:      "now",
+		InfoJobIdentity:  "job1",
+		TargetUri:        "target",
+		InfoJobData:      "{}",
+		InfoTypeIdentity: "type1",
+	}
+
+	err := AddJob(jobInfo)
+	assertions.Nil(err)
+	assertions.Equal(1, len(allJobs["type1"]))
 }
