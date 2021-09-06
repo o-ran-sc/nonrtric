@@ -19,15 +19,21 @@ FROM openjdk:11-jre-slim
 
 ARG JAR
 
-#Install curl and wget
-RUN apt-get update && apt-get install -y --no-install-recommends curl wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y apt-transport-https
 
-#Install helm
+# Install curl and wget
+# starting with apt update and removing cache at the end are best practices
+RUN apt-get install -y --no-install-recommends \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install helm
 RUN wget -O helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
 RUN tar -zxvf helm.tar.gz
 RUN mv linux-amd64/helm /usr/local/bin/helm
 
-#Install kubectl and configure
+# Install kubectl and configure
 RUN curl -LO https://dl.k8s.io/release/v1.20.2/bin/linux/amd64/kubectl
 
 RUN chmod +x ./kubectl
