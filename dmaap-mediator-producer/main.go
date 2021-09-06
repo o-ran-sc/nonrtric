@@ -21,14 +21,18 @@
 package main
 
 import (
-	"time"
+	"fmt"
+	"net/http"
 
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobtypes"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/server"
 )
 
 var configuration *config.Config
+var supervisionCallbackAddress string
+var jobInfoCallbackAddress string
 
 func init() {
 	configuration = config.New()
@@ -39,12 +43,15 @@ func init() {
 	}
 
 	log.Debug("Initializing DMaaP Mediator Producer")
-	if configuration.InfoJobCallbackUrl == "" {
-		log.Fatal("Missing INFO_JOB_CALLBACK_URL")
+	if configuration.InfoProducerSupervisionCallbackHost == "" {
+		log.Fatal("Missing INFO_PRODUCER_SUPERVISION_CALLBACK_HOST")
 	}
-	if configuration.InfoProducerSupervisionCallbackUrl == "" {
-		log.Fatal("Missing INFO_PRODUCER_SUPERVISION_CALLBACK_URL")
+	supervisionCallbackAddress = fmt.Sprintf("%v:%v", configuration.InfoProducerSupervisionCallbackHost, configuration.InfoProducerSupervisionCallbackPort)
+
+	if configuration.InfoJobCallbackHost == "" {
+		log.Fatal("Missing INFO_JOB_CALLBACK_HOST")
 	}
+	jobInfoCallbackAddress = fmt.Sprintf("%v:%v", configuration.InfoJobCallbackHost, configuration.InfoJobCallbackPort)
 
 	registrator := config.NewRegistratorImpl(configuration.InfoCoordinatorAddress)
 	if types, err := jobtypes.GetTypes(); err == nil {
@@ -55,9 +62,9 @@ func init() {
 		log.Fatalf("Unable to get types to register due to: %v", err)
 	}
 	producer := config.ProducerRegistrationInfo{
-		InfoProducerSupervisionCallbackUrl: configuration.InfoProducerSupervisionCallbackUrl,
+		InfoProducerSupervisionCallbackUrl: supervisionCallbackAddress,
 		SupportedInfoTypes:                 jobtypes.GetSupportedTypes(),
-		InfoJobCallbackUrl:                 configuration.InfoJobCallbackUrl,
+		InfoJobCallbackUrl:                 jobInfoCallbackAddress,
 	}
 	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
 		log.Fatalf("Unable to register producer due to: %v", err)
@@ -66,5 +73,11 @@ func init() {
 
 func main() {
 	log.Debug("Starting DMaaP Mediator Producer")
-	time.Sleep(1000 * time.Millisecond)
+	log.Debugf("Starting status callback server at port %v", configuration.InfoProducerSupervisionCallbackPort)
+	http.HandleFunc("/", server.StatusHandler)
+
+	if err := http.ListenAndServe(":"+configuration.InfoProducerSupervisionCallbackPort, nil); err != nil {
+		log.Fatal(err)
+	}
+	log.Debug("Stopping DMaaP Mediator Producer")
 }
