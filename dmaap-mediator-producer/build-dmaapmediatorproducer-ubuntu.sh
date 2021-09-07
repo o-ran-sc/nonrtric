@@ -24,13 +24,14 @@ curdir=`pwd`
 # ubuntu minion path lacks go
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 
+cd dmaap-mediator-producer
+
 # install the go coverage tool helper
 go get -v github.com/ory/go-acc
 
 export GO111MODULE=on
 go get github.com/stretchr/testify/mock@v1.7.0
 
-cd dmaap-mediator-producer
 go-acc ./... --ignore mocks
 
 cp coverage.txt $curdir
