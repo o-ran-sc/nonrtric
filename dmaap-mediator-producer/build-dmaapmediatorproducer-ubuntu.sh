@@ -30,6 +30,8 @@ go get -v github.com/ory/go-acc
 export GO111MODULE=on
 go get github.com/stretchr/testify/mock@v1.7.0
 
+cd dmaap-mediator-producer
 go-acc ./... --ignore mocks
 
+cp coverage.txt $curdir
 echo "--> build-dmaapmediatorproducer-ubuntu.sh ends"
