@@ -94,6 +94,7 @@ func isResponseSuccess(statusCode int) bool {
 }
 
 func getRequestError(response *http.Response) RequestError {
+	defer response.Body.Close()
 	responseData, _ := io.ReadAll(response.Body)
 	putError := RequestError{
 		StatusCode: response.StatusCode,

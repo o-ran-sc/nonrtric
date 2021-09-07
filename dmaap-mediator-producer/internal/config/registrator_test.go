@@ -27,7 +27,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobtypes"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 	"oransc.org/nonrtric/dmaapmediatorproducer/mocks"
 )
@@ -43,11 +43,11 @@ func TestRegisterTypes(t *testing.T) {
 
 	restclient.Client = &clientMock
 
-	type1 := jobtypes.Type{
+	type1 := jobs.Type{
 		TypeId: "Type1",
 		Schema: `{"title": "Type 1"}`,
 	}
-	types := []*jobtypes.Type{&type1}
+	types := []*jobs.Type{&type1}
 
 	r := NewRegistratorImpl("http://localhost:9990")
 	err := r.RegisterTypes(types)

@@ -37,7 +37,9 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("INFO_JOB_CALLBACK_HOST", "jobCallbackHost")
 	os.Setenv("INFO_JOB_CALLBACK_PORT", "8096")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
-	defer os.Clearenv()
+	t.Cleanup(func() {
+		os.Clearenv()
+	})
 	wantConfig := Config{
 		LogLevel:                            "Debug",
 		InfoProducerSupervisionCallbackHost: "supervisionCallbackHost",
@@ -52,16 +54,15 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 }
 
 func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T) {
-	os.Clearenv()
 	assertions := require.New(t)
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
-	defer func() {
-		log.SetOutput(os.Stderr)
-	}()
 
 	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "wrong")
-	defer os.Clearenv()
+	t.Cleanup(func() {
+		log.SetOutput(os.Stderr)
+		os.Clearenv()
+	})
 	wantConfig := Config{
 		LogLevel:                            "Info",
 		InfoProducerSupervisionCallbackHost: "",
@@ -78,7 +79,6 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 }
 
 func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
-	os.Clearenv()
 	wantConfig := Config{
 		LogLevel:                            "Info",
 		InfoProducerSupervisionCallbackHost: "",

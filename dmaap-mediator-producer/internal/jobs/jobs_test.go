@@ -36,7 +36,10 @@ func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *tes
 	if err != nil {
 		t.Errorf("Unable to create temporary directory for types due to: %v", err)
 	}
-	defer os.RemoveAll(typesDir)
+	t.Cleanup(func() {
+		os.RemoveAll(typesDir)
+		clearAll()
+	})
 	typeDir = typesDir
 	fname := filepath.Join(typesDir, "type1.json")
 	if err = os.WriteFile(fname, []byte(type1Schema), 0666); err != nil {
@@ -55,9 +58,12 @@ func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *tes
 	assertions.EqualValues([]string{"type1"}, supportedTypes)
 }
 
-func TestAddJob_shouldAddJobToAllJobsMap(t *testing.T) {
+func TestAddJobWhenTypeIsSupported_shouldAddJobToAllJobsMap(t *testing.T) {
 	assertions := require.New(t)
 	allJobs["type1"] = make(map[string]JobInfo)
+	t.Cleanup(func() {
+		clearAll()
+	})
 	jobInfo := JobInfo{
 		Owner:            "owner",
 		LastUpdated:      "now",
@@ -70,4 +76,45 @@ func TestAddJob_shouldAddJobToAllJobsMap(t *testing.T) {
 	err := AddJob(jobInfo)
 	assertions.Nil(err)
 	assertions.Equal(1, len(allJobs["type1"]))
+	assertions.Equal(jobInfo, allJobs["type1"]["job1"])
+}
+
+func TestAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T) {
+	assertions := require.New(t)
+	jobInfo := JobInfo{
+		InfoTypeIdentity: "type1",
+	}
+
+	err := AddJob(jobInfo)
+	assertions.NotNil(err)
+	assertions.Equal("type not supported: type1", err.Error())
+}
+
+func TestAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
+	assertions := require.New(t)
+	allJobs["type1"] = make(map[string]JobInfo)
+	t.Cleanup(func() {
+		clearAll()
+	})
+	jobInfo := JobInfo{
+		InfoTypeIdentity: "type1",
+	}
+
+	err := AddJob(jobInfo)
+	assertions.NotNil(err)
+	assertions.Equal("missing required job identity: {     type1}", err.Error())
+}
+
+func TestAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
+	assertions := require.New(t)
+	allJobs["type1"] = make(map[string]JobInfo)
+	jobInfo := JobInfo{
+		InfoTypeIdentity: "type1",
+		InfoJobIdentity:  "job1",
+	}
+
+	err := AddJob(jobInfo)
+	assertions.NotNil(err)
+	assertions.Equal("missing required target URI: {  job1   type1}", err.Error())
+	clearAll()
 }

@@ -21,6 +21,7 @@
 package jobs
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,12 +62,25 @@ func newJobHandlerImpl() *jobHandlerImpl {
 }
 
 func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
-	if jobs, ok := allJobs[ji.InfoTypeIdentity]; ok {
-		if _, ok := jobs[ji.InfoJobIdentity]; ok {
-			// TODO: Update job
-		} else {
-			jobs[ji.InfoJobIdentity] = ji
-		}
+	if err := validateJobInfo(ji); err == nil {
+		jobs := allJobs[ji.InfoTypeIdentity]
+		jobs[ji.InfoJobIdentity] = ji
+		return nil
+	} else {
+		return err
+	}
+}
+
+func validateJobInfo(ji JobInfo) error {
+	if _, ok := allJobs[ji.InfoTypeIdentity]; !ok {
+		return fmt.Errorf("type not supported: %v", ji.InfoTypeIdentity)
+	}
+	if ji.InfoJobIdentity == "" {
+		return fmt.Errorf("missing required job identity: %v", ji)
+	}
+	// Temporary for when there are only REST callbacks needed
+	if ji.TargetUri == "" {
+		return fmt.Errorf("missing required target URI: %v", ji)
 	}
 	return nil
 }
@@ -119,4 +133,8 @@ func getType(path string) (*Type, error) {
 	} else {
 		return nil, err
 	}
+}
+
+func clearAll() {
+	allJobs = make(map[string]map[string]JobInfo)
 }
