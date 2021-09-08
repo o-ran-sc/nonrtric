@@ -22,7 +22,7 @@ networks:
 
 services:
   r-app:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-r-app-catalogue:1.1.0
+    image: "${RAPP_IMAGE_BASE}:${RAPP_IMAGE_TAG}"
     container_name: r-app
     networks:
       default:
