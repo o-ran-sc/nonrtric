@@ -22,7 +22,7 @@ networks:
 
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.3.0
+    image: "${PMS_IMAGE_BASE}:${PMS_IMAGE_TAG}"
     container_name: policy-agent
     networks:
       default:

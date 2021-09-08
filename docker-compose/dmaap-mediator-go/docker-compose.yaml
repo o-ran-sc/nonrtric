@@ -22,7 +22,7 @@ networks:
 
 services:
   dmaap-mediator-go:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-dmaap-mediator-producer:1.0.0
+    image: "${DMAAP_MEDIATOR_GO_BASE}:${DMAAP_MEDIATOR_GO_TAG}"
     container_name: dmaap-mediator-go
     environment:
       - INFO_PRODUCER_HOST=http://consumer
