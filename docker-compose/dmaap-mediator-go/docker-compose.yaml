@@ -22,18 +22,15 @@ networks:
 
 services:
   dmaap-mediator-go:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-dmaap-mediator-producer:1.0.0
+    image: "${DMAAP_MEDIATOR_GO_BASE}:${DMAAP_MEDIATOR_GO_TAG}"
     container_name: dmaap-mediator-go
     environment:
       - INFO_PRODUCER_HOST=http://consumer
-      - LOG_LEVEL=Debug
       - INFO_PRODUCER_PORT=8088
       - INFO_COORD_ADDR=http://ecs:8083
-      - MR_HOST=http://dmaap-mr
-      - MR_PORT=3904
-      - INFO_PRODUCER_SUPERVISION_CALLBACK_HOST=http://consumer
-      - INFO_PRODUCER_SUPERVISION_CALLBACK_PORT=8088
-      - INFO_JOB_CALLBACK_HOST=http://consumer
-      - INFO_JOB_CALLBACK_PORT=8088
+      - DMAAP_MR_ADDR=http://dmaap-mr:3904
+      - PRODUCER_CERT_PATH=security/producer.crt
+      - PRODUCER_KEY_PATH=security/producer.key
+      - LOG_LEVEL=Debug
     networks:
       - default
