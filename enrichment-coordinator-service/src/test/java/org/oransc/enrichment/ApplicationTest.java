@@ -765,6 +765,7 @@ class ApplicationTest {
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         ProducerInfoTypeInfo info = gson.fromJson(resp.getBody(), ProducerInfoTypeInfo.class);
         assertThat(info.jobDataSchema).isNotNull();
+        assertThat(info.typeSpecificInformation).isNotNull();
     }
 
     @Test
@@ -1050,7 +1051,7 @@ class ApplicationTest {
 
     ProducerInfoTypeInfo producerEiTypeRegistrationInfo(String typeId)
         throws JsonMappingException, JsonProcessingException {
-        return new ProducerInfoTypeInfo(jsonSchemaObject());
+        return new ProducerInfoTypeInfo(jsonSchemaObject(), typeSpecifcInfoObject());
     }
 
     ProducerRegistrationInfo producerEiRegistratioInfoRejecting(String typeId)
@@ -1091,6 +1092,10 @@ class ApplicationTest {
         } catch (Exception e) {
             throw new NullPointerException(e.toString());
         }
+    }
+
+    private Object typeSpecifcInfoObject() {
+        return jsonObject("{ \"propertyName\" : \"value\" }");
     }
 
     private Object jsonSchemaObject() {

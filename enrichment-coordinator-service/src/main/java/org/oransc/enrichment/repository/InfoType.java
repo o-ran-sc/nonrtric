@@ -29,9 +29,13 @@ public class InfoType {
     @Getter
     private final Object jobDataSchema;
 
-    public InfoType(String id, Object jobDataSchema) {
+    @Getter
+    private final Object typeSpecificInfo;
+
+    public InfoType(String id, Object jobDataSchema, Object typeSpecificInfo) {
         this.id = id;
         this.jobDataSchema = jobDataSchema;
+        this.typeSpecificInfo = typeSpecificInfo;
     }
 
 }

@@ -149,7 +149,8 @@ public class ProducerController {
         if (registrationInfo.jobDataSchema == null) {
             return ErrorResponse.create("No schema provided", HttpStatus.BAD_REQUEST);
         }
-        InfoType newDefinition = new InfoType(infoTypeId, registrationInfo.jobDataSchema);
+        InfoType newDefinition =
+            new InfoType(infoTypeId, registrationInfo.jobDataSchema, registrationInfo.typeSpecificInformation);
         this.infoTypes.put(newDefinition);
         this.typeSubscriptions.notifyTypeRegistered(newDefinition);
         return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
@@ -394,7 +395,7 @@ public class ProducerController {
     }
 
     private ProducerInfoTypeInfo toInfoTypeInfo(InfoType t) {
-        return new ProducerInfoTypeInfo(t.getJobDataSchema());
+        return new ProducerInfoTypeInfo(t.getJobDataSchema(), t.getTypeSpecificInfo());
     }
 
     private InfoProducers.InfoProducerRegistrationInfo toProducerRegistrationInfo(String infoProducerId,

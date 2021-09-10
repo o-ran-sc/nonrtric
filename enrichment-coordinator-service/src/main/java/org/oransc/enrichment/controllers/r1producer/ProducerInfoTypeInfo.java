@@ -36,8 +36,17 @@ public class ProducerInfoTypeInfo {
     @JsonProperty(value = "info_job_data_schema", required = true)
     public Object jobDataSchema;
 
-    public ProducerInfoTypeInfo(Object jobDataSchema) {
+    @Schema(
+        name = "info_type_information",
+        description = "Type specific information for the information type",
+        required = true)
+    @SerializedName("info_type_information")
+    @JsonProperty(value = "info_type_information", required = true)
+    public Object typeSpecificInformation;
+
+    public ProducerInfoTypeInfo(Object jobDataSchema, Object typeSpecificInformation) {
         this.jobDataSchema = jobDataSchema;
+        this.typeSpecificInformation = typeSpecificInformation;
     }
 
     public ProducerInfoTypeInfo() {

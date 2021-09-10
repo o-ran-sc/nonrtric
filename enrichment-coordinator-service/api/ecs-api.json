@@ -207,11 +207,20 @@
         "producer_info_type_info": {
             "description": "Information for an Information Type",
             "type": "object",
-            "required": ["info_job_data_schema"],
-            "properties": {"info_job_data_schema": {
-                "description": "Json schema for the job data",
-                "type": "object"
-            }}
+            "required": [
+                "info_job_data_schema",
+                "info_type_information"
+            ],
+            "properties": {
+                "info_type_information": {
+                    "description": "Type specific information for the information type",
+                    "type": "object"
+                },
+                "info_job_data_schema": {
+                    "description": "Json schema for the job data",
+                    "type": "object"
+                }
+            }
         },
         "producer_info_job_request": {
             "description": "The body of the Information Producer callbacks for Information Job creation and deletion",
