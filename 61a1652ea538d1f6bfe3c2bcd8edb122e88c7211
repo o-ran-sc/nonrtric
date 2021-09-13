@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "61a1652ea538d1f6bfe3c2bcd8edb122e88c7211",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff3d7373_14b815e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-09-13T14:12:39Z",
+      "side": 1,
+      "message": "It looks like this patchset partially fixes the issue, but it is still not stable. ",
+      "revId": "61a1652ea538d1f6bfe3c2bcd8edb122e88c7211",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
