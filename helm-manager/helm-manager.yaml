@@ -49,7 +49,7 @@ spec:
   serviceAccountName: helm-manager-sa
   containers:
   - name: helmmanagerservice
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-helm-manager:1.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-helm-manager:1.1.0-SNAPSHOT
     imagePullPolicy: Always
     ports:
     - name: http

@@ -31,4 +31,4 @@ docker run \
     -v ~/.cache/helm:/root/.cache/helm \
     -v $(pwd)/config/KubernetesParticipantConfig.json:/opt/app/helm-manager/src/main/resources/config/KubernetesParticipantConfig.json \
     -v $(pwd)/config/application.yaml:/opt/app/helm-manager/src/main/resources/config/application.yaml \
-    nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-helm-manager:1.0.0-SNAPSHOT
+    nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-helm-manager:1.1.0-SNAPSHOT
