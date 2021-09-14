@@ -15,20 +15,26 @@
 #  ============LICENSE_END=================================================
 #
 
+FROM curlimages/curl:7.78.0 AS build
+
+#Get helm
+RUN curl -Lo /tmp/helm.tar.gz  https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
+
+#Get kubectl
+RUN curl -Lo /tmp/kubectl  https://dl.k8s.io/release/v1.20.2/bin/linux/amd64/kubectl
+
+
 FROM openjdk:11-jre-slim
 
-ARG JAR
-
-#Install curl and wget
-RUN apt-get update && apt-get install -y --no-install-recommends curl wget && rm -rf /var/lib/apt/lists/*
-
 #Install helm
-RUN wget -O helm.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
+COPY --from=build /tmp/helm.tar.gz .
+
 RUN tar -zxvf helm.tar.gz
+
 RUN mv linux-amd64/helm /usr/local/bin/helm
 
-#Install kubectl and configure
-RUN curl -LO https://dl.k8s.io/release/v1.20.2/bin/linux/amd64/kubectl
+#Install kubectl
+COPY --from=build /tmp/kubectl .
 
 RUN chmod +x ./kubectl
 
