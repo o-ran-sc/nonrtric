@@ -27,11 +27,12 @@ import (
 )
 
 type Type struct {
-	Name   string
+	TypeId string
 	Schema string
 }
 
 var typeDir = "configs"
+var supportedTypes = make([]string, 0)
 
 func GetTypes() ([]*Type, error) {
 	types := make([]*Type, 0, 1)
@@ -53,15 +54,21 @@ func GetTypes() ([]*Type, error) {
 	return types, nil
 }
 
+func GetSupportedTypes() []string {
+	return supportedTypes
+}
+
 func getType(path string) (*Type, error) {
 	fileName := filepath.Base(path)
 	typeName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
 
 	if typeSchema, err := os.ReadFile(path); err == nil {
-		return &Type{
-			Name:   typeName,
+		typeInfo := Type{
+			TypeId: typeName,
 			Schema: string(typeSchema),
-		}, nil
+		}
+		supportedTypes = append(supportedTypes, typeName)
+		return &typeInfo, nil
 	} else {
 		return nil, err
 	}

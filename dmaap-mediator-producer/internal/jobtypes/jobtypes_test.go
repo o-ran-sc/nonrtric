@@ -30,7 +30,7 @@ import (
 
 const type1Schema = `{"title": "Type 1"}`
 
-func TestGetTypes_filesOkShouldReturnSliceOfTypes(t *testing.T) {
+func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *testing.T) {
 	assertions := require.New(t)
 	typesDir, err := os.MkdirTemp("", "configs")
 	if err != nil {
@@ -44,10 +44,13 @@ func TestGetTypes_filesOkShouldReturnSliceOfTypes(t *testing.T) {
 	}
 	types, err := GetTypes()
 	wantedType := Type{
-		Name:   "type1",
+		TypeId: "type1",
 		Schema: type1Schema,
 	}
 	wantedTypes := []*Type{&wantedType}
 	assertions.EqualValues(wantedTypes, types)
 	assertions.Nil(err)
+
+	supportedTypes := GetSupportedTypes()
+	assertions.EqualValues([]string{"type1"}, supportedTypes)
 }

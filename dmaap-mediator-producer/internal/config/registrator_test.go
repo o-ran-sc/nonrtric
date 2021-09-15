@@ -44,7 +44,7 @@ func TestRegisterTypes(t *testing.T) {
 	restclient.Client = &clientMock
 
 	type1 := jobtypes.Type{
-		Name:   "Type1",
+		TypeId: "Type1",
 		Schema: `{"title": "Type 1"}`,
 	}
 	types := []*jobtypes.Type{&type1}
@@ -65,6 +65,43 @@ func TestRegisterTypes(t *testing.T) {
 	assertions.Equal("application/json; charset=utf-8", actualRequest.Header.Get("Content-Type"))
 	body, _ := ioutil.ReadAll(actualRequest.Body)
 	expectedBody := []byte(`{"info_job_data_schema": {"title": "Type 1"}}`)
+	assertions.Equal(expectedBody, body)
+	clientMock.AssertNumberOfCalls(t, "Do", 1)
+}
+
+func TestRegisterProducer(t *testing.T) {
+	assertions := require.New(t)
+
+	clientMock := mocks.HTTPClient{}
+
+	clientMock.On("Do", mock.Anything).Return(&http.Response{
+		StatusCode: http.StatusCreated,
+	}, nil)
+
+	restclient.Client = &clientMock
+
+	producer := ProducerRegistrationInfo{
+		InfoProducerSupervisionCallbackUrl: "supervisionCallbackUrl",
+		SupportedInfoTypes:                 []string{"type1"},
+		InfoJobCallbackUrl:                 "jobCallbackUrl",
+	}
+
+	r := NewRegistratorImpl("http://localhost:9990")
+	err := r.RegisterProducer("Producer1", &producer)
+
+	assertions.Nil(err)
+	var actualRequest *http.Request
+	clientMock.AssertCalled(t, "Do", mock.MatchedBy(func(req *http.Request) bool {
+		actualRequest = req
+		return true
+	}))
+	assertions.Equal(http.MethodPut, actualRequest.Method)
+	assertions.Equal("http", actualRequest.URL.Scheme)
+	assertions.Equal("localhost:9990", actualRequest.URL.Host)
+	assertions.Equal("/data-producer/v1/info-producers/Producer1", actualRequest.URL.Path)
+	assertions.Equal("application/json; charset=utf-8", actualRequest.Header.Get("Content-Type"))
+	body, _ := ioutil.ReadAll(actualRequest.Body)
+	expectedBody := []byte(`{"info_producer_supervision_callback_url":"supervisionCallbackUrl","supported_info_types":["type1"],"info_job_callback_url":"jobCallbackUrl"}`)
 	assertions.Equal(expectedBody, body)
 	clientMock.AssertNumberOfCalls(t, "Do", 1)
 }
