@@ -126,7 +126,7 @@ public class InfoTypes {
                 out.print(gson.toJson(type));
             }
         } catch (Exception e) {
-            logger.warn("Could not save job: {} {}", type.getId(), e.getMessage());
+            logger.warn("Could not save type: {} {}", type.getId(), e.getMessage());
         }
     }
 

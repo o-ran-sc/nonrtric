@@ -37,6 +37,7 @@
         <module>enrichment-coordinator-service</module>
         <module>r-app-catalogue</module>
         <module>helm-manager</module>
+        <module>dmaap-mediator-java</module>
     </modules>
     <build>
         <plugins>

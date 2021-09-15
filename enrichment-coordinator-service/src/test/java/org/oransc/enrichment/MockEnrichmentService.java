@@ -35,7 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(
     properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
-        "app.webclient.trust-store=./config/truststore.jks"})
+        "app.webclient.trust-store=./config/truststore.jks", "app.vardata-directory=./target"})
 @SuppressWarnings("squid:S3577") // Not containing any tests since it is a mock.
 class MockEnrichmentService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
