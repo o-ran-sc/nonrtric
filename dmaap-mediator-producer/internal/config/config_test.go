@@ -28,15 +28,19 @@ import (
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "Debug")
-	os.Setenv("INFO_JOB_CALLBACK_URL", "jobCallbackUrl")
+	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_HOST", "supervisionCallbackHost")
+	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "supervisionCallbackPort")
+	os.Setenv("INFO_JOB_CALLBACK_HOST", "jobCallbackHost")
+	os.Setenv("INFO_JOB_CALLBACK_PORT", "jobCallbackPort")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
-	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_URL", "supervisionCallbackUrl")
 	defer os.Clearenv()
 	wantConfig := Config{
-		LogLevel:                           "Debug",
-		InfoJobCallbackUrl:                 "jobCallbackUrl",
-		InfoCoordinatorAddress:             "infoCoordAddr",
-		InfoProducerSupervisionCallbackUrl: "supervisionCallbackUrl",
+		LogLevel:                            "Debug",
+		InfoProducerSupervisionCallbackHost: "supervisionCallbackHost",
+		InfoProducerSupervisionCallbackPort: "supervisionCallbackPort",
+		InfoJobCallbackHost:                 "jobCallbackHost",
+		InfoJobCallbackPort:                 "jobCallbackPort",
+		InfoCoordinatorAddress:              "infoCoordAddr",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -45,10 +49,12 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 
 func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
 	wantConfig := Config{
-		LogLevel:                           "Info",
-		InfoJobCallbackUrl:                 "",
-		InfoCoordinatorAddress:             "http://enrichmentservice:8083",
-		InfoProducerSupervisionCallbackUrl: "",
+		LogLevel:                            "Info",
+		InfoProducerSupervisionCallbackHost: "",
+		InfoProducerSupervisionCallbackPort: "8085",
+		InfoJobCallbackHost:                 "",
+		InfoJobCallbackPort:                 "8086",
+		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
