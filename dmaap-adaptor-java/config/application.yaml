@@ -1,0 +1,56 @@
+spring:
+  profiles:
+    active: prod
+  main:
+    allow-bean-definition-overriding: true
+  aop:
+    auto: false
+management:
+  endpoints:
+    web:
+      exposure:
+        # Enabling of springboot actuator features. See springboot documentation.
+        include: "loggers,logfile,health,info,metrics,threaddump,heapdump"
+
+logging:
+  # Configuration of logging
+  level:
+    ROOT: ERROR
+    org.springframework: ERROR
+    org.springframework.data: ERROR
+    org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
+    org.oran.dmaapadapter: INFO
+  file:
+    name: /var/log/dmaap-adaptor-service/application.log
+server:
+   # Configuration of the HTTP/REST server. The parameters are defined and handeled by the springboot framework.
+   # See springboot documentation.
+   port : 8435
+   http-port: 8084
+   ssl:
+      key-store-type: JKS
+      key-store-password: policy_agent
+      key-store: /opt/app/dmaap-adaptor-service/etc/cert/keystore.jks
+      key-password: policy_agent
+      key-alias: policy_agent
+app:
+  webclient:
+    # Configuration of the trust store used for the HTTP client (outgoing requests)
+    # The file location and the password for the truststore is only relevant if trust-store-used == true
+    # Note that the same keystore as for the server is used.
+    trust-store-used: false
+    trust-store-password: policy_agent
+    trust-store: /opt/app/dmaap-adaptor-service/etc/cert/truststore.jks
+    # Configuration of usage of HTTP Proxy for the southbound accesses.
+    # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
+    http.proxy-host:
+    http.proxy-port: 0
+  vardata-directory: /var/dmaap-adaptor-service
+  ecs-base-url: https://localhost:8434
+  # Location of the component configuration file. The file will only be used if the Consul database is not used;
+  # configuration from the Consul will override the file.
+  configuration-filepath: /opt/app/dmaap-adaptor-service/data/application_configuration.json
+  dmaap-base-url: http://dradmin:dradmin@localhost:2222
+  # The url used to adress this component. This is used as a callback url sent to other components. 
+  dmaap-adapter-base-url: https://localhost:8435
+
