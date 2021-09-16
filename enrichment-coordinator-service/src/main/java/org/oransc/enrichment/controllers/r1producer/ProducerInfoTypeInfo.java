@@ -39,9 +39,9 @@ public class ProducerInfoTypeInfo {
     @Schema(
         name = "info_type_information",
         description = "Type specific information for the information type",
-        required = true)
+        required = false)
     @SerializedName("info_type_information")
-    @JsonProperty(value = "info_type_information", required = true)
+    @JsonProperty(value = "info_type_information", required = false)
     public Object typeSpecificInformation;
 
     public ProducerInfoTypeInfo(Object jobDataSchema, Object typeSpecificInformation) {

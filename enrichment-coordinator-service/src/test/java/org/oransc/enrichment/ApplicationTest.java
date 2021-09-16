@@ -38,7 +38,6 @@ import java.util.Arrays;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.enrichment.clients.AsyncRestClient;
@@ -157,7 +156,7 @@ class ApplicationTest {
     @LocalServerPort
     private int port;
 
-    @BeforeEach
+    // @BeforeEach
     void reset() {
         this.infoJobs.clear();
         this.infoTypes.clear();
@@ -923,6 +922,15 @@ class ApplicationTest {
     }
 
     @Test
+    void junk() {
+        int i = this.infoJobs.getJobsForOwner("owner").size();
+        String url = typeSubscriptionUrl() + "?owner=owner";
+        System.out.println("URL " + url);
+        String resp = restClient().get(url).block();
+        System.out.println("RESP " + resp);
+    }
+
+    @Test
     void testConsumerTypeSubscriptionDatabase() {
         final String callbackUrl = baseUrl() + ConsumerSimulatorController.getTypeStatusCallbackUrl();
         final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(callbackUrl, "owner");
@@ -933,6 +941,7 @@ class ApplicationTest {
 
         InfoTypeSubscriptions restoredSubscriptions = new InfoTypeSubscriptions(this.applicationConfig);
         assertThat(restoredSubscriptions.size()).isEqualTo(1);
+        assertThat(restoredSubscriptions.getSubscriptionsForOwner("owner")).hasSize(1);
 
         // Delete the subscription
         restClient().deleteForEntity(typeSubscriptionUrl() + "/subscriptionId").block();
