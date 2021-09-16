@@ -99,8 +99,7 @@ public class InfoTypeSubscriptions {
     }
 
     public synchronized void put(SubscriptionInfo subscription) {
-        allSubscriptions.put(subscription.getId(), subscription);
-        subscriptionsByOwner.put(subscription.owner, subscription.id, subscription);
+        doPut(subscription);
         storeInFile(subscription);
         logger.debug("Added type status subscription {}", subscription.id);
     }
@@ -259,8 +258,13 @@ public class InfoTypeSubscriptions {
         for (File file : dbDir.listFiles()) {
             String json = Files.readString(file.toPath());
             SubscriptionInfo subscription = gson.fromJson(json, SubscriptionInfo.class);
-            this.allSubscriptions.put(subscription.getId(), subscription);
+            doPut(subscription);
         }
+    }
+
+    private void doPut(SubscriptionInfo subscription) {
+        allSubscriptions.put(subscription.getId(), subscription);
+        subscriptionsByOwner.put(subscription.owner, subscription.id, subscription);
     }
 
     private File getFile(SubscriptionInfo subscription) {

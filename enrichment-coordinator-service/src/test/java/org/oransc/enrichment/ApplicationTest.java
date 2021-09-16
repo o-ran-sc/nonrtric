@@ -933,6 +933,7 @@ class ApplicationTest {
 
         InfoTypeSubscriptions restoredSubscriptions = new InfoTypeSubscriptions(this.applicationConfig);
         assertThat(restoredSubscriptions.size()).isEqualTo(1);
+        assertThat(restoredSubscriptions.getSubscriptionsForOwner("owner")).hasSize(1);
 
         // Delete the subscription
         restClient().deleteForEntity(typeSubscriptionUrl() + "/subscriptionId").block();

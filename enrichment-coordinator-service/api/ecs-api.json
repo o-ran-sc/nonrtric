@@ -207,10 +207,7 @@
         "producer_info_type_info": {
             "description": "Information for an Information Type",
             "type": "object",
-            "required": [
-                "info_job_data_schema",
-                "info_type_information"
-            ],
+            "required": ["info_job_data_schema"],
             "properties": {
                 "info_type_information": {
                     "description": "Type specific information for the information type",

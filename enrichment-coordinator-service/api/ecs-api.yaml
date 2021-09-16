@@ -1171,7 +1171,6 @@ components:
     producer_info_type_info:
       required:
       - info_job_data_schema
-      - info_type_information
       type: object
       properties:
         info_type_information:
