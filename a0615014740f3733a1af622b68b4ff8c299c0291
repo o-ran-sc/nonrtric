@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "33d7c988_7562cdf3",
+        "filename": "dmaap-mediator-java/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-09-17T13:06:20Z",
+      "side": 1,
+      "message": "I do not know. I think none feels quite right. \nMaybe dmaap-data-producer? \nOr something else ... \nWe can change the name when we have a good one.",
+      "parentUuid": "542da521_2c189075",
+      "range": {
+        "startLine": 29,
+        "startChar": 23,
+        "endLine": 29,
+        "endChar": 30
+      },
+      "revId": "a0615014740f3733a1af622b68b4ff8c299c0291",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2a888da1_ac58cfa3",
         "filename": "dmaap-mediator-java/src/main/java/org/oran/dmmapadapter/Application.java",
         "patchSetId": 2
@@ -54,6 +78,30 @@
       "writtenOn": "2021-09-17T12:49:27Z",
       "side": 1,
       "message": "should be dmaap (not dmmap).\nI would suggest to use this (to align with other components in this repo)\norg.o-ran-sc.nonrtric.dmaapadapter\nOR\norg.o-ran-sc.nonrtric.dmaapmediator",
+      "range": {
+        "startLine": 21,
+        "startChar": 17,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "a0615014740f3733a1af622b68b4ff8c299c0291",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4caea9a9_7b00b318",
+        "filename": "dmaap-mediator-java/src/main/java/org/oran/dmmapadapter/Application.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-09-17T13:06:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a888da1_ac58cfa3",
       "range": {
         "startLine": 21,
         "startChar": 17,
