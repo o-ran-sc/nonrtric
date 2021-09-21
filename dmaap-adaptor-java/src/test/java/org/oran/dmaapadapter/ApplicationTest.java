@@ -23,8 +23,6 @@ package org.oran.dmaapadapter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
 import java.io.FileOutputStream;
@@ -49,8 +47,6 @@ import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Jobs;
 import org.oran.dmaapadapter.tasks.ProducerRegstrationTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -73,7 +69,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         "app.configuration-filepath=./src/test/resources/test_application_configuration.json"//
 })
 class ApplicationTest {
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
 
     @Autowired
     private ApplicationConfig applicationConfig;
@@ -95,8 +90,6 @@ class ApplicationTest {
 
     @LocalServerPort
     int localServerHttpPort;
-
-    private static Gson gson = new GsonBuilder().create();
 
     static class TestApplicationConfig extends ApplicationConfig {
         @Override

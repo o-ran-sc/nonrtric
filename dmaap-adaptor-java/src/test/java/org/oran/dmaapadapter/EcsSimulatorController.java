@@ -102,6 +102,7 @@ public class EcsSimulatorController {
         ProducerJobInfo request =
                 new ProducerJobInfo(job.jobDefinition, "ID", job.infoTypeId, job.jobResultUri, job.owner, "TIMESTAMP");
         String body = gson.toJson(request);
+        logger.info("ECS Simulator PUT job: {}", body);
         restClient.post(url, body).block();
 
     }

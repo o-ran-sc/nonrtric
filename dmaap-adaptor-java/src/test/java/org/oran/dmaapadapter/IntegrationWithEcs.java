@@ -42,8 +42,6 @@ import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Jobs;
 import org.oran.dmaapadapter.tasks.ProducerRegstrationTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -64,7 +62,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         "app.ecs-base-url=https://localhost:8434" //
 })
 class IntegrationWithEcs {
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
 
     @Autowired
     private ApplicationConfig applicationConfig;
