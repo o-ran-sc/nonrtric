@@ -34,6 +34,8 @@ type Config struct {
 	InfoJobCallbackHost                 string
 	InfoJobCallbackPort                 int
 	InfoCoordinatorAddress              string
+	MRHost                              string
+	MRPort                              int
 }
 
 type ProducerRegistrationInfo struct {
@@ -50,6 +52,8 @@ func New() *Config {
 		InfoJobCallbackHost:                 getEnv("INFO_JOB_CALLBACK_HOST", ""),
 		InfoJobCallbackPort:                 getEnvAsInt("INFO_JOB_CALLBACK_PORT", 8086),
 		InfoCoordinatorAddress:              getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
+		MRHost:                              getEnv("MR_HOST", "http://message-router.onap"),
+		MRPort:                              getEnvAsInt("MR_PORT", 3904),
 	}
 }
 

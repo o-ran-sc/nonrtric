@@ -76,7 +76,7 @@ func main() {
 	wg := new(sync.WaitGroup)
 
 	// add two goroutines to `wg` WaitGroup, one for each avilable server
-	wg.Add(2)
+	wg.Add(3)
 
 	log.Debugf("Starting status callback server at port %v", configuration.InfoProducerSupervisionCallbackPort)
 	go func() {
@@ -88,6 +88,11 @@ func main() {
 	go func() {
 		server := server.CreateServer(configuration.InfoJobCallbackPort, server.CreateInfoJobHandler)
 		log.Warn(server.ListenAndServe())
+		wg.Done()
+	}()
+
+	go func() {
+		jobs.RunJobs(fmt.Sprintf("%v:%v", configuration.MRHost, configuration.MRPort))
 		wg.Done()
 	}()
 
