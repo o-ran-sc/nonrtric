@@ -69,9 +69,9 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # Policy Agent image and tags
 POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-POLICY_AGENT_IMAGE_TAG_LOCAL="1.2.1-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.1-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="1.2.1-STAGING-latest" #Will use snapshot repo
+POLICY_AGENT_IMAGE_TAG_LOCAL="1.2.2-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE="1.2.2-STAGING-latest" #Will use snapshot repo
 POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.2.1"
 
 # SDNC A1 Controller remote image and tag
@@ -86,22 +86,25 @@ SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-# ECS image and tag - uses cherry release
+# ECS image and tag - uses d release
 ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
+ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.1.0"
 #Note: Update var ECS_FEATURE_LEVEL if image version is changed
 
-# Control Panel image and tag - uses cherry release
+# Control Panel image and tag - uses d release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.1"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.2.0"
 
+# Gateway image and tags - uses d release
+NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
 
-# RAPP Catalogue image and tags - uses cherry release
+# RAPP Catalogue image and tags - uses d release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
 RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
 
 
-# Near RT RIC Simulator image and tags - uses cherry release
+# Near RT RIC Simulator image and tags - uses d release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
 RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.0"
 
@@ -165,7 +168,7 @@ KUBE_PROXY_IMAGE_TAG_LOCAL="latest"
 PROJECT_IMAGES_APP_NAMES="PA SDNC"
 
 # List of app short names which images pulled from ORAN
-ORAN_IMAGES_APP_NAMES="CP ECS RICSIM RC"
+ORAN_IMAGES_APP_NAMES="CP ECS RICSIM RC NGW"
 
 # List of app short names which images pulled from ONAP
 ONAP_IMAGES_APP_NAMES=""   # Not used
@@ -224,7 +227,7 @@ ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_grou
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
 ECS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
-ECS_FEATURE_LEVEL=""                                     # Space separated list of features
+ECS_FEATURE_LEVEL="INFO-TYPES"                           # Space separated list of features
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -320,6 +323,8 @@ SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 #SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
 SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
+SDNC_FEATURE_LEVEL="TRANS_RESP_CODE"                     # Space separated list of features
+                                                         # TRANS_RESP_CODE: SDNC return southbound response code
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue Service"
@@ -342,6 +347,21 @@ CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_grou
 CONTROL_PANEL_CONFIG_MOUNT_PATH=/maven                   # Container internal path for config
 CONTROL_PANEL_CONFIG_FILE=application.properties         # Config file name
 CONTROL_PANEL_HOST_MNT_DIR="./mnt"                       # Mounted dir, relative to compose file, on the host
+
+NRT_GATEWAY_APP_NAME="nonrtricgateway"                   # Name of the Gateway container
+NRT_GATEWAY_DISPLAY_NAME="NonRT-RIC Gateway"
+NRT_GATEWAY_EXTERNAL_PORT=9090                           # Gateway container external port (host -> container)
+NRT_GATEWAY_INTERNAL_PORT=9090                           # Gateway container internal port (container -> container)
+NRT_GATEWAY_EXTERNAL_SECURE_PORT=9091                    # Gateway container external port (host -> container)
+NRT_GATEWAY_INTERNAL_SECURE_PORT=9091                    # Gateway container internal port (container -> container)
+NRT_GATEWAY_LOGPATH="/var/log/nonrtric-gateway/application.log" # Path the application log in the Gateway container
+NRT_GATEWAY_HOST_MNT_DIR="./mnt"                         # Mounted dir, relative to compose file, on the host
+NRT_GATEWAY_ALIVE_URL="/actuator/metrics"                # Base path for alive check
+NRT_GATEWAY_COMPOSE_DIR="ngw"                            # Dir in simulator_group for docker-compose
+NRT_GATEWAY_CONFIG_MOUNT_PATH=/opt/app/nonrtric-gateway/config  # Container internal path for config
+NRT_GATEWAY_CONFIG_FILE=application.yaml                 # Config file name
+NRT_GATEWAY_PKG_NAME="org.springframework.cloud.gateway" # Java base package name
+NRT_GATEWAY_ACTUATOR="/actuator/loggers/$NRT_GATEWAY_PKG_NAME" # Url for trace/debug
 
 HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
 HTTP_PROXY_DISPLAY_NAME="Http Proxy"

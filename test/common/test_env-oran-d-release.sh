@@ -89,9 +89,9 @@ NRT_GATEWAY_IMAGE_TAG_REMOTE="1.0.0"
 NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
 
 
-# SDNC A1 Controller image and tags - Note using ONAP image
+# SDNC A1 Controller image and tags - Note using Honolulu ONAP image
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.2"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.6"
 #No local image for ONAP SDNC, remote release image always used
 
 # ORAN SDNC adapter kept as reference
@@ -364,6 +364,7 @@ SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 #SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
 SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
+SDNC_FEATURE_LEVEL=""                                    # Space separated list of features
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue"

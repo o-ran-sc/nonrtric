@@ -331,9 +331,17 @@ else
     ecs_api_edp_delete_type_2 204 type1
     ecs_api_edp_get_type_2 404 type1
     ecs_api_edp_get_type_ids 200 EMPTY
-    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
+    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+        ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json testdata/ecs/info-type-info.json
+    else
+        ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
+    fi
     ecs_api_edp_get_type_ids 200 type1
-    ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json
+    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+        ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json testdata/ecs/info-type-info.json
+    else
+        ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json
+    fi
 
     ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
     ecs_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
@@ -359,7 +367,11 @@ ecs_api_edp_get_type_ids 200 type1
 if [ $ECS_VERSION == "V1-1" ]; then
     ecs_api_edp_get_type 200 type1 testdata/ecs/ei-type-1.json prod-a
 else
-    ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json
+    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+        ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json testdata/ecs/info-type-info.json
+    else
+        ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json
+    fi
 fi
 
 if [ $ECS_VERSION == "V1-1" ]; then
@@ -513,7 +525,11 @@ if [ $ECS_VERSION == "V1-1" ]; then
     ecs_api_edp_get_type 200 type1 testdata/ecs/ei-type-1.json prod-a
     ecs_api_edp_get_type 200 type2 testdata/ecs/ei-type-2.json prod-b
 else
-    ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json
+    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+        ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json testdata/ecs/info-type-info.json
+    else
+        ecs_api_edp_get_type_2 200 type1 testdata/ecs/ei-type-1.json
+    fi
     ecs_api_edp_get_type_2 200 type2 testdata/ecs/ei-type-2.json
 fi
 
@@ -1946,6 +1962,30 @@ ecs_api_idc_get_job_status2 200 job160 ENABLED  1 prod-ig
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal received_callbacks 30 30
     cr_equal received_callbacks?id=type-status1 18
+else
+    cr_equal received_callbacks 12
+fi
+
+# Test job deletion at type delete
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+
+    ecs_api_edp_delete_type_2 406 type104
+
+    ecs_api_edp_delete_producer 204 prod-id
+
+    ecs_api_edp_delete_type_2 204 type104
+
+    cr_equal received_callbacks 32 30
+    cr_equal received_callbacks?id=info-job108-status 3
+    cr_equal received_callbacks?id=type-status1 19
+    cr_api_check_all_ecs_subscription_events 200 type-status1 type104 testdata/ecs/info-type-4.json DEREGISTERED
+    cr_api_check_all_ecs_events 200 info-job108-status DISABLED
+
+    ecs_api_edp_get_producer 404 prod-id
+
+    ecs_api_idc_get_job 404 job-108
+
 else
     cr_equal received_callbacks 12
 fi

@@ -310,6 +310,14 @@ __log_conf_fail_body() {
 	__check_stop_at_error
 }
 
+# Function to log a configuration that is not supported
+__log_conf_fail_not_supported() {
+	echo -e $RED" FAIL, function not supported"$ERED$@
+	((RES_CONF_FAIL++))
+	__print_current_stats
+	__check_stop_at_error
+}
+
 # Function to log a passed configuration setup
 __log_conf_ok() {
 	if [ $# -gt 0 ]; then

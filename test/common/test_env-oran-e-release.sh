@@ -89,9 +89,9 @@ NRT_GATEWAY_IMAGE_TAG_REMOTE="1.1.0"
 NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 
-# SDNC A1 Controller image and tags - Note using ONAP image
+# SDNC A1 Controller image and tags - Note using released honolulu ONAP image
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.2"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.6"
 #No local image for ONAP SDNC, remote release image always used
 
 # ORAN SDNC adapter kept as reference
@@ -247,7 +247,7 @@ ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_grou
 ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
 ECS_CONFIG_FILE=application.yaml                         # Config file name
 ECS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
-ECS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS"        # Space separated list of features
+ECS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS INFO-TYPE-INFO"  # Space separated list of features
 
 MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -364,6 +364,7 @@ SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 #SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
 SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
+SDNC_FEATURE_LEVEL=""                                    # Space separated list of features
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue"
