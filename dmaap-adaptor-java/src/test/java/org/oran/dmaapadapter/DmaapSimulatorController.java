@@ -64,6 +64,7 @@ public class DmaapSimulatorController {
             return ErrorResponse.create("", HttpStatus.NOT_FOUND);
         } else {
             String resp = dmaapResponses.remove(0);
+            logger.info("DMAAP simulator returned: {}", resp);
             return new ResponseEntity<>(resp, HttpStatus.OK);
         }
 
