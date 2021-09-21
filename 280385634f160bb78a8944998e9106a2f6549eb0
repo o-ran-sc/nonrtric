@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65db2c90_fdfcbc81",
+        "filename": "dmaap-mediator-producer/simulator/consumersimulator.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2021-09-21T14:45:56Z",
+      "side": 1,
+      "message": "net/http is good for the start but have you considered gorilla/mux? It\u0027s the most popular lib used in go for developing REST API.",
+      "revId": "280385634f160bb78a8944998e9106a2f6549eb0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
