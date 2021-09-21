@@ -1,8 +1,8 @@
 #
 # ============LICENSE_START=======================================================
-# ONAP : ccsdk oran
+# O-RAN-SC
 # ================================================================================
-# Copyright (C) 2019-2020 Nordix Foundation. All rights reserved.
+# Copyright (C) 2021 Nordix Foundation. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,4 +40,4 @@ ADD /config/truststore.jks /opt/app/dmaap-adaptor-service/etc/cert/truststore.jk
 RUN chmod -R 777 /opt/app/dmaap-adaptor-service/config/
 
 ADD target/${JAR} /opt/app/dmaap-adaptor-service/dmaap-adaptor.jar
-CMD ["java", "-jar", "/opt/app/policy-agent/dmaap-adaptor.jar"]
+CMD ["java", "-jar", "/opt/app/dmaap-adaptor-service/dmaap-adaptor.jar"]
