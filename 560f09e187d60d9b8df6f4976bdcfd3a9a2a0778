@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b353ae32_aab06d45",
+        "filename": "dmaap-adaptor-java/src/test/java/org/oran/dmaapadapter/IntegrationWithEcs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-09-21T09:24:24Z",
+      "side": 1,
+      "message": "With this commented out the logger is not used? \n\nIs this block needed?",
+      "range": {
+        "startLine": 218,
+        "startChar": 2,
+        "endLine": 220,
+        "endChar": 27
+      },
+      "revId": "560f09e187d60d9b8df6f4976bdcfd3a9a2a0778",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
