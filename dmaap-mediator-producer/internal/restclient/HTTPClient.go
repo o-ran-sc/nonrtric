@@ -73,7 +73,15 @@ func Get(url string) ([]byte, error) {
 }
 
 func Put(url string, body []byte) error {
-	if req, reqErr := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(body)); reqErr == nil {
+	return do(http.MethodPut, url, body)
+}
+
+func Post(url string, body []byte) error {
+	return do(http.MethodPost, url, body)
+}
+
+func do(method string, url string, body []byte) error {
+	if req, reqErr := http.NewRequest(method, url, bytes.NewBuffer(body)); reqErr == nil {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 		if response, respErr := Client.Do(req); respErr == nil {
 			if isResponseSuccess(response.StatusCode) {

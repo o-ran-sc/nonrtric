@@ -32,7 +32,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
-	"oransc.org/nonrtric/dmaapmediatorproducer/mocks"
+	"oransc.org/nonrtric/dmaapmediatorproducer/mocks/jobhandler"
 )
 
 func TestStatusHandler(t *testing.T) {
@@ -88,7 +88,7 @@ func TestStatusHandler(t *testing.T) {
 
 func TestCreateInfoJobHandler(t *testing.T) {
 	assertions := require.New(t)
-	jobHandlerMock := mocks.JobHandler{}
+	jobHandlerMock := jobhandler.JobHandler{}
 
 	goodJobInfo := jobs.JobInfo{
 		Owner:            "owner",

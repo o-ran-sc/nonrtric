@@ -37,6 +37,8 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("INFO_JOB_CALLBACK_HOST", "jobCallbackHost")
 	os.Setenv("INFO_JOB_CALLBACK_PORT", "8096")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
+	os.Setenv("MR_HOST", "mrHost")
+	os.Setenv("MR_PORT", "3908")
 	t.Cleanup(func() {
 		os.Clearenv()
 	})
@@ -47,6 +49,8 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		InfoJobCallbackHost:                 "jobCallbackHost",
 		InfoJobCallbackPort:                 8096,
 		InfoCoordinatorAddress:              "infoCoordAddr",
+		MRHost:                              "mrHost",
+		MRPort:                              3908,
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -70,6 +74,8 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		InfoJobCallbackHost:                 "",
 		InfoJobCallbackPort:                 8086,
 		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
+		MRHost:                              "http://message-router.onap",
+		MRPort:                              3904,
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -86,6 +92,8 @@ func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
 		InfoJobCallbackHost:                 "",
 		InfoJobCallbackPort:                 8086,
 		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
+		MRHost:                              "http://message-router.onap",
+		MRPort:                              3904,
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
