@@ -1225,7 +1225,7 @@ ecs_api_edp_get_type() {
 
 # API Test function: GET /ei-producer/v1/eitypes/{eiTypeId}
 # API Test function: GET /data-producer/v1/info-types/{infoTypeId}
-# args: (v1_2) <response-code> <type-id> [<job-schema-file> ]
+# args: (v1_2) <response-code> <type-id> [<job-schema-file> [ <info-type-info> ]]
 # (Function for test scripts)
 ecs_api_edp_get_type_2() {
 	__log_test_start $@
@@ -1237,8 +1237,13 @@ ecs_api_edp_get_type_2() {
 	if [ $# -eq 3 ]; then
 		paramError=0
 	fi
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+		if [ $# -eq 4 ]; then
+			paramError=0
+		fi
+	fi
     if [ $paramError -ne 0 ]; then
-		__print_err "<response-code> <type-id> [<job-schema-file> ]" $@
+		__print_err "<response-code> <type-id> [<job-schema-file> [ <info-type-info> ]]" $@
 		return 1
 	fi
 	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
@@ -1254,7 +1259,7 @@ ecs_api_edp_get_type_2() {
 		__log_test_fail_status_code $1 $status
 		return 1
 	fi
-	if [ $# -eq 3 ]; then
+	if [ $# -ge 3 ]; then
 		body=${res:0:${#res}-3}
 
 		if [ -f $3 ]; then
@@ -1263,8 +1268,18 @@ ecs_api_edp_get_type_2() {
 			__log_test_fail_general "Job template file "$3", does not exist"
 			return 1
 		fi
+		info_data=""
+		if [ $# -gt 3 ]; then
+			if [ -f $4 ]; then
+				info_data=$(cat $4)
+			else
+				__log_test_fail_general "Info-data file "$4", does not exist"
+				return 1
+			fi
+			info_data=",\"info_type_information\":$info_data"
+		fi
 		if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-			targetJson="{\"info_job_data_schema\":$schema}"
+			targetJson="{\"info_job_data_schema\":$schema $info_data}"
 		else
 			targetJson="{\"ei_job_data_schema\":$schema}"
 		fi
@@ -1283,23 +1298,42 @@ ecs_api_edp_get_type_2() {
 
 # API Test function: PUT /ei-producer/v1/eitypes/{eiTypeId}
 # API Test function: PUT /data-producer/v1/info-types/{infoTypeId}
-# args: (v1_2) <response-code> <type-id> <job-schema-file>
+# args: (v1_2) <response-code> <type-id> <job-schema-file> [ <info-type-info> ]
 # (Function for test scripts)
 ecs_api_edp_put_type_2() {
 	__log_test_start $@
 
-    if [ $# -ne 3 ]; then
-		__print_err "<response-code> <type-id> <job-schema-file>" $@
-		return 1
+	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+		if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+			__print_err "<response-code> <type-id> <job-schema-file> [ <info-type-info> ]" $@
+			return 1
+		fi
+	else
+		if [ $# -ne 3 ]; then
+			__print_err "<response-code> <type-id> <job-schema-file>" $@
+			return 1
+		fi
 	fi
 
 	if [ ! -f $3 ]; then
 		__log_test_fail_general "Job schema file "$3", does not exist"
 		return 1
 	fi
+
+	info_data=""
+	if [ $# -gt 3 ]; then
+		if [ -f $4 ]; then
+			info_data=$(cat $4)
+		else
+			__log_test_fail_general "Info-data file "$4", does not exist"
+			return 1
+		fi
+		info_data=",\"info_type_information\":$info_data"
+	fi
+
 	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		schema=$(cat $3)
-		input_json="{\"info_job_data_schema\":$schema}"
+		input_json="{\"info_job_data_schema\":$schema $info_data}"
 		file="./tmp/put_type.json"
 		echo $input_json > $file
 

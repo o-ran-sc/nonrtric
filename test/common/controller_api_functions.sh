@@ -272,6 +272,57 @@ start_sdnc() {
     return 0
 }
 
+
+# Stop the sndc
+# args: -
+# args: -
+# (Function for test scripts)
+stop_sdnc() {
+	echo -e $BOLD"Stopping $SDNC_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+		__log_conf_fail_not_supported " Cannot stop sndc in KUBE mode"
+		return 1
+	else
+		docker stop $SDNC_APP_NAME &> ./tmp/.dockererr
+		if [ $? -ne 0 ]; then
+			__print_err "Could not stop $SDNC_APP_NAME" $@
+			cat ./tmp/.dockererr
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	fi
+	echo -e $BOLD$GREEN"Stopped"$EGREEN$EBOLD
+	echo ""
+	return 0
+}
+
+# Start a previously stopped sdnc
+# args: -
+# (Function for test scripts)
+start_stopped_sdnc() {
+	echo -e $BOLD"Starting (the previously stopped) $SDNC_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+		__log_conf_fail_not_supported " Cannot restart sndc in KUBE mode"
+		return 1
+	else
+		docker start $SDNC_APP_NAME &> ./tmp/.dockererr
+		if [ $? -ne 0 ]; then
+			__print_err "Could not start (the stopped) $SDNC_APP_NAME" $@
+			cat ./tmp/.dockererr
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+	fi
+	__check_service_start $SDNC_APP_NAME $SDNC_PATH$SDNC_ALIVE_URL
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
 # Check the agent logs for WARNINGs and ERRORs
 # args: -
 # (Function for test scripts)

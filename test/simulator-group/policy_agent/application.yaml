@@ -66,3 +66,4 @@ app:
     # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
     http.proxy-host: $AGENT_HTTP_PROXY_CONFIG_HOST_NAME
     http.proxy-port: $AGENT_HTTP_PROXY_CONFIG_PORT
+    http.proxy-type: HTTP

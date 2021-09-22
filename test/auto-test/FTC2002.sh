@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
@@ -17,25 +17,25 @@
 #  ============LICENSE_END=================================================
 #
 
-
-TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no agent)"
+TC_ONELINE_DESCR="Testing southbound proxy for SDNC - docker only"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="RICSIM SDNC"
+DOCKER_INCLUDED_IMAGES="RICSIM SDNC HTTPPROXY"
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" RICSIM SDNC KUBEPROXY"
+KUBE_INCLUDED_IMAGES=""
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" "
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
+SUPPORTED_PROFILES="ONAP-ISTANBUL"
 #Supported run modes
-SUPPORTED_RUNMODES="DOCKER KUBE"
+SUPPORTED_RUNMODES="DOCKER"
 
 . ../common/testcase_common.sh  $@
 . ../common/controller_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 . ../common/kube_proxy_api_functions.sh
+. ../common/http_proxy_api_functions.sh
 
 setup_testenvironment
 
@@ -56,13 +56,16 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
+        if [ $__sb_httpx == "HTTPS" ]; then
+            deviation "Southbound https proxy is currently not supported"
+            break
+        fi
+
 
         # Clean container and start all needed containers #
         clean_environment
 
-        if [ $RUNMODE == "KUBE" ]; then
-            start_kube_proxy
-        fi
+        start_http_proxy
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
@@ -83,10 +86,29 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         if [ $__sb_httpx == "HTTPS" ]; then
             # "Using secure ports towards SDNC"
             use_simulator_https
+            use_http_proxy_https
         else
             #"Using non-secure ports towards SDNC"
             use_simulator_http
+            use_http_proxy_http
         fi
+
+        echo -e $BOLD"Configure proxy in SDNC"$EBOLD
+        echo ""
+
+        if [ $__sb_httpx == "HTTPS" ]; then
+            echo "
+            sed  -i 's/a1Mediator.proxy.url=/a1Mediator.proxy.url=https:\/\/httpproxy:8433/g' /opt/onap/ccsdk/data/properties/a1-adapter-api-dg.properties
+            " | docker exec -i a1controller bash
+        else
+            echo "
+            sed  -i 's/a1Mediator.proxy.url=/a1Mediator.proxy.url=http:\/\/httpproxy:8080/g' /opt/onap/ccsdk/data/properties/a1-adapter-api-dg.properties
+            " | docker exec -i a1controller bash
+        fi
+
+        # Restart SDNC to use the updated config
+        stop_sdnc
+        start_stopped_sdnc
 
         # API tests
 
@@ -102,20 +124,10 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         controller_api_get_A1_policy_type 200 OSC ricsim_g1_1 1 testdata/OSC/sim_1.json
         controller_api_get_A1_policy_type 404 OSC ricsim_g1_1 99
 
-        RESP=202
-        if [ $FLAVOUR == "ONAP" ] && [[ "$SDNC_FEATURE_LEVEL" != *"TRANS_RESP_CODE"* ]]; then
-            deviation "SDNC does not return original response code from sim"
-            RESP=200
-        fi
-        controller_api_put_A1_policy $RESP OSC ricsim_g1_1 1 4000 testdata/OSC/pi1_template.json
+        controller_api_put_A1_policy 202 OSC ricsim_g1_1 1 4000 testdata/OSC/pi1_template.json
         controller_api_put_A1_policy 404 OSC ricsim_g1_1 5 1001 testdata/OSC/pi1_template.json
 
-        RESP=201
-        if [ $FLAVOUR == "ONAP" ] && [[ "$SDNC_FEATURE_LEVEL" != *"TRANS_RESP_CODE"* ]]; then
-            deviation "SDNC does not return original response code from sim"
-            RESP=200
-        fi
-        controller_api_put_A1_policy $RESP STD ricsim_g2_1   5000 testdata/STD/pi1_template.json
+        controller_api_put_A1_policy 201 STD ricsim_g2_1   5000 testdata/STD/pi1_template.json
 
         controller_api_get_A1_policy_ids 200 OSC ricsim_g1_1 1 4000
         controller_api_get_A1_policy_ids 200 STD ricsim_g2_1 5000
@@ -127,19 +139,15 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "false"
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
 
-        RESP=202
-        if [ $FLAVOUR == "ONAP" ] && [[ "$SDNC_FEATURE_LEVEL" != *"TRANS_RESP_CODE"* ]]; then
-            deviation "SDNC does not return original response code from sim"
-            RESP=200
-        fi
-        controller_api_delete_A1_policy $RESP OSC ricsim_g1_1 1 4000
 
-        RESP=204
-        if [ $FLAVOUR == "ONAP" ] && [[ "$SDNC_FEATURE_LEVEL" != *"TRANS_RESP_CODE"* ]]; then
-            deviation "SDNC does not return original response code from sim"
-            RESP=200
-        fi
-        controller_api_delete_A1_policy $RESP STD ricsim_g2_1 5000
+        deviation "SDNC does not return original response code from sim"
+        controller_api_delete_A1_policy 202 OSC ricsim_g1_1 1 4000
+
+        deviation "SDNC does not return original response code from sim"
+        controller_api_delete_A1_policy 204 STD ricsim_g2_1 5000
+
+        sim_contains_str ricsim_g1_1 remote_hosts httpproxy.nonrtric-docker-net
+        sim_contains_str ricsim_g2_1 remote_hosts httpproxy.nonrtric-docker-net
 
         check_sdnc_logs
 

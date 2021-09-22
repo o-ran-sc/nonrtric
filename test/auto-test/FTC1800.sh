@@ -218,6 +218,39 @@ else
         ecs_api_edp_put_type_2 201 type104 testdata/ecs/info-type-4.json
         ecs_api_edp_put_type_2 201 type105 testdata/ecs/info-type-5.json
 
+
+
+        if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+            cr_equal received_callbacks 20 30
+            cr_equal received_callbacks?id=type-status1 10
+            cr_equal received_callbacks?id=type-status2 10
+
+            cr_api_check_all_ecs_subscription_events 200 type-status1 \
+                type1 testdata/ecs/ei-type-1.json REGISTERED \
+                type2 testdata/ecs/ei-type-2.json REGISTERED \
+                type3 testdata/ecs/ei-type-3.json REGISTERED \
+                type4 testdata/ecs/ei-type-4.json REGISTERED \
+                type5 testdata/ecs/ei-type-5.json REGISTERED \
+                type101 testdata/ecs/info-type-1.json REGISTERED \
+                type102 testdata/ecs/info-type-2.json REGISTERED \
+                type103 testdata/ecs/info-type-3.json REGISTERED \
+                type104 testdata/ecs/info-type-4.json REGISTERED \
+                type105 testdata/ecs/info-type-5.json REGISTERED
+
+            cr_api_check_all_ecs_subscription_events 200 type-status2 \
+                type1 testdata/ecs/ei-type-1.json REGISTERED \
+                type2 testdata/ecs/ei-type-2.json REGISTERED \
+                type3 testdata/ecs/ei-type-3.json REGISTERED \
+                type4 testdata/ecs/ei-type-4.json REGISTERED \
+                type5 testdata/ecs/ei-type-5.json REGISTERED \
+                type101 testdata/ecs/info-type-1.json REGISTERED \
+                type102 testdata/ecs/info-type-2.json REGISTERED \
+                type103 testdata/ecs/info-type-3.json REGISTERED \
+                type104 testdata/ecs/info-type-4.json REGISTERED \
+                type105 testdata/ecs/info-type-5.json REGISTERED
+
+        fi
+
         ecs_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 type101
 
         ecs_api_edp_put_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2 type101 type102
@@ -332,6 +365,22 @@ else
 
 fi
 
+
+if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+
+    ecs_equal json:/data-consumer/v1/info-type-subscription 2 200
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+
+    if [ $use_info_jobs ]; then
+        ecs_equal json:data-producer/v1/info-types 10 1000
+    else
+        ecs_equal json:ei-producer/v1/eitypes 5 1000
+    fi
+
+fi
+
 stop_ecs
 
 cr_api_reset
@@ -340,27 +389,21 @@ start_stopped_ecs
 
 set_ecs_trace
 
-
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
 
-    ecs_api_idc_get_subscription_ids 200 NOOWNER EMPTY
-    ecs_api_idc_get_subscription_ids 200 NOOWNER EMPTY
+    ecs_equal json:/data-consumer/v1/info-type-subscription 2 200
+
+    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
 
     if [ $use_info_jobs ]; then
         ecs_equal json:data-producer/v1/info-types 10 1000
     else
         ecs_equal json:ei-producer/v1/eitypes 5 1000
     fi
-
-    ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
-
-    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
-
-    ecs_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
-
-    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
-
 fi
+
+cr_equal received_callbacks 0
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
@@ -735,8 +778,35 @@ if [ $use_info_jobs ]; then
     ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 0
 fi
 
+if [ $use_info_jobs ]; then
+    if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+        ecs_api_edp_put_type_2 200 type101 testdata/ecs/info-type-1.json
+        ecs_api_edp_put_type_2 200 type102 testdata/ecs/info-type-2.json
+        ecs_api_edp_put_type_2 200 type103 testdata/ecs/info-type-3.json
+        ecs_api_edp_put_type_2 200 type104 testdata/ecs/info-type-4.json
+        ecs_api_edp_put_type_2 200 type105 testdata/ecs/info-type-5.json
+    fi
+fi
+
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-    cr_equal received_callbacks 0 30
+    cr_equal received_callbacks 10 30
+    cr_equal received_callbacks?id=type-status1 5
+    cr_equal received_callbacks?id=type-status2 5
+
+    cr_api_check_all_ecs_subscription_events 200 type-status1 \
+        type101 testdata/ecs/info-type-1.json REGISTERED \
+        type102 testdata/ecs/info-type-2.json REGISTERED \
+        type103 testdata/ecs/info-type-3.json REGISTERED \
+        type104 testdata/ecs/info-type-4.json REGISTERED \
+        type105 testdata/ecs/info-type-5.json REGISTERED
+
+    cr_api_check_all_ecs_subscription_events 200 type-status2 \
+        type101 testdata/ecs/info-type-1.json REGISTERED \
+        type102 testdata/ecs/info-type-2.json REGISTERED \
+        type103 testdata/ecs/info-type-3.json REGISTERED \
+        type104 testdata/ecs/info-type-4.json REGISTERED \
+        type105 testdata/ecs/info-type-5.json REGISTERED
+
 else
     cr_equal received_callbacks 0 30
 fi
