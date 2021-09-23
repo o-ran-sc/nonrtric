@@ -28,14 +28,12 @@ import (
 )
 
 type Config struct {
-	LogLevel                            string
-	InfoProducerSupervisionCallbackHost string
-	InfoProducerSupervisionCallbackPort int
-	InfoJobCallbackHost                 string
-	InfoJobCallbackPort                 int
-	InfoCoordinatorAddress              string
-	MRHost                              string
-	MRPort                              int
+	LogLevel               string
+	InfoProducerHost       string
+	InfoProducerPort       int
+	InfoCoordinatorAddress string
+	MRHost                 string
+	MRPort                 int
 }
 
 type ProducerRegistrationInfo struct {
@@ -46,14 +44,12 @@ type ProducerRegistrationInfo struct {
 
 func New() *Config {
 	return &Config{
-		LogLevel:                            getEnv("LOG_LEVEL", "Info"),
-		InfoProducerSupervisionCallbackHost: getEnv("INFO_PRODUCER_SUPERVISION_CALLBACK_HOST", ""),
-		InfoProducerSupervisionCallbackPort: getEnvAsInt("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", 8085),
-		InfoJobCallbackHost:                 getEnv("INFO_JOB_CALLBACK_HOST", ""),
-		InfoJobCallbackPort:                 getEnvAsInt("INFO_JOB_CALLBACK_PORT", 8086),
-		InfoCoordinatorAddress:              getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
-		MRHost:                              getEnv("MR_HOST", "http://message-router.onap"),
-		MRPort:                              getEnvAsInt("MR_PORT", 3904),
+		LogLevel:               getEnv("LOG_LEVEL", "Info"),
+		InfoProducerHost:       getEnv("INFO_PRODUCER_HOST", ""),
+		InfoProducerPort:       getEnvAsInt("INFO_PRODUCER_PORT", 8085),
+		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
+		MRHost:                 getEnv("MR_HOST", "http://message-router.onap"),
+		MRPort:                 getEnvAsInt("MR_PORT", 3904),
 	}
 }
 

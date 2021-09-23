@@ -51,7 +51,7 @@ func TestStatusHandler(t *testing.T) {
 			name: "StatusHandler with correct path and method, should return OK",
 			args: args{
 				responseRecorder: httptest.NewRecorder(),
-				r:                newRequest("GET", "/", nil, t),
+				r:                newRequest("GET", "/status", nil, t),
 			},
 			wantedStatus: http.StatusOK,
 			wantedBody:   "All is well!",
@@ -69,7 +69,7 @@ func TestStatusHandler(t *testing.T) {
 			name: "StatusHandler with incorrect method, should return MethodNotAllowed",
 			args: args{
 				responseRecorder: httptest.NewRecorder(),
-				r:                newRequest("PUT", "/", nil, t),
+				r:                newRequest("PUT", "/status", nil, t),
 			},
 			wantedStatus: http.StatusMethodNotAllowed,
 			wantedBody:   "Method is not supported.\n",
@@ -119,7 +119,7 @@ func TestCreateInfoJobHandler(t *testing.T) {
 			name: "CreateInfoJobHandler with correct path and method, should return OK",
 			args: args{
 				responseRecorder: httptest.NewRecorder(),
-				r:                newRequest("POST", "/producer_simulator/info_job", &goodJobInfo, t),
+				r:                newRequest("POST", "/jobs", &goodJobInfo, t),
 			},
 			wantedStatus: http.StatusOK,
 			wantedBody:   "",
@@ -128,7 +128,7 @@ func TestCreateInfoJobHandler(t *testing.T) {
 			name: "CreateInfoJobHandler with incorrect job info, should return BadRequest",
 			args: args{
 				responseRecorder: httptest.NewRecorder(),
-				r:                newRequest("POST", "/producer_simulator/info_job", &badJobInfo, t),
+				r:                newRequest("POST", "/jobs", &badJobInfo, t),
 			},
 			wantedStatus: http.StatusBadRequest,
 			wantedBody:   "Invalid job info. Cause: error",
@@ -146,7 +146,7 @@ func TestCreateInfoJobHandler(t *testing.T) {
 			name: "CreateInfoJobHandler with incorrect method, should return MethodNotAllowed",
 			args: args{
 				responseRecorder: httptest.NewRecorder(),
-				r:                newRequest("PUT", "/producer_simulator/info_job", nil, t),
+				r:                newRequest("PUT", "/jobs", nil, t),
 			},
 			wantedStatus: http.StatusMethodNotAllowed,
 			wantedBody:   "Method is not supported.",

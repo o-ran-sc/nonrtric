@@ -24,28 +24,33 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
 
-type Type struct {
-	TypeId     string `json:"id"`
-	DMaaPTopic string `json:"dmaapTopic"`
-	Schema     string `json:"schema"`
-	Jobs       map[string]JobInfo
+type TypeDefinitions struct {
+	Types []TypeDefinition `json:"types"`
+}
+type TypeDefinition struct {
+	Id            string `json:"id"`
+	DmaapTopicURL string `json:"dmaapTopicUrl"`
+}
+
+type TypeData struct {
+	TypeId        string `json:"id"`
+	DMaaPTopicURL string `json:"dmaapTopicUrl"`
+	Jobs          map[string]JobInfo
 }
 
 type JobInfo struct {
-	Owner            string `json:"owner"`
-	LastUpdated      string `json:"last_updated"`
-	InfoJobIdentity  string `json:"info_job_identity"`
-	TargetUri        string `json:"target_uri"`
-	InfoJobData      string `json:"info_job_data"`
-	InfoTypeIdentity string `json:"info_type_identity"`
+	Owner            string      `json:"owner"`
+	LastUpdated      string      `json:"last_updated"`
+	InfoJobIdentity  string      `json:"info_job_identity"`
+	TargetUri        string      `json:"target_uri"`
+	InfoJobData      interface{} `json:"info_job_data"`
+	InfoTypeIdentity string      `json:"info_type_identity"`
 }
 
 type JobHandler interface {
@@ -53,10 +58,10 @@ type JobHandler interface {
 }
 
 var (
-	mu      sync.Mutex
-	typeDir = "configs"
-	Handler JobHandler
-	allJobs = make(map[string]Type)
+	mu         sync.Mutex
+	configFile = "configs/type_config.json"
+	Handler    JobHandler
+	allTypes   = make(map[string]TypeData)
 )
 
 func init() {
@@ -73,8 +78,9 @@ func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
 	mu.Lock()
 	defer mu.Unlock()
 	if err := validateJobInfo(ji); err == nil {
-		jobs := allJobs[ji.InfoTypeIdentity].Jobs
+		jobs := allTypes[ji.InfoTypeIdentity].Jobs
 		jobs[ji.InfoJobIdentity] = ji
+		log.Debug("Added job: ", ji)
 		return nil
 	} else {
 		return err
@@ -82,7 +88,7 @@ func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
 }
 
 func validateJobInfo(ji JobInfo) error {
-	if _, ok := allJobs[ji.InfoTypeIdentity]; !ok {
+	if _, ok := allTypes[ji.InfoTypeIdentity]; !ok {
 		return fmt.Errorf("type not supported: %v", ji.InfoTypeIdentity)
 	}
 	if ji.InfoJobIdentity == "" {
@@ -95,24 +101,29 @@ func validateJobInfo(ji JobInfo) error {
 	return nil
 }
 
-func GetTypes() ([]*Type, error) {
+func GetTypes() ([]TypeData, error) {
 	mu.Lock()
 	defer mu.Unlock()
-	types := make([]*Type, 0, 1)
-	err := filepath.Walk(typeDir,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if strings.Contains(path, ".json") {
-				if jobType, err := getType(path); err == nil {
-					types = append(types, jobType)
-				}
-			}
-			return nil
-		})
+	types := make([]TypeData, 0, 1)
+	typeDefsByte, err := os.ReadFile(configFile)
 	if err != nil {
 		return nil, err
+	}
+	typeDefs := TypeDefinitions{}
+	err = json.Unmarshal(typeDefsByte, &typeDefs)
+	if err != nil {
+		return nil, err
+	}
+	for _, typeDef := range typeDefs.Types {
+		typeInfo := TypeData{
+			TypeId:        typeDef.Id,
+			DMaaPTopicURL: typeDef.DmaapTopicURL,
+			Jobs:          make(map[string]JobInfo),
+		}
+		if _, ok := allTypes[typeInfo.TypeId]; !ok {
+			allTypes[typeInfo.TypeId] = typeInfo
+		}
+		types = append(types, typeInfo)
 	}
 	return types, nil
 }
@@ -121,7 +132,7 @@ func GetSupportedTypes() []string {
 	mu.Lock()
 	defer mu.Unlock()
 	supportedTypes := []string{}
-	for k := range allJobs {
+	for k := range allTypes {
 		supportedTypes = append(supportedTypes, k)
 	}
 	return supportedTypes
@@ -131,29 +142,6 @@ func AddJob(job JobInfo) error {
 	return Handler.AddJob(job)
 }
 
-func getType(path string) (*Type, error) {
-	if typeDefinition, err := os.ReadFile(path); err == nil {
-		var dat map[string]interface{}
-		if marshalError := json.Unmarshal(typeDefinition, &dat); marshalError == nil {
-			schema, _ := json.Marshal(dat["schema"])
-			typeInfo := Type{
-				TypeId:     dat["id"].(string),
-				DMaaPTopic: dat["dmaapTopic"].(string),
-				Schema:     string(schema),
-				Jobs:       make(map[string]JobInfo),
-			}
-			if _, ok := allJobs[typeInfo.TypeId]; !ok {
-				allJobs[typeInfo.TypeId] = typeInfo
-			}
-			return &typeInfo, nil
-		} else {
-			return nil, marshalError
-		}
-	} else {
-		return nil, err
-	}
-}
-
 func RunJobs(mRAddress string) {
 	for {
 		pollAndDistributeMessages(mRAddress)
@@ -161,9 +149,9 @@ func RunJobs(mRAddress string) {
 }
 
 func pollAndDistributeMessages(mRAddress string) {
-	for typeId, typeInfo := range allJobs {
+	for typeId, typeInfo := range allTypes {
 		log.Debugf("Processing jobs for type: %v", typeId)
-		messagesBody, error := restclient.Get(fmt.Sprintf("%v/events/%v/users/dmaapmediatorproducer", mRAddress, typeInfo.DMaaPTopic))
+		messagesBody, error := restclient.Get(fmt.Sprintf("%v/%v", mRAddress, typeInfo.DMaaPTopicURL))
 		if error != nil {
 			log.Warnf("Error getting data from MR. Cause: %v", error)
 			continue
@@ -172,7 +160,7 @@ func pollAndDistributeMessages(mRAddress string) {
 	}
 }
 
-func distributeMessages(messages []byte, typeInfo Type) {
+func distributeMessages(messages []byte, typeInfo TypeData) {
 	if len(messages) > 2 {
 		mu.Lock()
 		for _, jobInfo := range typeInfo.Jobs {
@@ -190,5 +178,5 @@ func sendMessagesToConsumer(messages []byte, jobInfo JobInfo) {
 }
 
 func clearAll() {
-	allJobs = make(map[string]Type)
+	allTypes = make(map[string]TypeData)
 }

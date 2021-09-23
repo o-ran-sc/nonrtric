@@ -32,10 +32,8 @@ import (
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "Debug")
-	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_HOST", "supervisionCallbackHost")
-	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "8095")
-	os.Setenv("INFO_JOB_CALLBACK_HOST", "jobCallbackHost")
-	os.Setenv("INFO_JOB_CALLBACK_PORT", "8096")
+	os.Setenv("INFO_PRODUCER_HOST", "producerHost")
+	os.Setenv("INFO_PRODUCER_PORT", "8095")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
 	os.Setenv("MR_HOST", "mrHost")
 	os.Setenv("MR_PORT", "3908")
@@ -43,14 +41,12 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:                            "Debug",
-		InfoProducerSupervisionCallbackHost: "supervisionCallbackHost",
-		InfoProducerSupervisionCallbackPort: 8095,
-		InfoJobCallbackHost:                 "jobCallbackHost",
-		InfoJobCallbackPort:                 8096,
-		InfoCoordinatorAddress:              "infoCoordAddr",
-		MRHost:                              "mrHost",
-		MRPort:                              3908,
+		LogLevel:               "Debug",
+		InfoProducerHost:       "producerHost",
+		InfoProducerPort:       8095,
+		InfoCoordinatorAddress: "infoCoordAddr",
+		MRHost:                 "mrHost",
+		MRPort:                 3908,
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -62,38 +58,34 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
 
-	os.Setenv("INFO_PRODUCER_SUPERVISION_CALLBACK_PORT", "wrong")
+	os.Setenv("INFO_PRODUCER_PORT", "wrong")
 	t.Cleanup(func() {
 		log.SetOutput(os.Stderr)
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:                            "Info",
-		InfoProducerSupervisionCallbackHost: "",
-		InfoProducerSupervisionCallbackPort: 8085,
-		InfoJobCallbackHost:                 "",
-		InfoJobCallbackPort:                 8086,
-		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
-		MRHost:                              "http://message-router.onap",
-		MRPort:                              3904,
+		LogLevel:               "Info",
+		InfoProducerHost:       "",
+		InfoProducerPort:       8085,
+		InfoCoordinatorAddress: "http://enrichmentservice:8083",
+		MRHost:                 "http://message-router.onap",
+		MRPort:                 3904,
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
 	}
 	logString := buf.String()
-	assertions.Contains(logString, "Invalid int value: wrong for variable: INFO_PRODUCER_SUPERVISION_CALLBACK_PORT. Default value: 8085 will be used")
+	assertions.Contains(logString, "Invalid int value: wrong for variable: INFO_PRODUCER_PORT. Default value: 8085 will be used")
 }
 
 func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
 	wantConfig := Config{
-		LogLevel:                            "Info",
-		InfoProducerSupervisionCallbackHost: "",
-		InfoProducerSupervisionCallbackPort: 8085,
-		InfoJobCallbackHost:                 "",
-		InfoJobCallbackPort:                 8086,
-		InfoCoordinatorAddress:              "http://enrichmentservice:8083",
-		MRHost:                              "http://message-router.onap",
-		MRPort:                              3904,
+		LogLevel:               "Info",
+		InfoProducerHost:       "",
+		InfoProducerPort:       8085,
+		InfoCoordinatorAddress: "http://enrichmentservice:8083",
+		MRHost:                 "http://message-router.onap",
+		MRPort:                 3904,
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)

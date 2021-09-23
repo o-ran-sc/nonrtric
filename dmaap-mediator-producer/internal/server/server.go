@@ -29,8 +29,11 @@ import (
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 )
 
+const StatusCallbackPath = "/status"
+const JobsCallbackPath = "/jobs"
+
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+	if r.URL.Path != StatusCallbackPath {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -44,7 +47,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateInfoJobHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/producer_simulator/info_job" {
+	if r.URL.Path != JobsCallbackPath {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -67,15 +70,4 @@ func CreateInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	if err := jobs.AddJob(jobInfo); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid job info. Cause: %v", err), http.StatusBadRequest)
 	}
-}
-
-func CreateServer(port int, handlerFunc func(http.ResponseWriter, *http.Request)) *http.Server {
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handlerFunc)
-	server := http.Server{
-		Addr:    fmt.Sprintf(":%v", port), // :{port}
-		Handler: mux,
-	}
-	return &server
 }
