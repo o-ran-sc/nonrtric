@@ -45,7 +45,6 @@ app:
     # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
     http.proxy-host:
     http.proxy-port: 0
-  vardata-directory: /var/dmaap-adaptor-service
   ecs-base-url: https://localhost:8434
   # Location of the component configuration file. The file will only be used if the Consul database is not used;
   # configuration from the Consul will override the file.

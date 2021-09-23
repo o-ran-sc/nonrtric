@@ -57,7 +57,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
-        "app.vardata-directory=./target", //
         "app.configuration-filepath=./src/test/resources/test_application_configuration.json", //
         "app.ecs-base-url=https://localhost:8434" //
 })
