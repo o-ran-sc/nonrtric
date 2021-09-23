@@ -16,6 +16,24 @@
       "message": "For the sake of clarity, I think it would be better to have the directory name specifying whether it\u0027s java or go version.\nMay be, instead of using dmaap-adaptor and dmaap-mediator-producer, you can use dmaap-mediator-java and dmaap-mediator-go",
       "revId": "9ae17305f2f1f3eaf036a3301b92dd3baeb33203",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36024e0b_d9c7185b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-09-23T15:53:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37119ff4_7147ded7",
+      "revId": "9ae17305f2f1f3eaf036a3301b92dd3baeb33203",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
