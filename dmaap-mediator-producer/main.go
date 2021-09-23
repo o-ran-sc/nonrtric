@@ -22,6 +22,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -31,8 +32,7 @@ import (
 )
 
 var configuration *config.Config
-var supervisionCallbackAddress string
-var jobInfoCallbackAddress string
+var callbackAddress string
 
 func init() {
 	configuration = config.New()
@@ -43,15 +43,10 @@ func init() {
 	}
 
 	log.Debug("Initializing DMaaP Mediator Producer")
-	if configuration.InfoProducerSupervisionCallbackHost == "" {
+	if configuration.InfoProducerHost == "" {
 		log.Fatal("Missing INFO_PRODUCER_SUPERVISION_CALLBACK_HOST")
 	}
-	supervisionCallbackAddress = fmt.Sprintf("%v:%v", configuration.InfoProducerSupervisionCallbackHost, configuration.InfoProducerSupervisionCallbackPort)
-
-	if configuration.InfoJobCallbackHost == "" {
-		log.Fatal("Missing INFO_JOB_CALLBACK_HOST")
-	}
-	jobInfoCallbackAddress = fmt.Sprintf("%v:%v", configuration.InfoJobCallbackHost, configuration.InfoJobCallbackPort)
+	callbackAddress = fmt.Sprintf("%v:%v", configuration.InfoProducerHost, configuration.InfoProducerPort)
 
 	registrator := config.NewRegistratorImpl(configuration.InfoCoordinatorAddress)
 	if types, err := jobs.GetTypes(); err == nil {
@@ -62,9 +57,9 @@ func init() {
 		log.Fatalf("Unable to get types to register due to: %v", err)
 	}
 	producer := config.ProducerRegistrationInfo{
-		InfoProducerSupervisionCallbackUrl: supervisionCallbackAddress,
+		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusCallbackPath,
 		SupportedInfoTypes:                 jobs.GetSupportedTypes(),
-		InfoJobCallbackUrl:                 jobInfoCallbackAddress,
+		InfoJobCallbackUrl:                 callbackAddress + server.JobsCallbackPath,
 	}
 	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
 		log.Fatalf("Unable to register producer due to: %v", err)
@@ -75,19 +70,14 @@ func main() {
 	log.Debug("Starting DMaaP Mediator Producer")
 	wg := new(sync.WaitGroup)
 
-	// add two goroutines to `wg` WaitGroup, one for each avilable server
-	wg.Add(3)
+	// add two goroutines to `wg` WaitGroup, one for each running go routine
+	wg.Add(2)
 
-	log.Debugf("Starting status callback server at port %v", configuration.InfoProducerSupervisionCallbackPort)
+	log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
 	go func() {
-		server := server.CreateServer(configuration.InfoProducerSupervisionCallbackPort, server.StatusHandler)
-		log.Warn(server.ListenAndServe())
-		wg.Done()
-	}()
-
-	go func() {
-		server := server.CreateServer(configuration.InfoJobCallbackPort, server.CreateInfoJobHandler)
-		log.Warn(server.ListenAndServe())
+		http.HandleFunc(server.StatusCallbackPath, server.StatusHandler)
+		http.HandleFunc(server.JobsCallbackPath, server.CreateInfoJobHandler)
+		log.Warn(http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), nil))
 		wg.Done()
 	}()
 

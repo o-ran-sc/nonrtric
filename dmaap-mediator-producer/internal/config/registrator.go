@@ -33,9 +33,10 @@ import (
 
 const registerTypePath = "/data-producer/v1/info-types/"
 const registerProducerPath = "/data-producer/v1/info-producers/"
+const typeSchema = `{"type": "object","properties": {},"additionalProperties": false}`
 
 type Registrator interface {
-	RegisterTypes(types []*jobs.Type) error
+	RegisterTypes(types []*jobs.TypeData) error
 	RegisterProducer(producerId string, producerInfo *ProducerRegistrationInfo)
 }
 
@@ -49,9 +50,9 @@ func NewRegistratorImpl(infoCoordAddr string) *RegistratorImpl {
 	}
 }
 
-func (r RegistratorImpl) RegisterTypes(jobTypes []*jobs.Type) error {
+func (r RegistratorImpl) RegisterTypes(jobTypes []jobs.TypeData) error {
 	for _, jobType := range jobTypes {
-		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, jobType.Schema)
+		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, typeSchema)
 		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.TypeId), []byte(body)); error != nil {
 			return error
 		}

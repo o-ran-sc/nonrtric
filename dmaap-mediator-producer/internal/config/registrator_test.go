@@ -43,11 +43,10 @@ func TestRegisterTypes(t *testing.T) {
 
 	restclient.Client = &clientMock
 
-	type1 := jobs.Type{
+	type1 := jobs.TypeData{
 		TypeId: "Type1",
-		Schema: `{"title": "Type 1"}`,
 	}
-	types := []*jobs.Type{&type1}
+	types := []jobs.TypeData{type1}
 
 	r := NewRegistratorImpl("http://localhost:9990")
 	err := r.RegisterTypes(types)
@@ -64,7 +63,7 @@ func TestRegisterTypes(t *testing.T) {
 	assertions.Equal("/data-producer/v1/info-types/Type1", actualRequest.URL.Path)
 	assertions.Equal("application/json; charset=utf-8", actualRequest.Header.Get("Content-Type"))
 	body, _ := ioutil.ReadAll(actualRequest.Body)
-	expectedBody := []byte(`{"info_job_data_schema": {"title": "Type 1"}}`)
+	expectedBody := []byte(`{"info_job_data_schema": {"type": "object","properties": {},"additionalProperties": false}}`)
 	assertions.Equal(expectedBody, body)
 	clientMock.AssertNumberOfCalls(t, "Do", 1)
 }
