@@ -43,11 +43,11 @@ func TestRegisterTypes(t *testing.T) {
 
 	restclient.Client = &clientMock
 
-	type1 := jobs.Type{
+	type1 := jobs.TypeData{
 		TypeId: "Type1",
 		Schema: `{"title": "Type 1"}`,
 	}
-	types := []*jobs.Type{&type1}
+	types := []*jobs.TypeData{&type1}
 
 	r := NewRegistratorImpl("http://localhost:9990")
 	err := r.RegisterTypes(types)

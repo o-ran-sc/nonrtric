@@ -21,20 +21,43 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	http "net/http"
+
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
+
+func main() {
+	port := flag.Int("port", 40935, "The port this consumer will listen on")
+	flag.Parse()
+	http.HandleFunc("/jobs", handleData)
+
+	fmt.Print("Starting consumer on port: ", *port)
+	http.ListenAndServe(fmt.Sprintf(":%v", *port), nil)
+	registerJob(*port)
+}
+
+func registerJob(port int) {
+	jobInfo := struct {
+		JobOwner      string `json:"job_owner"`
+		JobResultUri  string `json:"job_result_uri"`
+		InfoTypeId    string `json:"info_type_id"`
+		JobDefinition string `json:"job_definition"`
+	}{fmt.Sprintf("test%v", port), fmt.Sprintf("http://localhost:%v/jobs", port), "STD_Fault_Messages", "{}"}
+	fmt.Print("Registering consumer: ", jobInfo)
+	body, _ := json.Marshal(jobInfo)
+	putErr := restclient.Put(fmt.Sprintf("http://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body)
+	if putErr != nil {
+		fmt.Printf("Unable to register consumer: %v", putErr)
+	}
+}
 
 func handleData(w http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 	if reqData, err := io.ReadAll(req.Body); err == nil {
-		fmt.Printf("Consumer received body: %v\n", string(reqData))
+		fmt.Print("Consumer received body: ", string(reqData))
 	}
-}
-
-func main() {
-	http.HandleFunc("/jobs", handleData)
-
-	http.ListenAndServe(":40935", nil)
 }
