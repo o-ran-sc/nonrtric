@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd331536_973c67cb",
+        "filename": "dmaap-mediator-producer/configs/type_config.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-09-23T10:52:04Z",
+      "side": 1,
+      "message": "It looks like this in the java version. \n\n\n{\n   \"types\": [\n      {\n         \"id\": \"ExampleInformationType\",\n         \"dmaapTopicUrl\": \"/events/unauthenticated.VES_NOTIFICATION_OUTPUT/OpenDcae-c12/C12\"\n      }\n   ]\n}\n\n\nIn the Zalando REST Resource Naming Guide\nIt says that in all json, the top level should be an object. That makes it \npossible to add more parameters in a backwards compatible way.",
+      "revId": "e73a4b38bab617dd312a1a73f64cc84a67242699",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
