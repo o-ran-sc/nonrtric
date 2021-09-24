@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
@@ -57,9 +58,9 @@ func init() {
 		log.Fatalf("Unable to get types to register due to: %v", err)
 	}
 	producer := config.ProducerRegistrationInfo{
-		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusCallbackPath,
+		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusPath,
 		SupportedInfoTypes:                 jobs.GetSupportedTypes(),
-		InfoJobCallbackUrl:                 callbackAddress + server.JobsCallbackPath,
+		InfoJobCallbackUrl:                 callbackAddress + server.AddJobPath,
 	}
 	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
 		log.Fatalf("Unable to register producer due to: %v", err)
@@ -75,9 +76,11 @@ func main() {
 
 	log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
 	go func() {
-		http.HandleFunc(server.StatusCallbackPath, server.StatusHandler)
-		http.HandleFunc(server.JobsCallbackPath, server.CreateInfoJobHandler)
-		log.Warn(http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), nil))
+		r := mux.NewRouter()
+		r.HandleFunc(server.StatusPath, server.StatusHandler)
+		r.HandleFunc(server.AddJobPath, server.AddInfoJobHandler)
+		r.HandleFunc(server.DeleteJobPath, server.DeleteInfoJobHandler)
+		log.Warn(http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), r))
 		wg.Done()
 	}()
 

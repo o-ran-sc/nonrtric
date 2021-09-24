@@ -26,14 +26,17 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 )
 
-const StatusCallbackPath = "/status"
-const JobsCallbackPath = "/jobs"
+const StatusPath = "/status"
+const AddJobPath = "/jobs"
+const jobIdToken = "infoJobId"
+const DeleteJobPath = AddJobPath + "/{" + jobIdToken + "}"
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != StatusCallbackPath {
+	if r.URL.Path != StatusPath {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -46,8 +49,8 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "All is well!")
 }
 
-func CreateInfoJobHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != JobsCallbackPath {
+func AddInfoJobHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != AddJobPath {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -70,4 +73,20 @@ func CreateInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	if err := jobs.AddJob(jobInfo); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid job info. Cause: %v", err), http.StatusBadRequest)
 	}
+}
+
+func DeleteInfoJobHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "DELETE" {
+		http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, ok := vars[jobIdToken]
+	if !ok {
+		http.Error(w, "Must provide infoJobId.", http.StatusBadRequest)
+		return
+	}
+
+	jobs.DeleteJob(id)
 }
