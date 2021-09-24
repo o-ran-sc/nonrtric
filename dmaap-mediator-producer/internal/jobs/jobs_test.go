@@ -132,6 +132,30 @@ func TestAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 	assertions.Equal("missing required target URI: {  job1  <nil> type1}", err.Error())
 	clearAll()
 }
+
+func TestDeleteJob(t *testing.T) {
+	assertions := require.New(t)
+	jobToKeep := JobInfo{
+		InfoJobIdentity:  "job1",
+		InfoTypeIdentity: "type1",
+	}
+	jobToDelete := JobInfo{
+		InfoJobIdentity:  "job2",
+		InfoTypeIdentity: "type1",
+	}
+	allTypes["type1"] = TypeData{
+		TypeId: "type1",
+		Jobs:   map[string]JobInfo{"job1": jobToKeep, "job2": jobToDelete},
+	}
+	t.Cleanup(func() {
+		clearAll()
+	})
+
+	DeleteJob("job2")
+	assertions.Equal(1, len(allTypes["type1"].Jobs))
+	assertions.Equal(jobToKeep, allTypes["type1"].Jobs["job1"])
+}
+
 func TestPollAndDistributeMessages(t *testing.T) {
 	assertions := require.New(t)
 	jobInfo := JobInfo{
