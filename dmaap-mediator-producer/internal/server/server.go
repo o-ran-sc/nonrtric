@@ -26,37 +26,28 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 )
 
-const StatusCallbackPath = "/status"
-const JobsCallbackPath = "/jobs"
+const statusPath = "/status"
+const addJobPath = "/jobs"
+const jobIdToken = "infoJobId"
+const deleteJobPath = addJobPath + "/{" + jobIdToken + "}"
 
-func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != StatusCallbackPath {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
-
-	if r.Method != "GET" {
-		http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
-		return
-	}
-
-	fmt.Fprintf(w, "All is well!")
+func NewRouter() *mux.Router {
+	r := mux.NewRouter()
+	r.HandleFunc(statusPath, statusHandler).Methods(http.MethodGet).Name("status")
+	r.HandleFunc(addJobPath, addInfoJobHandler).Methods(http.MethodPost).Name("add")
+	r.HandleFunc(deleteJobPath, deleteInfoJobHandler).Methods(http.MethodDelete).Name("delete")
+	r.NotFoundHandler = &notFoundHandler{}
+	r.MethodNotAllowedHandler = &methodNotAllowedHandler{}
+	return r
 }
 
-func CreateInfoJobHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != JobsCallbackPath {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
+func statusHandler(w http.ResponseWriter, r *http.Request) {}
 
-	if r.Method != "POST" {
-		http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
-		return
-	}
-
+func addInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	b, readErr := ioutil.ReadAll(r.Body)
 	if readErr != nil {
 		http.Error(w, fmt.Sprintf("Unable to read body due to: %v", readErr), http.StatusBadRequest)
@@ -70,4 +61,27 @@ func CreateInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	if err := jobs.AddJob(jobInfo); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid job info. Cause: %v", err), http.StatusBadRequest)
 	}
+}
+
+func deleteInfoJobHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, ok := vars[jobIdToken]
+	if !ok {
+		http.Error(w, "Must provide infoJobId.", http.StatusBadRequest)
+		return
+	}
+
+	jobs.DeleteJob(id)
+}
+
+type notFoundHandler struct{}
+
+func (h *notFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "404 not found.", http.StatusNotFound)
+}
+
+type methodNotAllowedHandler struct{}
+
+func (h *methodNotAllowedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
 }
