@@ -55,6 +55,7 @@ type JobInfo struct {
 
 type JobHandler interface {
 	AddJob(JobInfo) error
+	DeleteJob(jobId string)
 }
 
 var (
@@ -85,6 +86,15 @@ func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
 	} else {
 		return err
 	}
+}
+
+func (jh *jobHandlerImpl) DeleteJob(jobId string) {
+	mu.Lock()
+	defer mu.Unlock()
+	for _, typeData := range allTypes {
+		delete(typeData.Jobs, jobId)
+	}
+	log.Debug("Deleted job: ", jobId)
 }
 
 func validateJobInfo(ji JobInfo) error {
@@ -140,6 +150,10 @@ func GetSupportedTypes() []string {
 
 func AddJob(job JobInfo) error {
 	return Handler.AddJob(job)
+}
+
+func DeleteJob(jobId string) {
+	Handler.DeleteJob(jobId)
 }
 
 func RunJobs(mRAddress string) {
