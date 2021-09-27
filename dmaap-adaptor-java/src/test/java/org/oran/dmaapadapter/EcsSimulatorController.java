@@ -97,13 +97,19 @@ public class EcsSimulatorController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public void addJob(ConsumerJobInfo job, AsyncRestClient restClient) {
+    public void addJob(ConsumerJobInfo job, String jobId, AsyncRestClient restClient) {
         String url = this.testResults.registrationInfo.jobCallbackUrl;
         ProducerJobInfo request =
-                new ProducerJobInfo(job.jobDefinition, "ID", job.infoTypeId, job.jobResultUri, job.owner, "TIMESTAMP");
+                new ProducerJobInfo(job.jobDefinition, jobId, job.infoTypeId, job.jobResultUri, job.owner, "TIMESTAMP");
         String body = gson.toJson(request);
         logger.info("ECS Simulator PUT job: {}", body);
         restClient.post(url, body).block();
+    }
+
+    public void deleteJob(String jobId, AsyncRestClient restClient) {
+        String url = this.testResults.registrationInfo.jobCallbackUrl + "/" + jobId;
+        logger.info("ECS Simulator DELETE job: {}", url);
+        restClient.delete(url).block();
 
     }
 }
