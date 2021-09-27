@@ -212,19 +212,26 @@ class ApplicationTest {
 
     @Test
     void testWholeChain() throws Exception {
+        final String JOB_ID = "ID";
+
+        // Register producer, Register types
         await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInEcs()).isTrue());
 
-        this.ecsSimulatorController.addJob(consumerJobInfo(), restClient());
-
+        // Create a job
+        this.ecsSimulatorController.addJob(consumerJobInfo(), JOB_ID, restClient());
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
 
+        // Return two messages from DMAAP and verify that these are sent to the owner of
+        // the job (consumer)
         DmaapSimulatorController.dmaapResponses.add("DmaapResponse1");
         DmaapSimulatorController.dmaapResponses.add("DmaapResponse2");
-
         ConsumerController.TestResults consumer = this.consumerController.testResults;
         await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(2));
         assertThat(consumer.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
 
+        // Delete the job
+        this.ecsSimulatorController.deleteJob(JOB_ID, restClient());
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
     }
 
 }

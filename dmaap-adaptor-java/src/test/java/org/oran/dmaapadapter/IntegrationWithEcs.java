@@ -62,6 +62,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 })
 class IntegrationWithEcs {
 
+    private static final String EI_JOB_ID = "EI_JOB_ID";
+
     @Autowired
     private ApplicationConfig applicationConfig;
 
@@ -161,20 +163,27 @@ class IntegrationWithEcs {
         return applicationConfig.getEcsBaseUrl();
     }
 
-    private void createInformationJobInEcs() {
-        String url = ecsBaseUrl() + "/data-consumer/v1/info-jobs/jobId";
+    private String jobUrl(String jobId) {
+        return ecsBaseUrl() + "/data-consumer/v1/info-jobs/" + jobId;
+    }
+
+    private void createInformationJobInEcs(String jobId) {
         String body = gson.toJson(consumerJobInfo());
         try {
             // Delete the job if it already exists
-            restClient().delete(url).block();
+            deleteInformationJobInEcs(jobId);
         } catch (Exception e) {
         }
-        restClient().putForEntity(url, body).block();
+        restClient().putForEntity(jobUrl(jobId), body).block();
+    }
+
+    private void deleteInformationJobInEcs(String jobId) {
+        restClient().delete(jobUrl(jobId)).block();
     }
 
     private ConsumerJobInfo consumerJobInfo() {
         InfoType type = this.types.getAll().iterator().next();
-        return consumerJobInfo(type.getId(), "EI_JOB_ID");
+        return consumerJobInfo(type.getId(), EI_JOB_ID);
     }
 
     private Object jsonObject() {
@@ -202,7 +211,7 @@ class IntegrationWithEcs {
     void testWholeChain() throws Exception {
         await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInEcs()).isTrue());
 
-        createInformationJobInEcs();
+        createInformationJobInEcs(EI_JOB_ID);
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
 
@@ -212,6 +221,10 @@ class IntegrationWithEcs {
         ConsumerController.TestResults results = this.consumerController.testResults;
         await().untilAsserted(() -> assertThat(results.receivedBodies.size()).isEqualTo(2));
         assertThat(results.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
+
+        deleteInformationJobInEcs(EI_JOB_ID);
+
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
 
         synchronized (this) {
             // logger.warn("**************** Keeping server alive! " +
