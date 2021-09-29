@@ -43,47 +43,35 @@ func (pe RequestError) Error() string {
 	return fmt.Sprintf("Request failed due to error response with status: %v and body: %v", pe.StatusCode, string(pe.Body))
 }
 
-var (
-	Client HTTPClient
-)
-
-func init() {
-	Client = &http.Client{}
-}
-
-func Get(url string) ([]byte, error) {
-	if response, err := Client.Get(url); err == nil {
-		defer response.Body.Close()
-		if responseData, err := io.ReadAll(response.Body); err == nil {
-			if isResponseSuccess(response.StatusCode) {
+func Get(url string, client HTTPClient) ([]byte, error) {
+	if response, err := client.Get(url); err == nil {
+		if isResponseSuccess(response.StatusCode) {
+			defer response.Body.Close()
+			if responseData, err := io.ReadAll(response.Body); err == nil {
 				return responseData, nil
 			} else {
-				requestError := RequestError{
-					StatusCode: response.StatusCode,
-					Body:       responseData,
-				}
-				return nil, requestError
+				return nil, err
 			}
 		} else {
-			return nil, err
+			return nil, getRequestError(response)
 		}
 	} else {
 		return nil, err
 	}
 }
 
-func Put(url string, body []byte) error {
-	return do(http.MethodPut, url, body)
+func Put(url string, body []byte, client HTTPClient) error {
+	return do(http.MethodPut, url, body, client)
 }
 
-func Post(url string, body []byte) error {
-	return do(http.MethodPost, url, body)
+func Post(url string, body []byte, client HTTPClient) error {
+	return do(http.MethodPost, url, body, client)
 }
 
-func do(method string, url string, body []byte) error {
+func do(method string, url string, body []byte, client HTTPClient) error {
 	if req, reqErr := http.NewRequest(method, url, bytes.NewBuffer(body)); reqErr == nil {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
-		if response, respErr := Client.Do(req); respErr == nil {
+		if response, respErr := client.Do(req); respErr == nil {
 			if isResponseSuccess(response.StatusCode) {
 				return nil
 			} else {

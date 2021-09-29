@@ -27,16 +27,9 @@ import (
 	"sync"
 
 	log "github.com/sirupsen/logrus"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
-
-type TypeDefinitions struct {
-	Types []TypeDefinition `json:"types"`
-}
-type TypeDefinition struct {
-	Id            string `json:"id"`
-	DmaapTopicURL string `json:"dmaapTopicUrl"`
-}
 
 type TypeData struct {
 	TypeId        string `json:"id"`
@@ -53,33 +46,38 @@ type JobInfo struct {
 	InfoTypeIdentity string      `json:"info_type_identity"`
 }
 
+type JobTypeHandler interface {
+	GetTypes() ([]config.TypeDefinition, error)
+	GetSupportedTypes() []string
+}
+
 type JobHandler interface {
 	AddJob(JobInfo) error
 	DeleteJob(jobId string)
 }
 
-var (
-	mu         sync.Mutex
-	configFile = "configs/type_config.json"
-	Handler    JobHandler
-	allTypes   = make(map[string]TypeData)
-)
-
-func init() {
-	Handler = newJobHandlerImpl()
+type JobHandlerImpl struct {
+	mu               sync.Mutex
+	configFile       string
+	allTypes         map[string]TypeData
+	pollClient       restclient.HTTPClient
+	distributeClient restclient.HTTPClient
 }
 
-type jobHandlerImpl struct{}
-
-func newJobHandlerImpl() *jobHandlerImpl {
-	return &jobHandlerImpl{}
+func NewJobHandlerImpl(typeConfigFilePath string, pollClient restclient.HTTPClient, distributeClient restclient.HTTPClient) *JobHandlerImpl {
+	return &JobHandlerImpl{
+		configFile:       typeConfigFilePath,
+		allTypes:         make(map[string]TypeData),
+		pollClient:       pollClient,
+		distributeClient: distributeClient,
+	}
 }
 
-func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
-	mu.Lock()
-	defer mu.Unlock()
-	if err := validateJobInfo(ji); err == nil {
-		jobs := allTypes[ji.InfoTypeIdentity].Jobs
+func (jh *JobHandlerImpl) AddJob(ji JobInfo) error {
+	jh.mu.Lock()
+	defer jh.mu.Unlock()
+	if err := jh.validateJobInfo(ji); err == nil {
+		jobs := jh.allTypes[ji.InfoTypeIdentity].Jobs
 		jobs[ji.InfoJobIdentity] = ji
 		log.Debug("Added job: ", ji)
 		return nil
@@ -88,17 +86,17 @@ func (jh *jobHandlerImpl) AddJob(ji JobInfo) error {
 	}
 }
 
-func (jh *jobHandlerImpl) DeleteJob(jobId string) {
-	mu.Lock()
-	defer mu.Unlock()
-	for _, typeData := range allTypes {
+func (jh *JobHandlerImpl) DeleteJob(jobId string) {
+	jh.mu.Lock()
+	defer jh.mu.Unlock()
+	for _, typeData := range jh.allTypes {
 		delete(typeData.Jobs, jobId)
 	}
 	log.Debug("Deleted job: ", jobId)
 }
 
-func validateJobInfo(ji JobInfo) error {
-	if _, ok := allTypes[ji.InfoTypeIdentity]; !ok {
+func (jh *JobHandlerImpl) validateJobInfo(ji JobInfo) error {
+	if _, ok := jh.allTypes[ji.InfoTypeIdentity]; !ok {
 		return fmt.Errorf("type not supported: %v", ji.InfoTypeIdentity)
 	}
 	if ji.InfoJobIdentity == "" {
@@ -111,86 +109,75 @@ func validateJobInfo(ji JobInfo) error {
 	return nil
 }
 
-func GetTypes() ([]TypeData, error) {
-	mu.Lock()
-	defer mu.Unlock()
-	types := make([]TypeData, 0, 1)
-	typeDefsByte, err := os.ReadFile(configFile)
+func (jh *JobHandlerImpl) GetTypes() ([]config.TypeDefinition, error) {
+	jh.mu.Lock()
+	defer jh.mu.Unlock()
+	typeDefsByte, err := os.ReadFile(jh.configFile)
 	if err != nil {
 		return nil, err
 	}
-	typeDefs := TypeDefinitions{}
+	typeDefs := struct {
+		Types []config.TypeDefinition `json:"types"`
+	}{}
 	err = json.Unmarshal(typeDefsByte, &typeDefs)
 	if err != nil {
 		return nil, err
 	}
 	for _, typeDef := range typeDefs.Types {
-		typeInfo := TypeData{
+		jh.allTypes[typeDef.Id] = TypeData{
 			TypeId:        typeDef.Id,
 			DMaaPTopicURL: typeDef.DmaapTopicURL,
 			Jobs:          make(map[string]JobInfo),
 		}
-		if _, ok := allTypes[typeInfo.TypeId]; !ok {
-			allTypes[typeInfo.TypeId] = typeInfo
-		}
-		types = append(types, typeInfo)
 	}
-	return types, nil
+	return typeDefs.Types, nil
 }
 
-func GetSupportedTypes() []string {
-	mu.Lock()
-	defer mu.Unlock()
+func (jh *JobHandlerImpl) GetSupportedTypes() []string {
+	jh.mu.Lock()
+	defer jh.mu.Unlock()
 	supportedTypes := []string{}
-	for k := range allTypes {
+	for k := range jh.allTypes {
 		supportedTypes = append(supportedTypes, k)
 	}
 	return supportedTypes
 }
 
-func AddJob(job JobInfo) error {
-	return Handler.AddJob(job)
-}
-
-func DeleteJob(jobId string) {
-	Handler.DeleteJob(jobId)
-}
-
-func RunJobs(mRAddress string) {
+func (jh *JobHandlerImpl) RunJobs(mRAddress string) {
 	for {
-		pollAndDistributeMessages(mRAddress)
+		jh.pollAndDistributeMessages(mRAddress)
 	}
 }
 
-func pollAndDistributeMessages(mRAddress string) {
-	for typeId, typeInfo := range allTypes {
+func (jh *JobHandlerImpl) pollAndDistributeMessages(mRAddress string) {
+	jh.mu.Lock()
+	defer jh.mu.Unlock()
+	for typeId, typeInfo := range jh.allTypes {
 		log.Debugf("Processing jobs for type: %v", typeId)
-		messagesBody, error := restclient.Get(fmt.Sprintf("%v/%v", mRAddress, typeInfo.DMaaPTopicURL))
+		messagesBody, error := restclient.Get(fmt.Sprintf("%v/%v", mRAddress, typeInfo.DMaaPTopicURL), jh.pollClient)
 		if error != nil {
 			log.Warnf("Error getting data from MR. Cause: %v", error)
 			continue
 		}
-		distributeMessages(messagesBody, typeInfo)
+		jh.distributeMessages(messagesBody, typeInfo)
 	}
 }
 
-func distributeMessages(messages []byte, typeInfo TypeData) {
+func (jh *JobHandlerImpl) distributeMessages(messages []byte, typeInfo TypeData) {
 	if len(messages) > 2 {
-		mu.Lock()
 		for _, jobInfo := range typeInfo.Jobs {
-			go sendMessagesToConsumer(messages, jobInfo)
+			go jh.sendMessagesToConsumer(messages, jobInfo)
 		}
-		mu.Unlock()
 	}
 }
 
-func sendMessagesToConsumer(messages []byte, jobInfo JobInfo) {
+func (jh *JobHandlerImpl) sendMessagesToConsumer(messages []byte, jobInfo JobInfo) {
 	log.Debugf("Processing job: %v", jobInfo.InfoJobIdentity)
-	if postErr := restclient.Post(jobInfo.TargetUri, messages); postErr != nil {
+	if postErr := restclient.Post(jobInfo.TargetUri, messages, jh.distributeClient); postErr != nil {
 		log.Warnf("Error posting data for job: %v. Cause: %v", jobInfo, postErr)
 	}
 }
 
-func clearAll() {
-	allTypes = make(map[string]TypeData)
+func (jh *JobHandlerImpl) clearAll() {
+	jh.allTypes = make(map[string]TypeData)
 }

@@ -27,7 +27,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
 
@@ -35,25 +34,38 @@ const registerTypePath = "/data-producer/v1/info-types/"
 const registerProducerPath = "/data-producer/v1/info-producers/"
 const typeSchema = `{"type": "object","properties": {},"additionalProperties": false}`
 
+type TypeDefinition struct {
+	Id            string `json:"id"`
+	DmaapTopicURL string `json:"dmaapTopicUrl"`
+}
+
+type ProducerRegistrationInfo struct {
+	InfoProducerSupervisionCallbackUrl string   `json:"info_producer_supervision_callback_url"`
+	SupportedInfoTypes                 []string `json:"supported_info_types"`
+	InfoJobCallbackUrl                 string   `json:"info_job_callback_url"`
+}
+
 type Registrator interface {
-	RegisterTypes(types []*jobs.TypeData) error
+	RegisterTypes(types []TypeDefinition) error
 	RegisterProducer(producerId string, producerInfo *ProducerRegistrationInfo)
 }
 
 type RegistratorImpl struct {
 	infoCoordinatorAddress string
+	httpClient             restclient.HTTPClient
 }
 
-func NewRegistratorImpl(infoCoordAddr string) *RegistratorImpl {
+func NewRegistratorImpl(infoCoordAddr string, client restclient.HTTPClient) *RegistratorImpl {
 	return &RegistratorImpl{
 		infoCoordinatorAddress: infoCoordAddr,
+		httpClient:             client,
 	}
 }
 
-func (r RegistratorImpl) RegisterTypes(jobTypes []jobs.TypeData) error {
+func (r RegistratorImpl) RegisterTypes(jobTypes []TypeDefinition) error {
 	for _, jobType := range jobTypes {
 		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, typeSchema)
-		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.TypeId), []byte(body)); error != nil {
+		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.Id), []byte(body), r.httpClient); error != nil {
 			return error
 		}
 		log.Debugf("Registered type: %v", jobType)
@@ -63,7 +75,7 @@ func (r RegistratorImpl) RegisterTypes(jobTypes []jobs.TypeData) error {
 
 func (r RegistratorImpl) RegisterProducer(producerId string, producerInfo *ProducerRegistrationInfo) error {
 	if body, marshalErr := json.Marshal(producerInfo); marshalErr == nil {
-		if putErr := restclient.Put(r.infoCoordinatorAddress+registerProducerPath+url.PathEscape(producerId), []byte(body)); putErr != nil {
+		if putErr := restclient.Put(r.infoCoordinatorAddress+registerProducerPath+url.PathEscape(producerId), []byte(body), r.httpClient); putErr != nil {
 			return putErr
 		}
 		log.Debugf("Registered producer: %v", producerId)
