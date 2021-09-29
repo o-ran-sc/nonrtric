@@ -253,7 +253,7 @@ class ApplicationTest {
     @Test
     void a1eGetEiJobsIds() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         final String JOB_ID_JSON = "[\"jobId\"]";
         String url = A1eConsts.API_ROOT + "/eijobs?infoTypeId=typeId";
         String rsp = restClient().get(url).block();
@@ -283,7 +283,7 @@ class ApplicationTest {
     @Test
     void consumerGetInformationJobsIds() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         final String JOB_ID_JSON = "[\"jobId\"]";
         String url = ConsumerConsts.API_ROOT + "/info-jobs?infoTypeId=typeId";
         String rsp = restClient().get(url).block();
@@ -313,7 +313,7 @@ class ApplicationTest {
     @Test
     void a1eGetEiJob() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         String url = A1eConsts.API_ROOT + "/eijobs/jobId";
         String rsp = restClient().get(url).block();
         A1eEiJobInfo info = gson.fromJson(rsp, A1eEiJobInfo.class);
@@ -324,7 +324,7 @@ class ApplicationTest {
     @Test
     void consumerGetEiJob() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId";
         String rsp = restClient().get(url).block();
         ConsumerJobInfo info = gson.fromJson(rsp, ConsumerJobInfo.class);
@@ -349,15 +349,15 @@ class ApplicationTest {
     @Test
     void a1eGetEiJobStatus() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
 
         verifyJobStatus("jobId", "ENABLED");
     }
 
     @Test
-    void consumerGetEiJobStatus() throws Exception {
+    void consumerGetInfoJobStatus() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
 
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId/status";
         String rsp = restClient().get(url).block();
@@ -372,7 +372,7 @@ class ApplicationTest {
     @Test
     void a1eDeleteEiJob() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         assertThat(this.infoJobs.size()).isEqualTo(1);
         String url = A1eConsts.API_ROOT + "/eijobs/jobId";
         restClient().delete(url).block();
@@ -386,7 +386,7 @@ class ApplicationTest {
     @Test
     void consumerDeleteEiJob() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         assertThat(this.infoJobs.size()).isEqualTo(1);
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId";
         restClient().delete(url).block();
@@ -395,6 +395,8 @@ class ApplicationTest {
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
         await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(1));
         assertThat(simulatorResults.jobsStopped.get(0)).isEqualTo("jobId");
+
+        testErrorCode(restClient().delete(url), HttpStatus.NOT_FOUND, "Could not find Information job: jobId");
     }
 
     @Test
@@ -415,7 +417,7 @@ class ApplicationTest {
     void a1ePutEiJob() throws Exception {
         // Test that one producer accepting a job is enough
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
+        putInfoProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
 
         String url = A1eConsts.API_ROOT + "/eijobs/jobId";
         String body = gson.toJson(infoJobInfo());
@@ -520,7 +522,7 @@ class ApplicationTest {
     void a1eChangingEiTypeGetRejected() throws Exception {
         putInfoProducerWithOneType("producer1", "typeId1");
         putInfoProducerWithOneType("producer2", "typeId2");
-        putEiJob("typeId1", "jobId");
+        putInfoJob("typeId1", "jobId");
 
         String url = A1eConsts.API_ROOT + "/eijobs/jobId";
         String body = gson.toJson(infoJobInfo("typeId2", "jobId"));
@@ -532,7 +534,7 @@ class ApplicationTest {
     void consumerChangingInfoTypeGetRejected() throws Exception {
         putInfoProducerWithOneType("producer1", "typeId1");
         putInfoProducerWithOneType("producer2", "typeId2");
-        putEiJob("typeId1", "jobId");
+        putInfoJob("typeId1", "jobId");
 
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId";
         String body = gson.toJson(consumerJobInfo("typeId2", "jobId"));
@@ -555,8 +557,8 @@ class ApplicationTest {
     @Test
     void producerDeleteEiType() throws Exception {
         putInfoType(TYPE_ID);
-        this.putEiJob(TYPE_ID, "job1");
-        this.putEiJob(TYPE_ID, "job2");
+        this.putInfoJob(TYPE_ID, "job1");
+        this.putInfoJob(TYPE_ID, "job2");
         deleteInfoType(TYPE_ID);
 
         assertThat(this.infoTypes.size()).isZero();
@@ -578,7 +580,7 @@ class ApplicationTest {
     @Test
     void producerPutProducerWithOneType_rejecting()
         throws JsonMappingException, JsonProcessingException, ServiceException {
-        putEiProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
+        putInfoProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
         String url = A1eConsts.API_ROOT + "/eijobs/" + EI_JOB_ID;
         String body = gson.toJson(infoJobInfo());
         restClient().put(url, body).block();
@@ -592,12 +594,12 @@ class ApplicationTest {
     }
 
     @Test
-    void producerGetEiProducerTypes() throws Exception {
+    void producerGetInfoProducerTypes() throws Exception {
         final String EI_TYPE_ID_2 = TYPE_ID + "_2";
         putInfoProducerWithOneType("producer1", TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         putInfoProducerWithOneType("producer2", EI_TYPE_ID_2);
-        putEiJob(EI_TYPE_ID_2, "jobId2");
+        putInfoJob(EI_TYPE_ID_2, "jobId2");
         String url = ProducerConsts.API_ROOT + "/info-types";
 
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
@@ -607,7 +609,7 @@ class ApplicationTest {
     }
 
     @Test
-    void producerPutEiProducer() throws Exception {
+    void producerPutInfoProducer() throws Exception {
         this.putInfoType(TYPE_ID);
         String url = ProducerConsts.API_ROOT + "/info-producers/infoProducerId";
         String body = gson.toJson(producerInfoRegistratioInfo(TYPE_ID));
@@ -624,15 +626,18 @@ class ApplicationTest {
         resp = restClient().putForEntity(url, body).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        // GET info producer
         resp = restClient().getForEntity(url).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(resp.getBody()).isEqualTo(body);
+
+        testErrorCode(restClient().get(url + "junk"), HttpStatus.NOT_FOUND, "Could not find Information Producer");
     }
 
     @Test
-    void producerPutEiProducerExistingJob() throws Exception {
+    void producerPutInfoProducerExistingJob() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         String url = ProducerConsts.API_ROOT + "/info-producers/infoProducerId";
         String body = gson.toJson(producerInfoRegistratioInfo(TYPE_ID));
         restClient().putForEntity(url, body).block();
@@ -644,14 +649,14 @@ class ApplicationTest {
     }
 
     @Test
-    void testPutEiProducer_noType() throws Exception {
+    void testPutInfoProducer_noType() throws Exception {
         String url = ProducerConsts.API_ROOT + "/info-producers/infoProducerId";
         String body = gson.toJson(producerInfoRegistratioInfo(TYPE_ID));
         testErrorCode(restClient().put(url, body), HttpStatus.NOT_FOUND, "Information type not found");
     }
 
     @Test
-    void producerPutProducerAndEiJob() throws Exception {
+    void producerPutProducerAndInfoJob() throws Exception {
         this.putInfoType(TYPE_ID);
         String url = ProducerConsts.API_ROOT + "/info-producers/infoProducerId";
         String body = gson.toJson(producerInfoRegistratioInfo(TYPE_ID));
@@ -670,10 +675,10 @@ class ApplicationTest {
     }
 
     @Test
-    void producerGetEiJobsForProducer() throws JsonMappingException, JsonProcessingException, ServiceException {
+    void producerGetInfoJobsForProducer() throws JsonMappingException, JsonProcessingException, ServiceException {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId1");
-        putEiJob(TYPE_ID, "jobId2");
+        putInfoJob(TYPE_ID, "jobId1");
+        putInfoJob(TYPE_ID, "jobId2");
 
         // PUT a consumerRestApiTestBase.java
         String url = ProducerConsts.API_ROOT + "/info-producers/infoProducerId";
@@ -690,7 +695,7 @@ class ApplicationTest {
     }
 
     @Test
-    void producerDeleteEiProducer() throws Exception {
+    void producerDeleteInfoProducer() throws Exception {
         putInfoProducerWithOneType("infoProducerId", TYPE_ID);
         putInfoProducerWithOneType("infoProducerId2", TYPE_ID);
 
@@ -698,18 +703,21 @@ class ApplicationTest {
         InfoType type = this.infoTypes.getType(TYPE_ID);
         assertThat(this.infoProducers.getProducerIdsForType(type.getId())).contains("infoProducerId");
         assertThat(this.infoProducers.getProducerIdsForType(type.getId())).contains("infoProducerId2");
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         assertThat(this.infoJobs.size()).isEqualTo(1);
 
-        deleteEiProducer("infoProducerId");
+        deleteInfoProducer("infoProducerId");
         assertThat(this.infoProducers.size()).isEqualTo(1);
         assertThat(this.infoProducers.getProducerIdsForType(TYPE_ID)).doesNotContain("infoProducerId");
         verifyJobStatus("jobId", "ENABLED");
 
-        deleteEiProducer("infoProducerId2");
+        deleteInfoProducer("infoProducerId2");
         assertThat(this.infoProducers.size()).isZero();
         assertThat(this.infoTypes.size()).isEqualTo(1);
         verifyJobStatus("jobId", "DISABLED");
+
+        String url = ProducerConsts.API_ROOT + "/info-producers/" + "junk";
+        testErrorCode(restClient().delete(url), HttpStatus.NOT_FOUND, "Could not find Information Producer");
     }
 
     @Test
@@ -718,13 +726,13 @@ class ApplicationTest {
         ProducerSimulatorController.TestResults producerCalls = this.producerSimulator.getTestResults();
 
         putInfoProducerWithOneType("infoProducerId", TYPE_ID);
-        putEiJob(TYPE_ID, "jobId");
+        putInfoJob(TYPE_ID, "jobId");
         putInfoProducerWithOneType("infoProducerId2", TYPE_ID);
         await().untilAsserted(() -> assertThat(producerCalls.jobsStarted.size()).isEqualTo(2));
 
-        deleteEiProducer("infoProducerId2");
+        deleteInfoProducer("infoProducerId2");
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains, one producer left
-        deleteEiProducer("infoProducerId");
+        deleteInfoProducer("infoProducerId");
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains
         assertThat(this.infoJobs.size()).isEqualTo(1); // The job remains
         await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(1));
@@ -742,7 +750,7 @@ class ApplicationTest {
 
         // Create a job
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, EI_JOB_ID);
+        putInfoJob(TYPE_ID, EI_JOB_ID);
 
         // change the type for the producer, the job shall be disabled
         putInfoProducerWithOneType(PRODUCER_ID, "junk");
@@ -759,13 +767,15 @@ class ApplicationTest {
     }
 
     @Test
-    void producerGetProducerEiType() throws JsonMappingException, JsonProcessingException, ServiceException {
+    void producerGetProducerInfoType() throws JsonMappingException, JsonProcessingException, ServiceException {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
         String url = ProducerConsts.API_ROOT + "/info-types/" + TYPE_ID;
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         ProducerInfoTypeInfo info = gson.fromJson(resp.getBody(), ProducerInfoTypeInfo.class);
         assertThat(info.jobDataSchema).isNotNull();
         assertThat(info.typeSpecificInformation).isNotNull();
+
+        testErrorCode(restClient().get(url + "junk"), HttpStatus.NOT_FOUND, "Information type not found");
     }
 
     @Test
@@ -788,14 +798,14 @@ class ApplicationTest {
     void producerSupervision() throws JsonMappingException, JsonProcessingException, ServiceException {
 
         ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
-        putEiProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
+        putInfoProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
 
         {
             // Create a job
             putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-            putEiJob(TYPE_ID, EI_JOB_ID);
+            putInfoJob(TYPE_ID, EI_JOB_ID);
             verifyJobStatus(EI_JOB_ID, "ENABLED");
-            deleteEiProducer(PRODUCER_ID);
+            deleteInfoProducer(PRODUCER_ID);
             // A Job disabled status notification shall now be received
             await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(1));
             assertThat(consumerResults.eiJobStatusCallbacks.get(0).state)
@@ -834,7 +844,7 @@ class ApplicationTest {
         // suceeded
 
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, EI_JOB_ID);
+        putInfoJob(TYPE_ID, EI_JOB_ID);
 
         InfoProducer producer = this.infoProducers.getProducer(PRODUCER_ID);
         InfoJob job = this.infoJobs.getJob(EI_JOB_ID);
@@ -855,8 +865,8 @@ class ApplicationTest {
 
     @Test
     void testGetStatus() throws JsonMappingException, JsonProcessingException, ServiceException {
-        putEiProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
-        putEiProducerWithOneTypeRejecting("simulateProducerError2", TYPE_ID);
+        putInfoProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
+        putInfoProducerWithOneTypeRejecting("simulateProducerError2", TYPE_ID);
 
         String url = "/status";
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
@@ -866,8 +876,8 @@ class ApplicationTest {
     @Test
     void testEiJobDatabase() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        putEiJob(TYPE_ID, "jobId1");
-        putEiJob(TYPE_ID, "jobId2");
+        putInfoJob(TYPE_ID, "jobId1");
+        putInfoJob(TYPE_ID, "jobId2");
 
         assertThat(this.infoJobs.size()).isEqualTo(2);
 
@@ -926,6 +936,7 @@ class ApplicationTest {
     void testConsumerTypeSubscriptionDatabase() {
         final String callbackUrl = baseUrl() + ConsumerSimulatorController.getTypeStatusCallbackUrl();
         final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(callbackUrl, "owner");
+
         // PUT a subscription
         String body = gson.toJson(info);
         restClient().putForEntity(typeSubscriptionUrl() + "/subscriptionId", body).block();
@@ -946,6 +957,12 @@ class ApplicationTest {
 
         final String callbackUrl = baseUrl() + ConsumerSimulatorController.getTypeStatusCallbackUrl();
         final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(callbackUrl, "owner");
+
+        testErrorCode(restClient().get(typeSubscriptionUrl() + "/junk"), HttpStatus.NOT_FOUND,
+            "Could not find Information subscription: junk");
+
+        testErrorCode(restClient().delete(typeSubscriptionUrl() + "/junk"), HttpStatus.NOT_FOUND,
+            "Could not find Information subscription: junk");
 
         {
             // PUT a subscription
@@ -1031,7 +1048,7 @@ class ApplicationTest {
         return ConsumerConsts.API_ROOT + "/info-type-subscription";
     }
 
-    private void deleteEiProducer(String infoProducerId) {
+    private void deleteInfoProducer(String infoProducerId) {
         String url = ProducerConsts.API_ROOT + "/info-producers/" + infoProducerId;
         restClient().deleteForEntity(url).block();
     }
@@ -1050,7 +1067,7 @@ class ApplicationTest {
         assertThat(statusInfo.opState).isEqualTo(expectedOperationalState);
     }
 
-    ProducerInfoTypeInfo producerEiTypeRegistrationInfo(String typeId)
+    ProducerInfoTypeInfo ProducerInfoTypeRegistrationInfo(String typeId)
         throws JsonMappingException, JsonProcessingException {
         return new ProducerInfoTypeInfo(jsonSchemaObject(), typeSpecifcInfoObject());
     }
@@ -1120,7 +1137,7 @@ class ApplicationTest {
         return jsonObject("{ " + EI_JOB_PROPERTY + " : \"value\" }");
     }
 
-    private InfoJob putEiJob(String infoTypeId, String jobId)
+    private InfoJob putInfoJob(String infoTypeId, String jobId)
         throws JsonMappingException, JsonProcessingException, ServiceException {
 
         String url = A1eConsts.API_ROOT + "/eijobs/" + jobId;
@@ -1133,7 +1150,7 @@ class ApplicationTest {
     private HttpStatus putInfoType(String infoTypeId)
         throws JsonMappingException, JsonProcessingException, ServiceException {
         String url = ProducerConsts.API_ROOT + "/info-types/" + infoTypeId;
-        String body = gson.toJson(producerEiTypeRegistrationInfo(infoTypeId));
+        String body = gson.toJson(ProducerInfoTypeRegistrationInfo(infoTypeId));
 
         ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
         this.infoTypes.getType(infoTypeId);
@@ -1148,7 +1165,7 @@ class ApplicationTest {
         restClient().delete(deleteInfoTypeUrl(typeId)).block();
     }
 
-    private InfoType putEiProducerWithOneTypeRejecting(String producerId, String infoTypeId)
+    private InfoType putInfoProducerWithOneTypeRejecting(String producerId, String infoTypeId)
         throws JsonMappingException, JsonProcessingException, ServiceException {
         this.putInfoType(infoTypeId);
         String url = ProducerConsts.API_ROOT + "/info-producers/" + producerId;
