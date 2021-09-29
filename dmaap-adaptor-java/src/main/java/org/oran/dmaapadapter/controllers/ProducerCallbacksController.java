@@ -95,13 +95,10 @@ public class ProducerCallbacksController {
     })
     public ResponseEntity<Object> jobDeletedCallback( //
             @PathVariable("infoJobId") String infoJobId) {
-        try {
-            logger.info("Job deleted callback {}", infoJobId);
-            this.jobs.remove(infoJobId);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
-        }
+
+        logger.info("Job deleted callback {}", infoJobId);
+        this.jobs.remove(infoJobId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(path = SUPERVISION_URL, produces = MediaType.APPLICATION_JSON_VALUE)
