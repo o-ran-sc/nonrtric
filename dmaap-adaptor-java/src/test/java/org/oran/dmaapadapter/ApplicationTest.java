@@ -22,6 +22,7 @@ package org.oran.dmaapadapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParser;
 
@@ -42,7 +43,9 @@ import org.oran.dmaapadapter.configuration.ImmutableHttpProxyConfig;
 import org.oran.dmaapadapter.configuration.ImmutableWebClientConfig;
 import org.oran.dmaapadapter.configuration.WebClientConfig;
 import org.oran.dmaapadapter.configuration.WebClientConfig.HttpProxyConfig;
+import org.oran.dmaapadapter.controllers.ProducerCallbacksController;
 import org.oran.dmaapadapter.r1.ConsumerJobInfo;
+import org.oran.dmaapadapter.r1.ProducerJobInfo;
 import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Jobs;
@@ -56,9 +59,14 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -86,6 +94,8 @@ class ApplicationTest {
 
     @Autowired
     private EcsSimulatorController ecsSimulatorController;
+
+    private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
 
     @LocalServerPort
     int localServerHttpPort;
@@ -211,6 +221,21 @@ class ApplicationTest {
     }
 
     @Test
+    void testResponseCodes() throws Exception {
+        String supervisionUrl = baseUrl() + ProducerCallbacksController.SUPERVISION_URL;
+        ResponseEntity<String> resp = restClient().getForEntity(supervisionUrl).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        String jobUrl = baseUrl() + ProducerCallbacksController.JOB_URL;
+        resp = restClient().deleteForEntity(jobUrl + "/junk").block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        ProducerJobInfo info = new ProducerJobInfo(null, "id", "typeId", "targetUri", "owner", "lastUpdated");
+        String body = gson.toJson(info);
+        testErrorCode(restClient().post(jobUrl, body), HttpStatus.NOT_FOUND, "Could not find type");
+    }
+
+    @Test
     void testWholeChain() throws Exception {
         final String JOB_ID = "ID";
 
@@ -232,6 +257,31 @@ class ApplicationTest {
         // Delete the job
         this.ecsSimulatorController.deleteJob(JOB_ID, restClient());
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
+    }
+
+    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {
+        testErrorCode(request, expStatus, responseContains, true);
+    }
+
+    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains,
+            boolean expectApplicationProblemJsonMediaType) {
+        StepVerifier.create(request) //
+                .expectSubscription() //
+                .expectErrorMatches(
+                        t -> checkWebClientError(t, expStatus, responseContains, expectApplicationProblemJsonMediaType)) //
+                .verify();
+    }
+
+    private boolean checkWebClientError(Throwable throwable, HttpStatus expStatus, String responseContains,
+            boolean expectApplicationProblemJsonMediaType) {
+        assertTrue(throwable instanceof WebClientResponseException);
+        WebClientResponseException responseException = (WebClientResponseException) throwable;
+        assertThat(responseException.getStatusCode()).isEqualTo(expStatus);
+        assertThat(responseException.getResponseBodyAsString()).contains(responseContains);
+        if (expectApplicationProblemJsonMediaType) {
+            assertThat(responseException.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        }
+        return true;
     }
 
 }
