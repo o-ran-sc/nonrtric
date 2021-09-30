@@ -34,5 +34,7 @@ go get github.com/stretchr/testify/mock@v1.7.0
 
 go-acc ./... --ignore mocks
 
+sed -i -e 's/oransc\.org\/nonrtric\///' coverage.txt
+
 cp coverage.txt $curdir
 echo "--> build-dmaapmediatorproducer-ubuntu.sh ends"
