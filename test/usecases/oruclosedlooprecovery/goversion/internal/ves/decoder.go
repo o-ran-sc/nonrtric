@@ -22,6 +22,8 @@ package ves
 
 import (
 	"encoding/json"
+	"io"
+	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -39,4 +41,19 @@ func GetFaultMessages(messageStrings *[]string) []FaultMessage {
 		}
 	}
 	return faultMessages
+}
+
+func GetVesMessages(r io.ReadCloser) *[]string {
+	var messages []string
+	body, err := ioutil.ReadAll(r)
+	if err != nil {
+		log.Warn(err)
+		return nil
+	}
+	err = json.Unmarshal(body, &messages)
+	if err != nil {
+		log.Warn(err)
+		return nil
+	}
+	return &messages
 }

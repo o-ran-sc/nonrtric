@@ -21,8 +21,6 @@
 package linkfailure
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -59,7 +57,7 @@ func NewLinkFailureHandler(ls repository.LookupService, conf Configuration) *Lin
 
 func (lfh LinkFailureHandler) MessagesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Handling messages")
-	if messages := lfh.getVesMessages(r); messages != nil {
+	if messages := ves.GetVesMessages(r.Body); messages != nil {
 		faultMessages := ves.GetFaultMessages(messages)
 
 		for _, message := range faultMessages {
@@ -95,19 +93,4 @@ func getSdnrPath(oRuId string, oDuId string) string {
 
 func (lfh LinkFailureHandler) getUnlockMessage(oRuId string) string {
 	return strings.Replace(unlockMessage, "[O-RU-ID]", oRuId, 1)
-}
-
-func (lfh LinkFailureHandler) getVesMessages(r *http.Request) *[]string {
-	var messages []string
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Warn(err)
-		return nil
-	}
-	err = json.Unmarshal(body, &messages)
-	if err != nil {
-		log.Warn(err)
-		return nil
-	}
-	return &messages
 }
