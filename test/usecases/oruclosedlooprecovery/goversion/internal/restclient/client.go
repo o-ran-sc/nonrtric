@@ -56,11 +56,15 @@ func init() {
 
 func Get(url string) ([]byte, error) {
 	if response, err := Client.Get(url); err == nil {
-		defer response.Body.Close()
-		if responseData, err := io.ReadAll(response.Body); err == nil {
-			return responseData, nil
+		if isResponseSuccess(response.StatusCode) {
+			defer response.Body.Close()
+			if responseData, err := io.ReadAll(response.Body); err == nil {
+				return responseData, nil
+			} else {
+				return nil, err
+			}
 		} else {
-			return nil, err
+			return nil, getResponseError(response)
 		}
 	} else {
 		return nil, err

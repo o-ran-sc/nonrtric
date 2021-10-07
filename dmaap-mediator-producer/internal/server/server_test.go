@@ -164,7 +164,7 @@ func TestDeleteJob(t *testing.T) {
 	r := mux.SetURLVars(newRequest(http.MethodDelete, "/jobs/", nil, t), map[string]string{"infoJobId": "job1"})
 	handler := http.HandlerFunc(deleteInfoJobHandler)
 	handler.ServeHTTP(responseRecorder, r)
-	assertions.Equal(http.StatusOK, http.StatusOK)
+	assertions.Equal(http.StatusOK, responseRecorder.Result().StatusCode)
 
 	assertions.Equal("", responseRecorder.Body.String())
 
