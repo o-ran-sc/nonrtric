@@ -27,28 +27,24 @@ import (
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
-	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
-	"oransc.org/nonrtric/dmaapmediatorproducer/mocks"
+	"oransc.org/nonrtric/dmaapmediatorproducer/mocks/httpclient"
 )
 
 func TestRegisterTypes(t *testing.T) {
 	assertions := require.New(t)
 
-	clientMock := mocks.HTTPClient{}
+	clientMock := httpclient.HTTPClient{}
 
 	clientMock.On("Do", mock.Anything).Return(&http.Response{
 		StatusCode: http.StatusCreated,
 	}, nil)
 
-	restclient.Client = &clientMock
-
-	type1 := jobs.TypeData{
-		TypeId: "Type1",
+	type1 := TypeDefinition{
+		Id: "Type1",
 	}
-	types := []jobs.TypeData{type1}
+	types := []TypeDefinition{type1}
 
-	r := NewRegistratorImpl("http://localhost:9990")
+	r := NewRegistratorImpl("http://localhost:9990", &clientMock)
 	err := r.RegisterTypes(types)
 
 	assertions.Nil(err)
@@ -71,13 +67,11 @@ func TestRegisterTypes(t *testing.T) {
 func TestRegisterProducer(t *testing.T) {
 	assertions := require.New(t)
 
-	clientMock := mocks.HTTPClient{}
+	clientMock := httpclient.HTTPClient{}
 
 	clientMock.On("Do", mock.Anything).Return(&http.Response{
 		StatusCode: http.StatusCreated,
 	}, nil)
-
-	restclient.Client = &clientMock
 
 	producer := ProducerRegistrationInfo{
 		InfoProducerSupervisionCallbackUrl: "supervisionCallbackUrl",
@@ -85,7 +79,7 @@ func TestRegisterProducer(t *testing.T) {
 		InfoJobCallbackUrl:                 "jobCallbackUrl",
 	}
 
-	r := NewRegistratorImpl("http://localhost:9990")
+	r := NewRegistratorImpl("http://localhost:9990", &clientMock)
 	err := r.RegisterProducer("Producer1", &producer)
 
 	assertions.Nil(err)

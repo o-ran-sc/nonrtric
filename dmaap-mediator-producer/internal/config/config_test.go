@@ -31,6 +31,7 @@ import (
 )
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
+	assertions := require.New(t)
 	os.Setenv("LOG_LEVEL", "Debug")
 	os.Setenv("INFO_PRODUCER_HOST", "producerHost")
 	os.Setenv("INFO_PRODUCER_PORT", "8095")
@@ -41,16 +42,16 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:               "Debug",
+		LogLevel:               log.DebugLevel,
 		InfoProducerHost:       "producerHost",
 		InfoProducerPort:       8095,
 		InfoCoordinatorAddress: "infoCoordAddr",
 		MRHost:                 "mrHost",
 		MRPort:                 3908,
 	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
+	got := New()
+
+	assertions.Equal(&wantConfig, got)
 }
 
 func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T) {
@@ -64,7 +65,7 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:               "Info",
+		LogLevel:               log.InfoLevel,
 		InfoProducerHost:       "",
 		InfoProducerPort:       8085,
 		InfoCoordinatorAddress: "http://enrichmentservice:8083",
@@ -78,16 +79,29 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 	assertions.Contains(logString, "Invalid int value: wrong for variable: INFO_PRODUCER_PORT. Default value: 8085 will be used")
 }
 
-func TestNew_envVarsNotSetConfigContainDefaultValues(t *testing.T) {
+func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
+	assertions := require.New(t)
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+
+	os.Setenv("LOG_LEVEL", "wrong")
+	t.Cleanup(func() {
+		log.SetOutput(os.Stderr)
+		os.Clearenv()
+	})
+
 	wantConfig := Config{
-		LogLevel:               "Info",
+		LogLevel:               log.InfoLevel,
 		InfoProducerHost:       "",
 		InfoProducerPort:       8085,
 		InfoCoordinatorAddress: "http://enrichmentservice:8083",
 		MRHost:                 "http://message-router.onap",
 		MRPort:                 3904,
 	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
+
+	got := New()
+
+	assertions.Equal(&wantConfig, got)
+	logString := buf.String()
+	assertions.Contains(logString, "Invalid log level: wrong. Log level will be Info!")
 }

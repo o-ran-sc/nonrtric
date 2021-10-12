@@ -24,49 +24,45 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/server"
 )
 
+const timeoutHTTPClient = time.Second * 5
+const timeoutPollClient = time.Second * 15
+
 var configuration *config.Config
-var callbackAddress string
+var httpClient restclient.HTTPClient
+var jobHandler *jobs.JobHandlerImpl
 
 func init() {
 	configuration = config.New()
-	if loglevel, err := log.ParseLevel(configuration.LogLevel); err == nil {
-		log.SetLevel(loglevel)
-	} else {
-		log.Warnf("Invalid log level: %v. Log level will be Info!", configuration.LogLevel)
-	}
-
-	log.Debug("Initializing DMaaP Mediator Producer")
-	if configuration.InfoProducerHost == "" {
-		log.Fatal("Missing INFO_PRODUCER_SUPERVISION_CALLBACK_HOST")
-	}
-	callbackAddress = fmt.Sprintf("%v:%v", configuration.InfoProducerHost, configuration.InfoProducerPort)
-
-	registrator := config.NewRegistratorImpl(configuration.InfoCoordinatorAddress)
-	if types, err := jobs.GetTypes(); err == nil {
-		if regErr := registrator.RegisterTypes(types); regErr != nil {
-			log.Fatalf("Unable to register all types due to: %v", regErr)
-		}
-	} else {
-		log.Fatalf("Unable to get types to register due to: %v", err)
-	}
-	producer := config.ProducerRegistrationInfo{
-		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusPath,
-		SupportedInfoTypes:                 jobs.GetSupportedTypes(),
-		InfoJobCallbackUrl:                 callbackAddress + server.AddJobPath,
-	}
-	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
-		log.Fatalf("Unable to register producer due to: %v", err)
-	}
 }
 
 func main() {
+	log.SetLevel(configuration.LogLevel)
+	log.Debug("Initializing DMaaP Mediator Producer")
+	if err := validateConfiguration(configuration); err != nil {
+		log.Fatalf("Stopping producer due to error: %v", err)
+	}
+	callbackAddress := fmt.Sprintf("%v:%v", configuration.InfoProducerHost, configuration.InfoProducerPort)
+
+	httpClient = &http.Client{
+		Timeout: timeoutHTTPClient,
+	}
+	pollClient := &http.Client{
+		Timeout: timeoutPollClient,
+	}
+	jobHandler = jobs.NewJobHandlerImpl("configs/type_config.json", pollClient, httpClient)
+	if err := registerTypesAndProducer(jobHandler, configuration.InfoCoordinatorAddress, callbackAddress); err != nil {
+		log.Fatalf("Stopping producer due to: %v", err)
+	}
+
 	log.Debug("Starting DMaaP Mediator Producer")
 	wg := new(sync.WaitGroup)
 
@@ -75,17 +71,44 @@ func main() {
 
 	log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
 	go func() {
-		r := server.NewRouter()
+		r := server.NewRouter(jobHandler)
 		log.Warn(http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), r))
 		wg.Done()
 	}()
 
 	go func() {
-		jobs.RunJobs(fmt.Sprintf("%v:%v", configuration.MRHost, configuration.MRPort))
+		jobHandler.RunJobs(fmt.Sprintf("%v:%v", configuration.MRHost, configuration.MRPort))
 		wg.Done()
 	}()
 
 	// wait until WaitGroup is done
 	wg.Wait()
 	log.Debug("Stopping DMaaP Mediator Producer")
+}
+
+func validateConfiguration(configuration *config.Config) error {
+	if configuration.InfoProducerHost == "" {
+		return fmt.Errorf("missing INFO_PRODUCER_HOST")
+	}
+	return nil
+}
+
+func registerTypesAndProducer(jobHandler jobs.JobTypeHandler, infoCoordinatorAddress string, callbackAddress string) error {
+	registrator := config.NewRegistratorImpl(infoCoordinatorAddress, httpClient)
+	if types, err := jobHandler.GetTypes(); err == nil {
+		if regErr := registrator.RegisterTypes(types); regErr != nil {
+			return fmt.Errorf("unable to register all types due to: %v", regErr)
+		}
+	} else {
+		return fmt.Errorf("unable to get types to register due to: %v", err)
+	}
+	producer := config.ProducerRegistrationInfo{
+		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusPath,
+		SupportedInfoTypes:                 jobHandler.GetSupportedTypes(),
+		InfoJobCallbackUrl:                 callbackAddress + server.AddJobPath,
+	}
+	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {
+		return fmt.Errorf("unable to register producer due to: %v", err)
+	}
+	return nil
 }

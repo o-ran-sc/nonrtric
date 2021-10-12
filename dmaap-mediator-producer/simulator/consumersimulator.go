@@ -26,18 +26,25 @@ import (
 	"fmt"
 	"io"
 	http "net/http"
+	"time"
 
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
 
+var httpClient http.Client
+
 func main() {
+	httpClient = http.Client{
+		Timeout: time.Second * 5,
+	}
 	port := flag.Int("port", 40935, "The port this consumer will listen on")
 	flag.Parse()
 	http.HandleFunc("/jobs", handleData)
 
+	registerJob(*port)
+
 	fmt.Print("Starting consumer on port: ", *port)
 	http.ListenAndServe(fmt.Sprintf(":%v", *port), nil)
-	registerJob(*port)
 }
 
 func registerJob(port int) {
@@ -49,7 +56,7 @@ func registerJob(port int) {
 	}{fmt.Sprintf("test%v", port), fmt.Sprintf("http://localhost:%v/jobs", port), "STD_Fault_Messages", "{}"}
 	fmt.Print("Registering consumer: ", jobInfo)
 	body, _ := json.Marshal(jobInfo)
-	putErr := restclient.Put(fmt.Sprintf("http://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body)
+	putErr := restclient.Put(fmt.Sprintf("http://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body, &httpClient)
 	if putErr != nil {
 		fmt.Printf("Unable to register consumer: %v", putErr)
 	}

@@ -28,7 +28,7 @@ import (
 )
 
 type Config struct {
-	LogLevel               string
+	LogLevel               log.Level
 	InfoProducerHost       string
 	InfoProducerPort       int
 	InfoCoordinatorAddress string
@@ -36,15 +36,9 @@ type Config struct {
 	MRPort                 int
 }
 
-type ProducerRegistrationInfo struct {
-	InfoProducerSupervisionCallbackUrl string   `json:"info_producer_supervision_callback_url"`
-	SupportedInfoTypes                 []string `json:"supported_info_types"`
-	InfoJobCallbackUrl                 string   `json:"info_job_callback_url"`
-}
-
 func New() *Config {
 	return &Config{
-		LogLevel:               getEnv("LOG_LEVEL", "Info"),
+		LogLevel:               getLogLevel(),
 		InfoProducerHost:       getEnv("INFO_PRODUCER_HOST", ""),
 		InfoProducerPort:       getEnvAsInt("INFO_PRODUCER_PORT", 8085),
 		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
@@ -70,4 +64,14 @@ func getEnvAsInt(name string, defaultVal int) int {
 	}
 
 	return defaultVal
+}
+
+func getLogLevel() log.Level {
+	logLevelStr := getEnv("LOG_LEVEL", "Info")
+	if loglevel, err := log.ParseLevel(logLevelStr); err == nil {
+		return loglevel
+	} else {
+		log.Warnf("Invalid log level: %v. Log level will be Info!", logLevelStr)
+		return log.InfoLevel
+	}
 }

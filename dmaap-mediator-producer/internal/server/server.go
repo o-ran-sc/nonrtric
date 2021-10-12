@@ -35,19 +35,32 @@ const AddJobPath = "/jobs"
 const jobIdToken = "infoJobId"
 const deleteJobPath = AddJobPath + "/{" + jobIdToken + "}"
 
-func NewRouter() *mux.Router {
+type ProducerCallbackHandler struct {
+	jobHandler jobs.JobHandler
+}
+
+func NewProducerCallbackHandler(jh jobs.JobHandler) *ProducerCallbackHandler {
+	return &ProducerCallbackHandler{
+		jobHandler: jh,
+	}
+}
+
+func NewRouter(jh jobs.JobHandler) *mux.Router {
+	callbackHandler := NewProducerCallbackHandler(jh)
 	r := mux.NewRouter()
 	r.HandleFunc(StatusPath, statusHandler).Methods(http.MethodGet).Name("status")
-	r.HandleFunc(AddJobPath, addInfoJobHandler).Methods(http.MethodPost).Name("add")
-	r.HandleFunc(deleteJobPath, deleteInfoJobHandler).Methods(http.MethodDelete).Name("delete")
+	r.HandleFunc(AddJobPath, callbackHandler.addInfoJobHandler).Methods(http.MethodPost).Name("add")
+	r.HandleFunc(deleteJobPath, callbackHandler.deleteInfoJobHandler).Methods(http.MethodDelete).Name("delete")
 	r.NotFoundHandler = &notFoundHandler{}
 	r.MethodNotAllowedHandler = &methodNotAllowedHandler{}
 	return r
 }
 
-func statusHandler(w http.ResponseWriter, r *http.Request) {}
+func statusHandler(w http.ResponseWriter, r *http.Request) {
+	// Just respond OK to show the server is alive for now. Might be extended later.
+}
 
-func addInfoJobHandler(w http.ResponseWriter, r *http.Request) {
+func (h *ProducerCallbackHandler) addInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	b, readErr := ioutil.ReadAll(r.Body)
 	if readErr != nil {
 		http.Error(w, fmt.Sprintf("Unable to read body due to: %v", readErr), http.StatusBadRequest)
@@ -58,12 +71,12 @@ func addInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Invalid json body. Cause: %v", unmarshalErr), http.StatusBadRequest)
 		return
 	}
-	if err := jobs.AddJob(jobInfo); err != nil {
+	if err := h.jobHandler.AddJob(jobInfo); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid job info. Cause: %v", err), http.StatusBadRequest)
 	}
 }
 
-func deleteInfoJobHandler(w http.ResponseWriter, r *http.Request) {
+func (h *ProducerCallbackHandler) deleteInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars[jobIdToken]
 	if !ok {
@@ -71,7 +84,7 @@ func deleteInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobs.DeleteJob(id)
+	h.jobHandler.DeleteJob(id)
 }
 
 type notFoundHandler struct{}
