@@ -28,6 +28,8 @@ spec:
           value: "1"
         - name: ALLOW_HTTP
           value: "true"
+        - name: DUPLICATE_CHECK
+          value: "1"
         imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
