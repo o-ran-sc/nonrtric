@@ -41,73 +41,6 @@ func TestRequestError_Error(t *testing.T) {
 	assertions.Equal("Request failed due to error response with status: 400 and body: error", actualError.Error())
 }
 
-func TestGet(t *testing.T) {
-	assertions := require.New(t)
-
-	type args struct {
-		url              string
-		mockReturnStatus int
-		mockReturnBody   []byte
-		mockReturnError  error
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    []byte
-		wantErr error
-	}{
-		{
-			name: "Ok response",
-			args: args{
-				url:              "ok",
-				mockReturnStatus: http.StatusOK,
-				mockReturnBody:   []byte("body"),
-				mockReturnError:  nil,
-			},
-			want:    []byte("body"),
-			wantErr: nil,
-		},
-		{
-			name: "Bad request should get RequestError",
-			args: args{
-				url:              "badRequest",
-				mockReturnStatus: http.StatusBadRequest,
-				mockReturnBody:   []byte("bad request"),
-				mockReturnError:  nil,
-			},
-			want: nil,
-			wantErr: RequestError{
-				StatusCode: http.StatusBadRequest,
-				Body:       []byte("bad request"),
-			},
-		},
-		{
-			name: "Server unavailable should get error",
-			args: args{
-				url:             "serverUnavailable",
-				mockReturnError: fmt.Errorf("Server unavailable"),
-			},
-			want:    nil,
-			wantErr: fmt.Errorf("Server unavailable"),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			clientMock := mocks.HTTPClient{}
-			clientMock.On("Get", tt.args.url).Return(&http.Response{
-				StatusCode: tt.args.mockReturnStatus,
-				Body:       ioutil.NopCloser(bytes.NewReader(tt.args.mockReturnBody)),
-			}, tt.args.mockReturnError)
-			Client = &clientMock
-
-			got, err := Get(tt.args.url)
-			assertions.Equal(tt.wantErr, err, tt.name)
-			assertions.Equal(tt.want, got, tt.name)
-			clientMock.AssertCalled(t, "Get", tt.args.url)
-		})
-	}
-}
-
 func TestPutWithoutAuth(t *testing.T) {
 	assertions := require.New(t)
 
@@ -115,9 +48,8 @@ func TestPutWithoutAuth(t *testing.T) {
 	clientMock.On("Do", mock.Anything).Return(&http.Response{
 		StatusCode: http.StatusOK,
 	}, nil)
-	Client = &clientMock
 
-	error := PutWithoutAuth("url", []byte("body"))
+	error := PutWithoutAuth("url", []byte("body"), &clientMock)
 
 	assertions.Nil(error)
 	var actualRequest *http.Request
@@ -142,9 +74,8 @@ func TestPut(t *testing.T) {
 	clientMock.On("Do", mock.Anything).Return(&http.Response{
 		StatusCode: http.StatusOK,
 	}, nil)
-	Client = &clientMock
 
-	error := Put("url", "body", "admin", "pwd")
+	error := Put("url", "body", &clientMock, "admin", "pwd")
 
 	assertions.Nil(error)
 	var actualRequest *http.Request
@@ -171,9 +102,8 @@ func TestDelete(t *testing.T) {
 	clientMock.On("Do", mock.Anything).Return(&http.Response{
 		StatusCode: http.StatusOK,
 	}, nil)
-	Client = &clientMock
 
-	error := Delete("url")
+	error := Delete("url", &clientMock)
 
 	assertions.Nil(error)
 	var actualRequest *http.Request
@@ -232,9 +162,8 @@ func Test_doErrorCases(t *testing.T) {
 				StatusCode: tt.args.mockReturnStatus,
 				Body:       ioutil.NopCloser(bytes.NewReader(tt.args.mockReturnBody)),
 			}, tt.args.mockReturnError)
-			Client = &clientMock
 
-			err := do("PUT", tt.args.url, nil)
+			err := do("PUT", tt.args.url, nil, &clientMock)
 			assertions.Equal(tt.wantErr, err, tt.name)
 		})
 	}

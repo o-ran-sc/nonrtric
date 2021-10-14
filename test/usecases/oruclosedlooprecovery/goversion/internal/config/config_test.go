@@ -23,7 +23,6 @@ package config
 import (
 	"bytes"
 	"os"
-	"reflect"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -31,6 +30,7 @@ import (
 )
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
+	assertions := require.New(t)
 	os.Setenv("LOG_LEVEL", "Debug")
 	os.Setenv("CONSUMER_HOST", "consumerHost")
 	os.Setenv("CONSUMER_PORT", "8095")
@@ -54,9 +54,9 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		SDNPassword:            "pwd",
 		ORUToODUMapFile:        "file",
 	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
+
+	got := New()
+	assertions.Equal(&wantConfig, got)
 }
 
 func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T) {
@@ -80,9 +80,10 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		SDNPassword:            "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U",
 		ORUToODUMapFile:        "o-ru-to-o-du-map.csv",
 	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
+
+	got := New()
+	assertions.Equal(&wantConfig, got)
+
 	logString := buf.String()
 	assertions.Contains(logString, "Invalid int value: wrong for variable: CONSUMER_PORT. Default value: 0 will be used")
 }
@@ -108,12 +109,8 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 		SDNPassword:            "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U",
 		ORUToODUMapFile:        "o-ru-to-o-du-map.csv",
 	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
+	got := New()
+	assertions.Equal(&wantConfig, got)
 	logString := buf.String()
 	assertions.Contains(logString, "Invalid log level: wrong. Log level will be Info!")
 }

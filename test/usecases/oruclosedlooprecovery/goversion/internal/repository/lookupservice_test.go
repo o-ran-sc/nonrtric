@@ -22,13 +22,23 @@ package repository
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"oransc.org/usecase/oruclosedloop/mocks"
 )
 
+func TestIdNotMappedError(t *testing.T) {
+	assertions := require.New(t)
+
+	actualError := IdNotMappedError{
+		Id: "1",
+	}
+	assertions.Equal("O-RU-ID: 1 not mapped.", actualError.Error())
+}
+
 func TestNewLookupServiceImpl(t *testing.T) {
+	assertions := require.New(t)
 	mockCsvFileHelper := &mocks.CsvFileHelper{}
 	type args struct {
 		fileHelper CsvFileHelper
@@ -54,66 +64,61 @@ func TestNewLookupServiceImpl(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewLookupServiceImpl(tt.args.fileHelper, tt.args.fileName); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewLookupServiceImpl() = %v, want %v", got, tt.want)
-			}
+			got := NewLookupServiceImpl(tt.args.fileHelper, tt.args.fileName)
+			assertions.Equal(tt.want, got)
 		})
 	}
 }
 
 func TestLookupServiceImpl_Init(t *testing.T) {
-	mockCsvFileHelper := &mocks.CsvFileHelper{}
-	mockCsvFileHelper.On("GetCsvFromFile", "./map.csv").Return([][]string{{"O-RU-ID", "O-DU-ID"}}, nil).Once()
-	mockCsvFileHelper.On("GetCsvFromFile", "foo.csv").Return(nil, errors.New("Error")).Once()
-	type fields struct {
-		csvFileHelper   CsvFileHelper
+	assertions := require.New(t)
+	type args struct {
 		csvFileName     string
-		oRuIdToODuIdMap map[string]string
+		mockReturn      [][]string
+		mockReturnError error
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
+		name                  string
+		args                  args
+		wantedORuIdToODuIdMap map[string]string
+		wantErr               error
 	}{
 		{
-			name: "Init with proper csv file should not return error",
-			fields: fields{
-				csvFileHelper:   mockCsvFileHelper,
-				csvFileName:     "./map.csv",
-				oRuIdToODuIdMap: map[string]string{}},
-			wantErr: false,
+			name: "Init with proper csv file should not return error and map should be initialized",
+			args: args{
+				csvFileName: "./map.csv",
+				mockReturn:  [][]string{{"O-RU-ID", "O-DU-ID"}},
+			},
+			wantedORuIdToODuIdMap: map[string]string{"O-RU-ID": "O-DU-ID"},
 		},
 		{
-			name: "Init with missing file should return error",
-			fields: fields{
-				csvFileHelper:   mockCsvFileHelper,
+			name: "Init with missing file should return error and map should not be initialized",
+			args: args{
 				csvFileName:     "foo.csv",
-				oRuIdToODuIdMap: map[string]string{},
+				mockReturnError: errors.New("Error"),
 			},
-			wantErr: true,
+			wantedORuIdToODuIdMap: map[string]string{},
+			wantErr:               errors.New("Error"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := LookupServiceImpl{
-				csvFileHelper:   tt.fields.csvFileHelper,
-				csvFileName:     tt.fields.csvFileName,
-				oRuIdToODuIdMap: tt.fields.oRuIdToODuIdMap,
-			}
-			if err := s.Init(); (err != nil) != tt.wantErr {
-				t.Errorf("LookupServiceImpl.Init() error = %v, wantErr %v", err, tt.wantErr)
-			} else if !tt.wantErr {
-				wantedMap := map[string]string{"O-RU-ID": "O-DU-ID"}
-				if !reflect.DeepEqual(wantedMap, s.oRuIdToODuIdMap) {
-					t.Errorf("LookupServiceImpl.Init() map not initialized, wanted map: %v, got map: %v", wantedMap, s.oRuIdToODuIdMap)
-				}
-			}
+			mockCsvFileHelper := &mocks.CsvFileHelper{}
+			mockCsvFileHelper.On("GetCsvFromFile", tt.args.csvFileName).Return(tt.args.mockReturn, tt.args.mockReturnError)
+
+			s := NewLookupServiceImpl(mockCsvFileHelper, tt.args.csvFileName)
+
+			err := s.Init()
+
+			assertions.Equal(tt.wantErr, err, tt.name)
+			assertions.Equal(tt.wantedORuIdToODuIdMap, s.oRuIdToODuIdMap)
+			mockCsvFileHelper.AssertNumberOfCalls(t, "GetCsvFromFile", 1)
 		})
 	}
-	mockCsvFileHelper.AssertNumberOfCalls(t, "GetCsvFromFile", 2)
 }
 
 func TestLookupServiceImpl_GetODuID(t *testing.T) {
+	assertions := require.New(t)
 	type fields struct {
 		csvFileHelper   CsvFileHelper
 		csvFileName     string
@@ -139,8 +144,7 @@ func TestLookupServiceImpl_GetODuID(t *testing.T) {
 			args: args{
 				oRuId: "O-RU-ID",
 			},
-			want:    "O-DU-ID",
-			wantErr: nil,
+			want: "O-DU-ID",
 		},
 		{
 			name: "Id not mapped should return IdNotMappedError",
@@ -152,7 +156,6 @@ func TestLookupServiceImpl_GetODuID(t *testing.T) {
 			args: args{
 				oRuId: "O-RU-ID",
 			},
-			want:    "",
 			wantErr: IdNotMappedError{Id: "O-RU-ID"},
 		},
 	}
@@ -163,14 +166,11 @@ func TestLookupServiceImpl_GetODuID(t *testing.T) {
 				csvFileName:     tt.fields.csvFileName,
 				oRuIdToODuIdMap: tt.fields.oRuIdToODuIdMap,
 			}
+
 			got, err := s.GetODuID(tt.args.oRuId)
-			if err != tt.wantErr {
-				t.Errorf("LookupServiceImpl.GetODuID() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("LookupServiceImpl.GetODuID() = %v, want %v", got, tt.want)
-			}
+
+			assertions.Equal(tt.wantErr, err, tt.name)
+			assertions.Equal(tt.want, got, tt.name)
 		})
 	}
 }

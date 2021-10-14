@@ -22,52 +22,46 @@ package repository
 
 import (
 	"os"
-	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCsvFileHelperImpl_GetCsvFromFile(t *testing.T) {
+	assertions := require.New(t)
 	filePath := createTempCsvFile()
 	defer os.Remove(filePath)
 	type args struct {
 		name string
 	}
 	tests := []struct {
-		name       string
-		fileHelper *CsvFileHelperImpl
-		args       args
-		want       [][]string
-		wantErr    bool
+		name          string
+		args          args
+		want          [][]string
+		wantErrString string
 	}{
 		{
-			name:       "Read from file should return array of content",
-			fileHelper: &CsvFileHelperImpl{},
+			name: "Read from file should return array of content",
 			args: args{
 				name: filePath,
 			},
-			want:    [][]string{{"O-RU-ID", "O-DU-ID"}},
-			wantErr: false,
+			want: [][]string{{"O-RU-ID", "O-DU-ID"}},
 		},
 		{
-			name:       "File missing should return error",
-			fileHelper: &CsvFileHelperImpl{},
+			name: "File missing should return error",
 			args: args{
 				name: "nofile.csv",
 			},
-			want:    nil,
-			wantErr: true,
+			wantErrString: "open nofile.csv: no such file or directory",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := &CsvFileHelperImpl{}
+			h := NewCsvFileHelperImpl()
 			got, err := h.GetCsvFromFile(tt.args.name)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("CsvFileHelperImpl.GetCsvFromFile() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("CsvFileHelperImpl.GetCsvFromFile() = %v, want %v", got, tt.want)
+			assertions.Equal(tt.want, got)
+			if tt.wantErrString != "" {
+				assertions.Contains(err.Error(), tt.wantErrString)
 			}
 		})
 	}

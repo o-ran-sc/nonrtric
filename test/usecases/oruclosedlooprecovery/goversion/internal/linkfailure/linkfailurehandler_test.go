@@ -34,7 +34,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"oransc.org/usecase/oruclosedloop/internal/repository"
-	"oransc.org/usecase/oruclosedloop/internal/restclient"
 	"oransc.org/usecase/oruclosedloop/internal/ves"
 	"oransc.org/usecase/oruclosedloop/mocks"
 )
@@ -55,8 +54,6 @@ func Test_MessagesHandlerWithLinkFailure(t *testing.T) {
 		StatusCode: http.StatusOK,
 	}, nil)
 
-	restclient.Client = &clientMock
-
 	lookupServiceMock := mocks.LookupService{}
 
 	lookupServiceMock.On("GetODuID", mock.Anything).Return("HCL-O-DU-1122", nil)
@@ -65,7 +62,7 @@ func Test_MessagesHandlerWithLinkFailure(t *testing.T) {
 		SDNRAddress:  "http://localhost:9990",
 		SDNRUser:     "admin",
 		SDNRPassword: "pwd",
-	})
+	}, &clientMock)
 
 	responseRecorder := httptest.NewRecorder()
 	r := newRequest(http.MethodPost, "/", getFaultMessage("ERICSSON-O-RU-11220", "CRITICAL"), t)
@@ -122,7 +119,7 @@ func Test_MessagesHandlerWithClearLinkFailure(t *testing.T) {
 
 	lookupServiceMock.On("GetODuID", mock.Anything).Return("HCL-O-DU-1122", nil)
 
-	handlerUnderTest := NewLinkFailureHandler(&lookupServiceMock, Configuration{})
+	handlerUnderTest := NewLinkFailureHandler(&lookupServiceMock, Configuration{}, nil)
 
 	responseRecorder := httptest.NewRecorder()
 	r := newRequest(http.MethodPost, "/", getFaultMessage("ERICSSON-O-RU-11220", "NORMAL"), t)
@@ -151,7 +148,7 @@ func Test_MessagesHandlerWithLinkFailureUnmappedORU(t *testing.T) {
 		Id: "ERICSSON-O-RU-11220",
 	})
 
-	handlerUnderTest := NewLinkFailureHandler(&lookupServiceMock, Configuration{})
+	handlerUnderTest := NewLinkFailureHandler(&lookupServiceMock, Configuration{}, nil)
 
 	responseRecorder := httptest.NewRecorder()
 	r := newRequest(http.MethodPost, "/", getFaultMessage("ERICSSON-O-RU-11220", "CRITICAL"), t)

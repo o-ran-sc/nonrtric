@@ -31,11 +31,11 @@ type CsvFileHelper interface {
 
 type CsvFileHelperImpl struct{}
 
-func NewCsvFileHelper() CsvFileHelperImpl {
+func NewCsvFileHelperImpl() CsvFileHelperImpl {
 	return CsvFileHelperImpl{}
 }
 
-func (h *CsvFileHelperImpl) GetCsvFromFile(name string) ([][]string, error) {
+func (h CsvFileHelperImpl) GetCsvFromFile(name string) ([][]string, error) {
 	if csvFile, err := os.Open(name); err == nil {
 		defer csvFile.Close()
 		reader := csv.NewReader(csvFile)

@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 )
 
 const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}]}`
@@ -51,11 +52,11 @@ func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *tes
 		t.Errorf("Unable to create temporary config file for types due to: %v", err)
 	}
 	types, err := handlerUnderTest.GetTypes()
-	wantedType := TypeDefinition{
+	wantedType := config.TypeDefinition{
 		Id:            "type1",
 		DmaapTopicURL: "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1",
 	}
-	wantedTypes := []TypeDefinition{wantedType}
+	wantedTypes := []config.TypeDefinition{wantedType}
 	assertions.EqualValues(wantedTypes, types)
 	assertions.Nil(err)
 

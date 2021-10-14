@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -33,40 +34,63 @@ import (
 	"oransc.org/usecase/oruclosedloop/internal/restclient"
 )
 
-var consumerConfig linkfailure.Configuration
+const timeoutHTTPClient = time.Second * 5
+const jobId = "14e7bb84-a44d-44c1-90b7-6995a92ad43c"
+
+var infoCoordAddress string
+var linkfailureConfig linkfailure.Configuration
 var lookupService repository.LookupService
 var host string
 var port string
-
-const jobId = "14e7bb84-a44d-44c1-90b7-6995a92ad43c"
+var client restclient.HTTPClient
 
 func init() {
 	configuration := config.New()
 
+	client = &http.Client{
+		Timeout: timeoutHTTPClient,
+	}
+
 	log.SetLevel(configuration.LogLevel)
 
-	if configuration.ConsumerHost == "" || configuration.ConsumerPort == 0 {
-		log.Fatal("Consumer host and port must be provided!")
+	if err := validateConfiguration(configuration); err != nil {
+		log.Fatalf("Unable to start consumer due to: %v", err)
 	}
 	host = configuration.ConsumerHost
 	port = fmt.Sprint(configuration.ConsumerPort)
 
-	csvFileHelper := repository.NewCsvFileHelper()
-	lookupService = repository.NewLookupServiceImpl(&csvFileHelper, configuration.ORUToODUMapFile)
-	if initErr := lookupService.Init(); initErr != nil {
+	csvFileHelper := repository.NewCsvFileHelperImpl()
+	if initErr := initializeLookupService(csvFileHelper, configuration); initErr != nil {
 		log.Fatalf("Unable to create LookupService due to inability to get O-RU-ID to O-DU-ID map. Cause: %v", initErr)
 	}
-	consumerConfig = linkfailure.Configuration{
-		InfoCoordAddress: configuration.InfoCoordinatorAddress,
-		SDNRAddress:      configuration.SDNRHost + ":" + fmt.Sprint(configuration.SDNRPort),
-		SDNRUser:         configuration.SDNRUser,
-		SDNRPassword:     configuration.SDNPassword,
+
+	infoCoordAddress = configuration.InfoCoordinatorAddress
+
+	linkfailureConfig = linkfailure.Configuration{
+		SDNRAddress:  configuration.SDNRHost + ":" + fmt.Sprint(configuration.SDNRPort),
+		SDNRUser:     configuration.SDNRUser,
+		SDNRPassword: configuration.SDNPassword,
 	}
+}
+
+func validateConfiguration(configuration *config.Config) error {
+	if configuration.ConsumerHost == "" || configuration.ConsumerPort == 0 {
+		return fmt.Errorf("consumer host and port must be provided")
+	}
+	return nil
+}
+
+func initializeLookupService(csvFileHelper repository.CsvFileHelper, configuration *config.Config) error {
+	lookupService = repository.NewLookupServiceImpl(csvFileHelper, configuration.ORUToODUMapFile)
+	if initErr := lookupService.Init(); initErr != nil {
+		return initErr
+	}
+	return nil
 }
 
 func main() {
 	defer deleteJob()
-	messageHandler := linkfailure.NewLinkFailureHandler(lookupService, consumerConfig)
+	messageHandler := linkfailure.NewLinkFailureHandler(lookupService, linkfailureConfig, client)
 	r := mux.NewRouter()
 	r.HandleFunc("/", messageHandler.MessagesHandler).Methods(http.MethodPost)
 	r.HandleFunc("/admin/start", startHandler).Methods(http.MethodPost)
@@ -87,7 +111,7 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 		JobDefinition: "{}",
 	}
 	body, _ := json.Marshal(jobRegistrationInfo)
-	putErr := restclient.PutWithoutAuth(consumerConfig.InfoCoordAddress+"/data-consumer/v1/info-jobs/"+jobId, body)
+	putErr := restclient.PutWithoutAuth(infoCoordAddress+"/data-consumer/v1/info-jobs/"+jobId, body, client)
 	if putErr != nil {
 		http.Error(w, fmt.Sprintf("Unable to register consumer job: %v", putErr), http.StatusBadRequest)
 		return
@@ -105,5 +129,5 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteJob() error {
-	return restclient.Delete(consumerConfig.InfoCoordAddress + "/data-consumer/v1/info-jobs/" + jobId)
+	return restclient.Delete(infoCoordAddress+"/data-consumer/v1/info-jobs/"+jobId, client)
 }
