@@ -32,7 +32,6 @@ import (
 )
 
 type Configuration struct {
-	ConsumerAddress  string
 	InfoCoordAddress string
 	SDNRAddress      string
 	SDNRUser         string
@@ -40,18 +39,19 @@ type Configuration struct {
 }
 
 const rawSdnrPath = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=[O-RU-ID]"
-
 const unlockMessage = `{"o-ran-sc-du-hello-world:du-to-ru-connection": [{"name":"[O-RU-ID]","administrative-state":"UNLOCKED"}]}`
 
 type LinkFailureHandler struct {
 	lookupService repository.LookupService
 	config        Configuration
+	client        restclient.HTTPClient
 }
 
-func NewLinkFailureHandler(ls repository.LookupService, conf Configuration) *LinkFailureHandler {
+func NewLinkFailureHandler(ls repository.LookupService, conf Configuration, client restclient.HTTPClient) *LinkFailureHandler {
 	return &LinkFailureHandler{
 		lookupService: ls,
 		config:        conf,
+		client:        client,
 	}
 }
 
@@ -74,7 +74,7 @@ func (lfh LinkFailureHandler) sendUnlockMessage(oRuId string) {
 	if oDuId, err := lfh.lookupService.GetODuID(oRuId); err == nil {
 		sdnrPath := getSdnrPath(oRuId, oDuId)
 		unlockMessage := lfh.getUnlockMessage(oRuId)
-		if error := restclient.Put(lfh.config.SDNRAddress+sdnrPath, unlockMessage, lfh.config.SDNRUser, lfh.config.SDNRPassword); error == nil {
+		if error := restclient.Put(lfh.config.SDNRAddress+sdnrPath, unlockMessage, lfh.client, lfh.config.SDNRUser, lfh.config.SDNRPassword); error == nil {
 			log.Debugf("Sent unlock message for O-RU: %v to O-DU: %v.", oRuId, oDuId)
 		} else {
 			log.Warn(error)

@@ -25,16 +25,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 )
 
 type RequestError struct {
 	StatusCode int
 	Body       []byte
-}
-
-func (pe RequestError) Error() string {
-	return fmt.Sprintf("Request failed due to error response with status: %v and body: %v", pe.StatusCode, string(pe.Body))
 }
 
 // HTTPClient interface
@@ -44,46 +39,23 @@ type HTTPClient interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-var (
-	Client HTTPClient
-)
-
-func init() {
-	Client = &http.Client{
-		Timeout: time.Second * 5,
-	}
+func (pe RequestError) Error() string {
+	return fmt.Sprintf("Request failed due to error response with status: %v and body: %v", pe.StatusCode, string(pe.Body))
 }
 
-func Get(url string) ([]byte, error) {
-	if response, err := Client.Get(url); err == nil {
-		if isResponseSuccess(response.StatusCode) {
-			defer response.Body.Close()
-			if responseData, err := io.ReadAll(response.Body); err == nil {
-				return responseData, nil
-			} else {
-				return nil, err
-			}
-		} else {
-			return nil, getResponseError(response)
-		}
-	} else {
-		return nil, err
-	}
+func PutWithoutAuth(url string, body []byte, client HTTPClient) error {
+	return do(http.MethodPut, url, body, client)
 }
 
-func PutWithoutAuth(url string, body []byte) error {
-	return do(http.MethodPut, url, body)
+func Put(url string, body string, client HTTPClient, userName string, password string) error {
+	return do(http.MethodPut, url, []byte(body), client, userName, password)
 }
 
-func Put(url string, body string, userName string, password string) error {
-	return do(http.MethodPut, url, []byte(body), userName, password)
+func Delete(url string, client HTTPClient) error {
+	return do(http.MethodDelete, url, nil, client)
 }
 
-func Delete(url string) error {
-	return do(http.MethodDelete, url, nil)
-}
-
-func do(method string, url string, body []byte, userInfo ...string) error {
+func do(method string, url string, body []byte, client HTTPClient, userInfo ...string) error {
 	if req, reqErr := http.NewRequest(method, url, bytes.NewBuffer(body)); reqErr == nil {
 		if body != nil {
 			req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -91,7 +63,7 @@ func do(method string, url string, body []byte, userInfo ...string) error {
 		if len(userInfo) > 0 {
 			req.SetBasicAuth(userInfo[0], userInfo[1])
 		}
-		if response, respErr := Client.Do(req); respErr == nil {
+		if response, respErr := client.Do(req); respErr == nil {
 			if isResponseSuccess(response.StatusCode) {
 				return nil
 			} else {
