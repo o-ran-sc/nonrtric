@@ -282,8 +282,15 @@ public class ConsumerController {
             @ApiResponse(
                 responseCode = "404",
                 description = "Information type is not found", //
-                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
-        })
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
+            @ApiResponse(
+                responseCode = "400",
+                description = "Input validation failed", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
+            @ApiResponse(
+                responseCode = "409",
+                description = "Cannot modify job type", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
     public Mono<ResponseEntity<Object>> putIndividualInfoJob( //
         @PathVariable("infoJobId") String jobId, //
         @Parameter(
@@ -460,7 +467,7 @@ public class ConsumerController {
         if (url != null && !url.isEmpty()) {
             URI uri = new URI(url);
             if (!uri.isAbsolute()) {
-                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.BAD_REQUEST);
             }
         }
     }
@@ -478,7 +485,7 @@ public class ConsumerController {
                 JSONObject json = new JSONObject(objectAsString);
                 schema.validate(json);
             } catch (Exception e) {
-                throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.CONFLICT);
+                throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.BAD_REQUEST);
             }
         }
     }
