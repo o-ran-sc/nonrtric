@@ -43,6 +43,7 @@ import org.oransc.enrichment.controllers.r1producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -91,7 +92,7 @@ public class InfoJobs {
     public synchronized InfoJob getJob(String id) throws ServiceException {
         InfoJob ric = allEiJobs.get(id);
         if (ric == null) {
-            throw new ServiceException("Could not find Information job: " + id);
+            throw new ServiceException("Could not find Information job: " + id, HttpStatus.NOT_FOUND);
         }
         return ric;
     }

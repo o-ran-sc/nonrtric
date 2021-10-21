@@ -42,6 +42,7 @@ import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -84,7 +85,7 @@ public class InfoTypes {
     public synchronized InfoType getType(String id) throws ServiceException {
         InfoType type = allEiTypes.get(id);
         if (type == null) {
-            throw new ServiceException("Information type not found: " + id);
+            throw new ServiceException("Information type not found: " + id, HttpStatus.NOT_FOUND);
         }
         return type;
     }

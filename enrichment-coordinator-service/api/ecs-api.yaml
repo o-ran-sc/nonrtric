@@ -189,7 +189,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Void'
         400:
-          description: Bad request
+          description: Input validation failed
           content:
             application/json:
               schema:
@@ -226,7 +226,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-        406:
+        409:
           description: The Information type has one or several active producers
           content:
             application/json:
@@ -429,8 +429,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Void'
+        400:
+          description: Input validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         404:
-          description: Producer not found
+          description: Producer type not found
           content:
             application/json:
               schema:
@@ -564,8 +570,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Void'
+        400:
+          description: Input validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         404:
           description: Enrichment Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        409:
+          description: Cannot modify job type
           content:
             application/json:
               schema:
@@ -711,8 +729,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Void'
+        400:
+          description: Input validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         404:
           description: Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        409:
+          description: Cannot modify job type
           content:
             application/json:
               schema:
