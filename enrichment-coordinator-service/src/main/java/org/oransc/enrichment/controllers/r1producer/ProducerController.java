@@ -138,7 +138,7 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
             @ApiResponse(
                 responseCode = "400",
-                description = "Bad request", //
+                description = "Input validation failed", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
     @Operation(summary = "Individual Information Type", description = "")
     public ResponseEntity<Object> putInfoType( //
@@ -175,7 +175,7 @@ public class ProducerController {
                 description = "Information type is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
             @ApiResponse(
-                responseCode = "406",
+                responseCode = "409",
                 description = "The Information type has one or several active producers", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
@@ -188,7 +188,7 @@ public class ProducerController {
         }
         if (!this.infoProducers.getProducersForType(type).isEmpty()) {
             String firstProducerId = this.infoProducers.getProducersForType(type).iterator().next().getId();
-            return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.NOT_ACCEPTABLE);
+            return ErrorResponse.create("The type has active producers: " + firstProducerId, HttpStatus.CONFLICT);
         }
         this.infoTypes.remove(type);
         infoJobs.getJobsForType(type).forEach(job -> infoJobs.remove(job, infoProducers)); // Delete jobs for the type
@@ -329,7 +329,11 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
             @ApiResponse(
                 responseCode = "404",
-                description = "Producer not found", //
+                description = "Producer type not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
+            @ApiResponse(
+                responseCode = "400",
+                description = "Input validation failed", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> putInfoProducer( //
@@ -341,19 +345,23 @@ public class ProducerController {
             InfoProducer previousDefinition = this.infoProducers.get(infoProducerId);
             this.infoProducers.registerProducer(toProducerRegistrationInfo(infoProducerId, registrationInfo));
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
-        } catch (Exception e) {
-            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        } catch (ServiceException e) {
+            return ErrorResponse.create(e, e.getHttpStatus());
         }
     }
 
-    private void validateUri(String url) throws URISyntaxException, ServiceException {
+    private void validateUri(String url) throws ServiceException {
         if (url != null && !url.isEmpty()) {
-            URI uri = new URI(url);
-            if (!uri.isAbsolute()) {
-                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+            try {
+                URI uri = new URI(url);
+                if (!uri.isAbsolute()) {
+                    throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.BAD_REQUEST);
+                }
+            } catch (URISyntaxException e) {
+                throw new ServiceException(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
         } else {
-            throw new ServiceException("Missing required URL", HttpStatus.CONFLICT);
+            throw new ServiceException("Missing required URL", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -381,8 +389,8 @@ public class ProducerController {
             final InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             this.infoProducers.deregisterProducer(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        } catch (ServiceException e) {
+            return ErrorResponse.create(e, e.getHttpStatus());
         }
     }
 

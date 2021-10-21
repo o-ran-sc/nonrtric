@@ -490,7 +490,10 @@ class ApplicationTest {
             "targetUri", "jobStatusUrl");
         String body = gson.toJson(jobInfo);
 
-        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Json validation failure");
+        testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST, "Json validation failure");
+
+        testErrorCode(restClient().put(url, "{jojo}"), HttpStatus.BAD_REQUEST, "", false);
+
     }
 
     @Test
@@ -503,7 +506,7 @@ class ApplicationTest {
             new ConsumerJobInfo("typeId", jsonObject("{ \"XXstring\" : \"value\" }"), "owner", "targetUri", null);
         String body = gson.toJson(jobInfo);
 
-        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Json validation failure");
+        testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST, "Json validation failure");
     }
 
     @Test
@@ -515,7 +518,7 @@ class ApplicationTest {
         ConsumerJobInfo jobInfo = new ConsumerJobInfo(TYPE_ID, jsonObject(), "owner", "junk", null);
         String body = gson.toJson(jobInfo);
 
-        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "URI: junk is not absolute");
+        testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST, "URI: junk is not absolute");
     }
 
     @Test
@@ -526,7 +529,7 @@ class ApplicationTest {
 
         String url = A1eConsts.API_ROOT + "/eijobs/jobId";
         String body = gson.toJson(infoJobInfo("typeId2", "jobId"));
-        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT,
+        testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST,
             "Not allowed to change type for existing EI job");
     }
 
@@ -538,7 +541,8 @@ class ApplicationTest {
 
         String url = ConsumerConsts.API_ROOT + "/info-jobs/jobId";
         String body = gson.toJson(consumerJobInfo("typeId2", "jobId"));
-        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Not allowed to change type for existing job");
+        testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST,
+            "Not allowed to change type for existing job");
     }
 
     @Test
@@ -552,6 +556,8 @@ class ApplicationTest {
         String url = ProducerConsts.API_ROOT + "/info-types/" + TYPE_ID;
         String body = "{}";
         testErrorCode(restClient().put(url, body), HttpStatus.BAD_REQUEST, "No schema provided");
+
+        testErrorCode(restClient().post(url, body), HttpStatus.METHOD_NOT_ALLOWED, "", false);
     }
 
     @Test
@@ -572,8 +578,7 @@ class ApplicationTest {
     void producerDeleteEiTypeExistingProducer() throws Exception {
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
         String url = ProducerConsts.API_ROOT + "/info-types/" + TYPE_ID;
-        testErrorCode(restClient().delete(url), HttpStatus.NOT_ACCEPTABLE,
-            "The type has active producers: " + PRODUCER_ID);
+        testErrorCode(restClient().delete(url), HttpStatus.CONFLICT, "The type has active producers: " + PRODUCER_ID);
         assertThat(this.infoTypes.size()).isEqualTo(1);
     }
 

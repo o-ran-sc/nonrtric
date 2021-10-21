@@ -36,6 +36,7 @@ import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /**
@@ -110,7 +111,7 @@ public class InfoProducers {
     public synchronized InfoProducer getProducer(String id) throws ServiceException {
         InfoProducer p = allEiProducers.get(id);
         if (p == null) {
-            throw new ServiceException("Could not find Information Producer: " + id);
+            throw new ServiceException("Could not find Information Producer: " + id, HttpStatus.NOT_FOUND);
         }
         return p;
     }

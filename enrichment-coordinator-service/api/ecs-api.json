@@ -421,7 +421,7 @@
                         "description": "Information type is not found",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     },
-                    "406": {
+                    "409": {
                         "description": "The Information type has one or several active producers",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     }
@@ -451,7 +451,7 @@
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Input validation failed",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     }
                 },
@@ -635,8 +635,12 @@
                         "description": "Producer created",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
                     },
+                    "400": {
+                        "description": "Input validation failed",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                    },
                     "404": {
-                        "description": "Producer not found",
+                        "description": "Producer type not found",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     }
                 },
@@ -740,6 +744,10 @@
                     "201": {
                         "description": "Job created",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "400": {
+                        "description": "Input validation failed",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     },
                     "404": {
                         "description": "Enrichment Information type is not found",
@@ -853,6 +861,10 @@
                     "201": {
                         "description": "Job created",
                         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                    },
+                    "400": {
+                        "description": "Input validation failed",
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
                     },
                     "404": {
                         "description": "Information type is not found",

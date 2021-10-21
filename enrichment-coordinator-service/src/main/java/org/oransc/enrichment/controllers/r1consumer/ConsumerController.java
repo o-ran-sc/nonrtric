@@ -282,6 +282,10 @@ public class ConsumerController {
             @ApiResponse(
                 responseCode = "404",
                 description = "Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
+            @ApiResponse(
+                responseCode = "400",
+                description = "Input validation failed", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public Mono<ResponseEntity<Object>> putIndividualInfoJob( //
@@ -448,7 +452,7 @@ public class ConsumerController {
             validateUri(jobInfo.jobResultUri);
 
             if (existingEiJob != null && !existingEiJob.getTypeId().equals(jobInfo.infoTypeId)) {
-                throw new ServiceException("Not allowed to change type for existing job", HttpStatus.CONFLICT);
+                throw new ServiceException("Not allowed to change type for existing job", HttpStatus.BAD_REQUEST);
             }
             return Mono.just(toEiJob(jobInfo, jobId, jobInfo.infoTypeId));
         } catch (Exception e) {
@@ -460,7 +464,7 @@ public class ConsumerController {
         if (url != null && !url.isEmpty()) {
             URI uri = new URI(url);
             if (!uri.isAbsolute()) {
-                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.BAD_REQUEST);
             }
         }
     }
@@ -478,7 +482,7 @@ public class ConsumerController {
                 JSONObject json = new JSONObject(objectAsString);
                 schema.validate(json);
             } catch (Exception e) {
-                throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.CONFLICT);
+                throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.BAD_REQUEST);
             }
         }
     }

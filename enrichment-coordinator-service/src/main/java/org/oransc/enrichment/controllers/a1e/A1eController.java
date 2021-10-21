@@ -277,8 +277,14 @@ public class A1eController {
             @ApiResponse(
                 responseCode = "404",
                 description = "Enrichment Information type is not found", //
+                content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Input validation failed", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
+
         })
+
     public Mono<ResponseEntity<Object>> putIndividualEiJob( //
         @PathVariable("eiJobId") String eiJobId, //
         @RequestBody A1eEiJobInfo eiJobObject) {
@@ -289,7 +295,7 @@ public class A1eController {
             .flatMap(this::startEiJob) //
             .doOnNext(newEiJob -> this.eiJobs.put(newEiJob)) //
             .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
-            .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
+            .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.INTERNAL_SERVER_ERROR)));
     }
 
     private Mono<InfoJob> startEiJob(InfoJob newEiJob) {
@@ -308,7 +314,7 @@ public class A1eController {
             validateUri(eiJobInfo.statusNotificationUri);
 
             if (existingEiJob != null && !existingEiJob.getTypeId().equals(eiJobInfo.eiTypeId)) {
-                throw new ServiceException("Not allowed to change type for existing EI job", HttpStatus.CONFLICT);
+                throw new ServiceException("Not allowed to change type for existing EI job", HttpStatus.BAD_REQUEST);
             }
             return Mono.just(toEiJob(eiJobInfo, eiJobId, eiType));
         } catch (Exception e) {
@@ -320,7 +326,7 @@ public class A1eController {
         if (url != null && !url.isEmpty()) {
             URI uri = new URI(url);
             if (!uri.isAbsolute()) {
-                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.CONFLICT);
+                throw new ServiceException("URI: " + url + " is not absolute", HttpStatus.BAD_REQUEST);
             }
         }
     }
@@ -338,7 +344,7 @@ public class A1eController {
                 JSONObject json = new JSONObject(objectAsString);
                 schema.validate(json);
             } catch (Exception e) {
-                throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.CONFLICT);
+                throw new ServiceException("Json validation failure " + e.toString(), HttpStatus.BAD_REQUEST);
             }
         }
     }
