@@ -4,7 +4,7 @@
             "name": "LinkMonitorInstance0",
             "version": "1.0.1",
             "definition": {
-                "name": "org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition",
+                "name": "org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition0",
                 "version": "1.2.3"
             },
             "state": "UNINITIALISED",
@@ -20,6 +20,10 @@
                     "participantType": {
                         "name": "org.onap.policy.controlloop.PolicyControlLoopParticipant",
                         "version": "2.3.1"
+                    },
+                    "participantId": {
+                        "name": "org.onap.PM_Policy",
+                        "version": "1.0.0"
                     },
                     "state": "UNINITIALISED",
                     "orderedState": "UNINITIALISED",

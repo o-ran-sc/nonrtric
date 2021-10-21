@@ -1,5 +1,5 @@
 {
-    "orderedState": "RUNNING",
+    "orderedState": "PASSIVE",
     "controlLoopIdentifierList": [
         {
             "name": "LinkMonitorInstance0",

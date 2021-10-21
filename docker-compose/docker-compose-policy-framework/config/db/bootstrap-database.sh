@@ -24,5 +24,5 @@
 ###
 
 mysql -uroot -p$MYSQL_ROOT_PASSWORD -f < /docker-entrypoint-initdb.d/create-db.sql
-mysql -uroot -p$MYSQL_ROOT_PASSWORD --execute "CREATE USER 'policy'@'%' IDENTIFIED BY 'P01icY';"
-mysql -uroot -p$MYSQL_ROOT_PASSWORD --execute "GRANT ALL PRIVILEGES ON controlloop.* TO 'policy'@'%';"
+mysql -uroot -p$MYSQL_ROOT_PASSWORD --execute "CREATE USER 'policy_user'@'%' IDENTIFIED BY 'policy_user';"
+mysql -uroot -p$MYSQL_ROOT_PASSWORD --execute "GRANT ALL PRIVILEGES ON controlloop.* TO 'policy_user'@'%';"

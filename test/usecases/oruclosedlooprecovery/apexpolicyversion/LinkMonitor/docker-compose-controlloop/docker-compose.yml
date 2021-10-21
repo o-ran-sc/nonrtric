@@ -21,24 +21,9 @@ networks:
     driver: bridge
     name: nonrtric-docker-net
 services:
-   mariadb:
-      image: nexus3.onap.org:10001/mariadb:10.5.8
-      container_name: mariadb
-      hostname: mariadb
-      volumes:
-       - db-vol:/var/lib/mysql
-       - "./config/db/:/docker-entrypoint-initdb.d:rw"
-      environment:
-       - MYSQL_ROOT_PASSWORD=strong_pitchou
-      ports:
-       - "3306:3306"
-      expose:
-       - 3306
    controlloop-runtime:
       image: nexus3.onap.org:10001/onap/policy-clamp-cl-runtime:6.1.3
       container_name: controlloop-runtime
-      depends_on:
-       - mariadb
       hostname: controlloop-runtime
       ports:
        - "6969:6969"
@@ -69,18 +54,15 @@ services:
         'mariadb', '3306',
         'onap-dmaap', '3904'
         ]
-   k8s-participant:
-      image: nexus3.onap.org:10001/onap/policy-clamp-cl-k8s-ppnt:6.1.3
-      container_name: k8s-participant
+   policy-participant:
+      image: nexus3.onap.org:10001/onap/policy-clamp-cl-pf-ppnt:6.1.3
+      container_name: policy-participant
       depends_on:
-       - mariadb
        - controlloop-runtime
-      hostname: k8s-participant
+      hostname: policy-participant
       volumes:
        - ./config/ks.jks:/opt/app/policy/clamp/etc/ssl/policy-keystore:ro
-       - ./../helm:/home/policy/helm
        - ./wait_for_port.sh:/opt/app/policy/clamp/bin/wait_for_port.sh:ro
-       - <PATH TO kube-config>:/home/policy/.kube/config:ro
       environment:
        - TOPICSERVER=onap-dmaap
        - KEYSTORE=/opt/app/policy/clamp/etc/ssl/policy-keystore
@@ -95,15 +77,8 @@ services:
        - PARTICIPANT_INTERMEDIARYPARAMETERS_CLAMPCONTROLLOOPTOPICS_TOPICSINKS_0_TOPICCOMMINFRASTRUCTURE=dmaap
        - PARTICIPANT_INTERMEDIARYPARAMETERS_CLAMPCONTROLLOOPTOPICS_TOPICSINKS_0_FETCHTIMEOUT=15000
        - PARTICIPANT_INTERMEDIARYPARAMETERS_CLAMPCONTROLLOOPTOPICS_TOPICSINKS_0_USEHTTPS=false
-      entrypoint: sh -c "/opt/app/policy/clamp/bin/wait_for_port.sh controlloop-runtime 6969 && /home/policy/helm/chartmuseum_init.sh && /opt/app/policy/clamp/bin/kubernetes-participant.sh"
-   chartmuseum:
-      image: ghcr.io/helm/chartmuseum:v0.13.1
-      container_name: chartmuseum
-      hostname: chartmuseum
-      volumes:
-       - ./charts:/charts
-      environment:
-       - STORAGE=local
-       - STORAGE_LOCAL_ROOTDIR=/charts
-volumes:
-  db-vol:
+      entrypoint: /opt/app/policy/clamp/bin/wait_for_port.sh
+      command: [
+        '-c', '/opt/app/policy/clamp/bin/policy-participant.sh',
+        'controlloop-runtime', '6969'
+        ]

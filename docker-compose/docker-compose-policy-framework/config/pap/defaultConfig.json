@@ -5,7 +5,7 @@
         "port": 6969,
         "userName": "healthcheck",
         "password": "zb!XztG34",
-        "https": true,
+        "https": false,
         "aaf": false
     },
     "pdpParameters": {
