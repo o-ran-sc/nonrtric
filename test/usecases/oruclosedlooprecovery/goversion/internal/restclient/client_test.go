@@ -139,7 +139,6 @@ func Test_doErrorCases(t *testing.T) {
 				url:              "badRequest",
 				mockReturnStatus: http.StatusBadRequest,
 				mockReturnBody:   []byte("bad request"),
-				mockReturnError:  nil,
 			},
 			wantErr: RequestError{
 				StatusCode: http.StatusBadRequest,
