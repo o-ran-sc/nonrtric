@@ -32,15 +32,15 @@ type RequestError struct {
 	Body       []byte
 }
 
+func (e RequestError) Error() string {
+	return fmt.Sprintf("Request failed due to error response with status: %v and body: %v", e.StatusCode, string(e.Body))
+}
+
 // HTTPClient interface
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
 
 	Do(*http.Request) (*http.Response, error)
-}
-
-func (pe RequestError) Error() string {
-	return fmt.Sprintf("Request failed due to error response with status: %v and body: %v", pe.StatusCode, string(pe.Body))
 }
 
 func PutWithoutAuth(url string, body []byte, client HTTPClient) error {

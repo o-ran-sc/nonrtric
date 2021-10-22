@@ -32,10 +32,9 @@ import (
 )
 
 type Configuration struct {
-	InfoCoordAddress string
-	SDNRAddress      string
-	SDNRUser         string
-	SDNRPassword     string
+	SDNRAddress  string
+	SDNRUser     string
+	SDNRPassword string
 }
 
 const rawSdnrPath = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=[O-RU-ID]"
