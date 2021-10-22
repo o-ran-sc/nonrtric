@@ -39,24 +39,31 @@ import (
 
 func TestNewRouter(t *testing.T) {
 	assertions := require.New(t)
+
 	r := NewRouter(nil)
 	statusRoute := r.Get("status")
 	assertions.NotNil(statusRoute)
 	supportedMethods, err := statusRoute.GetMethods()
 	assertions.Equal([]string{http.MethodGet}, supportedMethods)
 	assertions.Nil(err)
+	path, _ := statusRoute.GetPathTemplate()
+	assertions.Equal("/status", path)
 
 	addJobRoute := r.Get("add")
 	assertions.NotNil(addJobRoute)
 	supportedMethods, err = addJobRoute.GetMethods()
 	assertions.Equal([]string{http.MethodPost}, supportedMethods)
 	assertions.Nil(err)
+	path, _ = addJobRoute.GetPathTemplate()
+	assertions.Equal("/jobs", path)
 
 	deleteJobRoute := r.Get("delete")
 	assertions.NotNil(deleteJobRoute)
 	supportedMethods, err = deleteJobRoute.GetMethods()
 	assertions.Equal([]string{http.MethodDelete}, supportedMethods)
 	assertions.Nil(err)
+	path, _ = deleteJobRoute.GetPathTemplate()
+	assertions.Equal("/jobs/{infoJobId}", path)
 
 	notFoundHandler := r.NotFoundHandler
 	handler := http.HandlerFunc(notFoundHandler.ServeHTTP)
@@ -75,12 +82,14 @@ func TestNewRouter(t *testing.T) {
 
 func TestStatusHandler(t *testing.T) {
 	assertions := require.New(t)
+
+	handler := http.HandlerFunc(statusHandler)
 	responseRecorder := httptest.NewRecorder()
 	r := newRequest(http.MethodGet, "/status", nil, t)
-	handler := http.HandlerFunc(statusHandler)
-	handler.ServeHTTP(responseRecorder, r)
-	assertions.Equal(http.StatusOK, responseRecorder.Code)
 
+	handler.ServeHTTP(responseRecorder, r)
+
+	assertions.Equal(http.StatusOK, responseRecorder.Code)
 	assertions.Equal("", responseRecorder.Body.String())
 }
 
@@ -98,7 +107,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 		wantedBody   string
 	}{
 		{
-			name: "AddInfoJobHandler with correct path and method, should return OK",
+			name: "AddInfoJobHandler with correct job, should return OK",
 			args: args{
 				job: jobs.JobInfo{
 					Owner:            "owner",
@@ -128,6 +137,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			jobHandlerMock := jobhandler.JobHandler{}
 			jobHandlerMock.On("AddJob", tt.args.job).Return(tt.args.mockReturn)
+
 			callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
 
 			handler := http.HandlerFunc(callbackHandlerUnderTest.addInfoJobHandler)
@@ -146,8 +156,8 @@ func TestAddInfoJobHandler(t *testing.T) {
 func TestDeleteJob(t *testing.T) {
 	assertions := require.New(t)
 	jobHandlerMock := jobhandler.JobHandler{}
-
 	jobHandlerMock.On("DeleteJob", mock.Anything).Return(nil)
+
 	callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
 
 	responseRecorder := httptest.NewRecorder()

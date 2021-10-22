@@ -165,7 +165,6 @@ func TestDeleteJob(t *testing.T) {
 func TestPollAndDistributeMessages(t *testing.T) {
 	assertions := require.New(t)
 
-	wg := sync.WaitGroup{}
 	messages := `[{"message": {"data": "data"}}]`
 	pollClientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == "http://mrAddr/topicUrl" {
@@ -212,6 +211,7 @@ func TestPollAndDistributeMessages(t *testing.T) {
 		handlerUnderTest.clearAll()
 	})
 
+	wg := sync.WaitGroup{}
 	wg.Add(2) // Two calls should be made to the server, one to poll and one to distribute
 	handlerUnderTest.pollAndDistributeMessages("http://mrAddr")
 
