@@ -202,22 +202,86 @@ node_types:
     properties:
       provider:
         type: string
-        requred: false
+        required: false
+        metadata:
+          common: true
+        description: Specifies the organization that provides the control loop element
       participant_id:
         type: onap.datatypes.ToscaConceptIdentifier
         requred: true
+        metadata:
+          common: true
+      participantType:
+        type: onap.datatypes.ToscaConceptIdentifier
+        required: true
+        metadata:
+          common: true
+        description: The identity of the participant type that hosts this type of Control Loop Element
+      startPhase:
+        type: integer
+        required: false
+        constraints:
+          - greater_or_equal: 0
+        metadata:
+          common: true
+        description: A value indicating the start phase in which this control loop element will be started, the
+          first start phase is zero. Control Loop Elements are started in their start_phase order and stopped
+          in reverse start phase order. Control Loop Elements with the same start phase are started and
+          stopped simultaneously
+      uninitializedToPassiveTimeout:
+        type: integer
+        required: false
+        constraints:
+          - greater_or_equal: 0
+        default: 60
+        metadata:
+          common: true
+        description: The maximum time in seconds to wait for a state chage from uninitialized to passive
+      passiveToRunningTimeout:
+        type: integer
+        required: false
+        constraints:
+          - greater_or_equal: 0
+        default: 60
+        metadata:
+          common: true
+        description: The maximum time in seconds to wait for a state chage from passive to running
+      runningToPassiveTimeout:
+        type: integer
+        required: false
+        constraints:
+          - greater_or_equal: 0
+        default: 60
+        metadata:
+          common: true
+        description: The maximum time in seconds to wait for a state chage from running to passive
+      passiveToUninitializedTimeout:
+        type: integer
+        required: false
+        constraints:
+          - greater_or_equal: 0
+        default: 60
+        metadata:
+          common: true
+        description: The maximum time in seconds to wait for a state chage from passive to uninitialized
   org.onap.policy.clamp.controlloop.ControlLoop:
     version: 1.0.1
     derived_from: tosca.nodetypes.Root
     properties:
       provider:
         type: string
-        requred: false
+        required: false
+        metadata:
+          common: true
+        description: Specifies the organization that provides the control loop element
       elements:
         type: list
         required: true
+        metadata:
+          common: true
         entry_schema:
           type: onap.datatypes.ToscaConceptIdentifier
+        description: Specifies a list of control loop element definitions that make up this control loop definition
   org.onap.policy.clamp.controlloop.PolicyControlLoopElement:
     version: 1.0.1
     derived_from: org.onap.policy.clamp.controlloop.ControlLoopElement
@@ -237,11 +301,20 @@ topology_template:
       description: Control loop element for the Link Monitor
       properties:
         provider: Ericsson
-        participantType: org.onap.policy.controlloop.PolicyControlLoopParticipant:2.3.1
-        startPhase: 0
-        policyType: onap.policies.controlloop.operational.common.Apex:1.0.0
-        policyId: operational.apex.linkmonitor:1.0.0
-    org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition:
+        participant_id:
+          name: org.onap.PM_Policy
+          version: 1.0.0
+        participantType:
+          name: org.onap.policy.controlloop.PolicyControlLoopParticipant
+          version: 2.3.1
+        policy_type_id:
+          name: onap.policies.controlloop.operational.common.Apex
+          version: 1.0.0
+        policy_id:
+          name: operational.apex.linkmonitor
+          version: 1.0.0 
+        pdpGroup: defaultGroup
+    org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition0:
       version: 1.2.3
       type: org.onap.policy.clamp.controlloop.ControlLoop
       type_version: 1.0.0

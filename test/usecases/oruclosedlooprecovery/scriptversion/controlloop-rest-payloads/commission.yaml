@@ -76,7 +76,7 @@ node_types:
         requred: true
 topology_template:
   node_templates:
-    org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition:
+    org.onap.domain.linkmonitor.LinkMonitorControlLoopDefinition1:
       version: 1.2.3
       type: org.onap.policy.clamp.controlloop.ControlLoop
       type_version: 1.0.1
@@ -107,17 +107,18 @@ topology_template:
       properties:
         provider: ONAP
         participant_id:
+          name: K8sParticipant0
+          version: 1.0.0
+        participantType:
           name: org.onap.k8s.controlloop.K8SControlLoopParticipant
           version: 2.3.4
-        uninitializedToPassiveTimeout: 180
-        podStatusCheckInterval: 30
         chart:
           chartId:
             name: oru-app
             version: 0.1.0
           releaseName: oru-app
-	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: chartmuseum
+          repository:
+            repoName: chartmuseum
           namespace: nonrtric
     org.onap.domain.linkmonitor.MessageGeneratorK8SMicroserviceControlLoopElement:
       version: 1.2.3
@@ -127,17 +128,18 @@ topology_template:
       properties:
         provider: ONAP
         participant_id:
+          name: K8sParticipant0
+          version: 1.0.0
+        participantType:
           name: org.onap.k8s.controlloop.K8SControlLoopParticipant
           version: 2.3.4
-        uninitializedToPassiveTimeout: 180
-        podStatusCheckInterval: 30
         chart:
           chartId:
             name: message-generator
             version: 0.1.0
           releaseName: message-generator
-	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: chartmuseum
+          repository:
+            repoName: chartmuseum
           namespace: nonrtric
           overrideParams:
             image.tag: v2
@@ -149,17 +151,18 @@ topology_template:
       properties:
         provider: ONAP
         participant_id:
+          name: K8sParticipant0
+          version: 1.0.0
+        participantType:
           name: org.onap.k8s.controlloop.K8SControlLoopParticipant
           version: 2.3.4
-        uninitializedToPassiveTimeout: 180
-        podStatusCheckInterval: 30
         chart:
           chartId:
             name: sdnr-simulator
             version: 0.1.0
           releaseName: sdnr-simulator
-	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: chartmuseum
+          repository:
+            repoName: chartmuseum
           namespace: nonrtric
     org.onap.domain.linkmonitor.DmaapMrK8SMicroserviceControlLoopElement:
       version: 1.2.3
@@ -169,15 +172,16 @@ topology_template:
       properties:
         provider: ONAP
         participant_id:
+          name: K8sParticipant0
+          version: 1.0.0
+        participantType:
           name: org.onap.k8s.controlloop.K8SControlLoopParticipant
           version: 2.3.4
-        uninitializedToPassiveTimeout: 180
-        podStatusCheckInterval: 30
         chart:
           chartId:
             name: dmaap-mr
             version: 0.1.0
           releaseName: dmaap-mr
-	  # repository can point to a helm repo or a path in local file system where chart is stored
-          repository: chartmuseum
+          repository:
+            repoName: chartmuseum
           namespace: nonrtric
