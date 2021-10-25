@@ -1,0 +1,8 @@
+{
+   "types": [
+      {
+         "id": "type1",
+         "dmaapTopicUrl": "/events/unauthenticated.VES_NOTIFICATION_OUTPUT/OpenDcae-c12/C12"
+      }
+   ]
+}

@@ -29,3 +29,6 @@ services:
     ports:
       - 8084:8084
       - 8435:8435
+    volumes:
+      - ./dmaap-mediator-java/config/application.yaml:/opt/app/dmaap-adaptor-service/config/application.yaml:ro
+      - ./dmaap-mediator-java/config/application_configuration.json:/opt/app/dmaap-adaptor-service/data/application_configuration.json:ro

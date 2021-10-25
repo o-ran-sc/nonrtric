@@ -32,6 +32,7 @@ a1_sim_OSC_port=${2:-30001}
 a1_sim_STD_port=${3:-30003}
 a1_sim_STD_v1_port=${4:-30005}
 httpx=${5:-"http"}
+SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
 echo "using dmaap-mr port: "$dmaa_mr_port
 echo "using a1-sim-OSC port: "$a1_sim_OSC_port
@@ -65,11 +66,11 @@ curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_port/counter/interface
 echo -e "\n"
 
 echo "create policy type 1 to ric1:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @testdata/OSC/policy_type.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @${SHELL_FOLDER}/testdata/OSC/policy_type.json
 echo -e "\n"
 
 echo "create policy type 2 to ric3:"
-curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v1_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v2/policy_type.json
+curl -skw %{http_code} $httpx://localhost:$a1_sim_STD_v1_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @${SHELL_FOLDER}/testdata/v2/policy_type.json
 echo -e "\n"
 
 for i in {1..12}; do
@@ -88,7 +89,7 @@ done
 
 ## Using PMS v1 interface
 echo "create service 1 to policy agent via dmaap_mr:"
-curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-service-create.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @${SHELL_FOLDER}/testdata/dmaap/v1/dmaap-msg-service-create.json
 echo -e "\n"
 
 echo "get result from mr of previous request:"
@@ -96,7 +97,7 @@ curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users
 echo -e "\n"
 
 echo "create policies to ric1 & ric2 & ric3 with type1 and service1 via dmaa_mr:"
-curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-policy-create.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @${SHELL_FOLDER}/testdata/dmaap/v1/dmaap-msg-policy-create.json
 echo -e "\n"
 
 echo "get result from mr of previous request:"
@@ -104,7 +105,7 @@ curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users
 echo -e "\n"
 
 echo "get policy from policy agent via dmaap_mr:"
-curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v1/dmaap-msg-policy-get.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @${SHELL_FOLDER}/testdata/dmaap/v1/dmaap-msg-policy-get.json
 echo -e "\n"
 
 echo "get result from mr of previous request:"
@@ -113,7 +114,7 @@ echo -e "\n"
 
 ## Using PMS v2 interface
 echo "create service 2 to policy agent via dmaap_mr:"
-curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-service-create.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @${SHELL_FOLDER}/testdata/dmaap/v2/dmaap-msg-service-create.json
 echo -e "\n"
 
 echo "get result from mr of previous request:"
@@ -121,7 +122,7 @@ curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users
 echo -e "\n"
 
 echo "create policies to ric1 & ric2 & ric3 with type1 and service1 via dmaa_mr:"
-curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-policy-create.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @${SHELL_FOLDER}/testdata/dmaap/v2/dmaap-msg-policy-create.json
 echo -e "\n"
 
 echo "get result from mr of previous request:"
@@ -129,7 +130,7 @@ curl -X GET "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-WRITE/users
 echo -e "\n"
 
 echo "get policy from policy agent via dmaap_mr:"
-curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @testdata/dmaap/v2/dmaap-msg-policy-get.json
+curl -k -X POST -sw %{http_code} -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$dmaa_mr_port/events/A1-POLICY-AGENT-READ/" --data-binary @${SHELL_FOLDER}/testdata/dmaap/v2/dmaap-msg-policy-get.json
 echo -e "\n"
 
 echo "get result from mr of previous request:"

@@ -22,7 +22,8 @@ networks:
 
 services:
   ecs:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-enrichment-coordinator-service:1.2.0
+    # image: nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-enrichment-coordinator-service:1.1.0
+    image: o-ran-sc/nonrtric-enrichment-coordinator-service:1.2.0-SNAPSHOT
     container_name: ecs
     networks:
       default:
@@ -31,9 +32,9 @@ services:
     ports:
       - 8083:8083
       - 8434:8434
-  producer:
+  consumer:
     image: eexit/mirror-http-server
-    container_name: producer
+    container_name: consumer
     networks:
       - default
     ports:
