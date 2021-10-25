@@ -1,5 +1,5 @@
 {
     "supported_info_types": ["type1"],
-    "info_job_callback_url": "https://producer-stub:8093/callbacks/job/prod-a",
-    "info_producer_supervision_callback_url": "https://producer-stub:8093/callbacks/supervision/prod-a"
+    "info_job_callback_url": "http://consumer:80/",
+    "info_producer_supervision_callback_url": "http://consumer:80/"
 }
