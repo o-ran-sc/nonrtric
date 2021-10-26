@@ -3,7 +3,7 @@
 * ========================LICENSE_START=================================
 * O-RAN-SC
 * %%
-* Copyright (C) 2019 Nordix Foundation
+* Copyright (C) 2021 Nordix Foundation
 * %%
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -301,7 +301,7 @@
                             <language>openapi-yaml</language>
                             <output>${project.basedir}/api</output>
                             <configOptions>
-                                <outputFile>ecs-api.yaml</outputFile>
+                                <outputFile>api.yaml</outputFile>
                             </configOptions>
                         </configuration>
                     </execution>

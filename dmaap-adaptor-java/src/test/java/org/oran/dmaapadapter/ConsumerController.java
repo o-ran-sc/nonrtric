@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ConsumerSimulatorController")
-@Tag(name = "Consts.PRODUCER_API_CALLBACKS_NAME")
+@Tag(name = "Test Consumer Simulator (exists only in test)")
 public class ConsumerController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -64,7 +64,7 @@ public class ConsumerController {
     final TestResults testResults = new TestResults();
 
     @PostMapping(path = CONSUMER_TARGET_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "GET from topic", description = "The call is invoked to push data to consumer")
+    @Operation(summary = "Consume data", description = "The call is invoked to push data to consumer")
     @ApiResponses(value = { //
             @ApiResponse(responseCode = "200", description = "OK", //
                     content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
