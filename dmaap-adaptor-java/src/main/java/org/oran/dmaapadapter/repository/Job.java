@@ -33,10 +33,18 @@ public class Job {
     @Getter
     private final InfoType type;
 
-    public Job(String id, String callbackUrl, InfoType type) {
+    @Getter
+    private final String owner;
+
+    @Getter
+    private final String lastUpdated;
+
+    public Job(String id, String callbackUrl, InfoType type, String owner, String lastUpdated) {
         this.id = id;
         this.callbackUrl = callbackUrl;
         this.type = type;
+        this.owner = owner;
+        this.lastUpdated = lastUpdated;
     }
 
 }

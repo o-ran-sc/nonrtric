@@ -11,7 +11,8 @@ management:
       exposure:
         # Enabling of springboot actuator features. See springboot documentation.
         include: "loggers,logfile,health,info,metrics,threaddump,heapdump"
-
+springdoc:
+  show-actuator: true 
 logging:
   # Configuration of logging
   level:
