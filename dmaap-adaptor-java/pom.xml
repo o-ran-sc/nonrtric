@@ -301,7 +301,7 @@
                             <language>openapi-yaml</language>
                             <output>${project.basedir}/api</output>
                             <configOptions>
-                                <outputFile>ecs-api.yaml</outputFile>
+                                <outputFile>api.yaml</outputFile>
                             </configOptions>
                         </configuration>
                     </execution>

@@ -24,11 +24,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.oran.dmaapadapter.r1.ProducerJobInfo;
 import org.oran.dmaapadapter.repository.InfoTypes;
@@ -52,7 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProducerCallbacksController {
     private static final Logger logger = LoggerFactory.getLogger(ProducerCallbacksController.class);
 
-    public static final String API_NAME = "Management of configuration";
+    public static final String API_NAME = "Producer job control API";
     public static final String API_DESCRIPTION = "";
     public static final String JOB_URL = "/dmaap_dataproducer/info_job";
     public static final String SUPERVISION_URL = "/dmaap_dataproducer/health_check";
@@ -70,7 +74,9 @@ public class ProducerCallbacksController {
             description = "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the Information Producer.")
     @ApiResponses(value = { //
             @ApiResponse(responseCode = "200", description = "OK", //
-                    content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
+                    content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
+            @ApiResponse(responseCode = "404", description = "Information type is not found", //
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
     })
     public ResponseEntity<Object> jobCreatedCallback( //
             @RequestBody String body) {
@@ -78,12 +84,28 @@ public class ProducerCallbacksController {
             ProducerJobInfo request = gson.fromJson(body, ProducerJobInfo.class);
 
             logger.info("Job started callback {}", request.id);
-            Job job = new Job(request.id, request.targetUri, types.getType(request.typeId));
+            Job job = new Job(request.id, request.targetUri, types.getType(request.typeId), request.owner,
+                    request.lastUpdated);
             this.jobs.put(job);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping(path = JOB_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all jobs", description = "Returns all info jobs, can be used for trouble shooting")
+    @ApiResponse(responseCode = "200", //
+            description = "Information jobs", //
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProducerJobInfo.class)))) //
+    public ResponseEntity<Object> getJobs() {
+
+        Collection<ProducerJobInfo> producerJobs = new ArrayList<>();
+        for (Job j : this.jobs.getAll()) {
+            producerJobs.add(new ProducerJobInfo(null, j.getId(), j.getType().getId(), j.getCallbackUrl(), j.getOwner(),
+                    j.getLastUpdated()));
+        }
+        return new ResponseEntity<>(gson.toJson(producerJobs), HttpStatus.OK);
     }
 
     @DeleteMapping(path = JOB_URL + "/{infoJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,7 +131,7 @@ public class ProducerCallbacksController {
                     content = @Content(schema = @Schema(implementation = String.class))) //
     })
     public ResponseEntity<Object> producerSupervision() {
-        logger.info("Producer supervision");
+        logger.debug("Producer supervision");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

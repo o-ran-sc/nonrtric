@@ -42,8 +42,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("ProducerSimulatorController")
-@Tag(name = "ProducerConsts.PRODUCER_API_CALLBACKS_NAME")
+@RestController("DmaapSimulatorController")
+@Tag(name = "DMAAP Simulator (exists only in test)")
 public class DmaapSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
