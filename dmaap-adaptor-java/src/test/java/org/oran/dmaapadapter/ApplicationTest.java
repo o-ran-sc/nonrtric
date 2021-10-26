@@ -147,7 +147,6 @@ class ApplicationTest {
         this.consumerController.testResults.reset();
         this.ecsSimulatorController.testResults.reset();
         this.jobs.clear();
-        this.types.clear();
     }
 
     private AsyncRestClient restClient(boolean useTrustValidation) {
@@ -240,7 +239,8 @@ class ApplicationTest {
         final String JOB_ID = "ID";
 
         // Register producer, Register types
-        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInEcs()).isTrue());
+        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
 
         // Create a job
         this.ecsSimulatorController.addJob(consumerJobInfo(), JOB_ID, restClient());
@@ -254,9 +254,32 @@ class ApplicationTest {
         await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(2));
         assertThat(consumer.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
 
+        String jobUrl = baseUrl() + ProducerCallbacksController.JOB_URL;
+        String jobs = restClient().get(jobUrl).block();
+        assertThat(jobs).contains("ExampleInformationType");
+
         // Delete the job
         this.ecsSimulatorController.deleteJob(JOB_ID, restClient());
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
+
+    }
+
+    @Test
+    void testReRegister() throws Exception {
+        // Wait foir register types and producer
+        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
+
+        // Clear the registration, should trigger a re-register
+        ecsSimulatorController.testResults.reset();
+        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
+
+        // Just clear the registerred types, should trigger a re-register
+        ecsSimulatorController.testResults.types.clear();
+        await().untilAsserted(
+                () -> assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1));
+
     }
 
     private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {

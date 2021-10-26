@@ -45,8 +45,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("EcsSimulatorController")
-@Tag(name = "EcsSimulator")
+@RestController("IcsSimulatorController")
+@Tag(name = "Information Coordinator Service Simulator (exists only in test)")
 public class EcsSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -54,14 +54,16 @@ public class EcsSimulatorController {
 
     public static class TestResults {
 
-        ProducerRegistrationInfo registrationInfo;
+        ProducerRegistrationInfo registrationInfo = null;
         Map<String, ProducerInfoTypeInfo> types = new HashMap<>();
+        String infoProducerId = null;
 
         public TestResults() {}
 
         public void reset() {
             registrationInfo = null;
             types.clear();
+            infoProducerId = null;
         }
     }
 
@@ -86,6 +88,7 @@ public class EcsSimulatorController {
             @PathVariable("infoProducerId") String infoProducerId, //
             @RequestBody ProducerRegistrationInfo registrationInfo) {
         testResults.registrationInfo = registrationInfo;
+        testResults.infoProducerId = infoProducerId;
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
