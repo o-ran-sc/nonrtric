@@ -26,6 +26,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
@@ -33,11 +34,12 @@ import (
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/server"
 )
 
-const timeoutHTTPClient = time.Second * 5
-const timeoutPollClient = time.Second * 15
+const timeoutDistributionClient = time.Second * 5
+const retryWaitMax = time.Minute
+const retryMax = int(^uint(0) >> 1)
 
 var configuration *config.Config
-var httpClient restclient.HTTPClient
+var retryClient restclient.HTTPClient
 var jobHandler *jobs.JobHandlerImpl
 
 func init() {
@@ -52,13 +54,16 @@ func main() {
 	}
 	callbackAddress := fmt.Sprintf("%v:%v", configuration.InfoProducerHost, configuration.InfoProducerPort)
 
-	httpClient = &http.Client{
-		Timeout: timeoutHTTPClient,
+	distributionClient := &http.Client{
+		Timeout: timeoutDistributionClient,
 	}
-	pollClient := &http.Client{
-		Timeout: timeoutPollClient,
-	}
-	jobHandler = jobs.NewJobHandlerImpl("configs/type_config.json", pollClient, httpClient)
+
+	rawRetryClient := retryablehttp.NewClient()
+	rawRetryClient.RetryWaitMax = retryWaitMax
+	rawRetryClient.RetryMax = retryMax
+	retryClient = rawRetryClient.StandardClient()
+
+	jobHandler = jobs.NewJobHandlerImpl("configs/type_config.json", retryClient, distributionClient)
 	if err := registerTypesAndProducer(jobHandler, configuration.InfoCoordinatorAddress, callbackAddress); err != nil {
 		log.Fatalf("Stopping producer due to: %v", err)
 	}
@@ -94,7 +99,7 @@ func validateConfiguration(configuration *config.Config) error {
 }
 
 func registerTypesAndProducer(jobHandler jobs.JobTypeHandler, infoCoordinatorAddress string, callbackAddress string) error {
-	registrator := config.NewRegistratorImpl(infoCoordinatorAddress, httpClient)
+	registrator := config.NewRegistratorImpl(infoCoordinatorAddress, retryClient)
 	if types, err := jobHandler.GetTypes(); err == nil {
 		if regErr := registrator.RegisterTypes(types); regErr != nil {
 			return fmt.Errorf("unable to register all types due to: %v", regErr)
