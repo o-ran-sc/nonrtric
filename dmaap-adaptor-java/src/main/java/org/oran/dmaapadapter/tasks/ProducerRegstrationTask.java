@@ -71,7 +71,7 @@ public class ProducerRegstrationTask {
     @Scheduled(fixedRate = REGISTRATION_SUPERVISION_INTERVAL_MS)
     public void supervisionTask() {
         checkRegistration() //
-                .filter(isRegisterred -> !isRegisterred) //
+                .filter(isRegistrationOk -> !isRegistrationOk || !this.isRegisteredInEcs) //
                 .flatMap(isRegisterred -> registerTypesAndProducer()) //
                 .subscribe( //
                         null, //
@@ -80,13 +80,12 @@ public class ProducerRegstrationTask {
     }
 
     private void handleRegistrationCompleted() {
-        logger.debug("Registering types and producer succeeded");
+        logger.debug("Registering types and producer completed");
         isRegisteredInEcs = true;
     }
 
     private void handleRegistrationFailure(Throwable t) {
-        logger.warn("Registration failed {}", t.getMessage());
-        isRegisteredInEcs = false;
+        logger.warn("Registration of producer failed {}", t.getMessage());
     }
 
     private Mono<Boolean> checkRegistration() {
@@ -112,8 +111,8 @@ public class ProducerRegstrationTask {
 
     private Mono<String> registerTypesAndProducer() {
         final int CONCURRENCY = 20;
-        final String producerUrl =
-                applicationConfig.getEcsBaseUrl() + "/data-producer/v1/info-producers/" + PRODUCER_ID;
+        final String producerUrl = applicationConfig.getEcsBaseUrl() + "/data-producer/v1/info-producers/"
+                + PRODUCER_ID;
 
         return Flux.fromIterable(this.types.getAll()) //
                 .doOnNext(type -> logger.info("Registering type {}", type.getId())) //
