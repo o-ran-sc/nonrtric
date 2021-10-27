@@ -47,6 +47,54 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09b53405_314c175d",
+        "filename": "docker-compose/data/testdata/dmaap-mediator-java/flow.puml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-10-27T13:10:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55959ca9_60d0b872",
+      "range": {
+        "startLine": 3,
+        "startChar": 15,
+        "endLine": 3,
+        "endChar": 17
+      },
+      "revId": "35f54f17bc07c0280a6b013e96ed7f99ade27f1a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88262e80_40e9bd94",
+        "filename": "docker-compose/data/testdata/dmaap-mediator-java/flow.puml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-10-27T13:10:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bc445a3_d026640a",
+      "range": {
+        "startLine": 3,
+        "startChar": 38,
+        "endLine": 3,
+        "endChar": 43
+      },
+      "revId": "35f54f17bc07c0280a6b013e96ed7f99ade27f1a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "54a5ddad_6b5a7afb",
