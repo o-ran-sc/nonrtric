@@ -53,7 +53,12 @@ func registerJob(port int) {
 		JobResultUri  string `json:"job_result_uri"`
 		InfoTypeId    string `json:"info_type_id"`
 		JobDefinition string `json:"job_definition"`
-	}{fmt.Sprintf("test%v", port), fmt.Sprintf("http://localhost:%v/jobs", port), "STD_Fault_Messages", "{}"}
+	}{
+		JobOwner:      fmt.Sprintf("test%v", port),
+		JobResultUri:  fmt.Sprintf("http://localhost:%v/jobs", port),
+		InfoTypeId:    "STD_Fault_Messages",
+		JobDefinition: "{}",
+	}
 	fmt.Print("Registering consumer: ", jobInfo)
 	body, _ := json.Marshal(jobInfo)
 	putErr := restclient.Put(fmt.Sprintf("http://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body, &httpClient)
