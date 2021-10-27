@@ -1,0 +1,5 @@
+@startuml
+dmaap_mr <- dmaap_mediator: dmaap_mediator reads msg from dmaap_mr
+dmaap_mediator -> ecs: dmaap_mediator gets jobs from ecs
+dmaap_mediator -> consumer: callbackUrl, send msg to consumer
+@enduml

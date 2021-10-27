@@ -28,6 +28,7 @@
 
 ecs_port=${1:-8083}
 httpx=${4:-"http"}
+SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
 echo "using ecs port: "$ecs_port
 echo "using protocol: "$httpx
@@ -39,7 +40,7 @@ echo -e "\n"
 
 # Create EiType
 echo "Create EiType:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-types/type1 -H accept:application/json -H Content-Type:application/json --data-binary @testdata/ECS/EiType.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-types/type1 -H accept:application/json -H Content-Type:application/json --data-binary @${SHELL_FOLDER}/testdata/ECS/EiType.json
 echo -e "\n"
 
 # Get EiTypes
@@ -54,7 +55,7 @@ echo -e "\n"
 
 # Create EiProducer
 echo "Create EiProducer:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-producers/1 -H Content-Type:application/json --data-binary @testdata/ECS/EiProducer.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/data-producer/v1/info-producers/1 -H Content-Type:application/json --data-binary @${SHELL_FOLDER}/testdata/ECS/EiProducer.json
 echo -e "\n"
 
 # Get EiProducers
@@ -74,7 +75,7 @@ echo -e "\n"
 
 # Create EiJob
 echo "Create EiJob Of A Certain Type type1:"
-curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/A1-EI/v1/eijobs/job1 -H Content-Type:application/json --data-binary @testdata/ECS/EiJob.json
+curl -X PUT -skw %{http_code} $httpx://localhost:$ecs_port/A1-EI/v1/eijobs/job1 -H Content-Type:application/json --data-binary @${SHELL_FOLDER}/testdata/ECS/EiJob.json
 echo -e "\n"
 
 # Get EiJobs
