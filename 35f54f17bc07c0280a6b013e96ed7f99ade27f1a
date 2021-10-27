@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54a5ddad_6b5a7afb",
+        "filename": "docker-compose/ecs/docker-compose.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-10-27T12:47:32Z",
+      "side": 1,
+      "message": "Should this really be left here?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 93
+      },
+      "revId": "35f54f17bc07c0280a6b013e96ed7f99ade27f1a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
