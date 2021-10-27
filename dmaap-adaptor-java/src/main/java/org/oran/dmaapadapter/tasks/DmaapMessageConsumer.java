@@ -102,6 +102,7 @@ public class DmaapMessageConsumer {
         return infiniteSubmitter.start() //
                 .flatMap(notUsed -> getFromMessageRouter(getDmaapUrl()), 1) //
                 .doOnNext(message -> logger.debug("Message Reveived from DMAAP : {}", message)) //
+                .filter(body -> body.length() > 3) // DMAAP will return "[]" sometimes. That is thrown away.
                 .flatMap(this::handleReceivedMessage, CONCURRENCY);
     }
 
