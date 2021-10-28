@@ -36,8 +36,9 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("INFO_PRODUCER_HOST", "producerHost")
 	os.Setenv("INFO_PRODUCER_PORT", "8095")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
-	os.Setenv("MR_HOST", "mrHost")
-	os.Setenv("MR_PORT", "3908")
+	os.Setenv("DMAAP_MR_ADDR", "mrHost:3908")
+	os.Setenv("PRODUCER_CERT_PATH", "cert")
+	os.Setenv("PRODUCER_KEY_PATH", "key")
 	t.Cleanup(func() {
 		os.Clearenv()
 	})
@@ -46,8 +47,9 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		InfoProducerHost:       "producerHost",
 		InfoProducerPort:       8095,
 		InfoCoordinatorAddress: "infoCoordAddr",
-		MRHost:                 "mrHost",
-		MRPort:                 3908,
+		DMaaPMRAddress:         "mrHost:3908",
+		ProducerCert:           "cert",
+		ProducerKey:            "key",
 	}
 	got := New()
 
@@ -68,9 +70,10 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		LogLevel:               log.InfoLevel,
 		InfoProducerHost:       "",
 		InfoProducerPort:       8085,
-		InfoCoordinatorAddress: "http://enrichmentservice:8083",
-		MRHost:                 "http://message-router.onap",
-		MRPort:                 3904,
+		InfoCoordinatorAddress: "https://enrichmentservice:8434",
+		DMaaPMRAddress:         "https://message-router.onap:3905",
+		ProducerCert:           "configs/producer.crt",
+		ProducerKey:            "configs/producer.key",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -94,9 +97,10 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 		LogLevel:               log.InfoLevel,
 		InfoProducerHost:       "",
 		InfoProducerPort:       8085,
-		InfoCoordinatorAddress: "http://enrichmentservice:8083",
-		MRHost:                 "http://message-router.onap",
-		MRPort:                 3904,
+		InfoCoordinatorAddress: "https://enrichmentservice:8434",
+		DMaaPMRAddress:         "https://message-router.onap:3905",
+		ProducerCert:           "configs/producer.crt",
+		ProducerKey:            "configs/producer.key",
 	}
 
 	got := New()
