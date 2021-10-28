@@ -70,7 +70,7 @@ func Post(url string, body []byte, client HTTPClient) error {
 
 func do(method string, url string, body []byte, client HTTPClient) error {
 	if req, reqErr := http.NewRequest(method, url, bytes.NewBuffer(body)); reqErr == nil {
-		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+		req.Header.Set("Content-Type", "application/json")
 		if response, respErr := client.Do(req); respErr == nil {
 			if isResponseSuccess(response.StatusCode) {
 				return nil
