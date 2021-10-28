@@ -32,8 +32,9 @@ type Config struct {
 	InfoProducerHost       string
 	InfoProducerPort       int
 	InfoCoordinatorAddress string
-	MRHost                 string
-	MRPort                 int
+	DMaaPMRAddress         string
+	ProducerCert           string
+	ProducerKey            string
 }
 
 func New() *Config {
@@ -41,9 +42,10 @@ func New() *Config {
 		LogLevel:               getLogLevel(),
 		InfoProducerHost:       getEnv("INFO_PRODUCER_HOST", ""),
 		InfoProducerPort:       getEnvAsInt("INFO_PRODUCER_PORT", 8085),
-		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
-		MRHost:                 getEnv("MR_HOST", "http://message-router.onap"),
-		MRPort:                 getEnvAsInt("MR_PORT", 3904),
+		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "https://enrichmentservice:8434"),
+		DMaaPMRAddress:         getEnv("DMAAP_MR_ADDR", "https://message-router.onap:3905"),
+		ProducerCert:           getEnv("PRODUCER_CERT_PATH", "configs/producer.crt"),
+		ProducerKey:            getEnv("PRODUCER_KEY_PATH", "configs/producer.key"),
 	}
 }
 
