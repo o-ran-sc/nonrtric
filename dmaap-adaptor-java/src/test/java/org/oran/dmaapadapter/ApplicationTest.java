@@ -49,7 +49,6 @@ import org.oran.dmaapadapter.r1.ProducerJobInfo;
 import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Jobs;
-import org.oran.dmaapadapter.tasks.ProducerRegstrationTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -79,9 +78,6 @@ class ApplicationTest {
 
     @Autowired
     private ApplicationConfig applicationConfig;
-
-    @Autowired
-    private ProducerRegstrationTask producerRegstrationTask;
 
     @Autowired
     private Jobs jobs;
