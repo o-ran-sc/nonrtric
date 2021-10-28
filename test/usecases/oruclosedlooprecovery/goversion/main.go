@@ -100,6 +100,7 @@ func main() {
 			Addr:    ":" + consumerPort,
 			Handler: getRouter(),
 		})
+		deleteJob()
 		os.Exit(1) // If the startServer function exits, it is because there has been a failure in the server, so we exit.
 	}()
 
