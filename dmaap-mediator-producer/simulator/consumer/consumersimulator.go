@@ -70,6 +70,6 @@ func registerJob(port int) {
 func handleData(w http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 	if reqData, err := io.ReadAll(req.Body); err == nil {
-		fmt.Print("Consumer received body: ", string(reqData))
+		fmt.Println("Consumer received body: ", string(reqData))
 	}
 }

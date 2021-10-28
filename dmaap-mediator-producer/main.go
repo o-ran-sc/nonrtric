@@ -21,6 +21,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"sync"
@@ -58,10 +59,11 @@ func main() {
 		Timeout: timeoutDistributionClient,
 	}
 
-	rawRetryClient := retryablehttp.NewClient()
-	rawRetryClient.RetryWaitMax = retryWaitMax
-	rawRetryClient.RetryMax = retryMax
-	retryClient = rawRetryClient.StandardClient()
+	if cert, err := createClientCertificate(); err == nil {
+		createRetryClient(cert)
+	} else {
+		log.Fatalf("Stopping producer due to error: %v", err)
+	}
 
 	jobHandler = jobs.NewJobHandlerImpl("configs/type_config.json", retryClient, distributionClient)
 	if err := registerTypesAndProducer(jobHandler, configuration.InfoCoordinatorAddress, callbackAddress); err != nil {
@@ -77,12 +79,12 @@ func main() {
 	log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
 	go func() {
 		r := server.NewRouter(jobHandler)
-		log.Warn(http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), r))
+		log.Warn(http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.InfoProducerPort), configuration.ProducerCert, configuration.ProducerKey, r))
 		wg.Done()
 	}()
 
 	go func() {
-		jobHandler.RunJobs(fmt.Sprintf("%v:%v", configuration.MRHost, configuration.MRPort))
+		jobHandler.RunJobs(configuration.DMaaPMRAddress)
 		wg.Done()
 	}()
 
@@ -95,7 +97,34 @@ func validateConfiguration(configuration *config.Config) error {
 	if configuration.InfoProducerHost == "" {
 		return fmt.Errorf("missing INFO_PRODUCER_HOST")
 	}
+	if configuration.ProducerCert == "" || configuration.ProducerKey == "" {
+		return fmt.Errorf("missing PRODUCER_CERT and/or PRODUCER_KEY")
+	}
 	return nil
+}
+
+func createClientCertificate() (*tls.Certificate, error) {
+	if cert, err := tls.LoadX509KeyPair(configuration.ProducerCert, configuration.ProducerKey); err == nil {
+		return &cert, nil
+	} else {
+		return nil, fmt.Errorf("cannot create x509 keypair from cert file %s and key file %s", configuration.ProducerCert, configuration.ProducerKey)
+	}
+}
+
+func createRetryClient(cert *tls.Certificate) {
+	rawRetryClient := retryablehttp.NewClient()
+	rawRetryClient.RetryWaitMax = retryWaitMax
+	rawRetryClient.RetryMax = retryMax
+	rawRetryClient.HTTPClient.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			Certificates: []tls.Certificate{
+				*cert,
+			},
+			InsecureSkipVerify: true,
+		},
+	}
+
+	retryClient = rawRetryClient.StandardClient()
 }
 
 func registerTypesAndProducer(jobHandler jobs.JobTypeHandler, infoCoordinatorAddress string, callbackAddress string) error {

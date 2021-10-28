@@ -7,9 +7,10 @@ The producer takes a number of environment variables, described below, as config
 >- INFO_PRODUCER_HOST  **Required**. The host for the producer.                                   Example: `http://mrproducer`
 >- LOG_LEVEL           Optional. The log level, which can be `Error`, `Warn`, `Info` or `Debug`.  Defaults to `Info`.
 >- INFO_PRODUCER_PORT  Optional. The port for the product.                                        Defaults to `8085`.
->- INFO_COORD_ADDR     Optional. The address of the Information Coordinator.                      Defaults to `http://enrichmentservice:8083`.
->- MR_HOST             Optional. The host for the DMaaP Message Router.                           Defaults to `http://message-router.onap`.
->- MR_PORT             Optional. The port for the DMaaP Message Router.                           Defaults to `3904`.
+>- INFO_COORD_ADDR     Optional. The address of the Information Coordinator.                      Defaults to `https://enrichmentservice:8434`.
+>- DMAAP_MR_ADDR       Optional. The address of the DMaaP Message Router.                         Defaults to `https://message-router.onap:3905`.
+>- PRODUCER_CERT       Optional. The certificate to use for https.                                Defaults to `configs/producer.crt`
+>- PRODUCER_KEY        Optional. The key to the certificate to use for https.                     Defaults to `configs/producer.key`
 
 The file `configs/type_config.json` contains the configuration of job types that the producer will support.
 
@@ -22,6 +23,8 @@ The file `configs/type_config.json` contains the configuration of job types that
           }
       ]
     }
+
+The server part of the producer uses https, and the communication towards ICS and MR use https.
 
 At start up the producer will register the configured job types in ICS and also register itself as a producer supporting these types.
 

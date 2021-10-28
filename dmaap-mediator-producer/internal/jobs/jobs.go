@@ -176,6 +176,7 @@ func (jh *JobHandlerImpl) sendMessagesToConsumer(messages []byte, jobInfo JobInf
 	if postErr := restclient.Post(jobInfo.TargetUri, messages, jh.distributeClient); postErr != nil {
 		log.Warnf("Error posting data for job: %v. Cause: %v", jobInfo, postErr)
 	}
+	log.Debugf("Messages distributed to consumer: %v.", jobInfo.Owner)
 }
 
 func (jh *JobHandlerImpl) clearAll() {
