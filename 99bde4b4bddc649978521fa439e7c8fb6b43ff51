@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3378c17_e20dab7c",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/DmaapMessageConsumer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-10-29T09:49:53Z",
+      "side": 1,
+      "message": "Spelling :-)  Received",
+      "range": {
+        "startLine": 120,
+        "startChar": 59,
+        "endLine": 120,
+        "endChar": 68
+      },
+      "revId": "99bde4b4bddc649978521fa439e7c8fb6b43ff51",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
