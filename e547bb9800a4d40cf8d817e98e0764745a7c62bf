@@ -66,6 +66,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "22e290d4_f6dba01a",
+        "filename": "dmaap-mediator-producer/main.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-10-29T10:53:50Z",
+      "side": 1,
+      "message": "I think variables should be in the smallest possible scope (and not global). \nMaybe these can be local for the main function and passed as parameters to the functions that needs them. \n\n\nfunc main() {\n\n\tvar jobHandler *jobs.JobHandlerImpl\n\tconst timeoutDistributionClient \u003d time.Second * 5\n\tconst retryWaitMax \u003d time.Minute\n\tconst retryMax \u003d int(^uint(0) \u003e\u003e 1)",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 35
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "93201b24_9f0bff34",
         "filename": "dmaap-mediator-producer/simulator/consumer/consumersimulator.go",
         "patchSetId": 3
