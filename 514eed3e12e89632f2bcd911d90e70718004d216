@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1441ac5f_a6073338",
+        "filename": "dmaap-mediator-producer/internal/config/config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-10-29T07:39:18Z",
+      "side": 1,
+      "message": "Are these filepaths? If so it could be good to name it xxxPath. Otherwise, one could get the impression that the actual cert and key is in these variables.",
+      "range": {
+        "startLine": 36,
+        "startChar": 1,
+        "endLine": 37,
+        "endChar": 13
+      },
+      "revId": "514eed3e12e89632f2bcd911d90e70718004d216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
