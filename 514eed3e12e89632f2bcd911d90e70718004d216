@@ -22,6 +22,30 @@
       },
       "revId": "514eed3e12e89632f2bcd911d90e70718004d216",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b67ff879_cf7996bd",
+        "filename": "dmaap-mediator-producer/internal/config/config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-10-29T07:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1441ac5f_a6073338",
+      "range": {
+        "startLine": 36,
+        "startChar": 1,
+        "endLine": 37,
+        "endChar": 13
+      },
+      "revId": "514eed3e12e89632f2bcd911d90e70718004d216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
