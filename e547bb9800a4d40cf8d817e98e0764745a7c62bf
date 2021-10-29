@@ -1,6 +1,46 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f79d17c_be6e06fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-10-29T10:03:47Z",
+      "side": 1,
+      "message": "Some questions below, but ignore if you wish. ",
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c48b752_18a9a921",
+        "filename": "dmaap-mediator-producer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-10-29T10:03:47Z",
+      "side": 1,
+      "message": "Is a flag / setting needed to enable/disable this?",
+      "range": {
+        "startLine": 27,
+        "startChar": 97,
+        "endLine": 27,
+        "endChar": 136
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4301cfc3_546f3d67",
@@ -19,6 +59,52 @@
         "startChar": 2,
         "endLine": 47,
         "endChar": 14
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93201b24_9f0bff34",
+        "filename": "dmaap-mediator-producer/simulator/consumer/consumersimulator.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-10-29T10:03:47Z",
+      "side": 1,
+      "message": "See comment below ... \"simuulator\" might be a bit strong :-) \nMaybe move to a \"test\" folder?\n\nIn fact ... does go have the concept of separating functional code from test code - or some agreed way of naming test files? ... Some of the test code above could also be moved/tagged more clearly as tests?",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 5
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "599af3d6_2bb7eee7",
+        "filename": "dmaap-mediator-producer/simulator/dmaap/mrsimulator.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-10-29T10:03:47Z",
+      "side": 1,
+      "message": "This \"simulator\" is more like a teststub than a simulator ... Suggest rename? \ne.g. something like mrfmproducucerstub ?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 12
       },
       "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
