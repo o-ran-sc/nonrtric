@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90241e61_e5f184ff",
+        "filename": "dmaap-adaptor-java/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-10-29T07:49:39Z",
+      "side": 1,
+      "message": "Please remove trailing whitespace",
+      "range": {
+        "startLine": 3,
+        "startChar": 279,
+        "endLine": 3,
+        "endChar": 280
+      },
+      "revId": "80eaa2d0240345a145eaaf9b89f96e8b38aa2ce7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ddd9f26_690b0fd7",
+        "filename": "dmaap-adaptor-java/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-10-29T07:49:39Z",
+      "side": 1,
+      "message": "of",
+      "range": {
+        "startLine": 3,
+        "startChar": 243,
+        "endLine": 3,
+        "endChar": 244
+      },
+      "revId": "80eaa2d0240345a145eaaf9b89f96e8b38aa2ce7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db6df989_81c09f37",
+        "filename": "dmaap-adaptor-java/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-10-29T07:49:39Z",
+      "side": 1,
+      "message": "Please remove trailing whitespace",
+      "range": {
+        "startLine": 5,
+        "startChar": 78,
+        "endLine": 5,
+        "endChar": 79
+      },
+      "revId": "80eaa2d0240345a145eaaf9b89f96e8b38aa2ce7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
