@@ -64,6 +64,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a41258e1_6d661a81",
+        "filename": "dmaap-mediator-producer/internal/config/config.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-10-29T14:39:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4301cfc3_546f3d67",
+      "range": {
+        "startLine": 47,
+        "startChar": 2,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22e290d4_f6dba01a",
