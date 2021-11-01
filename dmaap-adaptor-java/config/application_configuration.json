@@ -2,7 +2,8 @@
    "types": [
       {
          "id": "ExampleInformationType",
-         "dmaapTopicUrl": "/events/unauthenticated.VES_NOTIFICATION_OUTPUT/OpenDcae-c12/C12"
+         "dmaapTopicUrl": "/events/unauthenticated.VES_NOTIFICATION_OUTPUT/OpenDcae-c12/C12",
+         "useHttpProxy": true
       }
    ]
 }

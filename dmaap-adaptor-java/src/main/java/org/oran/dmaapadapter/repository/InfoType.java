@@ -30,9 +30,13 @@ public class InfoType {
     @Getter
     private final String dmaapTopicUrl;
 
-    public InfoType(String id, String dmaapTopicUrl) {
+    @Getter
+    private final boolean useHttpProxy;
+
+    public InfoType(String id, String dmaapTopicUrl, boolean useHttpProxy) {
         this.id = id;
         this.dmaapTopicUrl = dmaapTopicUrl;
+        this.useHttpProxy = useHttpProxy;
     }
 
 }
