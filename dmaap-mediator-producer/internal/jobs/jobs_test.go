@@ -185,7 +185,7 @@ func TestPollAndDistributeMessages(t *testing.T) {
 		if req.URL.String() == "http://consumerHost/target" {
 			assertions.Equal(req.Method, "POST")
 			assertions.Equal(messages, getBodyAsString(req))
-			assertions.Equal("application/json; charset=utf-8", req.Header.Get("Content-Type"))
+			assertions.Equal("application/json", req.Header.Get("Content-Type"))
 			wg.Done() // Signal that the distribution call has been made
 			return &http.Response{
 				StatusCode: 200,
@@ -207,7 +207,7 @@ func TestPollAndDistributeMessages(t *testing.T) {
 	}
 	handlerUnderTest.allTypes["type1"] = TypeData{
 		TypeId:        "type1",
-		DMaaPTopicURL: "topicUrl",
+		DMaaPTopicURL: "/topicUrl",
 		Jobs:          map[string]JobInfo{"job1": jobInfo},
 	}
 	t.Cleanup(func() {

@@ -4,4 +4,7 @@ coverage.*
 main
 dmaapmediatorproducer
 __debug_bin*
-simulator
+consumer
+!consumer/
+dmaap
+!dmaap/
