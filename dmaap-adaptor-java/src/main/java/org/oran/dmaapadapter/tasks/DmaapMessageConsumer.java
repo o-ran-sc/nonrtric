@@ -82,7 +82,8 @@ public class DmaapMessageConsumer {
     public DmaapMessageConsumer(ApplicationConfig applicationConfig, InfoType type, Jobs jobs) {
         this.applicationConfig = applicationConfig;
         AsyncRestClientFactory restclientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
-        this.restClient = restclientFactory.createRestClientNoHttpProxy("");
+        this.restClient = type.isUseHttpProxy() ? restclientFactory.createRestClientUseHttpProxy("")
+                : restclientFactory.createRestClientNoHttpProxy("");
         this.type = type;
         this.jobs = jobs;
     }
