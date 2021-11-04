@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1df34043_df7d19f9",
+        "filename": "dmaap-mediator-producer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-04T09:56:18Z",
+      "side": 1,
+      "message": "Good question. For now it is always on.",
+      "parentUuid": "7c48b752_18a9a921",
+      "range": {
+        "startLine": 27,
+        "startChar": 97,
+        "endLine": 27,
+        "endChar": 136
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4301cfc3_546f3d67",
         "filename": "dmaap-mediator-producer/internal/config/config.go",
         "patchSetId": 3
@@ -158,6 +182,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "000f6a09_eb53183f",
+        "filename": "dmaap-mediator-producer/simulator/consumer/consumersimulator.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-04T09:56:18Z",
+      "side": 1,
+      "message": "I have now renamed it so I use stub instead.\nTests are by convention put in files in the same directory as the tested file. They are named the same as the file that is tested, but with \"_test\" added to the name, e.g. \"server.go\" has a test file named \"server_test.go\".",
+      "parentUuid": "93201b24_9f0bff34",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 5
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "599af3d6_2bb7eee7",
@@ -171,6 +219,30 @@
       "writtenOn": "2021-10-29T10:03:47Z",
       "side": 1,
       "message": "This \"simulator\" is more like a teststub than a simulator ... Suggest rename? \ne.g. something like mrfmproducucerstub ?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 12
+      },
+      "revId": "e547bb9800a4d40cf8d817e98e0764745a7c62bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "200531fe_10919ab6",
+        "filename": "dmaap-mediator-producer/simulator/dmaap/mrsimulator.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-04T09:56:18Z",
+      "side": 1,
+      "message": "Renamed to stub.",
+      "parentUuid": "599af3d6_2bb7eee7",
       "range": {
         "startLine": 21,
         "startChar": 0,
