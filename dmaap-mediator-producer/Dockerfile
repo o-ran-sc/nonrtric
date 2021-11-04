@@ -22,10 +22,10 @@
 ##
 FROM golang:1.17-bullseye AS build
 WORKDIR /app
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
-COPY . ./
+COPY . .
 RUN go build -o /dmaapmediatorproducer
 ##
 ## Deploy
