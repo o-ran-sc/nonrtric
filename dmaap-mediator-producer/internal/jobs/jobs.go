@@ -34,7 +34,7 @@ import (
 type TypeData struct {
 	TypeId        string `json:"id"`
 	DMaaPTopicURL string `json:"dmaapTopicUrl"`
-	Jobs          map[string]JobInfo
+	jobHandler    *jobHandler
 }
 
 type JobInfo struct {
@@ -46,39 +46,49 @@ type JobInfo struct {
 	InfoTypeIdentity string      `json:"info_type_identity"`
 }
 
-type JobTypeHandler interface {
-	GetTypes() ([]config.TypeDefinition, error)
+type JobTypesManager interface {
+	LoadTypesFromConfiguration() ([]config.TypeDefinition, error)
 	GetSupportedTypes() []string
 }
 
-type JobHandler interface {
+type JobsManager interface {
 	AddJob(JobInfo) error
 	DeleteJob(jobId string)
 }
 
-type JobHandlerImpl struct {
-	mu               sync.Mutex
+type JobsManagerImpl struct {
 	configFile       string
 	allTypes         map[string]TypeData
+	pollClient       restclient.HTTPClient
+	mrAddress        string
+	distributeClient restclient.HTTPClient
+}
+
+type jobHandler struct {
+	mu               sync.Mutex
+	typeId           string
+	topicUrl         string
+	jobs             map[string]JobInfo
+	addJobCh         chan JobInfo
+	deleteJobCh      chan string
 	pollClient       restclient.HTTPClient
 	distributeClient restclient.HTTPClient
 }
 
-func NewJobHandlerImpl(typeConfigFilePath string, pollClient restclient.HTTPClient, distributeClient restclient.HTTPClient) *JobHandlerImpl {
-	return &JobHandlerImpl{
+func NewJobsManagerImpl(typeConfigFilePath string, pollClient restclient.HTTPClient, mrAddr string, distributeClient restclient.HTTPClient) *JobsManagerImpl {
+	return &JobsManagerImpl{
 		configFile:       typeConfigFilePath,
 		allTypes:         make(map[string]TypeData),
 		pollClient:       pollClient,
+		mrAddress:        mrAddr,
 		distributeClient: distributeClient,
 	}
 }
 
-func (jh *JobHandlerImpl) AddJob(ji JobInfo) error {
-	jh.mu.Lock()
-	defer jh.mu.Unlock()
-	if err := jh.validateJobInfo(ji); err == nil {
-		jobs := jh.allTypes[ji.InfoTypeIdentity].Jobs
-		jobs[ji.InfoJobIdentity] = ji
+func (jm *JobsManagerImpl) AddJob(ji JobInfo) error {
+	if err := jm.validateJobInfo(ji); err == nil {
+		typeData := jm.allTypes[ji.InfoTypeIdentity]
+		typeData.jobHandler.addJobCh <- ji
 		log.Debug("Added job: ", ji)
 		return nil
 	} else {
@@ -86,17 +96,16 @@ func (jh *JobHandlerImpl) AddJob(ji JobInfo) error {
 	}
 }
 
-func (jh *JobHandlerImpl) DeleteJob(jobId string) {
-	jh.mu.Lock()
-	defer jh.mu.Unlock()
-	for _, typeData := range jh.allTypes {
-		delete(typeData.Jobs, jobId)
+func (jm *JobsManagerImpl) DeleteJob(jobId string) {
+	for _, typeData := range jm.allTypes {
+		log.Debugf("Deleting job %v from type %v", jobId, typeData.TypeId)
+		typeData.jobHandler.deleteJobCh <- jobId
 	}
 	log.Debug("Deleted job: ", jobId)
 }
 
-func (jh *JobHandlerImpl) validateJobInfo(ji JobInfo) error {
-	if _, ok := jh.allTypes[ji.InfoTypeIdentity]; !ok {
+func (jm *JobsManagerImpl) validateJobInfo(ji JobInfo) error {
+	if _, ok := jm.allTypes[ji.InfoTypeIdentity]; !ok {
 		return fmt.Errorf("type not supported: %v", ji.InfoTypeIdentity)
 	}
 	if ji.InfoJobIdentity == "" {
@@ -109,10 +118,8 @@ func (jh *JobHandlerImpl) validateJobInfo(ji JobInfo) error {
 	return nil
 }
 
-func (jh *JobHandlerImpl) GetTypes() ([]config.TypeDefinition, error) {
-	jh.mu.Lock()
-	defer jh.mu.Unlock()
-	typeDefsByte, err := os.ReadFile(jh.configFile)
+func (jm *JobsManagerImpl) LoadTypesFromConfiguration() ([]config.TypeDefinition, error) {
+	typeDefsByte, err := os.ReadFile(jm.configFile)
 	if err != nil {
 		return nil, err
 	}
@@ -124,55 +131,77 @@ func (jh *JobHandlerImpl) GetTypes() ([]config.TypeDefinition, error) {
 		return nil, err
 	}
 	for _, typeDef := range typeDefs.Types {
-		jh.allTypes[typeDef.Id] = TypeData{
+		addCh := make(chan JobInfo)
+		deleteCh := make(chan string)
+		jh := jobHandler{
+			typeId:           typeDef.Id,
+			topicUrl:         typeDef.DmaapTopicURL,
+			jobs:             make(map[string]JobInfo),
+			addJobCh:         addCh,
+			deleteJobCh:      deleteCh,
+			pollClient:       jm.pollClient,
+			distributeClient: jm.distributeClient,
+		}
+		jm.allTypes[typeDef.Id] = TypeData{
 			TypeId:        typeDef.Id,
 			DMaaPTopicURL: typeDef.DmaapTopicURL,
-			Jobs:          make(map[string]JobInfo),
+			jobHandler:    &jh,
 		}
 	}
 	return typeDefs.Types, nil
 }
 
-func (jh *JobHandlerImpl) GetSupportedTypes() []string {
-	jh.mu.Lock()
-	defer jh.mu.Unlock()
+func (jm *JobsManagerImpl) GetSupportedTypes() []string {
 	supportedTypes := []string{}
-	for k := range jh.allTypes {
+	for k := range jm.allTypes {
 		supportedTypes = append(supportedTypes, k)
 	}
 	return supportedTypes
 }
 
-func (jh *JobHandlerImpl) RunJobs(mRAddress string) {
-	for {
-		jh.pollAndDistributeMessages(mRAddress)
+func (jm *JobsManagerImpl) StartJobs() {
+	for _, jobType := range jm.allTypes {
+
+		go jobType.jobHandler.start(jm.mrAddress)
+
 	}
 }
 
-func (jh *JobHandlerImpl) pollAndDistributeMessages(mRAddress string) {
+func (jh *jobHandler) start(mRAddress string) {
+	go func() {
+		for {
+			jh.pollAndDistributeMessages(mRAddress)
+		}
+	}()
+
+	go func() {
+		for {
+			jh.monitorManagementChannels()
+		}
+	}()
+}
+
+func (jh *jobHandler) pollAndDistributeMessages(mRAddress string) {
 	jh.mu.Lock()
 	defer jh.mu.Unlock()
-	for typeId, typeInfo := range jh.allTypes {
-		log.Debugf("Processing jobs for type: %v", typeId)
-		messagesBody, error := restclient.Get(mRAddress+typeInfo.DMaaPTopicURL, jh.pollClient)
-		if error != nil {
-			log.Warnf("Error getting data from MR. Cause: %v", error)
-			continue
-		}
-		log.Debugf("Received messages: %v", string(messagesBody))
-		jh.distributeMessages(messagesBody, typeInfo)
+	log.Debugf("Processing jobs for type: %v", jh.typeId)
+	messagesBody, error := restclient.Get(mRAddress+jh.topicUrl, jh.pollClient)
+	if error != nil {
+		log.Warnf("Error getting data from MR. Cause: %v", error)
 	}
+	log.Debugf("Received messages: %v", string(messagesBody))
+	jh.distributeMessages(messagesBody)
 }
 
-func (jh *JobHandlerImpl) distributeMessages(messages []byte, typeInfo TypeData) {
+func (jh *jobHandler) distributeMessages(messages []byte) {
 	if len(messages) > 2 {
-		for _, jobInfo := range typeInfo.Jobs {
+		for _, jobInfo := range jh.jobs {
 			go jh.sendMessagesToConsumer(messages, jobInfo)
 		}
 	}
 }
 
-func (jh *JobHandlerImpl) sendMessagesToConsumer(messages []byte, jobInfo JobInfo) {
+func (jh *jobHandler) sendMessagesToConsumer(messages []byte, jobInfo JobInfo) {
 	log.Debugf("Processing job: %v", jobInfo.InfoJobIdentity)
 	if postErr := restclient.Post(jobInfo.TargetUri, messages, jh.distributeClient); postErr != nil {
 		log.Warnf("Error posting data for job: %v. Cause: %v", jobInfo, postErr)
@@ -180,6 +209,17 @@ func (jh *JobHandlerImpl) sendMessagesToConsumer(messages []byte, jobInfo JobInf
 	log.Debugf("Messages distributed to consumer: %v.", jobInfo.Owner)
 }
 
-func (jh *JobHandlerImpl) clearAll() {
-	jh.allTypes = make(map[string]TypeData)
+func (jh *jobHandler) monitorManagementChannels() {
+	select {
+	case addedJob := <-jh.addJobCh:
+		jh.mu.Lock()
+		log.Debugf("received %v from addJobCh\n", addedJob)
+		jh.jobs[addedJob.InfoJobIdentity] = addedJob
+		jh.mu.Unlock()
+	case deletedJob := <-jh.deleteJobCh:
+		jh.mu.Lock()
+		log.Debugf("received %v from deleteJobCh\n", deletedJob)
+		delete(jh.jobs, deletedJob)
+		jh.mu.Unlock()
+	}
 }
