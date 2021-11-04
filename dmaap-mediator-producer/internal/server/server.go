@@ -36,17 +36,17 @@ const jobIdToken = "infoJobId"
 const deleteJobPath = AddJobPath + "/{" + jobIdToken + "}"
 
 type ProducerCallbackHandler struct {
-	jobHandler jobs.JobHandler
+	jobsManager jobs.JobsManager
 }
 
-func NewProducerCallbackHandler(jh jobs.JobHandler) *ProducerCallbackHandler {
+func NewProducerCallbackHandler(jm jobs.JobsManager) *ProducerCallbackHandler {
 	return &ProducerCallbackHandler{
-		jobHandler: jh,
+		jobsManager: jm,
 	}
 }
 
-func NewRouter(jh jobs.JobHandler) *mux.Router {
-	callbackHandler := NewProducerCallbackHandler(jh)
+func NewRouter(jm jobs.JobsManager) *mux.Router {
+	callbackHandler := NewProducerCallbackHandler(jm)
 	r := mux.NewRouter()
 	r.HandleFunc(StatusPath, statusHandler).Methods(http.MethodGet).Name("status")
 	r.HandleFunc(AddJobPath, callbackHandler.addInfoJobHandler).Methods(http.MethodPost).Name("add")
@@ -71,7 +71,7 @@ func (h *ProducerCallbackHandler) addInfoJobHandler(w http.ResponseWriter, r *ht
 		http.Error(w, fmt.Sprintf("Invalid json body. Cause: %v", unmarshalErr), http.StatusBadRequest)
 		return
 	}
-	if err := h.jobHandler.AddJob(jobInfo); err != nil {
+	if err := h.jobsManager.AddJob(jobInfo); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid job info. Cause: %v", err), http.StatusBadRequest)
 	}
 }
@@ -84,7 +84,7 @@ func (h *ProducerCallbackHandler) deleteInfoJobHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	h.jobHandler.DeleteJob(id)
+	h.jobsManager.DeleteJob(id)
 }
 
 type notFoundHandler struct{}

@@ -34,6 +34,6 @@ FROM gcr.io/distroless/base-debian10
 WORKDIR /
 ## Copy from "build" stage
 COPY --from=build /dmaapmediatorproducer .
-COPY --from=build /app/configs/ configs
+COPY --from=build /app/configs/* /configs/
 USER nonroot:nonroot
 ENTRYPOINT ["/dmaapmediatorproducer"]
