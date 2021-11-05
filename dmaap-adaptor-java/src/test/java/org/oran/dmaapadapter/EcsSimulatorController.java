@@ -79,7 +79,6 @@ public class EcsSimulatorController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
     }
 
     @PutMapping(path = API_ROOT + "/info-producers/{infoProducerId}", //

@@ -85,12 +85,17 @@ public class ProducerCallbacksController {
 
             logger.info("Job started callback {}", request.id);
             Job job = new Job(request.id, request.targetUri, types.getType(request.typeId), request.owner,
-                    request.lastUpdated);
+                    request.lastUpdated, toJobParameters(request.jobData));
             this.jobs.put(job);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
+    }
+
+    private Job.Parameters toJobParameters(Object jobData) {
+        String json = gson.toJson(jobData);
+        return gson.fromJson(json, Job.Parameters.class);
     }
 
     @GetMapping(path = JOB_URL, produces = MediaType.APPLICATION_JSON_VALUE)

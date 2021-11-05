@@ -35,7 +35,6 @@ public class InfoTypes {
     private Map<String, InfoType> allTypes = new HashMap<>();
 
     public InfoTypes(Collection<InfoType> types) {
-
         for (InfoType type : types) {
             put(type);
         }

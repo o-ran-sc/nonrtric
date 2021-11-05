@@ -88,6 +88,10 @@ public class ApplicationConfig {
     @Value("${app.dmaap-base-url}")
     private String dmaapBaseUrl;
 
+    @Getter
+    @Value("${app.kafka.bootstrap-servers:}")
+    private String kafkaBootStrapServers;
+
     private WebClientConfig webClientConfig = null;
 
     public WebClientConfig getWebClientConfig() {
