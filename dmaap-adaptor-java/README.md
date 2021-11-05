@@ -15,7 +15,7 @@ The file `config/application_configuration.json` contains the configuration of j
         [
           {
              "id":  "STD_Fault_Messages",
-             "dmaapTopicUrl":  events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/STD_Fault_Messages",
+             "dmaapTopicUrl":  events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/STD-Fault-Messages_1.0.0",
              "useHttpProxy": false
           }
         ]

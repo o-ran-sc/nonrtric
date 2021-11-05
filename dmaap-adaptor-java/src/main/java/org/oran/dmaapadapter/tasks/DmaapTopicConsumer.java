@@ -39,15 +39,16 @@ import reactor.core.publisher.Mono;
  * consumers that has a job for this InformationType.
  */
 
-public class DmaapMessageConsumer {
+public class DmaapTopicConsumer {
     private static final Duration TIME_BETWEEN_DMAAP_RETRIES = Duration.ofSeconds(10);
-    private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumer.class);
-    private final ApplicationConfig applicationConfig;
+    private static final Logger logger = LoggerFactory.getLogger(DmaapTopicConsumer.class);
+
     private final AsyncRestClient dmaapRestClient;
-    private final AsyncRestClient consumerRestClient;
-    private final InfoType type;
-    private final Jobs jobs;
     private final InfiniteFlux infiniteSubmitter = new InfiniteFlux();
+    private final AsyncRestClient consumerRestClient;
+    protected final ApplicationConfig applicationConfig;
+    protected final InfoType type;
+    protected final Jobs jobs;
 
     /** Submits new elements until stopped */
     private static class InfiniteFlux {
@@ -80,10 +81,10 @@ public class DmaapMessageConsumer {
         }
     }
 
-    public DmaapMessageConsumer(ApplicationConfig applicationConfig, InfoType type, Jobs jobs) {
-        this.applicationConfig = applicationConfig;
+    public DmaapTopicConsumer(ApplicationConfig applicationConfig, InfoType type, Jobs jobs) {
         AsyncRestClientFactory restclientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
         this.dmaapRestClient = restclientFactory.createRestClientNoHttpProxy("");
+        this.applicationConfig = applicationConfig;
         this.consumerRestClient = type.isUseHttpProxy() ? restclientFactory.createRestClientUseHttpProxy("")
                 : restclientFactory.createRestClientNoHttpProxy("");
         this.type = type;
@@ -93,31 +94,24 @@ public class DmaapMessageConsumer {
     public void start() {
         infiniteSubmitter.start() //
                 .flatMap(notUsed -> getFromMessageRouter(getDmaapUrl()), 1) //
-                .flatMap(this::handleReceivedMessage, 5) //
+                .flatMap(this::pushDataToConsumers) //
                 .subscribe(//
-                        value -> logger.debug("DmaapMessageConsumer next: {} {}", value, type.getId()), //
+                        null, //
                         throwable -> logger.error("DmaapMessageConsumer error: {}", throwable.getMessage()), //
-                        () -> logger.warn("DmaapMessageConsumer stopped {}", type.getId()) //
-                );
+                        () -> logger.warn("DmaapMessageConsumer stopped {}", type.getId())); //
+
     }
 
     private String getDmaapUrl() {
-
         return this.applicationConfig.getDmaapBaseUrl() + type.getDmaapTopicUrl();
     }
 
     private Mono<String> handleDmaapErrorResponse(Throwable t) {
         logger.debug("error from DMAAP {} {}", t.getMessage(), type.getDmaapTopicUrl());
-        return Mono.delay(TIME_BETWEEN_DMAAP_RETRIES) //
-                .flatMap(notUsed -> Mono.empty());
+        return Mono.delay(TIME_BETWEEN_DMAAP_RETRIES).flatMap(notUsed -> Mono.empty());
     }
 
-    private Mono<String> handleConsumerErrorResponse(Throwable t) {
-        logger.warn("error from CONSUMER {}", t.getMessage());
-        return Mono.empty();
-    }
-
-    protected Mono<String> getFromMessageRouter(String topicUrl) {
+    private Mono<String> getFromMessageRouter(String topicUrl) {
         logger.trace("getFromMessageRouter {}", topicUrl);
         return dmaapRestClient.get(topicUrl) //
                 .filter(body -> body.length() > 3) // DMAAP will return "[]" sometimes. That is thrown away.
@@ -125,9 +119,14 @@ public class DmaapMessageConsumer {
                 .onErrorResume(this::handleDmaapErrorResponse); //
     }
 
-    protected Flux<String> handleReceivedMessage(String body) {
-        logger.debug("Received from DMAAP {}", body);
-        final int CONCURRENCY = 5;
+    private Mono<String> handleConsumerErrorResponse(Throwable t) {
+        logger.warn("error from CONSUMER {}", t.getMessage());
+        return Mono.empty();
+    }
+
+    protected Flux<String> pushDataToConsumers(String body) {
+        logger.debug("Received data {}", body);
+        final int CONCURRENCY = 50;
 
         // Distibute the body to all jobs for this type
         return Flux.fromIterable(this.jobs.getJobsForType(this.type)) //
@@ -135,5 +134,4 @@ public class DmaapMessageConsumer {
                 .flatMap(job -> consumerRestClient.post(job.getCallbackUrl(), body), CONCURRENCY) //
                 .onErrorResume(this::handleConsumerErrorResponse);
     }
-
 }

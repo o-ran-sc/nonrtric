@@ -20,9 +20,41 @@
 
 package org.oran.dmaapadapter.repository;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import lombok.Getter;
 
+import org.immutables.gson.Gson;
+
 public class Job {
+
+    @Gson.TypeAdapters
+    public static class Parameters {
+        public String filter;
+        public BufferTimeout bufferTimeout;
+
+        public Parameters() {
+        }
+
+        public Parameters(String filter, BufferTimeout bufferTimeout) {
+            this.filter = filter;
+            this.bufferTimeout = bufferTimeout;
+        }
+
+        public static class BufferTimeout {
+            public BufferTimeout(int maxSize, int maxTimeMiliseconds) {
+                this.maxSize = maxSize;
+                this.maxTimeMiliseconds = maxTimeMiliseconds;
+            }
+
+            public BufferTimeout() {
+            }
+
+            public int maxSize;
+            public int maxTimeMiliseconds;
+        }
+    }
 
     @Getter
     private final String id;
@@ -37,14 +69,38 @@ public class Job {
     private final String owner;
 
     @Getter
+    private final Parameters parameters;
+
+    @Getter
     private final String lastUpdated;
 
-    public Job(String id, String callbackUrl, InfoType type, String owner, String lastUpdated) {
+    private final Pattern jobDataFilter;
+
+    public Job(String id, String callbackUrl, InfoType type, String owner, String lastUpdated, Parameters parameters) {
         this.id = id;
         this.callbackUrl = callbackUrl;
         this.type = type;
         this.owner = owner;
         this.lastUpdated = lastUpdated;
+        this.parameters = parameters;
+        if (parameters != null && parameters.filter != null) {
+            jobDataFilter = Pattern.compile(parameters.filter);
+        } else {
+            jobDataFilter = null;
+        }
+    }
+
+    public boolean isFilterMatch(String data) {
+        if (jobDataFilter == null) {
+            return true;
+        }
+        Matcher matcher = jobDataFilter.matcher(data);
+        return matcher.find();
+    }
+
+    public boolean isBuffered() {
+        return parameters != null && parameters.bufferTimeout != null && parameters.bufferTimeout.maxSize > 0
+                && parameters.bufferTimeout.maxTimeMiliseconds > 0;
     }
 
 }

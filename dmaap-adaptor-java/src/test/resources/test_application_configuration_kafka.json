@@ -2,7 +2,7 @@
    "types": [
       {
          "id": "ExampleInformationType",
-         "dmaapTopicUrl": "/dmaap-topic-1",
+         "kafkaInputTopic": "TutorialTopic",
          "useHttpProxy": false
       }
    ]

@@ -22,6 +22,8 @@ package org.oran.dmaapadapter.repository;
 
 import lombok.Getter;
 
+import org.springframework.util.StringUtils;
+
 public class InfoType {
 
     @Getter
@@ -33,10 +35,22 @@ public class InfoType {
     @Getter
     private final boolean useHttpProxy;
 
-    public InfoType(String id, String dmaapTopicUrl, boolean useHttpProxy) {
+    @Getter
+    private final String kafkaInputTopic;
+
+    public InfoType(String id, String dmaapTopicUrl, boolean useHttpProxy, String kafkaInputTopic) {
         this.id = id;
         this.dmaapTopicUrl = dmaapTopicUrl;
         this.useHttpProxy = useHttpProxy;
+        this.kafkaInputTopic = kafkaInputTopic;
+    }
+
+    public boolean isKafkaTopicDefined() {
+        return StringUtils.hasLength(kafkaInputTopic);
+    }
+
+    public boolean isDmaapTopicDefined() {
+        return StringUtils.hasLength(dmaapTopicUrl);
     }
 
 }

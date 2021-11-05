@@ -23,10 +23,15 @@ package org.oran.dmaapadapter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.IntegerSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,17 +45,25 @@ import org.oran.dmaapadapter.configuration.WebClientConfig.HttpProxyConfig;
 import org.oran.dmaapadapter.r1.ConsumerJobInfo;
 import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
+import org.oran.dmaapadapter.repository.Job;
 import org.oran.dmaapadapter.repository.Jobs;
-import org.oran.dmaapadapter.tasks.ProducerRegstrationTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import reactor.core.publisher.Flux;
+import reactor.kafka.sender.KafkaSender;
+import reactor.kafka.sender.SenderOptions;
+import reactor.kafka.sender.SenderRecord;
 
 @SuppressWarnings("java:S3577") // Rename class
 @ExtendWith(SpringExtension.class)
@@ -58,18 +71,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
-        "app.configuration-filepath=./src/test/resources/test_application_configuration.json", //
-        "app.ecs-base-url=https://localhost:8434" //
+        "app.configuration-filepath=./src/test/resources/test_application_configuration_kafka.json"//
 })
-class IntegrationWithEcs {
-
-    private static final String EI_JOB_ID = "EI_JOB_ID";
+class IntegrationWithKafka {
 
     @Autowired
     private ApplicationConfig applicationConfig;
-
-    @Autowired
-    private ProducerRegstrationTask producerRegstrationTask;
 
     @Autowired
     private Jobs jobs;
@@ -80,13 +87,20 @@ class IntegrationWithEcs {
     @Autowired
     private ConsumerController consumerController;
 
-    private static Gson gson = new GsonBuilder().create();
+    @Autowired
+    private EcsSimulatorController ecsSimulatorController;
+
+    private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
+
+    private static final Logger logger = LoggerFactory.getLogger(IntegrationWithKafka.class);
+
+    @LocalServerPort
+    int localServerHttpPort;
 
     static class TestApplicationConfig extends ApplicationConfig {
-
         @Override
         public String getEcsBaseUrl() {
-            return "https://localhost:8434";
+            return thisProcessUrl();
         }
 
         @Override
@@ -128,8 +142,8 @@ class IntegrationWithEcs {
     @AfterEach
     void reset() {
         this.consumerController.testResults.reset();
+        this.ecsSimulatorController.testResults.reset();
         this.jobs.clear();
-        this.types.clear();
     }
 
     private AsyncRestClient restClient(boolean useTrustValidation) {
@@ -149,46 +163,22 @@ class IntegrationWithEcs {
                 .httpProxyConfig(httpProxyConfig).build();
 
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config);
-        return restClientFactory.createRestClientNoHttpProxy(selfBaseUrl());
+        return restClientFactory.createRestClientNoHttpProxy(baseUrl());
     }
 
     private AsyncRestClient restClient() {
         return restClient(false);
     }
 
-    private String selfBaseUrl() {
+    private String baseUrl() {
         return "https://localhost:" + this.applicationConfig.getLocalServerHttpPort();
     }
 
-    private String ecsBaseUrl() {
-        return applicationConfig.getEcsBaseUrl();
-    }
-
-    private String jobUrl(String jobId) {
-        return ecsBaseUrl() + "/data-consumer/v1/info-jobs/" + jobId;
-    }
-
-    private void createInformationJobInEcs(String jobId) {
-        String body = gson.toJson(consumerJobInfo());
-        try {
-            // Delete the job if it already exists
-            deleteInformationJobInEcs(jobId);
-        } catch (Exception e) {
-        }
-        restClient().putForEntity(jobUrl(jobId), body).block();
-    }
-
-    private void deleteInformationJobInEcs(String jobId) {
-        restClient().delete(jobUrl(jobId)).block();
-    }
-
-    private ConsumerJobInfo consumerJobInfo() {
-        InfoType type = this.types.getAll().iterator().next();
-        return consumerJobInfo(type.getId(), EI_JOB_ID);
-    }
-
-    private Object jsonObject() {
-        return jsonObject("{}");
+    private Object jobParametersAsJsonObject(String filter, int maxTimeMiliseconds, int maxSize) {
+        Job.Parameters param = new Job.Parameters(filter,
+                new Job.Parameters.BufferTimeout(maxSize, maxTimeMiliseconds));
+        String str = gson.toJson(param);
+        return jsonObject(str);
     }
 
     private Object jsonObject(String json) {
@@ -199,39 +189,69 @@ class IntegrationWithEcs {
         }
     }
 
-    private ConsumerJobInfo consumerJobInfo(String typeId, String infoJobId) {
+    private ConsumerJobInfo consumerJobInfo(String filter, int maxTimeMiliseconds, int maxSize) {
         try {
-            String targetUri = selfBaseUrl() + ConsumerController.CONSUMER_TARGET_URL;
-            return new ConsumerJobInfo(typeId, jsonObject(), "owner", targetUri, "");
+            InfoType type = this.types.getAll().iterator().next();
+            String typeId = type.getId();
+            String targetUri = baseUrl() + ConsumerController.CONSUMER_TARGET_URL;
+            return new ConsumerJobInfo(typeId, jobParametersAsJsonObject(filter, maxTimeMiliseconds, maxSize), "owner",
+                    targetUri, "");
         } catch (Exception e) {
             return null;
         }
     }
 
+    private SenderOptions<Integer, String> senderOptions() {
+        String bootstrapServers = this.applicationConfig.getKafkaBootStrapServers();
+
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "sample-producer");
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return SenderOptions.create(props);
+    }
+
+    private SenderRecord<Integer, String, Integer> senderRecord(String data, int i) {
+        final InfoType infoType = this.types.getAll().iterator().next();
+        return SenderRecord.create(new ProducerRecord<>(infoType.getKafkaInputTopic(), i, data + i), i);
+    }
+
     @Test
-    void testWholeChain() throws Exception {
-        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInEcs()).isTrue());
+    void kafkaIntegrationTest() throws InterruptedException {
+        final String JOB_ID1 = "ID1";
+        final String JOB_ID2 = "ID2";
 
-        createInformationJobInEcs(EI_JOB_ID);
+        // Register producer, Register types
+        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
 
-        await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
+        // Create a job
+        this.ecsSimulatorController.addJob(consumerJobInfo(".*", 10, 1000), JOB_ID1, restClient());
+        this.ecsSimulatorController.addJob(consumerJobInfo(".*Message_1.*", 0, 0), JOB_ID2, restClient());
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
 
-        DmaapSimulatorController.dmaapResponses.add("DmaapResponse1");
-        DmaapSimulatorController.dmaapResponses.add("DmaapResponse2");
+        final KafkaSender<Integer, String> sender = KafkaSender.create(senderOptions());
 
-        ConsumerController.TestResults results = this.consumerController.testResults;
-        await().untilAsserted(() -> assertThat(results.receivedBodies.size()).isEqualTo(2));
-        assertThat(results.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
+        var dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message_", i)); // Message_1, Message_2 etc.
 
-        deleteInformationJobInEcs(EI_JOB_ID);
+        sender.send(dataToSend) //
+                .doOnError(e -> logger.error("Send failed", e)) //
+                .doOnNext(senderResult -> logger.debug("Sent {}", senderResult)) //
+                .doOnError(t -> logger.error("Error {}", t)) //
+                .blockLast();
+
+        ConsumerController.TestResults consumer = this.consumerController.testResults;
+        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(2));
+        assertThat(consumer.receivedBodies.get(0)).isEqualTo("Message_1");
+        assertThat(consumer.receivedBodies.get(1)).isEqualTo("[Message_1, Message_2, Message_3]");
+
+        // Delete the job
+        this.ecsSimulatorController.deleteJob(JOB_ID1, restClient());
+        this.ecsSimulatorController.deleteJob(JOB_ID2, restClient());
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
-
-        synchronized (this) {
-            // logger.warn("**************** Keeping server alive! " +
-            // this.applicationConfig.getLocalServerHttpPort());
-            // this.wait();
-        }
     }
 
 }
