@@ -44,8 +44,8 @@ func New() *Config {
 		InfoProducerPort:       getEnvAsInt("INFO_PRODUCER_PORT", 8085),
 		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "https://enrichmentservice:8434"),
 		DMaaPMRAddress:         getEnv("DMAAP_MR_ADDR", "https://message-router.onap:3905"),
-		ProducerCertPath:       getEnv("PRODUCER_CERT_PATH", "configs/producer.crt"),
-		ProducerKeyPath:        getEnv("PRODUCER_KEY_PATH", "configs/producer.key"),
+		ProducerCertPath:       getEnv("PRODUCER_CERT_PATH", "security/producer.crt"),
+		ProducerKeyPath:        getEnv("PRODUCER_KEY_PATH", "security/producer.key"),
 	}
 }
 

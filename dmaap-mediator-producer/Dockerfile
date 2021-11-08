@@ -35,5 +35,6 @@ WORKDIR /
 ## Copy from "build" stage
 COPY --from=build /dmaapmediatorproducer .
 COPY --from=build /app/configs/* /configs/
+COPY --from=build /app/security/* /security/
 USER nonroot:nonroot
 ENTRYPOINT ["/dmaapmediatorproducer"]
