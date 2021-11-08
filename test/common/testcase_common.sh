@@ -28,6 +28,7 @@ __print_args() {
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
+	echo "      [--override <override-environment-filename> --pre-clean]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -43,7 +44,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "remote-remove         -  Same as 'remote' but will also try to pull fresh images from remote repositories"
 	echo "docker                -  Test executed in docker environment"
 	echo "kube                  -  Test executed in kubernetes environment - requires an already started kubernetes environment"
-	echo "--env-file            -  The script will use the supplied file to read environment variables from"
+	echo "--env-file  <file>    -  The script will use the supplied file to read environment variables from"
 	echo "release               -  If this flag is given the script will use release version of the images"
 	echo "auto-clean            -  If the function 'auto_clean_containers' is present in the end of the test script then all containers will be stopped and removed. If 'auto-clean' is not given then the function has no effect."
     echo "--stop-at-error       -  The script will stop when the first failed test or configuration"
@@ -56,6 +57,8 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--repo-policy         -  Policy controlling which images to re-tag and push if param --image-repo is set. Default is 'local'"
 	echo "--cluster-timeout     -  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds. "
 	echo "--print-stats         -  Print current test stats after each test."
+	echo "--override <file>     -  Override setting from the file supplied by --env-file"
+	echo "--pre-clean           -  Will clean kube resouces when running docker and vice versa"
 
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
@@ -87,6 +90,8 @@ echo -ne $EBOLD
 
 # default test environment variables
 TEST_ENV_VAR_FILE=""
+#Override env file, will be added on top of the above file
+TEST_ENV_VAR_FILE_OVERRIDE=""
 
 echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
 
@@ -97,6 +102,9 @@ LOCALHOST_HTTPS="https://localhost"
 
 # Var to hold 'auto' in case containers shall be stopped when test case ends
 AUTO_CLEAN=""
+
+# Var to indicate pre clean, if flag --pre-clean is set the script will clean kube resouces when running docker and vice versa
+PRE_CLEAN="0"
 
 # Var to hold the app names to use local images for
 USE_LOCAL_IMAGES=""
@@ -607,6 +615,36 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 		fi
 	fi
 	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--override" ]; then
+			shift;
+			TEST_ENV_VAR_FILE_OVERRIDE=$1
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No env file found for flag: '--override'"
+				fi
+			else
+				if [ ! -f $TEST_ENV_VAR_FILE_OVERRIDE ]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="File for '--override' does not exist : "$TEST_ENV_VAR_FILE_OVERRIDE
+					fi
+				fi
+				echo "Option set - Override env from: "$1
+				shift;
+				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--pre-clean" ]; then
+			PRE_CLEAN=1
+			echo "Option set - Pre-clean of kube/docker resouces"
+			shift;
+			foundparm=0
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
 		if [ "$1" == "--print-stats" ]; then
 			PRINT_CURRENT_STATS=1
 			echo "Option set - Print stats"
@@ -635,6 +673,10 @@ fi
 if [ -f "$TEST_ENV_VAR_FILE" ]; then
 	echo -e $BOLD"Sourcing env vars from: "$TEST_ENV_VAR_FILE$EBOLD
 	. $TEST_ENV_VAR_FILE
+	if [ ! -z "$TEST_ENV_VAR_FILE_OVERRIDE" ]; then
+		echo -e $BOLD"Sourcing override env vars from: "$TEST_ENV_VAR_FILE_OVERRIDE$EBOLD
+		. $TEST_ENV_VAR_FILE_OVERRIDE
+	fi
 
 	if [ -z "$TEST_ENV_PROFILE" ] || [ -z "$SUPPORTED_PROFILES" ]; then
 		echo -e $YELLOW"This test case may not work with selected test env file. TEST_ENV_PROFILE is missing in test_env file or SUPPORTED_PROFILES is missing in test case file"$EYELLOW
@@ -684,6 +726,28 @@ else
 	INCLUDED_IMAGES=$DOCKER_INCLUDED_IMAGES
 fi
 
+echo ""
+# auto adding system apps
+echo -e $BOLD"Auto adding system apps"$EBOLD
+if [ $RUNMODE == "KUBE" ]; then
+	INCLUDED_IMAGES=$INCLUDED_IMAGES" "$TESTENV_KUBE_SYSTEM_APPS
+	TMP_APPS=$TESTENV_KUBE_SYSTEM_APPS
+else
+	INCLUDED_IMAGES=$INCLUDED_IMAGES" "$TESTENV_DOCKER_SYSTEM_APPS
+	TMP_APPS=$TESTENV_DOCKER_SYSTEM_APPS
+fi
+if [ ! -z "$TMP_APPS" ]; then
+	for iapp in "$TMP_APPS"; do
+		file_pointer=$(echo $iapp | tr '[:upper:]' '[:lower:]')
+		file_pointer="../common/"$file_pointer"_api_functions.sh"
+		echo " Auto-adding system app $iapp.  Sourcing $file_pointer"
+		. $file_pointer
+	done
+else
+	echo " None"
+fi
+echo ""
+
 # Check needed installed sw
 tmp=$(which python3)
 if [ $? -ne 0 ] || [ -z tmp ]; then
@@ -700,6 +764,15 @@ tmp=$(which docker-compose)
 if [ $? -ne 0 ] || [ -z tmp ]; then
 	if [ $RUNMODE == "DOCKER" ]; then
 		echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
+		exit 1
+	fi
+fi
+if [ $RUNMODE == "DOCKER" ]; then
+	tmp=$(docker-compose version | grep -i 'Docker Compose version')
+	if [[ "$tmp" == *'v2'* ]]; then
+		echo -e $RED"docker-compose is using docker-compose version 2"$ERED
+		echo -e $RED"The test environment only support version 1"$ERED
+		echo -e $RED"Disable version 2 by cmd 'docker-compose disable-v2' and re-run the script "$ERED
 		exit 1
 	fi
 fi
@@ -1376,6 +1449,24 @@ setup_testenvironment() {
 	echo -e $BOLD"======================================================="$EBOLD
 	echo ""
 
+	for imagename in $APP_SHORT_NAMES; do
+		__check_included_image $imagename
+		retcode_i=$?
+		__check_prestarted_image $imagename
+		retcode_p=$?
+		if [ $retcode_i -eq 0 ] || [ $retcode_p -eq 0 ]; then
+			# A function name is created from the app short name
+			# for example app short name 'RICMSIM' -> produce the function
+			# name __RICSIM__initial_setup
+			# This function is called and is expected to exist in the imported
+			# file for the ricsim test functions
+			# The resulting function impl shall perform initial setup of port, host etc
+
+			function_pointer="__"$imagename"_initial_setup"
+			$function_pointer
+		fi
+	done
+
 }
 
 # Function to print the test result, shall be the last cmd in a test script
@@ -1577,6 +1668,9 @@ __clean_containers() {
 		docker ps -a --filter "label=nrttest_app=$imagename"  --filter "network=$DOCKER_SIM_NWNAME" --format ' {{.Label "nrttest_dp"}}\n{{.Label "nrttest_app"}}\n{{.Names}}' >> $running_contr_file
 	done
 
+	# Kill all containers started by the test env - to speed up shut down
+    docker kill $(docker ps -a  --filter "label=nrttest_app" --format '{{.Names}}') &> /dev/null
+
 	tab_heading1="App display name"
 	tab_heading2="App short name"
 	tab_heading3="Container name"
@@ -1767,39 +1861,47 @@ __kube_scale_all_resources() {
 	for restype in $resources; do
 		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
-			deleted_resourcetypes=$deleted_resourcetypes" "$restype
 			for resid in $result; do
-				echo -ne "  Ordered caling $restype $resid from namespace $namespace with label $labelname=$labelid to 0"$SAMELINE
+				echo -ne "  Ordered caling $restype $resid in namespace $namespace with label $labelname=$labelid to 0"$SAMELINE
 				kubectl scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
-				echo -e "  Ordered scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0 $GREEN OK $EGREEN"
+				echo -e "  Ordered scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0 $GREEN OK $EGREEN"
 			done
 		fi
 	done
 }
 
-# Scale all kube resource sets to 0 in a namespace for resources having a certain lable and label-id
+# Scale all kube resource sets to 0 in a namespace for resources having a certain lable and an optional label-id
 # This function do wait for the resource to reach 0
-# args: <namespace> <label-name> <label-id>
+# args: <namespace> <label-name> [ <label-id> ]
 # (Not for test scripts)
 __kube_scale_and_wait_all_resources() {
 	namespace=$1
 	labelname=$2
 	labelid=$3
+	if [ -z "$3" ]; then
+		echo "  Attempt to scale - deployment replicaset statefulset - in namespace $namespace with label $labelname"
+	else
+		echo "  Attempt to scale - deployment replicaset statefulset - in namespace $namespace with label $labelname=$labelid"
+	fi
 	resources="deployment replicaset statefulset"
 	scaled_all=1
 	while [ $scaled_all -ne 0 ]; do
 		scaled_all=0
 		for restype in $resources; do
-			result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		    if [ -z "$3" ]; then
+				result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname')].metadata.name}')
+			else
+				result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+			fi
 			if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 				for resid in $result; do
-					echo -e "  Ordered scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0"
+					echo -e "   Ordered scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0"
 					kubectl scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
 					count=1
 					T_START=$SECONDS
 					while [ $count -ne 0 ]; do
 						count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
-						echo -ne "  Scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count"$SAMELINE
+						echo -ne "    Scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0, current count=$count"$SAMELINE
 						if [ $? -eq 0 ] && [ ! -z "$count" ]; then
 							sleep 0.5
 						else
@@ -1812,7 +1914,7 @@ __kube_scale_and_wait_all_resources() {
 							count=0
 						fi
 					done
-					echo -e "  Scaled $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count $GREEN OK $EGREEN"
+					echo -e "    Scaled $restype $resid in namespace $namespace with label $labelname=$labelid to 0, current count=$count $GREEN OK $EGREEN"
 				done
 			fi
 		done
@@ -1830,29 +1932,35 @@ __kube_delete_all_resources() {
 	resources="deployments replicaset statefulset services pods configmaps persistentvolumeclaims persistentvolumes"
 	deleted_resourcetypes=""
 	for restype in $resources; do
-		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		ns_flag="-n $namespace"
+		ns_text="in namespace $namespace"
+		if [ $restype == "persistentvolumes" ]; then
+			ns_flag=""
+			ns_text=""
+		fi
+		result=$(kubectl get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			deleted_resourcetypes=$deleted_resourcetypes" "$restype
 			for resid in $result; do
 				if [ $restype == "replicaset" ] || [ $restype == "statefulset" ]; then
 					count=1
 					while [ $count -ne 0 ]; do
-						count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
-						echo -ne "  Scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count"$SAMELINE
+						count=$(kubectl get $restype $resid  $ns_flag -o jsonpath='{.status.replicas}' 2> /dev/null)
+						echo -ne "  Scaling $restype $resid $ns_text with label $labelname=$labelid to 0, current count=$count"$SAMELINE
 						if [ $? -eq 0 ] && [ ! -z "$count" ]; then
 							sleep 0.5
 						else
 							count=0
 						fi
 					done
-					echo -e "  Scaled $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count $GREEN OK $EGREEN"
+					echo -e "  Scaled $restype $resid $ns_text with label $labelname=$labelid to 0, current count=$count $GREEN OK $EGREEN"
 				fi
-				echo -ne "  Deleting $restype $resid from namespace $namespace with label $labelname=$labelid "$SAMELINE
-				kubectl delete $restype $resid -n $namespace 1> /dev/null 2> ./tmp/kubeerr
+				echo -ne "  Deleting $restype $resid $ns_text with label $labelname=$labelid "$SAMELINE
+				kubectl delete $restype $resid $ns_flag 1> /dev/null 2> ./tmp/kubeerr
 				if [ $? -eq 0 ]; then
-					echo -e "  Deleted $restype $resid from namespace $namespace with label $labelname=$labelid $GREEN OK $EGREEN"
+					echo -e "  Deleted $restype $resid $ns_text with label $labelname=$labelid $GREEN OK $EGREEN"
 				else
-					echo -e "  Deleted $restype $resid from namespace $namespace with label $labelname=$labelid $GREEN Does not exist - OK $EGREEN"
+					echo -e "  Deleted $restype $resid $ns_text with label $labelname=$labelid $GREEN Does not exist - OK $EGREEN"
 				fi
 				#fi
 			done
@@ -1860,17 +1968,23 @@ __kube_delete_all_resources() {
 	done
 	if [ ! -z "$deleted_resourcetypes" ]; then
 		for restype in $deleted_resources; do
-			echo -ne "  Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted..."$SAMELINE
+			ns_flag="-n $namespace"
+			ns_text="in namespace $namespace"
+			if [ $restype == "persistentvolumes" ]; then
+				ns_flag=""
+				ns_text=""
+			fi
+			echo -ne "  Waiting for $restype $ns_text with label $labelname=$labelid to be deleted..."$SAMELINE
 			T_START=$SECONDS
 			result="dummy"
 			while [ ! -z "$result" ]; do
 				sleep 0.5
-				result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
-				echo -ne "  Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds "$SAMELINE
+				result=$(kubectl get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+				echo -ne "  Waiting for $restype $ns_text with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds "$SAMELINE
 				if [ -z "$result" ]; then
-					echo -e " Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $GREEN OK $EGREEN"
+					echo -e " Waiting for $restype $ns_text with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $GREEN OK $EGREEN"
 				elif [ $(($SECONDS-$T_START)) -gt 300 ]; then
-					echo -e " Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $RED Failed $ERED"
+					echo -e " Waiting for $restype $ns_text with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $RED Failed $ERED"
 					result=""
 				fi
 			done
@@ -2028,6 +2142,41 @@ __kube_create_configmap() {
 	return 0
 }
 
+# Function to create a configmap in kubernetes
+# args: <configmap-name> <namespace> <labelname> <labelid> <path-to-data-file> <path-to-output-yaml>
+# (Not for test scripts)
+__kube_create_configmapXXXXXXXXXXXXX() {
+	echo -ne " Creating configmap $1 "$SAMELINE
+	#envsubst < $5 > $5"_tmp"
+	#cp $5"_tmp" $5  #Need to copy back to orig file name since create configmap neeed the original file name
+	kubectl create configmap $1  -n $2 --from-file=$5 --dry-run=client -o yaml > $6
+	if [ $? -ne 0 ]; then
+		echo -e " Creating configmap $1 $RED Failed $ERED"
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+
+	kubectl apply -f $6 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		echo -e " Creating configmap $1 $RED Apply failed $ERED"
+		echo "  Message: $(<./tmp/kubeerr)"
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	kubectl label configmap $1 -n $2 $3"="$4 --overwrite 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		echo -e " Creating configmap $1 $RED Labeling failed $ERED"
+		echo "  Message: $(<./tmp/kubeerr)"
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	# Log the resulting map
+	kubectl get configmap $1 -n $2 -o yaml > $6
+
+	echo -e " Creating configmap $1 $GREEN OK $EGREEN"
+	return 0
+}
+
 # This function runs a kubectl cmd where a single output value is expected, for example get ip with jsonpath filter.
 # The function retries up to the timeout given in the cmd flag '--cluster-timeout'
 # args: <full kubectl cmd with parameters>
@@ -2055,17 +2204,19 @@ __kube_cmd_with_timeout() {
 # (Not for test scripts)
 __kube_clean_pvc() {
 
+	#using env vars setup in pvccleaner_api_functions.sh
+
 	export PVC_CLEANER_NAMESPACE=$2
 	export PVC_CLEANER_CLAIMNAME=$3
 	export PVC_CLEANER_RM_PATH=$4
-	input_yaml=$SIM_GROUP"/pvc-cleaner/"pvc-cleaner.yaml
+	input_yaml=$SIM_GROUP"/"$PVC_CLEANER_COMPOSE_DIR"/"pvc-cleaner.yaml
 	output_yaml=$PWD/tmp/$2-pvc-cleaner.yaml
 
 	envsubst < $input_yaml > $output_yaml
 
 	kubectl delete -f $output_yaml 1> /dev/null 2> /dev/null   # Delete the previous terminated pod - if existing
 
-	__kube_create_instance pod pvc-cleaner $input_yaml $output_yaml
+	__kube_create_instance pod $PVC_CLEANER_APP_NAME $input_yaml $output_yaml
 	if [ $? -ne 0 ]; then
 		echo $YELLOW" Could not clean pvc for app: $1 - persistent storage not clean - tests may not work"
 		return 1
@@ -2085,7 +2236,7 @@ __kube_clean_pvc() {
 # args: -
 # (Not for test scripts)
 __clean_kube() {
-	echo -e $BOLD"Initialize kube services//pods/statefulsets/replicaset to initial state"$EBOLD
+	echo -e $BOLD"Initialize kube pods/statefulsets/replicaset to initial state"$EBOLD
 
 	# Scale prestarted or managed apps
 	for imagename in $APP_SHORT_NAMES; do
@@ -2140,8 +2291,16 @@ __clean_kube() {
 clean_environment() {
 	if [ $RUNMODE == "KUBE" ]; then
 		__clean_kube
+		if [ $PRE_CLEAN -eq 1 ]; then
+			echo " Clean docker resouces to free up resources, may take time..."
+			../common/clean_docker.sh 2&>1 /dev/null
+		fi
 	else
 		__clean_containers
+		if [ $PRE_CLEAN -eq 1 ]; then
+			echo " Clean kubernetes resouces to free up resources, may take time..."
+			../common/clean_kube.sh 2&>1 /dev/null
+		fi
 	fi
 }
 
@@ -2452,13 +2611,11 @@ store_logs() {
 __do_curl() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	proxyflag=""
-	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			if [ $KUBE_PROXY_HTTPX == "http" ]; then
-				proxyflag=" --proxy $KUBE_PROXY_PATH"
-			else
-				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
-			fi
+	if [ ! -z "$KUBE_PROXY_PATH" ]; then
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
+		else
+			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
 	curlString="curl -skw %{http_code} $proxyflag $@"

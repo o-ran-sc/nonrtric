@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no agent)"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="RICSIM SDNC"
+DOCKER_INCLUDED_IMAGES="RICSIM SDNC KUBEPROXY"
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" RICSIM SDNC KUBEPROXY"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
@@ -60,9 +60,7 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         # Clean container and start all needed containers #
         clean_environment
 
-        if [ $RUNMODE == "KUBE" ]; then
-            start_kube_proxy
-        fi
+        start_kube_proxy
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3

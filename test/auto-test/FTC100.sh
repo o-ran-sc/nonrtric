@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Full agent API walkthrough using agent REST/DMAAP and with/without SDNC A1 Controller"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -73,9 +73,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         # Clean container and start all needed containers #
         clean_environment
 
-        if [ $RUNMODE == "KUBE" ]; then
-            start_kube_proxy
-        fi
+        start_kube_proxy
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -91,7 +89,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         # Create service to be able to receive events when rics becomes available
         # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
+        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
 
 
         if [ $__httpx == "HTTPS" ]; then
@@ -196,14 +194,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_get_services 404 "service1"
 
-        api_put_service 201 "service1" 1000 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "service1" 1000 "$CR_SERVICE_APP_PATH/1"
 
-        api_put_service 200 "service1" 2000 "$CR_SERVICE_PATH/1"
+        api_put_service 200 "service1" 2000 "$CR_SERVICE_APP_PATH/1"
 
 
-        api_put_service 400 "service2" -1 "$CR_SERVICE_PATH/2"
+        api_put_service 400 "service2" -1 "$CR_SERVICE_APP_PATH/2"
 
-        api_put_service 400 "service2" "wrong" "$CR_SERVICE_PATH/2"
+        api_put_service 400 "service2" "wrong" "$CR_SERVICE_APP_PATH/2"
 
         api_put_service 400 "service2" 100 "/test"
 
@@ -211,20 +209,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_put_service 201 "service2" 300 "ftp://localhost:80/test"
 
-        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_PATH/1"
+        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_APP_PATH/1"
 
         api_get_service_ids 200 "service1" "service2" "ric-registration"
 
 
-        api_put_service 201 "service3" 5000 "$CR_SERVICE_PATH/3"
+        api_put_service 201 "service3" 5000 "$CR_SERVICE_APP_PATH/3"
 
 
         api_get_service_ids 200 "service1" "service2" "service3" "ric-registration"
 
 
-        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_PATH/1"
+        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_APP_PATH/1"
 
-        api_get_services 200 NOSERVICE "service1" 2000 "$CR_SERVICE_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_SERVICE_PATH/3"  "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
+        api_get_services 200 NOSERVICE "service1" 2000 "$CR_SERVICE_APP_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_SERVICE_APP_PATH/3"  "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
 
         api_get_services 200
 
@@ -253,7 +251,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_get_service_ids 200 "service2" "service3" "ric-registration"
 
 
-        api_put_service 201 "service1" 50 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "service1" 50 "$CR_SERVICE_APP_PATH/1"
 
         api_get_service_ids 200 "service1" "service2" "service3"  "ric-registration"
 
@@ -388,10 +386,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
 
 
-        api_put_service 201 "service10" 3600 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "service10" 3600 "$CR_SERVICE_APP_PATH/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_PATH"/test"
+            notificationurl=$CR_SERVICE_APP_PATH"/test"
         else
             notificationurl=""
         fi

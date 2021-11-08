@@ -93,7 +93,18 @@ __KUBEPROXY_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __KUBEPROXY_store_docker_logs() {
-	docker logs $KUBE_PROXY_APP_NAME > $1$2_kubeproxy.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=KUBEPROXY" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_kubeproxy.log 2>&1
+	else
+		docker logs $KUBE_PROXY_APP_NAME > $1$2_kubeproxy.log 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__KUBEPROXY_initial_setup() {
+	use_kube_proxy_http
 }
 
 #######################################################
@@ -133,6 +144,33 @@ use_kube_proxy_https() {
 ### Kube Http Proxy functions
 #########################
 
+# Export env vars for config files, docker compose and kube resources
+# args: -
+__kube_proxy_vars() {
+
+	export KUBE_PROXY_WEB_EXTERNAL_PORT
+	export KUBE_PROXY_WEB_INTERNAL_PORT
+	export KUBE_PROXY_EXTERNAL_PORT
+	export KUBE_PROXY_INTERNAL_PORT
+
+	export KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT
+	export KUBE_PROXY_WEB_INTERNAL_SECURE_PORT
+	export KUBE_PROXY_EXTERNAL_SECURE_PORT
+	export KUBE_PROXY_INTERNAL_SECURE_PORT
+
+	export KUBE_SIM_NAMESPACE
+	export KUBE_PROXY_IMAGE
+
+	export KUBE_PROXY_APP_NAME
+	export KUBE_PROXY_DOCKER_EXTERNAL_PORT
+	export KUBE_PROXY_DOCKER_EXTERNAL_SECURE_PORT
+	export KUBE_PROXY_WEB_DOCKER_EXTERNAL_PORT
+	export KUBE_PROXY_WEB_DOCKER_EXTERNAL_SECURE_PORT
+	export DOCKER_SIM_NWNAME
+
+	export KUBE_PROXY_DISPLAY_NAME
+}
+
 # Start the Kube Http Proxy in the simulator group
 # args: -
 # (Function for test scripts)
@@ -170,20 +208,10 @@ start_kube_proxy() {
 
 		if [ $retcode_i -eq 0 ]; then
 			echo -e " Creating $KUBE_PROXY_APP_NAME deployment and service"
+
+			__kube_proxy_vars
+
 			export KUBE_PROXY_APP_NAME
-
-			export KUBE_PROXY_WEB_EXTERNAL_PORT
-			export KUBE_PROXY_WEB_INTERNAL_PORT
-			export KUBE_PROXY_EXTERNAL_PORT
-			export KUBE_PROXY_INTERNAL_PORT
-
-			export KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT
-			export KUBE_PROXY_WEB_INTERNAL_SECURE_PORT
-			export KUBE_PROXY_EXTERNAL_SECURE_PORT
-			export KUBE_PROXY_INTERNAL_SECURE_PORT
-
-			export KUBE_SIM_NAMESPACE
-			export KUBE_PROXY_IMAGE
 
 			__kube_create_namespace $KUBE_SIM_NAMESPACE
 
@@ -251,8 +279,43 @@ start_kube_proxy() {
 		# Set proxy for all subsequent calls for all services etc
 		export KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$CLUSTER_KUBE_PROXY_HOST":"$CLUSTER_KUBE_PROXY_PORT
 		export KUBE_PROXY_HTTPX
+
+		KP_PORT1=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")
+		KP_PORT2=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "https")
+
+		echo " $KUBE_PROXY_DISPLAY_NAME node ports (http/https): $KP_PORT1 $KP_PORT2"
+
 	else
-		echo $YELLOW" Kube http proxy not needed in docker test. App not started"
+		# Check if docker app shall be fully managed by the test script
+		__check_included_image 'KUBEPROXY'
+		if [ $? -eq 1 ]; then
+			echo -e $RED"The Kube Proxy app is not included in this test script"$ERED
+			echo -e $RED"The Kube Proxy will not be started"$ERED
+			exit
+		fi
+
+		__kube_proxy_vars
+
+		__start_container $KUBE_PROXY_COMPOSE_DIR "" NODOCKERARGS 1 $KUBE_PROXY_APP_NAME
+
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			export KUBE_PROXY_WEB_PATH=$KUBE_PROXY_HTTPX"://"$LOCALHOST_NAME":"$KUBE_PROXY_WEB_DOCKER_EXTERNAL_PORT
+		else
+			export KUBE_PROXY_WEB_PATH=$KUBE_PROXY_HTTPX"://"$LOCALHOST_NAME":"$KUBE_PROXY_WEB_DOCKER_EXTERNAL_SECURE_PORT
+		fi
+
+		export KUBE_PROXY_PATH=  # Make sure proxy is empty when checking the proxy itself
+        __check_service_start $KUBE_PROXY_APP_NAME $KUBE_PROXY_WEB_PATH$KUBE_PROXY_ALIVE_URL
+
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			export KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$LOCALHOST_NAME":"$KUBE_PROXY_DOCKER_EXTERNAL_PORT
+		else
+			export KUBE_PROXY_PATH=$KUBE_PROXY_HTTPX"://"$LOCALHOST_NAME":"$KUBE_PROXY_DOCKER_EXTERNAL_SECURE_PORT
+		fi
+
+		echo " $KUBE_PROXY_DISPLAY_NAME localhost ports (http/https): $KUBE_PROXY_DOCKER_EXTERNAL_PORT $KUBE_PROXY_DOCKER_EXTERNAL_SECURE_PORT"
+
+
 	fi
 	echo ""
 

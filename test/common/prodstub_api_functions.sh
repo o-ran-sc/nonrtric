@@ -93,58 +93,49 @@ __PRODSTUB_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __PRODSTUB_store_docker_logs() {
-	docker logs $PROD_STUB_APP_NAME > $1$2_prodstub.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=PRODSTUB" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_prodstub.log 2>&1
+	else
+		docker logs $PROD_STUB_APP_NAME > $1$2_prodstub.log 2>&1
+	fi
 }
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__PRODSTUB_initial_setup() {
+	use_prod_stub_http
+}
+
 #######################################################
 
-
-## Access to Prod stub sim
-# Direct access
-PROD_STUB_HTTPX="http"
-PROD_STUB_HOST_NAME=$LOCALHOST_NAME
-PROD_STUB_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_HOST_NAME":"$PROD_STUB_EXTERNAL_PORT
-
-#Docker/Kube internal path
-if [ $RUNMODE == "KUBE" ]; then
-	PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME"."$KUBE_SIM_NAMESPACE":"$PROD_STUB_EXTERNAL_PORT
-else
-	PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME":"$PROD_STUB_INTERNAL_PORT
-fi
-
-# Set http as the protocol to use for all communication to the Producer stub
+# Set http as the protocol to use for all communication to the Prod stub sim
 # args: -
 # (Function for test scripts)
 use_prod_stub_http() {
-	echo -e $BOLD"Producer stub protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards Producer stub"
-
-	PROD_STUB_HTTPX="http"
-    PROD_STUB_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_HOST_NAME":"$PROD_STUB_EXTERNAL_PORT
-
-	if [ $RUNMODE == "KUBE" ]; then
-		PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME"."$KUBE_SIM_NAMESPACE":"$PROD_STUB_EXTERNAL_PORT
-	else
-		PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME":"$PROD_STUB_INTERNAL_PORT
-	fi
-
-	echo ""
+	__prod_stub_set_protocoll "http" $PROD_STUB_INTERNAL_PORT $PROD_STUB_EXTERNAL_PORT
 }
 
-# Set https as the protocol to use for all communication to the Producer stub
+# Set https as the protocol to use for all communication to the Prod stub sim
 # args: -
 # (Function for test scripts)
 use_prod_stub_https() {
-	echo -e $BOLD"Producer stub protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards Producer stub"
+	__prod_stub_set_protocoll "https" $PROD_STUB_INTERNAL_SECURE_PORT $PROD_STUB_EXTERNAL_SECURE_PORT
+}
 
-	PROD_STUB_HTTPX="https"
-    PROD_STUB_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_HOST_NAME":"$PROD_STUB_EXTERNAL_SECURE_PORT
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__prod_stub_set_protocoll() {
+	echo -e $BOLD"$PROD_STUB_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $PROD_STUB_DISPLAY_NAME"
 
+	## Access to Prod stub sim
+
+	PROD_STUB_SERVICE_PATH=$1"://"$PROD_STUB_APP_NAME":"$2  # docker access, container->container and script->container via proxy
 	if [ $RUNMODE == "KUBE" ]; then
-		PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME"."$KUBE_SIM_NAMESPACE":"$PROD_STUB_EXTERNAL_SECURE_PORT
-	else
-		PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME":"$PROD_STUB_INTERNAL_SECURE_PORT
+		PROD_STUB_SERVICE_PATH=$1"://"$PROD_STUB_APP_NAME.$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
 	fi
+
 	echo ""
 }
 
@@ -153,6 +144,24 @@ use_prod_stub_https() {
 ###########################
 ### Producer stub functions
 ###########################
+
+# Export env vars for config files, docker compose and kube resources
+# args:
+__prodstub_export_vars() {
+	export PROD_STUB_APP_NAME
+	export PROD_STUB_APP_NAME_ALIAS
+	export PROD_STUB_DISPLAY_NAME
+
+	export DOCKER_SIM_NWNAME
+	export KUBE_SIM_NAMESPACE
+
+	export PROD_STUB_IMAGE
+	export PROD_STUB_INTERNAL_PORT
+	export PROD_STUB_INTERNAL_SECURE_PORT
+	export PROD_STUB_EXTERNAL_PORT
+	export PROD_STUB_EXTERNAL_SECURE_PORT
+}
+
 
 # Start the Producer stub in the simulator group
 # args: -
@@ -190,15 +199,10 @@ start_prod_stub() {
 
 		if [ $retcode_i -eq 0 ]; then
 			echo -e " Creating $PROD_STUB_APP_NAME deployment and service"
-			export PROD_STUB_APP_NAME
-			export KUBE_SIM_NAMESPACE
-			export PROD_STUB_IMAGE
-			export PROD_STUB_INTERNAL_PORT
-			export PROD_STUB_INTERNAL_SECURE_PORT
-			export PROD_STUB_EXTERNAL_PORT
-			export PROD_STUB_EXTERNAL_SECURE_PORT
 
             __kube_create_namespace $KUBE_SIM_NAMESPACE
+
+			__prodstub_export_vars
 
 			# Create service
 			input_yaml=$SIM_GROUP"/"$PROD_STUB_COMPOSE_DIR"/"svc.yaml
@@ -211,24 +215,10 @@ start_prod_stub() {
 			__kube_create_instance app $PROD_STUB_APP_NAME $input_yaml $output_yaml
 		fi
 
-		PROD_STUB_HOST_NAME=$(__kube_get_service_host $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE)
-
-		PROD_STUB_EXTERNAL_PORT=$(__kube_get_service_port $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE "http")
-		PROD_STUB_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE "https")
-
-		echo " Host IP, http port, https port: $PROD_STUB_HOST_NAME $PROD_STUB_EXTERNAL_PORT $PROD_STUB_EXTERNAL_SECURE_PORT"
-		if [ $PROD_STUB_HTTPX == "http" ]; then
-            PROD_STUB_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_HOST_NAME":"$PROD_STUB_EXTERNAL_PORT
-			PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME"."$KUBE_SIM_NAMESPACE":"$PROD_STUB_EXTERNAL_PORT
-		else
-            PROD_STUB_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_HOST_NAME":"$PROD_STUB_EXTERNAL_SECURE_PORT
-			PROD_STUB_SERVICE_PATH=$PROD_STUB_HTTPX"://"$PROD_STUB_APP_NAME"."$KUBE_SIM_NAMESPACE":"$PROD_STUB_EXTERNAL_SECURE_PORT
-		fi
-
-		__check_service_start $PROD_STUB_APP_NAME $PROD_STUB_PATH$PROD_STUB_ALIVE_URL
+		__check_service_start $PROD_STUB_APP_NAME $PROD_STUB_SERVICE_PATH$PROD_STUB_ALIVE_URL
 
 		echo -ne " Service $PROD_STUB_APP_NAME - reset  "$SAMELINE
-		result=$(__do_curl $PROD_STUB_PATH/reset)
+		result=$(__do_curl $PROD_STUB_SERVICE_PATH/reset)
 		if [ $? -ne 0 ]; then
 			echo -e " Service $PROD_STUB_APP_NAME - reset  $RED Failed $ERED - will continue"
 		else
@@ -244,19 +234,11 @@ start_prod_stub() {
 			exit
 		fi
 
-        export PROD_STUB_APP_NAME
-        export PROD_STUB_APP_NAME_ALIAS
-        export PROD_STUB_INTERNAL_PORT
-        export PROD_STUB_EXTERNAL_PORT
-        export PROD_STUB_INTERNAL_SECURE_PORT
-        export PROD_STUB_EXTERNAL_SECURE_PORT
-        export DOCKER_SIM_NWNAME
-
-		export PROD_STUB_DISPLAY_NAME
+		__prodstub_export_vars
 
 		__start_container $PROD_STUB_COMPOSE_DIR "" NODOCKERARGS 1 $PROD_STUB_APP_NAME
 
-        __check_service_start $PROD_STUB_APP_NAME $PROD_STUB_PATH$PROD_STUB_ALIVE_URL
+        __check_service_start $PROD_STUB_APP_NAME $PROD_STUB_SERVICE_PATH$PROD_STUB_ALIVE_URL
 	fi
     echo ""
     return 0
@@ -268,13 +250,11 @@ __execute_curl_to_prodstub() {
     TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo "(${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	proxyflag=""
-	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			if [ $KUBE_PROXY_HTTPX == "http" ]; then
-				proxyflag=" --proxy $KUBE_PROXY_PATH"
-			else
-				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
-			fi
+	if [ ! -z "$KUBE_PROXY_PATH" ]; then
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
+		else
+			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
 	echo " CMD: $3 $proxyflag" >> $HTTPLOG
@@ -326,7 +306,7 @@ prodstub_arm_producer() {
 		return 1
 	fi
 
-    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_PATH/arm/supervision/"$2
+    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_SERVICE_PATH/arm/supervision/"$2
 	if [ $# -eq 3 ]; then
 		curlString=$curlString"?response="$3
 	fi
@@ -345,7 +325,7 @@ prodstub_arm_job_create() {
 		return 1
 	fi
 
-    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_PATH/arm/create/$2/$3"
+    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_SERVICE_PATH/arm/create/$2/$3"
 	if [ $# -eq 4 ]; then
 		curlString=$curlString"?response="$4
 	fi
@@ -364,7 +344,7 @@ prodstub_arm_job_delete() {
 		return 1
 	fi
 
-    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_PATH/arm/delete/$2/$3"
+    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_SERVICE_PATH/arm/delete/$2/$3"
 	if [ $# -eq 4 ]; then
 		curlString=$curlString"?response="$4
 	fi
@@ -383,7 +363,7 @@ prodstub_arm_type() {
 		return 1
 	fi
 
-    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_PATH/arm/type/$2/$3"
+    curlString="curl -X PUT -skw %{http_code} $PROD_STUB_SERVICE_PATH/arm/type/$2/$3"
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
     return $?
@@ -399,7 +379,7 @@ prodstub_disarm_type() {
 		return 1
 	fi
 
-    curlString="curl -X DELETE -skw %{http_code} $PROD_STUB_PATH/arm/type/$2/$3"
+    curlString="curl -X DELETE -skw %{http_code} $PROD_STUB_SERVICE_PATH/arm/type/$2/$3"
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
     return $?
@@ -425,7 +405,7 @@ prodstub_check_jobdata() {
     file="./tmp/.p.json"
 	echo "$targetJson" > $file
 
-    curlString="curl -X GET -skw %{http_code} $PROD_STUB_PATH/jobdata/$2/$3"
+    curlString="curl -X GET -skw %{http_code} $PROD_STUB_SERVICE_PATH/jobdata/$2/$3"
 
     __execute_curl_to_prodstub TEST $1 "$curlString" $file
     return $?
@@ -455,7 +435,7 @@ prodstub_check_jobdata_2() {
 	file="./tmp/.p.json"
 	echo "$targetJson" > $file
 
-    curlString="curl -X GET -skw %{http_code} $PROD_STUB_PATH/jobdata/$2/$3"
+    curlString="curl -X GET -skw %{http_code} $PROD_STUB_SERVICE_PATH/jobdata/$2/$3"
 
     __execute_curl_to_prodstub TEST $1 "$curlString" $file
     return $?
@@ -481,7 +461,7 @@ prodstub_check_jobdata_3() {
     file="./tmp/.p.json"
 	echo "$targetJson" > $file
 
-    curlString="curl -X GET -skw %{http_code} $PROD_STUB_PATH/jobdata/$2/$3"
+    curlString="curl -X GET -skw %{http_code} $PROD_STUB_SERVICE_PATH/jobdata/$2/$3"
 
     __execute_curl_to_prodstub TEST $1 "$curlString" $file
     return $?
@@ -496,7 +476,7 @@ prodstub_delete_jobdata() {
 		__print_err "<response-code> <producer-id> <job-id> " $@
 		return 1
 	fi
-    curlString="curl -X DELETE -skw %{http_code} $PROD_STUB_PATH/jobdata/$2/$3"
+    curlString="curl -X DELETE -skw %{http_code} $PROD_STUB_SERVICE_PATH/jobdata/$2/$3"
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
     return $?
@@ -511,7 +491,7 @@ prodstub_delete_jobdata() {
 # (Function for test scripts)
 prodstub_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "PRODSTUB" "$PROD_STUB_PATH/counter/" $1 "=" $2 $3
+		__var_test "PRODSTUB" "$PROD_STUB_SERVICE_PATH/counter/" $1 "=" $2 $3
 	else
 		__print_err "Wrong args to prodstub_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi

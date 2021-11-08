@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="ECS full interfaces walkthrough"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP HTTPPROXY NGW"
+DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP HTTPPROXY NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="PRODSTUB CR ECS RICSIM CP HTTPPROXY KUBEPROXY NGW"
@@ -57,9 +57,7 @@ FLAT_A1_EI="1"
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 use_ecs_rest_https
 
@@ -112,25 +110,25 @@ TARGET150="http://localhost:80/target"  # Dummy target, no target for info data 
 TARGET160="http://localhost:80/target"  # Dummy target, no target for info data in this env...
 
 #Status callbacks for eijobs
-STATUS1="$CR_SERVICE_PATH/job1-status"
-STATUS2="$CR_SERVICE_PATH/job2-status"
-STATUS3="$CR_SERVICE_PATH/job3-status"
-STATUS8="$CR_SERVICE_PATH/job8-status"
-STATUS10="$CR_SERVICE_PATH/job10-status"
+STATUS1="$CR_SERVICE_APP_PATH/job1-status"
+STATUS2="$CR_SERVICE_APP_PATH/job2-status"
+STATUS3="$CR_SERVICE_APP_PATH/job3-status"
+STATUS8="$CR_SERVICE_APP_PATH/job8-status"
+STATUS10="$CR_SERVICE_APP_PATH/job10-status"
 
 #Status callbacks for infojobs
-INFOSTATUS101="$CR_SERVICE_PATH/info-job101-status"
-INFOSTATUS102="$CR_SERVICE_PATH/info-job102-status"
-INFOSTATUS103="$CR_SERVICE_PATH/info-job103-status"
-INFOSTATUS108="$CR_SERVICE_PATH/info-job108-status"
-INFOSTATUS110="$CR_SERVICE_PATH/info-job110-status"
-INFOSTATUS150="$CR_SERVICE_PATH/info-job150-status"
-INFOSTATUS160="$CR_SERVICE_PATH/info-job160-status"
+INFOSTATUS101="$CR_SERVICE_APP_PATH/info-job101-status"
+INFOSTATUS102="$CR_SERVICE_APP_PATH/info-job102-status"
+INFOSTATUS103="$CR_SERVICE_APP_PATH/info-job103-status"
+INFOSTATUS108="$CR_SERVICE_APP_PATH/info-job108-status"
+INFOSTATUS110="$CR_SERVICE_APP_PATH/info-job110-status"
+INFOSTATUS150="$CR_SERVICE_APP_PATH/info-job150-status"
+INFOSTATUS160="$CR_SERVICE_APP_PATH/info-job160-status"
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     #Type registration status callbacks
-    TYPESTATUS1="$CR_SERVICE_PATH/type-status1"
-    TYPESTATUS2="$CR_SERVICE_PATH/type-status2"
+    TYPESTATUS1="$CR_SERVICE_APP_PATH/type-status1"
+    TYPESTATUS2="$CR_SERVICE_APP_PATH/type-status2"
 
     ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
 

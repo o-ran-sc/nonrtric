@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Testing southbound proxy for PMS and ECS"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM ECS PRODSTUB HTTPPROXY NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM ECS PRODSTUB HTTPPROXY NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR CR PA PRODSTUB RICSIM CP ECS HTTPPROXY KUBEPROXY NGW"
@@ -64,7 +64,7 @@ use_ecs_rest_https
 use_prod_stub_https
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
    echo "PMS VERSION 2 (V2) is required"
    exit 1
@@ -72,9 +72,7 @@ fi
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 STD_NUM_RICS=2
 
@@ -146,7 +144,7 @@ done
 #Check the number of types
 api_equal json:policy-types 2 300
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
 
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
@@ -184,8 +182,8 @@ fi
 TARGET1="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_SERVICE_PATH/job1-status"
-STATUS2="$CR_SERVICE_PATH/job2-status"
+STATUS1="$CR_SERVICE_APP_PATH/job1-status"
+STATUS2="$CR_SERVICE_APP_PATH/job2-status"
 
 prodstub_arm_producer 200 prod-a
 prodstub_arm_type 200 prod-a type1
@@ -197,7 +195,7 @@ ecs_api_service_status 200
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     #Type registration status callbacks
-    TYPESTATUS1="$CR_SERVICE_PATH/type-status1"
+    TYPESTATUS1="$CR_SERVICE_APP_PATH/type-status1"
 
     ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
 
@@ -282,10 +280,7 @@ else
     cr_api_check_all_ecs_events 200 job2-status DISABLED
 fi
 
-echo -e $YELLOW"Verify that ECS has send status notification to the callback recevier"$EYELLOW
-echo -e $YELLOW"and check the source of the call in the log to be from the httpproxy"$EYELLOW
-echo -e $YELLOW"Check for 'Calling host'"$EYELLOW
-echo -e $YELLOW"cmd: docker logs <callback-receiver-container-name>"$EYELLOW
+cr_contains_str remote_hosts $HTTP_PROXY_APP_NAME
 
 check_policy_agent_logs
 check_ecs_logs

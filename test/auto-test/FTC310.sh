@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config or pushed config"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW KUBEPROXY"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
@@ -54,13 +54,15 @@ for consul_conf in $TESTED_VARIANTS ; do
     # Clean container and start all needed containers #
     clean_environment
 
+    start_kube_proxy
+
     start_policy_agent NOPROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
 
     set_agent_trace
 
     # Create service to be able to receive events when rics becomes available
     # Must use rest towards the agent since dmaap is not configured yet
-    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
+    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
 
     # Start one RIC of each type
     start_ric_simulators ricsim_g1 1  OSC_2.1.0

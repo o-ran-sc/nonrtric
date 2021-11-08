@@ -92,7 +92,18 @@ __HTTPPROXY_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __HTTPPROXY_store_docker_logs() {
-	docker logs $HTTP_PROXY_APP_NAME > $1$2_httpproxy.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=HTTPPROXY" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_httpproxy.log 2>&1
+	else
+		docker logs $HTTP_PROXY_APP_NAME > $1$2_httpproxy.log 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__HTTPPROXY_initial_setup() {
+	:
 }
 
 #######################################################
@@ -248,9 +259,9 @@ start_http_proxy() {
 		__start_container $HTTP_PROXY_COMPOSE_DIR "" NODOCKERARGS 1 $HTTP_PROXY_APP_NAME
 
 		if [ $HTTP_PROXY_HTTPX == "http" ]; then
-			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_PORT
+			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_INTERNAL_PORT
 		else
-			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_SECURE_PORT
+			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
 		fi
         __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_PATH$HTTP_PROXY_ALIVE_URL
 

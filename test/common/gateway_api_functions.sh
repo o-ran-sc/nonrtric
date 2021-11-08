@@ -78,47 +78,57 @@ __NGW_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __NGW_store_docker_logs() {
-	docker logs $NRT_GATEWAY_APP_NAME > $1$2_gateway.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=NGW" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_gateway.log 2>&1
+	else
+		docker logs $NRT_GATEWAY_APP_NAME > $1$2_gateway.log 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__NGW_initial_setup() {
+	use_gateway_http
 }
 
 #######################################################
 
-## Access to Gateway
-# Host name may be changed if app started by kube
-# Direct access from script
-NGW_HTTPX="http"
-NGW_HOST_NAME=$LOCALHOST_NAME
-NGW_PATH=$NGW_HTTPX"://"$NGW_HOST_NAME":"$NRT_GATEWAY_EXTERNAL_PORT
-# NGW_ADAPTER used for switch between REST and DMAAP (only REST supported currently)
-NGW_ADAPTER_TYPE="REST"
-NGW_ADAPTER=$NGW_PATH
-###########################
-### Gateway functions
-###########################
 
-# Set http as the protocol to use for all communication to the Gateway
+
+
+
+# Set http as the protocol to use for all communication to the nonrtric gateway
 # args: -
 # (Function for test scripts)
 use_gateway_http() {
-	echo -e $BOLD"Gateway, NGW, protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards NGW"
-	NGW_HTTPX="http"
-	NGW_PATH=$NGW_HTTPX"://"$NGW_HOST_NAME":"$NRT_GATEWAY_EXTERNAL_PORT
-	NGW_ADAPTER_TYPE="REST"
-	NGW_ADAPTER=$NGW_PATH
-	echo ""
+	__gateway_set_protocoll "http" $NRT_GATEWAY_INTERNAL_PORT $NRT_GATEWAY_EXTERNAL_PORT
 }
 
-# Set https as the protocol to use for all communication to the Gateway
+# Set https as the protocol to use for all communication to the nonrtric gateway
 # args: -
 # (Function for test scripts)
 use_gateway_https() {
-	echo -e $BOLD"Gateway, NGW, protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards NGW"
-	NGW_HTTPX="https"
-	NGW_PATH=$NGW_HTTPX"://"$NGW_HOST_NAME":"$NRT_GATEWAY_EXTERNAL_SECURE_PORT
-	NGW_ADAPTER_TYPE="REST"
-	NGW_ADAPTER=$NGW_PATH
+	__gateway_set_protocoll "https" $NRT_GATEWAY_INTERNAL_SECURE_PORT $NRT_GATEWAY_EXTERNAL_SECURE_PORT
+}
+
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__gateway_set_protocoll() {
+	echo -e $BOLD"$NRT_GATEWAY_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $NRT_GATEWAY_DISPLAY_NAME"
+
+	## Access to nonrtric gateway
+
+	NRT_GATEWAY_SERVICE_PATH=$1"://"$NRT_GATEWAY_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	if [ $RUNMODE == "KUBE" ]; then
+		NRT_GATEWAY_SERVICE_PATH=$1"://"$NRT_GATEWAY_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+	fi
+
+	# NRT_GATEWAY_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
+	NRT_GATEWAY_ADAPTER_TYPE="REST"
+	NRT_GATEWAY_ADAPTER=$DMAAP_ADP_SERVICE_PATH
+
 	echo ""
 }
 
@@ -127,7 +137,7 @@ use_gateway_https() {
 # (Function for test scripts)
 set_gateway_debug() {
 	echo -e $BOLD"Setting gateway debug logging"$EBOLD
-	curlString="$NGW_PATH$NRT_GATEWAY_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	curlString="$NRT_GATEWAY_SERVICE_PATH$NRT_GATEWAY_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set debug mode" $@
@@ -143,7 +153,7 @@ set_gateway_debug() {
 # (Function for test scripts)
 set_gateway_trace() {
 	echo -e $BOLD"Setting gateway trace logging"$EBOLD
-	curlString="$NGW_PATH$NRT_GATEWAY_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	curlString="$NRT_GATEWAY_SERVICE_PATH$NRT_GATEWAY_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set trace mode" $@
@@ -152,6 +162,38 @@ set_gateway_trace() {
 	fi
 	echo ""
 	return 0
+}
+
+# Export env vars for config files, docker compose and kube resources
+# args: -
+__gateway_export_vars() {
+
+	export NRT_GATEWAY_APP_NAME
+	export NRT_GATEWAY_DISPLAY_NAME
+
+	export KUBE_NONRTRIC_NAMESPACE
+	export DOCKER_SIM_NWNAME
+
+	export NRT_GATEWAY_IMAGE
+	export NRT_GATEWAY_INTERNAL_PORT
+	export NRT_GATEWAY_INTERNAL_SECURE_PORT
+	export NRT_GATEWAY_EXTERNAL_PORT
+	export NRT_GATEWAY_EXTERNAL_SECURE_PORT
+	export NRT_GATEWAY_CONFIG_MOUNT_PATH
+	export NRT_GATEWAY_CONFIG_FILE
+	export NGW_CONFIG_CONFIGMAP_NAME=$NRT_GATEWAY_APP_NAME"-config"
+	export NRT_GATEWAY_HOST_MNT_DIR
+	export NRT_GATEWAY_COMPOSE_DIR
+
+	if [ $RUNMODE == "KUBE" ]; then
+		export POLICY_AGENT_EXTERNAL_SECURE_PORT
+		export ECS_EXTERNAL_SECURE_PORT
+		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
+		export ECS_DOMAIN_NAME=$ECS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
+	else
+		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME
+		export ECS_DOMAIN_NAME=$ECS_APP_NAME
+	fi
 }
 
 # Start the Gateway container
@@ -194,22 +236,7 @@ start_gateway() {
 
 			echo -e " Creating $NRT_GATEWAY_APP_NAME app and expose service"
 
-			#Export all vars needed for service and deployment
-			export NRT_GATEWAY_APP_NAME
-			export KUBE_NONRTRIC_NAMESPACE
-			export NRT_GATEWAY_IMAGE
-			export NRT_GATEWAY_INTERNAL_PORT
-			export NRT_GATEWAY_INTERNAL_SECURE_PORT
-			export NRT_GATEWAY_EXTERNAL_PORT
-			export NRT_GATEWAY_EXTERNAL_SECURE_PORT
-			export NRT_GATEWAY_CONFIG_MOUNT_PATH
-			export NRT_GATEWAY_CONFIG_FILE
-			export NGW_CONFIG_CONFIGMAP_NAME=$NRT_GATEWAY_APP_NAME"-config"
-
-			export POLICY_AGENT_EXTERNAL_SECURE_PORT
-			export ECS_EXTERNAL_SECURE_PORT
-			export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
-			export ECS_DOMAIN_NAME=$ECS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
+			__gateway_export_vars
 
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
@@ -233,25 +260,8 @@ start_gateway() {
 
 		fi
 
-		echo " Retrieving host and ports for service..."
-		NGW_HOST_NAME=$(__kube_get_service_host $NRT_GATEWAY_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+		__check_service_start $NRT_GATEWAY_APP_NAME $NRT_GATEWAY_SERVICE_PATH$NRT_GATEWAY_ALIVE_URL
 
-		NRT_GATEWAY_EXTERNAL_PORT=$(__kube_get_service_port $NRT_GATEWAY_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
-		NRT_GATEWAY_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $NRT_GATEWAY_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
-
-		echo " Host IP, http port, https port: $NGW_HOST_NAME $NRT_GATEWAY_EXTERNAL_PORT $NRT_GATEWAY_EXTERNAL_SECURE_PORT"
-		if [ $NGW_HTTPX == "http" ]; then
-			NGW_PATH=$NGW_HTTPX"://"$NGW_HOST_NAME":"$NRT_GATEWAY_EXTERNAL_PORT
-		else
-			NGW_PATH=$NGW_HTTPX"://"$NGW_HOST_NAME":"$NRT_GATEWAY_EXTERNAL_SECURE_PORT
-		fi
-
-		__check_service_start $NRT_GATEWAY_APP_NAME $NGW_PATH$NRT_GATEWAY_ALIVE_URL
-
-		# Update the curl adapter if set to rest, no change if type dmaap
-		if [ $NGW_ADAPTER_TYPE == "REST" ]; then
-			NGW_ADAPTER=$NGW_PATH
-		fi
 	else
 		# Check if docker app shall be fully managed by the test script
 		__check_included_image 'NGW'
@@ -261,25 +271,7 @@ start_gateway() {
 			exit
 		fi
 
-		# Export needed vars for docker compose
-        export NRT_GATEWAY_APP_NAME
-        export NRT_GATEWAY_INTERNAL_PORT
-        export NRT_GATEWAY_EXTERNAL_PORT
-        #export NRT_GATEWAY_INTERNAL_SECURE_PORT
-        #export NRT_GATEWAY_EXTERNAL_SECURE_PORT
-
-        export DOCKER_SIM_NWNAME
-		export NRT_GATEWAY_HOST_MNT_DIR
-		export NRT_GATEWAY_CONFIG_FILE
-		export NRT_GATEWAY_CONFIG_MOUNT_PATH
-		export NRT_GATEWAY_COMPOSE_DIR
-
-		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME
-		export POLICY_AGENT_EXTERNAL_SECURE_PORT
-		export ECS_DOMAIN_NAME=$ECS_APP_NAME
-		export ECS_EXTERNAL_SECURE_PORT
-
-		export NRT_GATEWAY_DISPLAY_NAME
+		__gateway_export_vars
 
 		dest_file=$SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_HOST_MNT_DIR/$NRT_GATEWAY_CONFIG_FILE
 
@@ -287,7 +279,7 @@ start_gateway() {
 
 		__start_container $NRT_GATEWAY_COMPOSE_DIR "" NODOCKERARGS 1 $NRT_GATEWAY_APP_NAME
 
-		__check_service_start $NRT_GATEWAY_APP_NAME $NGW_PATH$NRT_GATEWAY_ALIVE_URL
+		__check_service_start $NRT_GATEWAY_APP_NAME $NRT_GATEWAY_SERVICE_PATH$NRT_GATEWAY_ALIVE_URL
 	fi
 	echo ""
 }

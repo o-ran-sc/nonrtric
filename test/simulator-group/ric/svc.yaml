@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: $RIC_SIM_SET_NAME
-  namespace: $KUBE_NONRTRIC_NAMESPACE
+  namespace: $KUBE_A1SIM_NAMESPACE
   labels:
     run: $RIC_SIM_SET_NAME
     autotest: RICSIM

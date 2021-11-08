@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM KUBEPROXY NGW"
@@ -61,9 +61,7 @@ use_agent_rest_http
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 start_ric_simulators ricsim_g1 1  OSC_2.1.0
 start_ric_simulators ricsim_g2 1  STD_1.1.3
@@ -109,60 +107,60 @@ if [ "$PMS_VERSION" == "V2" ]; then
     sim_print ricsim_g3_1 interface
 fi
 
-api_put_service 201 "service1" 15 "$CR_SERVICE_PATH/service1"
+api_put_service 201 "service1" 15 "$CR_SERVICE_APP_PATH/service1"
 
-api_get_services 200 "service1" "service1" 15 "$CR_SERVICE_PATH/service1"
+api_get_services 200 "service1" "service1" 15 "$CR_SERVICE_APP_PATH/service1"
 
-api_put_service 201 "service2" 120 "$CR_SERVICE_PATH/service2"
+api_put_service 201 "service2" 120 "$CR_SERVICE_APP_PATH/service2"
 
-api_get_services 200 "service2" "service2" 120 "$CR_SERVICE_PATH/service2"
+api_get_services 200 "service2" "service2" 120 "$CR_SERVICE_APP_PATH/service2"
 
-api_put_service 200 "service1" 50 "$CR_SERVICE_PATH/service1"
-api_put_service 200 "service2" 180 "$CR_SERVICE_PATH/service2"
+api_put_service 200 "service1" 50 "$CR_SERVICE_APP_PATH/service1"
+api_put_service 200 "service2" 180 "$CR_SERVICE_APP_PATH/service2"
 
-api_get_services 200 "service1" "service1" 50 "$CR_SERVICE_PATH/service1"
-api_get_services 200 "service2" "service2" 180 "$CR_SERVICE_PATH/service2"
+api_get_services 200 "service1" "service1" 50 "$CR_SERVICE_APP_PATH/service1"
+api_get_services 200 "service2" "service2" 180 "$CR_SERVICE_APP_PATH/service2"
 
 api_get_service_ids 200 "service1" "service2"
 
 sleep_wait 30 "Waiting for keep alive timeout"
 
-api_get_services 200 "service1" "service1" 50 "$CR_SERVICE_PATH/service1"
-api_get_services 200 "service2" "service2" 180 "$CR_SERVICE_PATH/service2"
+api_get_services 200 "service1" "service1" 50 "$CR_SERVICE_APP_PATH/service1"
+api_get_services 200 "service2" "service2" 180 "$CR_SERVICE_APP_PATH/service2"
 
 sleep_wait 100 "Waiting for keep alive timeout"
 
 api_get_services 404 "service1"
-api_get_services 200 "service2" "service2" 180 "$CR_SERVICE_PATH/service2"
+api_get_services 200 "service2" "service2" 180 "$CR_SERVICE_APP_PATH/service2"
 
 api_delete_services 204 "service2"
 
 api_get_services 404 "service1"
 api_get_services 404 "service2"
 
-api_put_service 201 "service3" 60 "$CR_SERVICE_PATH/service3"
+api_put_service 201 "service3" 60 "$CR_SERVICE_APP_PATH/service3"
 
-api_get_services 200 "service3" "service3" 60 "$CR_SERVICE_PATH/service3"
+api_get_services 200 "service3" "service3" 60 "$CR_SERVICE_APP_PATH/service3"
 
 sleep_wait 30 "Waiting for keep alive timeout"
 
-api_put_service 200 "service3" 60 "$CR_SERVICE_PATH/service3"
+api_put_service 200 "service3" 60 "$CR_SERVICE_APP_PATH/service3"
 
 sleep_wait 100 "Waiting for keep alive timeout"
 
 api_get_services 404 "service3"
 
-api_put_service 201 "service4" 120 "$CR_SERVICE_PATH/service4"
+api_put_service 201 "service4" 120 "$CR_SERVICE_APP_PATH/service4"
 
 sleep_wait 60 "Waiting for keep alive timeout"
 
-api_get_services 200 "service4" "service4" 120 "$CR_SERVICE_PATH/service4"
+api_get_services 200 "service4" "service4" 120 "$CR_SERVICE_APP_PATH/service4"
 
 api_put_services_keepalive 200 "service4"
 
 sleep_wait 90 "Waiting for keep alive timeout"
 
-api_get_services 200 "service4" "service4" 120 "$CR_SERVICE_PATH/service4"
+api_get_services 200 "service4" "service4" 120 "$CR_SERVICE_APP_PATH/service4"
 
 api_delete_services 204 "service4"
 
@@ -185,7 +183,7 @@ api_put_services_keepalive 404 "service3"
 api_put_services_keepalive 404 "service4"
 
 # Policy delete after timeout
-api_put_service 201 "service10" 600 "$CR_SERVICE_PATH/service10"
+api_put_service 201 "service10" 600 "$CR_SERVICE_APP_PATH/service10"
 
 sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
@@ -211,7 +209,7 @@ else
 fi
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
     notificationurl=""
 fi
@@ -265,7 +263,7 @@ if [ "$PMS_VERSION" == "V2" ]; then
     sim_equal ricsim_g3_1 num_instances 1
 fi
 
-api_put_service 200 "service10" 10 "$CR_SERVICE_PATH/service10"
+api_put_service 200 "service10" 10 "$CR_SERVICE_APP_PATH/service10"
 
 #Wait for service expiry
 api_equal json:policies 0 120

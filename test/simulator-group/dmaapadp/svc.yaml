@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $DMAAP_ADP_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $DMAAP_ADP_APP_NAME
+    autotest: DMAAPADP
+spec:
+  type: ClusterIP
+  ports:
+  - port: $DMAAP_ADP_EXTERNAL_PORT
+    targetPort: $DMAAP_ADP_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $DMAAP_ADP_EXTERNAL_SECURE_PORT
+    targetPort: $DMAAP_ADP_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $DMAAP_ADP_APP_NAME

@@ -29,15 +29,14 @@ __do_curl_to_api() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo " (${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	proxyflag=""
-	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			if [ $KUBE_PROXY_HTTPX == "http" ]; then
-				proxyflag=" --proxy $KUBE_PROXY_PATH"
-			else
-				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
-			fi
+	if [ ! -z "$KUBE_PROXY_PATH" ]; then
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
+		else
+			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
+
 	paramError=0
 	input_url=$3
     if [ $# -gt 0 ]; then
@@ -63,6 +62,18 @@ __do_curl_to_api() {
         elif [ $1 == "NGW" ]; then
 			__ADAPTER=$NGW_ADAPTER
 			__ADAPTER_TYPE=$NGW_ADAPTER_TYPE
+            __RETRY_CODES=""
+        elif [ $1 == "DMAAPADP" ]; then
+			__ADAPTER=$DMAAP_ADP_ADAPTER
+			__ADAPTER_TYPE=$DMAAP_ADP_ADAPTER_TYPE
+            __RETRY_CODES=""
+        elif [ $1 == "DMAAPMED" ]; then
+			__ADAPTER=$DMAAP_MED_ADAPTER
+			__ADAPTER_TYPE=$DMAAP_MED_ADAPTER_TYPE
+            __RETRY_CODES=""
+        elif [ $1 == "MRSTUB" ]; then
+			__ADAPTER=$MR_STUB_ADAPTER
+			__ADAPTER_TYPE=$MR_STUB_ADAPTER_TYPE
             __RETRY_CODES=""
         else
             paramError=1
@@ -104,8 +115,9 @@ __do_curl_to_api() {
 		elif [ $2 == "POST" ] || [ $2 == "POST_BATCH" ]; then
 			oper="POST"
 			accept=" -H accept:*/*"
-			if [ $# -ne 3 ]; then
-				paramError=1
+			if [ $# -eq 4 ]; then
+				file=" --data-binary @$4"
+				accept=" -H accept:application/json"
 			fi
 		elif [ $2 == "DELETE" ] || [ $2 == "DELETE_BATCH" ]; then
 			oper="DELETE"

@@ -93,72 +93,79 @@ __CR_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __CR_store_docker_logs() {
-	docker logs $CR_APP_NAME > $1$2_cr.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=CR" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_cr.log 2>&1
+	else
+		docker logs $CR_APP_NAME > $1$2_cr.log 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__CR_initial_setup() {
+	use_cr_http
 }
 
 #######################################################
-
-
-## Access to Callback Receiver
-# Host name may be changed if app started by kube
-# Direct access from script
-CR_HTTPX="http"
-CR_HOST_NAME=$LOCALHOST_NAME
-CR_PATH=$CR_HTTPX"://"$CR_HOST_NAME":"$CR_EXTERNAL_PORT
-#Docker/Kube internal path
-if [ $RUNMODE == "KUBE" ]; then
-	CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$CR_EXTERNAL_PORT$CR_APP_CALLBACK
-else
-	CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME":"$CR_INTERNAL_PORT$CR_APP_CALLBACK
-fi
-# CR_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
-CR_ADAPTER_TYPE="REST"
-CR_ADAPTER=$CR_PATH
 
 ################
 ### CR functions
 ################
 
-# Set http as the protocol to use for all communication to the Callback Receiver
+# Set http as the protocol to use for all communication to the Dmaap adapter
 # args: -
 # (Function for test scripts)
 use_cr_http() {
-	echo -e $BOLD"CR protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards CR"
-
-	CR_HTTPX="http"
-	CR_PATH=$CR_HTTPX"://"$CR_HOST_NAME":"$CR_EXTERNAL_PORT
-
-	#Docker/Kube internal path
-	if [ $RUNMODE == "KUBE" ]; then
-		CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$CR_EXTERNAL_PORT$CR_APP_CALLBACK
-	else
-		CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME":"$CR_INTERNAL_PORT$CR_APP_CALLBACK
-	fi
-	CR_ADAPTER_TYPE="REST"
-	CR_ADAPTER=$CR_PATH
-	echo ""
+	__cr_set_protocoll "http" $CR_INTERNAL_PORT $CR_EXTERNAL_PORT
 }
 
-# Set https as the protocol to use for all communication to the Callback Receiver
+# Set https as the protocol to use for all communication to the Dmaap adapter
 # args: -
 # (Function for test scripts)
 use_cr_https() {
-	echo -e $BOLD"CR protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards CR"
+	__cr_set_protocoll "https" $CR_INTERNAL_SECURE_PORT $CR_EXTERNAL_SECURE_PORT
+}
 
-	CR_HTTPX="https"
-	CR_PATH=$CR_HTTPX"://"$CR_HOST_NAME":"$CR_EXTERNAL_SECURE_PORT
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__cr_set_protocoll() {
+	echo -e $BOLD"$CR_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $CR_DISPLAY_NAME"
 
+	## Access to Dmaap adapter
+
+	# CR_SERVICE_PATH is the base path to cr
+	CR_SERVICE_PATH=$1"://"$CR_APP_NAME":"$2  # docker access, container->container and script->container via proxy
 	if [ $RUNMODE == "KUBE" ]; then
-		CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$CR_EXTERNAL_SECURE_PORT$CR_APP_CALLBACK
-	else
-		CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME":"$CR_INTERNAL_SECURE_PORT$CR_APP_CALLBACK
+		CR_SERVICE_PATH=$1"://"$CR_APP_NAME.$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
 	fi
+	# Service paths are used in test script to provide callbacck urls to app
+	CR_SERVICE_MR_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK_MR  #Only for messages from dmaap adapter/mediator
+	CR_SERVICE_APP_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK    #For general callbacks from apps
 
+	# CR_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
 	CR_ADAPTER_TYPE="REST"
-	CR_ADAPTER=$CR_PATH
+	CR_ADAPTER=$CR_SERVICE_PATH
+
 	echo ""
+}
+
+# Export env vars for config files, docker compose and kube resources
+# args: <proxy-flag>
+__cr_export_vars() {
+	export CR_APP_NAME
+	export CR_DISPLAY_NAME
+
+	export KUBE_SIM_NAMESPACE
+	export DOCKER_SIM_NWNAME
+
+	export CR_IMAGE
+
+	export CR_INTERNAL_PORT
+	export CR_INTERNAL_SECURE_PORT
+	export CR_EXTERNAL_PORT
+	export CR_EXTERNAL_SECURE_PORT
 }
 
 # Start the Callback reciver in the simulator group
@@ -198,13 +205,8 @@ start_cr() {
 
 		if [ $retcode_i -eq 0 ]; then
 			echo -e " Creating $CR_APP_NAME deployment and service"
-			export CR_APP_NAME
-			export KUBE_SIM_NAMESPACE
-			export CR_IMAGE
-			export CR_INTERNAL_PORT
-			export CR_INTERNAL_SECURE_PORT
-			export CR_EXTERNAL_PORT
-			export CR_EXTERNAL_SECURE_PORT
+
+			__cr_export_vars
 
 			__kube_create_namespace $KUBE_SIM_NAMESPACE
 
@@ -220,28 +222,10 @@ start_cr() {
 
 		fi
 
-		echo " Retrieving host and ports for service..."
-		CR_HOST_NAME=$(__kube_get_service_host $CR_APP_NAME $KUBE_SIM_NAMESPACE)
-
-		CR_EXTERNAL_PORT=$(__kube_get_service_port $CR_APP_NAME $KUBE_SIM_NAMESPACE "http")
-		CR_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $CR_APP_NAME $KUBE_SIM_NAMESPACE "https")
-
-		echo " Host IP, http port, https port: $CR_HOST_NAME $CR_EXTERNAL_PORT $CR_EXTERNAL_SECURE_PORT"
-		if [ $CR_HTTPX == "http" ]; then
-			CR_PATH=$CR_HTTPX"://"$CR_HOST_NAME":"$CR_EXTERNAL_PORT
-			CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$CR_EXTERNAL_PORT$CR_APP_CALLBACK
-		else
-			CR_PATH=$CR_HTTPX"://"$CR_HOST_NAME":"$CR_EXTERNAL_SECURE_PORT
-			CR_SERVICE_PATH=$CR_HTTPX"://"$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$CR_EXTERNAL_SECURE_PORT$CR_APP_CALLBACK
-		fi
-		if [ $CR_ADAPTER_TYPE == "REST" ]; then
-			CR_ADAPTER=$CR_PATH
-		fi
-
-		__check_service_start $CR_APP_NAME $CR_PATH$CR_ALIVE_URL
+		__check_service_start $CR_APP_NAME $CR_SERVICE_PATH$CR_ALIVE_URL
 
 		echo -ne " Service $CR_APP_NAME - reset  "$SAMELINE
-		result=$(__do_curl $CR_APP_NAME $CR_PATH/reset)
+		result=$(__do_curl CR $CR_SERVICE_PATH/reset)
 		if [ $? -ne 0 ]; then
 			echo -e " Service $CR_APP_NAME - reset  $RED Failed $ERED - will continue"
 		else
@@ -256,17 +240,11 @@ start_cr() {
 			exit
 		fi
 
-		export CR_APP_NAME
-		export CR_INTERNAL_PORT
-		export CR_EXTERNAL_PORT
-		export CR_INTERNAL_SECURE_PORT
-		export CR_EXTERNAL_SECURE_PORT
-		export DOCKER_SIM_NWNAME
-		export CR_DISPLAY_NAME
+		__cr_export_vars
 
 		__start_container $CR_COMPOSE_DIR "" NODOCKERARGS 1 $CR_APP_NAME
 
-        __check_service_start $CR_APP_NAME $CR_PATH$CR_ALIVE_URL
+        __check_service_start $CR_APP_NAME $CR_SERVICE_PATH$CR_ALIVE_URL
 	fi
 	echo ""
 }
@@ -281,10 +259,57 @@ start_cr() {
 # (Function for test scripts)
 cr_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "CR" "$CR_PATH/counter/" $1 "=" $2 $3
+		__var_test "CR" "$CR_SERVICE_PATH/counter/" $1 "=" $2 $3
 	else
 		__print_err "Wrong args to cr_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
+}
+
+# Tests if a variable value in the CR contains the target string and and optional timeout
+# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable contains
+# the target or not.
+# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# before setting pass or fail depending on if the variable value contains the target
+# value or not.
+# (Function for test scripts)
+cr_contains_str() {
+
+	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
+		__var_test "CR" "$CR_SERVICE_PATH/counter/" $1 "contain_str" $2 $3
+		return 0
+	else
+		__print_err "needs two or three args: <sim-param> <target-value> [ timeout ]"
+		return 1
+	fi
+}
+
+# Read a variable value from CR sim and send to stdout. Arg: <variable-name>
+cr_read() {
+	echo "$(__do_curl $CR_SERVICE_PATH/counter/$1)"
+}
+
+# Function to configure write delay on callbacks
+# Delay given in seconds.
+# arg <response-code> <delay-in-sec>
+# (Function for test scripts)
+cr_delay_callback() {
+	__log_conf_start $@
+
+	if [ $# -ne 2 ]; then
+        __print_err "<response-code> <delay-in-sec>]" $@
+        return 1
+	fi
+
+	res="$(__do_curl_to_api CR POST /forcedelay?delay=$2)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne 200 ]; then
+		__log_conf_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_conf_ok
+	return 0
 }
 
 # CR API: Check the contents of all current ric sync events for one id from PMS
@@ -473,5 +498,89 @@ cr_api_reset() {
 	fi
 
 	__log_conf_ok
+	return 0
+}
+
+
+# CR API: Check the contents of all json events for path
+# <response-code> <topic-url> (EMPTY | <json-msg>+ )
+# (Function for test scripts)
+cr_api_check_all_genric_json_events() {
+	__log_test_start $@
+
+	if [ $# -lt 3 ]; then
+		__print_err "<response-code> <topic-url> (EMPTY | <json-msg>+ )" $@
+		return 1
+	fi
+
+	query="/get-all-events/"$2
+	res="$(__do_curl_to_api CR GET $query)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	body=${res:0:${#res}-3}
+	targetJson="["
+
+	if [ $3 != "EMPTY" ]; then
+		shift
+		shift
+		while [ $# -gt 0 ]; do
+			if [ "$targetJson" != "[" ]; then
+				targetJson=$targetJson","
+			fi
+			targetJson=$targetJson$1
+			shift
+		done
+	fi
+	targetJson=$targetJson"]"
+
+	echo " TARGET JSON: $targetJson" >> $HTTPLOG
+	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+	if [ $res -ne 0 ]; then
+		__log_test_fail_body
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+
+
+# CR API: Check a single (oldest) json event (or none if empty) for path
+# <response-code> <topic-url> (EMPTY | <json-msg> )
+# (Function for test scripts)
+cr_api_check_single_genric_json_event() {
+	__log_test_start $@
+
+	if [ $# -ne 3 ]; then
+		__print_err "<response-code> <topic-url> (EMPTY | <json-msg> )" $@
+		return 1
+	fi
+
+	query="/get-event/"$2
+	res="$(__do_curl_to_api CR GET $query)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	body=${res:0:${#res}-3}
+	targetJson=$3
+
+	echo " TARGET JSON: $targetJson" >> $HTTPLOG
+	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+	if [ $res -ne 0 ]; then
+		__log_test_fail_body
+		return 1
+	fi
+
+	__log_test_pass
 	return 0
 }

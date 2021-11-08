@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via agent REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -70,9 +70,7 @@ DAYS=3
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-   start_kube_proxy
-fi
+start_kube_proxy
 
 # use HTTP or HTTPS for all apis
 HTTPX=HTTPS
@@ -199,7 +197,7 @@ do
 done
 
 echo "Register a service"
-api_put_service 201 "serv1" 0 "$CR_SERVICE_PATH/1"
+api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH/1"
 
 TEST_DURATION=$((24*3600*$DAYS))
 TEST_START=$SECONDS
@@ -209,7 +207,7 @@ AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 MR_MESSAGES=0
 
 if [ "$PMS_VERSION" == "V2" ]; then
-      notificationurl=$CR_SERVICE_PATH"/test"
+      notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
       notificationurl=""
 fi

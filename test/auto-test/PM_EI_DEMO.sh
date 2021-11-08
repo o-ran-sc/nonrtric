@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Preparation demo setup  - policy management and enrichment information"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB RC HTTPPROXY NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB RC HTTPPROXY KUBEPROXY NGW"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR CR PA RC PRODSTUB RICSIM CP ECS SDNC HTTPPROXY KUBEPROXY NGW"
@@ -73,7 +73,7 @@ fi
 
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
    echo "PMS VERSION 2 (V2) is required"
    exit 1
@@ -81,9 +81,7 @@ fi
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 STD_NUM_RICS=2
 
@@ -170,7 +168,7 @@ done
 #Check the number of types
 api_equal json:policy-types 2 300
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
 
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
@@ -207,8 +205,8 @@ fi
 TARGET1="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_SERVICE_PATH/callbacks/job1-status"
-STATUS2="$CR_SERVICE_PATH/callbacks/job2-status"
+STATUS1="$CR_SERVICE_APP_PATH/callbacks/job1-status"
+STATUS2="$CR_SERVICE_APP_PATH/callbacks/job2-status"
 
 prodstub_arm_producer 200 prod-a
 prodstub_arm_type 200 prod-a type1

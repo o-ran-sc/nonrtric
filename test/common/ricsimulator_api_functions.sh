@@ -51,29 +51,44 @@ __RICSIM_image_data() {
 # All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
 # This function is called for apps fully managed by the test script
 __RICSIM_kube_scale_zero() {
-	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+	__kube_scale_all_resources $KUBE_A1SIM_NAMESPACE autotest RICSIM
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __RICSIM_kube_scale_zero_and_wait() {
-	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-a1simulator
+	#__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app $KUBE_A1SIM_NAMESPACE"-"$RIC_SIM_PREFIX
+	__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app # the values of the app label is not known
 }
 
 # Delete all kube resouces for the app
 # This function is called for apps managed by the test script.
 __RICSIM_kube_delete_all() {
-	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+	__kube_delete_all_resources $KUBE_A1SIM_NAMESPACE autotest RICSIM
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __RICSIM_store_docker_logs() {
-	rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})
-	for ric in $rics; do
-		docker logs $ric > $1$2_$ric.log 2>&1
-	done
+	if [ $RUNMODE == "KUBE" ]; then
+		for podname in $(kubectl get pods -n $KUBE_A1SIM_NAMESPACE -l "autotest=RICSIM" -o custom-columns=":metadata.name"); do
+			kubectl logs -n $KUBE_A1SIM_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
+		done
+	else
+
+		rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})
+		for ric in $rics; do
+			docker logs $ric > $1$2_$ric.log 2>&1
+		done
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__RICSIM_initial_setup() {
+	use_simulator_http
 }
 
 #######################################################
@@ -152,7 +167,7 @@ start_ric_simulators() {
 			echo -e " Using existing $1 statefulset and service"
 			echo " Using existing simulator deployment and service for statefulset $1"
 			echo " Setting $1 replicas=$2"
-			__kube_scale statefulset $1 $KUBE_NONRTRIC_NAMESPACE $2
+			__kube_scale statefulset $1 $KUBE_A1SIM_NAMESPACE $2
 			echo ""
 			return
 		fi
@@ -199,7 +214,7 @@ start_ric_simulators() {
 
 			#export needed env var for statefulset
 			export RIC_SIM_SET_NAME=$(echo "$1" | tr '_' '-')  #kube does not accept underscore in names
-			export KUBE_NONRTRIC_NAMESPACE
+			export KUBE_A1SIM_NAMESPACE
 			export RIC_SIM_IMAGE
 			#Adding 1 more instance, instance 0 is never used. This is done to keep test scripts compatible
 			# with docker that starts instance index on 1.....
@@ -211,7 +226,7 @@ start_ric_simulators() {
 			echo -e " Creating $POLICY_AGENT_APP_NAME app and expose service"
 
 			#Check if nonrtric namespace exists, if not create it
-			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
+			__kube_create_namespace $KUBE_A1SIM_NAMESPACE
 
 			# Create service
 			input_yaml=$SIM_GROUP"/"$RIC_SIM_COMPOSE_DIR"/"svc.yaml
@@ -266,18 +281,10 @@ start_ric_simulators() {
 		cntr=1
 		while [ $cntr -le $2 ]; do
 			app=$1"_"$cntr
-			localport=0
-
-			while [ $localport -eq 0 ]; do
-				echo -ne " Waiting for container ${app} to publish its ports...${SAMELINE}"
-				localport=$(__find_sim_port $app)
-				sleep 0.5
-				echo -ne " Waiting for container ${app} to publish its ports...retrying....${SAMELINE}"
-			done
-			echo -e " Waiting for container ${app} to publish its ports...retrying....$GREEN OK $EGREEN"
-			__check_service_start $app $RIC_SIM_HOST":"$localport$RIC_SIM_ALIVE_URL
+			__check_service_start $app $RIC_SIM_HTTPX"://"$app:$RIC_SIM_PORT$RIC_SIM_ALIVE_URL
 			let cntr=cntr+1
 		done
+
 	fi
 	echo ""
 	return 0
@@ -291,21 +298,7 @@ get_kube_sim_host() {
 	#example gnb_1_2 -> gnb-1-2
 	set_name=$(echo $name | rev | cut -d- -f2- | rev) # Cut index part of ric name to get the name of statefulset
 	# example gnb-g1-2 -> gnb-g1 where gnb-g1-2 is the ric name and gnb-g1 is the set name
-	echo $name"."$set_name"."$KUBE_NONRTRIC_NAMESPACE
-}
-
-# Helper function to get a the port of a specific ric simulator
-# args: <ric-id>
-# (Not for test scripts)
-__find_sim_port() {
-    name=$1" " #Space appended to prevent matching 10 if 1 is desired....
-    cmdstr="docker inspect --format='{{(index (index .NetworkSettings.Ports \"$RIC_SIM_PORT/tcp\") 0).HostPort}}' ${name}"
-    res=$(eval $cmdstr)
-	if [[ "$res" =~ ^[0-9]+$ ]]; then
-		echo $res
-	else
-		echo "0"
-    fi
+	echo $name"."$set_name"."$KUBE_A1SIM_NAMESPACE
 }
 
 # Helper function to get a the port and host name of a specific ric simulator
@@ -313,28 +306,13 @@ __find_sim_port() {
 # (Not for test scripts)
 __find_sim_host() {
 	if [ $RUNMODE == "KUBE" ]; then
-		ricname=$(echo "$1" | tr '_' '-')
-		for timeout in {1..500}; do   # long waiting time needed in case of starting large number of sims
-			host=$(kubectl get pod $ricname  -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.status.podIP}' 2> /dev/null)
-			if [ ! -z "$host" ]; then
-				echo $RIC_SIM_HTTPX"://"$host":"$RIC_SIM_PORT
-				return 0
-			fi
-			sleep 0.5
-		done
-		echo "host-not-found-fatal-error"
+		ricname=$(echo "$1" | tr '_' '-') # Kube does not accept underscore in names as docker do
+		ric_setname="${ricname%-*}"  #Extract the stateful set name
+		echo $RIC_SIM_HTTPX"://"$ricname.$ric_setname.$KUBE_A1SIM_NAMESPACE":"$RIC_SIM_PORT
 	else
-		name=$1" " #Space appended to prevent matching 10 if 1 is desired....
-		cmdstr="docker inspect --format='{{(index (index .NetworkSettings.Ports \"$RIC_SIM_PORT/tcp\") 0).HostPort}}' ${name}"
-		res=$(eval $cmdstr)
-		if [[ "$res" =~ ^[0-9]+$ ]]; then
-			echo $RIC_SIM_HOST:$res
-			return 0
-		else
-			echo "0"
-		fi
+		echo $RIC_SIM_HTTPX"://"$1":"$RIC_SIM_PORT
+
 	fi
-	return 1
 }
 
 # Generate a UUID to use as prefix for policy ids
@@ -349,13 +327,11 @@ generate_policy_uuid() {
 __execute_curl_to_sim() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	proxyflag=""
-	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			if [ $KUBE_PROXY_HTTPX == "http" ]; then
-				proxyflag=" --proxy $KUBE_PROXY_PATH"
-			else
-				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
-			fi
+	if [ ! -z "$KUBE_PROXY_PATH" ]; then
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
+		else
+			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
 	echo " CMD: $2 $proxyflag" >> $HTTPLOG

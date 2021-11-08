@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Create 10000 policies in sequence using http/https and Agent REST/DMAAP with/without SDNC controller"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -91,9 +91,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         clean_environment
 
-        if [ $RUNMODE == "KUBE" ]; then
-            start_kube_proxy
-        fi
+        start_kube_proxy
 
         start_ric_simulators ricsim_g1 1 OSC_2.1.0
         start_ric_simulators ricsim_g2 1 STD_1.1.3
@@ -153,10 +151,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_equal json:policy_types 2 300  #Wait for the agent to refresh types from the simulators
         fi
 
-        api_put_service 201 "serv1" 3600 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_PATH"/test"
+            notificationurl=$CR_SERVICE_APP_PATH"/test"
         else
             notificationurl=""
         fi

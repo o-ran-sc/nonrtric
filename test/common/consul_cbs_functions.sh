@@ -131,21 +131,42 @@ __CBS_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __CONSUL_store_docker_logs() {
-	docker logs $CONSUL_APP_NAME > $1/$2_consul.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		:
+	else
+		docker logs $CONSUL_APP_NAME > $1/$2_consul.log 2>&1
+	fi
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __CBS_store_docker_logs() {
-	docker logs $CBS_APP_NAME > $1$2_cbs.log 2>&1
-	body="$(__do_curl $LOCALHOST_HTTP:$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
-	echo "$body" > $1$2_consul_config.json 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		:
+	else
+		docker logs $CBS_APP_NAME > $1$2_cbs.log 2>&1
+		body="$(__do_curl $LOCALHOST_HTTP:$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
+		echo "$body" > $1$2_consul_config.json 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__CONSUL_initial_setup() {
+	CONSUL_SERVICE_PATH="http://"$CONSUL_APP_NAME":"$CONSUL_INTERNAL_PORT
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__CBS_initial_setup() {
+	CBS_SERVICE_PATH="http://"$CBS_APP_NAME":"$CBS_INTERNAL_PORT
 }
 
 #######################################################
 
-CONSUL_PATH="http://$LOCALHOST:$CONSUL_EXTERNAL_PORT"
 
 ####################
 ### Consul functions
@@ -166,14 +187,15 @@ consul_config_app() {
 
 	echo " Loading config for "$POLICY_AGENT_APP_NAME" from "$1
 
-	curlString="$LOCALHOST_HTTP:${CONSUL_EXTERNAL_PORT}/v1/kv/${POLICY_AGENT_CONFIG_KEY}?dc=dc1 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @"$1
+	curlString="$CONSUL_SERVICE_PATH/v1/kv/${POLICY_AGENT_CONFIG_KEY}?dc=dc1 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @"$1
+
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL - json config could not be loaded to consul" $ERED
 		((RES_CONF_FAIL++))
 		return 1
 	fi
-	body="$(__do_curl $LOCALHOST_HTTP:$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_CONFIG_KEY)"
+	body="$(__do_curl $CBS_SERVICE_PATH/service_component_all/$POLICY_AGENT_CONFIG_KEY)"
 	echo $body > "./tmp/.output"$1
 
 	if [ $? -ne 0 ]; then
@@ -254,14 +276,14 @@ prepare_consul_config() {
 	config_json=$config_json"\n   \"ric\": ["
 
 	if [ $RUNMODE == "KUBE" ]; then
-		result=$(kubectl get pods -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[?(@.metadata.labels.autotest=="RICSIM")].metadata.name}')
+		result=$(kubectl get pods -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.items[?(@.metadata.labels.autotest=="RICSIM")].metadata.name}')
 		rics=""
 		ric_cntr=0
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for im in $result; do
 				if [[ $im != *"-0" ]]; then
-					ric_subdomain=$(kubectl get pod $im -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.spec.subdomain}')
-					rics=$rics" "$im"."$ric_subdomain".nonrtric"
+					ric_subdomain=$(kubectl get pod $im -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.spec.subdomain}')
+					rics=$rics" "$im"."$ric_subdomain"."$KUBE_A1SIM_NAMESPACE
 					let ric_cntr=ric_cntr+1
 				fi
 			done
@@ -339,8 +361,8 @@ start_consul_cbs() {
 
 	__start_container $CONSUL_CBS_COMPOSE_DIR "" NODOCKERARGS 2 $CONSUL_APP_NAME $CBS_APP_NAME
 
-	__check_service_start $CONSUL_APP_NAME "http://"$LOCALHOST_NAME":"$CONSUL_EXTERNAL_PORT$CONSUL_ALIVE_URL
-	__check_service_start $CBS_APP_NAME "http://"$LOCALHOST_NAME":"$CBS_EXTERNAL_PORT$CBS_ALIVE_URL
+	__check_service_start $CONSUL_APP_NAME $CONSUL_SERVICE_PATH$CONSUL_ALIVE_URL
+	__check_service_start $CBS_APP_NAME $CBS_SERVICE_PATH$CBS_ALIVE_URL
 
 	echo ""
 }

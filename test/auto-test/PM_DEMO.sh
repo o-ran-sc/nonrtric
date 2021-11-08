@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Preparation demo setup  - populating a number of ric simulators with types and instances"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -61,16 +61,14 @@ use_sdnc_https
 use_simulator_https
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
     notificationurl=""
 fi
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 OSC_NUM_RICS=6
 STD_NUM_RICS=5
@@ -212,7 +210,7 @@ fi
 # Create policies
 use_agent_rest_http
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
 
 # Create policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))

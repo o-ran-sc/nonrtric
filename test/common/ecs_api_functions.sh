@@ -64,7 +64,7 @@ __ECS_kube_scale_zero() {
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __ECS_kube_scale_zero_and_wait() {
-	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-enrichmentservice
+	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-enrichmentservice
 }
 
 # Delete all kube resouces for the app
@@ -77,21 +77,22 @@ __ECS_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __ECS_store_docker_logs() {
-	docker logs $ECS_APP_NAME > $1$2_ecs.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=ECS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_ecs.log 2>&1
+	else
+		docker logs $ECS_APP_NAME > $1$2_ecs.log 2>&1
+	fi
 }
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__ECS_initial_setup() {
+	use_ecs_rest_http
+}
+
 #######################################################
 
-
-## Access to ECS
-# Host name may be changed if app started by kube
-# Direct access
-ECS_HTTPX="http"
-ECS_HOST_NAME=$LOCALHOST_NAME
-ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_PORT
-
-# ECS_ADAPTER used for switch between REST and DMAAP (only REST supported currently)
-ECS_ADAPTER_TYPE="REST"
-ECS_ADAPTER=$ECS_PATH
 
 # Make curl retries towards ECS for http response codes set in this env var, space separated list of codes
 ECS_RETRY_CODES=""
@@ -107,28 +108,14 @@ __ECS_WORKER_NODE=""
 # args: -
 # (Function for test scripts)
 use_ecs_rest_http() {
-	echo -e $BOLD"ECS protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards ECS"
-	ECS_HTTPX="http"
-	ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_PORT
-
-	ECS_ADAPTER_TYPE="REST"
-	ECS_ADAPTER=$ECS_PATH
-	echo ""
+	__ecs_set_protocoll "http" $ECS_INTERNAL_PORT $ECS_EXTERNAL_PORT
 }
 
 # All calls to ECS will be directed to the ECS REST interface from now on
 # args: -
 # (Function for test scripts)
 use_ecs_rest_https() {
-	echo -e $BOLD"ECS protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
-	ECS_HTTPX="https"
-	ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_SECURE_PORT
-
-	ECS_ADAPTER_TYPE="REST"
-	ECS_ADAPTER=$ECS_PATH
-	echo ""
+	__ecs_set_protocoll "https" $ECS_INTERNAL_SECURE_PORT $ECS_EXTERNAL_SECURE_PORT
 }
 
 # All calls to ECS will be directed to the ECS dmaap interface over http from now on
@@ -142,16 +129,67 @@ use_ecs_dmaap_http() {
 	echo ""
 }
 
-# All calls to ECS will be directed to the ECS dmaap interface over https from now on
-# args: -
-# (Function for test scripts)
-use_ecs_dmaap_https() {
-	echo -e $BOLD"RICSIM protocol setting"$EBOLD
-	echo -e $RED" - NOT SUPPORTED - "$ERED
-	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
-	ECS_ADAPTER_TYPE="MR-HTTPS"
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__ecs_set_protocoll() {
+	echo -e $BOLD"$ECS_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $ECS_DISPLAY_NAME"
+
+	## Access to ECS
+
+	ECS_SERVICE_PATH=$1"://"$ECS_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	if [ $RUNMODE == "KUBE" ]; then
+		ECS_SERVICE_PATH=$1"://"$ECS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+	fi
+
+	# ECS_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
+	ECS_ADAPTER_TYPE="REST"
+	ECS_ADAPTER=$ECS_SERVICE_PATH
+
 	echo ""
 }
+
+# Export env vars for config files, docker compose and kube resources
+# args: PROXY|NOPROXY
+__ecs_export_vars() {
+		export ECS_APP_NAME
+		export ECS_APP_NAME_ALIAS
+		export KUBE_NONRTRIC_NAMESPACE
+		export ECS_IMAGE
+		export ECS_INTERNAL_PORT
+		export ECS_INTERNAL_SECURE_PORT
+		export ECS_EXTERNAL_PORT
+		export ECS_EXTERNAL_SECURE_PORT
+		export ECS_CONFIG_MOUNT_PATH
+		export ECS_CONFIG_CONFIGMAP_NAME=$ECS_APP_NAME"-config"
+		export ECS_DATA_CONFIGMAP_NAME=$ECS_APP_NAME"-data"
+		export ECS_CONTAINER_MNT_DIR
+		export ECS_HOST_MNT_DIR
+		export ECS_CONFIG_FILE
+		export DOCKER_SIM_NWNAME
+		export ECS_DISPLAY_NAME
+
+
+		export ECS_DATA_PV_NAME=$ECS_APP_NAME"-pv"
+		export ECS_DATA_PVC_NAME=$ECS_APP_NAME"-pvc"
+		#Create a unique path for the pv each time to prevent a previous volume to be reused
+		export ECS_PV_PATH="ecsdata-"$(date +%s)
+
+		if [ $1 == "PROXY" ]; then
+			export ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+			export ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+			if [ $ECS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ECS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+				echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
+			else
+				echo " Configured with http proxy"
+			fi
+		else
+			export ECS_HTTP_PROXY_CONFIG_PORT=0
+			export ECS_HTTP_PROXY_CONFIG_HOST_NAME=""
+			echo " Configured without http proxy"
+		fi
+}
+
 
 # Start the ECS
 # args: PROXY|NOPROXY <config-file>
@@ -196,38 +234,7 @@ start_ecs() {
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
 
-			export ECS_APP_NAME
-			export KUBE_NONRTRIC_NAMESPACE
-			export ECS_IMAGE
-			export ECS_INTERNAL_PORT
-			export ECS_INTERNAL_SECURE_PORT
-			export ECS_EXTERNAL_PORT
-			export ECS_EXTERNAL_SECURE_PORT
-			export ECS_CONFIG_MOUNT_PATH
-			export ECS_CONFIG_CONFIGMAP_NAME=$ECS_APP_NAME"-config"
-			export ECS_DATA_CONFIGMAP_NAME=$ECS_APP_NAME"-data"
-			export ECS_CONTAINER_MNT_DIR
-
-			export ECS_DATA_PV_NAME=$ECS_APP_NAME"-pv"
-			export ECS_DATA_PVC_NAME=$ECS_APP_NAME"-pvc"
-			#Create a unique path for the pv each time to prevent a previous volume to be reused
-			export ECS_PV_PATH="ecsdata-"$(date +%s)
-
-			if [ $1 == "PROXY" ]; then
-				ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
-				ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
-				if [ $ECS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ECS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
-					echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
-				else
-					echo " Configured with http proxy"
-				fi
-			else
-				ECS_HTTP_PROXY_CONFIG_PORT=0
-				ECS_HTTP_PROXY_CONFIG_HOST_NAME=""
-				echo " Configured without http proxy"
-			fi
-			export ECS_HTTP_PROXY_CONFIG_PORT
-			export ECS_HTTP_PROXY_CONFIG_HOST_NAME
+			__ecs_export_vars $1
 
 			# Create config map for config
 			datafile=$PWD/tmp/$ECS_CONFIG_FILE
@@ -269,24 +276,9 @@ start_ecs() {
 			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
 		fi
 
-		echo " Retrieving host and ports for service..."
-		ECS_HOST_NAME=$(__kube_get_service_host $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-		ECS_EXTERNAL_PORT=$(__kube_get_service_port $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
-		ECS_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
 
-		echo " Host IP, http port, https port: $ECS_HOST_NAME $ECS_EXTERNAL_PORT $ECS_EXTERNAL_SECURE_PORT"
+		__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
 
-		if [ $ECS_HTTPX == "http" ]; then
-			ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_PORT
-		else
-			ECS_PATH=$ECS_HTTPX"://"$ECS_HOST_NAME":"$ECS_EXTERNAL_SECURE_PORT
-		fi
-
-		__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
-
-		if [ $ECS_ADAPTER_TYPE == "REST" ]; then
-			ECS_ADAPTER=$ECS_PATH
-		fi
 	else
 		__check_included_image 'ECS'
 		if [ $? -eq 1 ]; then
@@ -312,36 +304,10 @@ start_ecs() {
 		else
 			echo " No files in mounted dir or dir does not exists"
 		fi
+
 		cd $curdir
 
-		export ECS_APP_NAME
-		export ECS_APP_NAME_ALIAS
-		export ECS_HOST_MNT_DIR
-		export ECS_CONTAINER_MNT_DIR
-		export ECS_CONFIG_MOUNT_PATH
-		export ECS_CONFIG_FILE
-		export ECS_INTERNAL_PORT
-		export ECS_EXTERNAL_PORT
-		export ECS_INTERNAL_SECURE_PORT
-		export ECS_EXTERNAL_SECURE_PORT
-		export DOCKER_SIM_NWNAME
-		export ECS_DISPLAY_NAME
-
-		if [ $1 == "PROXY" ]; then
-			ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
-			ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
-			if [ $ECS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ECS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
-				echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
-			else
-				echo " Configured with http proxy"
-			fi
-		else
-			ECS_HTTP_PROXY_CONFIG_PORT=0
-			ECS_HTTP_PROXY_CONFIG_HOST_NAME=""
-			echo " Configured without http proxy"
-		fi
-		export ECS_HTTP_PROXY_CONFIG_PORT
-		export ECS_HTTP_PROXY_CONFIG_HOST_NAME
+		__ecs_export_vars $1
 
 		dest_file=$SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_HOST_MNT_DIR/$ECS_CONFIG_FILE
 
@@ -349,7 +315,7 @@ start_ecs() {
 
 		__start_container $ECS_COMPOSE_DIR "" NODOCKERARGS 1 $ECS_APP_NAME
 
-		__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+		__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
 	fi
 	echo ""
 	return 0
@@ -407,7 +373,7 @@ start_stopped_ecs() {
 			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
 			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
 			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
-			__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+			__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
 			return 0
 		fi
 
@@ -435,7 +401,7 @@ start_stopped_ecs() {
 			return 1
 		fi
 	fi
-	__check_service_start $ECS_APP_NAME $ECS_PATH$ECS_ALIVE_URL
+	__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
@@ -448,7 +414,7 @@ start_stopped_ecs() {
 # (Function for test scripts)
 set_ecs_debug() {
 	echo -e $BOLD"Setting ecs debug logging"$EBOLD
-	curlString="$ECS_PATH$ECS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	curlString="$ECS_SERVICE_PATH$ECS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "Could not set debug mode" $@
@@ -464,7 +430,7 @@ set_ecs_debug() {
 # (Function for test scripts)
 set_ecs_trace() {
 	echo -e $BOLD"Setting ecs trace logging"$EBOLD
-	curlString="$ECS_PATH/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	curlString="$ECS_SERVICE_PATH/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "Could not set trace mode" $@
@@ -502,7 +468,7 @@ check_ecs_logs() {
 # (Function for test scripts)
 ecs_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test ECS "$ECS_PATH/" $1 "=" $2 $3
+		__var_test ECS "$ECS_SERVICE_PATH/" $1 "=" $2 $3
 	else
 		__print_err "Wrong args to ecs_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
@@ -2466,13 +2432,13 @@ ecs_api_admin_reset() {
 ecs_kube_pvc_reset() {
 	__log_test_start $@
 
-	pvc_name=$(kubectl get pvc -n nonrtric  --no-headers -o custom-columns=":metadata.name" | grep enrichment)
+	pvc_name=$(kubectl get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep enrichment)
 	if [ -z "$pvc_name" ]; then
 		pvc_name=enrichmentservice-pvc
 	fi
 	echo " Trying to reset pvc: "$pvc_name
 
-	__kube_clean_pvc $ECS_APP_NAME nonrtric $pvc_name /var/enrichment-coordinator-service/database
+	__kube_clean_pvc $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE $pvc_name $ECS_CONTAINER_MNT_DIR
 
 	__log_test_pass
 	return 0

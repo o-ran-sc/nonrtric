@@ -32,7 +32,7 @@ spec:
   type: ClusterIP
   ports:
   - port: 9092
-    targetPort: 9092
+    targetPort: 9095
     protocol: TCP
     name: http
   selector:
@@ -54,4 +54,82 @@ spec:
     protocol: TCP
     name: http
   selector:
+    run: $MR_ZOOKEEPER_APP_NAME
+
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: dmaap-mr
+#   namespace: $KUBE_ONAP_NAMESPACE
+#   labels:
+#     run: $MR_DMAAP_KUBE_APP_NAME
+#     autotest: DMAAPMR
+# spec:
+#   type: ClusterIP
+#   ports:
+#   - port: $MR_EXTERNAL_PORT
+#     targetPort: $MR_INTERNAL_PORT
+#     protocol: TCP
+#     name: http
+#   - port: $MR_EXTERNAL_SECURE_PORT
+#     targetPort: $MR_INTERNAL_SECURE_PORT
+#     protocol: TCP
+#     name: https
+#   selector:
+#     run: $MR_DMAAP_KUBE_APP_NAME
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: dmaap-kafka
+#   namespace: $KUBE_ONAP_NAMESPACE
+#   labels:
+#     run: $MR_KAFKA_BWDS_NAME
+#     autotest: DMAAPMR
+# spec:
+#   type: ClusterIP
+#   ports:
+#   - port: 9092
+#     targetPort: 9092
+#     protocol: TCP
+#     name: http
+#   selector:
+#     run: $MR_KAFKA_BWDS_NAME
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: kafka
+#   namespace: $KUBE_ONAP_NAMESPACE
+#   labels:
+#     run: $MR_KAFKA_BWDS_NAME
+#     autotest: DMAAPMR
+# spec:
+#   type: ClusterIP
+#   ports:
+#   - port: 9092
+#     targetPort: 9092
+#     protocol: TCP
+#     name: http
+#   selector:
+#     run: $MR_KAFKA_BWDS_NAME
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: dmaap-zookeeper
+#   namespace: $KUBE_ONAP_NAMESPACE
+#   labels:
+#     run: $MR_ZOOKEEPER_APP_NAME
+#     autotest: DMAAPMR
+# spec:
+#   type: ClusterIP
+#   ports:
+#   - port: 2181
+#     targetPort: 2181
+#     protocol: TCP
+#     name: http
+#   selector:
     run: $MR_ZOOKEEPER_APP_NAME

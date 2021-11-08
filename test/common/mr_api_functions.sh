@@ -157,167 +157,138 @@ __DMAAPMR_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __MR_store_docker_logs() {
-	docker logs $MR_STUB_APP_NAME > $1$2_mr_stub.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=MR" -n $KUBE_ONAP_NAMESPACE --tail=-1 > $1$2_mr_stub.log 2>&1
+	else
+		docker logs $MR_STUB_APP_NAME > $1$2_mr_stub.log 2>&1
+	fi
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __DMAAPMR_store_docker_logs() {
-	docker logs $MR_DMAAP_APP_NAME > $1$2mr.log 2>&1
-	docker logs $MR_KAFKA_APP_NAME > $1$2_mr_kafka.log 2>&1
-	docker logs $MR_ZOOKEEPER_APP_NAME > $1$2_mr_zookeeper.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		for podname in $(kubectl get pods -n $KUBE_ONAP_NAMESPACE -l "autotest=DMAAPMR" -o custom-columns=":metadata.name"); do
+			kubectl logs -n $KUBE_ONAP_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
+		done
+	else
+		docker logs $MR_DMAAP_APP_NAME > $1$2mr.log 2>&1
+		docker logs $MR_KAFKA_APP_NAME > $1$2_mr_kafka.log 2>&1
+		docker logs $MR_ZOOKEEPER_APP_NAME > $1$2_mr_zookeeper.log 2>&1
+	fi
 }
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__MR_initial_setup() {
+	use_mr_http
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__DMAAPMR_initial_setup() {
+	:  # handle by __MR_initial_setup
+}
+
 
 #######################################################
 
-## Access to Message Router
-# Host name may be changed if app started by kube
-# Direct access from script
-MR_HTTPX="http"
-MR_STUB_HOST_NAME=$LOCALHOST_NAME
-MR_DMAAP_HOST_NAME=$LOCALHOST_NAME
-MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_HOST_NAME":"$MR_STUB_LOCALHOST_PORT
-MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_HOST_NAME":"$MR_DMAAP_LOCALHOST_PORT
-#Docker/Kube internal path
-if [ $RUNMODE == "KUBE" ]; then
-	MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_PORT
-	__check_included_image "DMAAPMR"
-	if [ $? -eq 0 ]; then
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_PORT
-	fi
-	__check_prestarted_image "DMAAPMR"
-	if [ $? -eq 0 ]; then
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_PORT
-	fi
-else
-	MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME":"$MR_INTERNAL_PORT
-	__check_included_image "DMAAPMR"
-	if [ $? -eq 0 ]; then
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME":"$MR_INTERNAL_PORT
-	fi
-fi
-MR_ADAPTER_HTTP="http://"$MR_STUB_HOST_NAME":"$MR_STUB_LOCALHOST_PORT
-MR_ADAPTER_HTTPS="https://"$MR_STUB_HOST_NAME":"$MR_STUB_LOCALHOST_SECURE_PORT
-
-
-#####################
-### MR stub functions
-#####################
-
 use_mr_http() {
-	echo -e $BOLD"MR protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards MR"
-	MR_HTTPX="http"
-	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_HOST_NAME":"$MR_STUB_LOCALHOST_PORT
-	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_HOST_NAME":"$MR_DMAAP_LOCALHOST_PORT
-	#Docker/Kube internal path
-	if [ $RUNMODE == "KUBE" ]; then
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_PORT
-		__check_included_image "DMAAPMR"
-		if [ $? -eq 0 ]; then
-			MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_PORT
-		fi
-		__check_prestarted_image "DMAAPMR"
-		if [ $? -eq 0 ]; then
-			MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_PORT
-		fi
-	else
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME":"$MR_INTERNAL_PORT
-		__check_included_image "DMAAPMR"
-		if [ $? -eq 0 ]; then
-			MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME":"$MR_INTERNAL_PORT
-		fi
-	fi
-	echo ""
+	__mr_set_protocoll "http" $MR_INTERNAL_PORT $MR_EXTERNAL_PORT $MR_INTERNAL_PORT $MR_EXTERNAL_PORT $MR_INTERNAL_SECURE_PORT $MR_EXT_SECURE_PORT
 }
 
 use_mr_https() {
-	echo -e $BOLD"MR protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards MR"
-	MR_HTTPX="https"
-	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_HOST_NAME":"$MR_STUB_LOCALHOST_SECURE_PORT
-	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_HOST_NAME":"$MR_DMAAP_LOCALHOST_SECURE_PORT
-	#Docker/Kube internal path
+	__mr_set_protocoll "https" $MR_INTERNAL_SECURE_PORT $MR_EXTERNAL_SECURE_PORT
+}
+
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port> <mr-stub-internal-port> <mr-stub-external-port> <mr-stub-internal-secure-port> <mr-stub-external-secure-port>
+__mr_set_protocoll() {
+	echo -e $BOLD"$MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME"
+
+	## Access to Dmaap mediator
+
+	MR_HTTPX=$1
+
+	# Access via test script
+	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME":"$2  # access from script via proxy, docker
+	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME":"$2 # access from script via proxy, docker
+
+	MR_SERVICE_PATH=$MR_STUB_PATH # access container->container, docker -  access pod->svc, kube
+	__check_included_image "DMAAPMR"
+	if [ $? -eq 0 ]; then
+		MR_SERVICE_PATH=$MR_DMAAP_PATH # access container->container, docker -  access pod->svc, kube
+	fi
+
+	# For directing calls from script to e.g.PMS via message rounter
+	# Theses case shall always go though the  mr-stub
+	MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME":"$4
+	MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME":"$6
+
 	if [ $RUNMODE == "KUBE" ]; then
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_SECURE_PORT
+		MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME.$KUBE_ONAP_NAMESPACE":"$3 # access from script via proxy, kube
+		MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME.$KUBE_ONAP_NAMESPACE":"$3 # access from script via proxy, kube
+
+		MR_SERVICE_PATH=$MR_STUB_PATH
 		__check_included_image "DMAAPMR"
 		if [ $? -eq 0 ]; then
-			MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_SECURE_PORT
+			MR_SERVICE_PATH=$MR_DMAAP_PATH
 		fi
 		__check_prestarted_image "DMAAPMR"
 		if [ $? -eq 0 ]; then
-			MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXTERNAL_SECURE_PORT
+			MR_SERVICE_PATH=$MR_DMAAP_PATH
 		fi
-	else
-		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME":"$MR_INTERNAL_SECURE_PORT
-		__check_included_image "DMAAPMR"
-		if [ $? -eq 0 ]; then
-			MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME":"$MR_INTERNAL_SECURE_PORT
-		fi
+
+		# For directing calls from script to e.g.PMS, via message rounter
+		# These calls shall always go though the  mr-stub
+		MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME":"$5
+		MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME":"$7
 	fi
+
+	# For calls from script to the mr-stub
+	MR_STUB_ADAPTER=$MR_STUB_PATH
+	MR_STUB_ADAPTER_TYPE="REST"
+
 	echo ""
 }
 
-# Create a dmaap mr topic
-# args: <topic name> <topic-description>
-__create_topic() {
-	echo -ne " Creating read topic: $1"$SAMELINE
-
-	json_topic="{\"topicName\":\"$1\",\"partitionCount\":\"2\", \"replicationCount\":\"3\", \"transactionEnabled\":\"false\",\"topicDescription\":\"$2\"}"
-	echo $json_topic > ./tmp/$1.json
-
-	curlString="$MR_DMAAP_PATH/topics/create -X POST  -H Content-Type:application/json -d@./tmp/$1.json"
-	topic_retries=5
-	while [ $topic_retries -gt 0 ]; do
-		let topic_retries=topic_retries-1
-		result=$(__do_curl "$curlString")
-		if [ $? -eq 0 ]; then
-			topic_retries=0
-			echo -e " Creating read topic: $1 $GREEN OK $EGREEN"
-		fi
-		if [ $? -ne 0 ]; then
-			if [ $topic_retries -eq 0 ]; then
-				echo -e " Creating read topic: $1 $RED Failed $ERED"
-				((RES_CONF_FAIL++))
-				return 1
-			else
-				sleep 1
-			fi
-		fi
-	done
-	return 0
+# Export env vars for config files, docker compose and kube resources
+# args: -
+__dmaapmr_export_vars() {
+	#Docker only
+	export DOCKER_SIM_NWNAME
+	export ONAP_ZOOKEEPER_IMAGE
+	export MR_ZOOKEEPER_APP_NAME
+	export ONAP_KAFKA_IMAGE
+	export MR_KAFKA_APP_NAME
+	export ONAP_DMAAPMR_IMAGE
+	export MR_DMAAP_APP_NAME
+	export MR_DMAAP_LOCALHOST_PORT
+	export MR_INTERNAL_PORT
+	export MR_DMAAP_LOCALHOST_SECURE_PORT
+	export MR_INTERNAL_SECURE_PORT
+	export MR_DMAAP_HOST_MNT_DIR
 }
 
-# Do a pipeclean of a topic - to overcome dmaap mr bug...
-# args: <topic> <post-url> <read-url>
-__dmaap_pipeclean() {
-	pipeclean_retries=50
-	echo -ne " Doing dmaap-mr pipe cleaning on topic: $1"$SAMELINE
-	while [ $pipeclean_retries -gt 0 ]; do
-		echo "{\"pipeclean-$1\":$pipeclean_retries}" > ./tmp/pipeclean.json
-		let pipeclean_retries=pipeclean_retries-1
-		curlString="$MR_DMAAP_PATH$2 -X POST  -H Content-Type:application/json -d@./tmp/pipeclean.json"
-		result=$(__do_curl "$curlString")
-		if [ $? -ne 0 ]; then
-			sleep 1
-		else
-			curlString="$MR_DMAAP_PATH$3"
-			result=$(__do_curl "$curlString")
-			if [ $? -eq 0 ]; then
-				if [ $result != "[]" ]; then
-					echo -e " Doing dmaap-mr pipe cleaning on topic: $1 $GREEN OK $EGREEN"
-					return 0
-
-				else
-					sleep 1
-				fi
-			fi
-		fi
-	done
-	echo -e "Doing dmaap-mr pipe cleaning on topic: $1 $RED Failed $ERED"
-	return 1
+# Export env vars for config files, docker compose and kube resources
+# args: -
+__mr_export_vars() {
+	#Docker only
+	export DOCKER_SIM_NWNAME
+	export MR_STUB_APP_NAME
+	export MRSTUB_IMAGE
+	export MR_INTERNAL_PORT
+	export MR_INTERNAL_SECURE_PORT
+	export MR_STUB_LOCALHOST_PORT
+	export MR_STUB_LOCALHOST_SECURE_PORT
+	export MR_STUB_CERT_MOUNT_DIR
+	export MR_STUB_DISPLAY_NAME
 }
+
 
 # Start the Message Router stub interface in the simulator group
 # args: -
@@ -374,7 +345,7 @@ start_mr() {
 		if [ $paramerror -ne 0 ]; then
 				echo -e $RED"The Message Router apps 'MR' and/or 'DMAAPMR' are not included in this test script"$ERED
 				echo -e $RED"The Message Router will not be started"$ERED
-				echo -e $RED"Both MR and DAAMPMR  - or - only MR - need to be included and/or prestarted"
+				echo -e $RED"Both MR and DAAMPMR  - or - only MR - need to be included and/or prestarted"$ERED
 				exit
 		fi
 
@@ -384,6 +355,9 @@ start_mr() {
 		fi
 
 		if [ $retcode_included_dmaapmr -eq 0 ]; then
+
+			__dmaapmr_export_vars
+
 			#export MR_DMAAP_APP_NAME
 			export MR_DMAAP_KUBE_APP_NAME=message-router
 			MR_DMAAP_APP_NAME=$MR_DMAAP_KUBE_APP_NAME
@@ -395,6 +369,7 @@ start_mr() {
 			export ONAP_DMAAPMR_IMAGE
 
 			export MR_KAFKA_BWDS_NAME=akfak-bwds
+			export MR_KAFKA_BWDS_NAME=kaka
 			export KUBE_ONAP_NAMESPACE
 
 			export MR_ZOOKEEPER_APP_NAME
@@ -406,29 +381,30 @@ start_mr() {
 			# TODO - Fix domain name substitution in the prop file
 			# Create config maps - dmaapmr app
 			configfile=$PWD/tmp/MsgRtrApi.properties
-			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"/"mnt/mr/KUBE-MsgRtrApi.properties $configfile
+			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"$MR_DMAAP_HOST_MNT_DIR"/mr/KUBE-MsgRtrApi.properties $configfile
+
 			output_yaml=$PWD/tmp/dmaapmr_msgrtrapi_cfc.yaml
 			__kube_create_configmap dmaapmr-msgrtrapi.properties $KUBE_ONAP_NAMESPACE autotest DMAAPMR $configfile $output_yaml
 
 			configfile=$PWD/tmp/logback.xml
-			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"/"mnt/mr/logback.xml $configfile
+			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"$MR_DMAAP_HOST_MNT_DIR"/mr/logback.xml $configfile
 			output_yaml=$PWD/tmp/dmaapmr_logback_cfc.yaml
 			__kube_create_configmap dmaapmr-logback.xml $KUBE_ONAP_NAMESPACE autotest DMAAPMR $configfile $output_yaml
 
 			configfile=$PWD/tmp/cadi.properties
-			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"/"mnt/mr/cadi.properties $configfile
+			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"$MR_DMAAP_HOST_MNT_DIR"/mr/cadi.properties $configfile
 			output_yaml=$PWD/tmp/dmaapmr_cadi_cfc.yaml
 			__kube_create_configmap dmaapmr-cadi.properties $KUBE_ONAP_NAMESPACE autotest DMAAPMR $configfile $output_yaml
 
 			# Create config maps - kafka app
 			configfile=$PWD/tmp/zk_client_jaas.conf
-			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"/"mnt/kafka/zk_client_jaas.conf $configfile
+			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"$MR_DMAAP_HOST_MNT_DIR"/kafka/zk_client_jaas.conf $configfile
 			output_yaml=$PWD/tmp/dmaapmr_zk_client_cfc.yaml
 			__kube_create_configmap dmaapmr-zk-client-jaas.conf $KUBE_ONAP_NAMESPACE autotest DMAAPMR $configfile $output_yaml
 
 			# Create config maps - zookeeper app
 			configfile=$PWD/tmp/zk_server_jaas.conf
-			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"/"mnt/zk/zk_server_jaas.conf $configfile
+			cp $SIM_GROUP"/"$MR_DMAAP_COMPOSE_DIR"$MR_DMAAP_HOST_MNT_DIR"/zk/zk_server_jaas.conf $configfile
 			output_yaml=$PWD/tmp/dmaapmr_zk_server_cfc.yaml
 			__kube_create_configmap dmaapmr-zk-server-jaas.conf $KUBE_ONAP_NAMESPACE autotest DMAAPMR $configfile $output_yaml
 
@@ -519,10 +495,13 @@ start_mr() {
 		MR_ADAPTER_HTTP="http://"$MR_STUB_HOST_NAME":"$MR_EXT_PORT
 		MR_ADAPTER_HTTPS="https://"$MR_STUB_HOST_NAME":"$MR_EXT_SECURE_PORT
 
+		MR_STUB_ADAPTER=$MR_STUB_PATH
+		MR_STUB_ADAPTER_TYPE="REST"
+
 		__check_service_start $MR_STUB_APP_NAME $MR_STUB_PATH$MR_STUB_ALIVE_URL
 
 		echo -ne " Service $MR_STUB_APP_NAME - reset  "$SAMELINE
-		result=$(__do_curl $MR_STUB_APP_NAME $MR_STUB_PATH/reset)
+		result=$(__do_curl $MR_STUB_PATH/reset)
 		if [ $? -ne 0 ]; then
 			echo -e " Service $MR_STUB_APP_NAME - reset  $RED Failed $ERED - will continue"
 		else
@@ -558,17 +537,7 @@ start_mr() {
 			export TOPIC_WRITE="http://$MR_DMAAP_APP_NAME:$MR_INTERNAL_PORT/events/$MR_WRITE_TOPIC/users/mr-stub?timeout=15000&limit=100"
 		fi
 
-		export DOCKER_SIM_NWNAME
-		export ONAP_ZOOKEEPER_IMAGE
-		export MR_ZOOKEEPER_APP_NAME
-		export ONAP_KAFKA_IMAGE
-		export MR_KAFKA_APP_NAME
-		export ONAP_DMAAPMR_IMAGE
-		export MR_DMAAP_APP_NAME
-		export MR_DMAAP_LOCALHOST_PORT
-		export MR_INTERNAL_PORT
-		export MR_DMAAP_LOCALHOST_SECURE_PORT
-		export MR_INTERNAL_SECURE_PORT
+		__dmaapmr_export_vars
 
 		if [ $retcode_dmaapmr -eq 0 ]; then
 			__start_container $MR_DMAAP_COMPOSE_DIR "" NODOCKERARGS 1 $MR_DMAAP_APP_NAME
@@ -590,15 +559,7 @@ start_mr() {
 			echo $result | indent2
 		fi
 
-		export DOCKER_SIM_NWNAME
-		export MR_STUB_APP_NAME
-		export MRSTUB_IMAGE
-		export MR_INTERNAL_PORT
-		export MR_INTERNAL_SECURE_PORT
-		export MR_STUB_LOCALHOST_PORT
-		export MR_STUB_LOCALHOST_SECURE_PORT
-		export MR_STUB_CERT_MOUNT_DIR
-		export MR_STUB_DISPLAY_NAME
+		__mr_export_vars
 
 		if [ $retcode_mr -eq 0 ]; then
 			__start_container $MR_STUB_COMPOSE_DIR "" NODOCKERARGS 1 $MR_STUB_APP_NAME
@@ -610,6 +571,67 @@ start_mr() {
 	echo ""
 	return 0
 }
+
+# Create a dmaap mr topic
+# args: <topic name> <topic-description>
+__create_topic() {
+	echo -ne " Creating read topic: $1"$SAMELINE
+
+	json_topic="{\"topicName\":\"$1\",\"partitionCount\":\"2\", \"replicationCount\":\"3\", \"transactionEnabled\":\"false\",\"topicDescription\":\"$2\"}"
+	echo $json_topic > ./tmp/$1.json
+
+	curlString="$MR_DMAAP_PATH/topics/create -X POST  -H Content-Type:application/json -d@./tmp/$1.json"
+	topic_retries=5
+	while [ $topic_retries -gt 0 ]; do
+		let topic_retries=topic_retries-1
+		result=$(__do_curl "$curlString")
+		if [ $? -eq 0 ]; then
+			topic_retries=0
+			echo -e " Creating read topic: $1 $GREEN OK $EGREEN"
+		fi
+		if [ $? -ne 0 ]; then
+			if [ $topic_retries -eq 0 ]; then
+				echo -e " Creating read topic: $1 $RED Failed $ERED"
+				((RES_CONF_FAIL++))
+				return 1
+			else
+				sleep 1
+			fi
+		fi
+	done
+	return 0
+}
+
+# Do a pipeclean of a topic - to overcome dmaap mr bug...
+# args: <topic> <post-url> <read-url>
+__dmaap_pipeclean() {
+	pipeclean_retries=50
+	echo -ne " Doing dmaap-mr pipe cleaning on topic: $1"$SAMELINE
+	while [ $pipeclean_retries -gt 0 ]; do
+		echo "{\"pipeclean-$1\":$pipeclean_retries}" > ./tmp/pipeclean.json
+		let pipeclean_retries=pipeclean_retries-1
+		curlString="$MR_DMAAP_PATH$2 -X POST  -H Content-Type:application/json -d@./tmp/pipeclean.json"
+		result=$(__do_curl "$curlString")
+		if [ $? -ne 0 ]; then
+			sleep 1
+		else
+			curlString="$MR_DMAAP_PATH$3"
+			result=$(__do_curl "$curlString")
+			if [ $? -eq 0 ]; then
+				if [ $result != "[]" ]; then
+					echo -e " Doing dmaap-mr pipe cleaning on topic: $1 $GREEN OK $EGREEN"
+					return 0
+
+				else
+					sleep 1
+				fi
+			fi
+		fi
+	done
+	echo -e "Doing dmaap-mr pipe cleaning on topic: $1 $RED Failed $ERED"
+	return 1
+}
+
 
 ### Generic test cases for varaible checking
 
@@ -660,4 +682,28 @@ mr_print() {
 		exit 1
 	fi
 	echo -e $BOLD"INFO(${BASH_LINENO[0]}): mrstub, $1 = $(__do_curl $MR_STUB_PATH/counter/$1)"$EBOLD
+}
+
+# Send json to topic in mr-stub.
+# arg: <topic-url> <json-msg>
+# (Function for test scripts)
+mr_api_send_json() {
+	__log_test_start $@
+    if [ $# -ne 2 ]; then
+        __print_err "<topic-url> <json-msg>" $@
+        return 1
+    fi
+	query=$1
+	fname=$PWD/tmp/json_payload_to_mr.json
+	echo $2 > $fname
+	res="$(__do_curl_to_api MRSTUB POST $query $fname)"
+
+	status=${res:${#res}-3}
+	if [ $status -ne 200 ]; then
+		__log_test_fail_status_code 200 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
 }

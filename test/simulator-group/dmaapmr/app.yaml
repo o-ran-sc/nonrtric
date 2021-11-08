@@ -80,7 +80,7 @@ spec:
         imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
-          containerPort: 9092
+          containerPort: 9095
         env:
         - name: enableCadi
           value: 'false'
@@ -92,12 +92,12 @@ spec:
           value: '40000'
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
           value: 'INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT'
-#        - name: KAFKA_ADVERTISED_LISTENERS
-#          value: 'INTERNAL_PLAINTEXT://akfak-bwds.onap:9092'
         - name: KAFKA_ADVERTISED_LISTENERS
-          value: 'INTERNAL_PLAINTEXT://localhost:9092'
+          value: 'INTERNAL_PLAINTEXT://kaka:9092'
+#        - name: KAFKA_ADVERTISED_LISTENERS
+#          value: 'INTERNAL_PLAINTEXT://localhost:9092'
         - name: KAFKA_LISTENERS
-          value: 'INTERNAL_PLAINTEXT://0.0.0.0:9092'
+          value: 'EXTERNAL_PLAINTEXT://0.0.0.0:9095,INTERNAL_PLAINTEXT://0.0.0.0:9092'
         - name: KAFKA_INTER_BROKER_LISTENER_NAME
           value: INTERNAL_PLAINTEXT
         - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE
@@ -110,6 +110,7 @@ spec:
           value: '1'
         - name: KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS
           value: '1'
+
         volumeMounts:
         - mountPath: /etc/kafka/secrets/jaas/zk_client_jaas.conf
           subPath: zk_client_jaas.conf
@@ -167,6 +168,8 @@ spec:
           value: '-Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl'
         - name: ZOOKEEPER_SERVER_ID
           value: '1'
+        - name: ZOOKEEPER_SASL_ENABLED
+          value: 'false'
         volumeMounts:
         - mountPath: /etc/zookeeper/secrets/jaas/zk_server_jaas.conf
           subPath: zk_server_jaas.conf

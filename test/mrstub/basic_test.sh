@@ -164,6 +164,17 @@ echo "=== Fetch a response ==="
 RESULT="test2-response200"
 do_curl GET '/receive-response?correlationid='$CORRID 200
 
+
+echo "=== Send a json response ==="
+# Create minimal accepted response message, array
+echo "{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse\"}, \"status\": \"200\"}" > .tmp.json
+RESULT="{}"
+do_curl POST /events/generic-path 200 .tmp.json
+
+echo "=== Fetch a request ==="
+RESULT="json:[{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse\"}, \"status\": \"200\"}]"
+do_curl GET '/events/generic-path' 200
+
 echo "********************"
 echo "*** All tests ok ***"
 echo "********************"

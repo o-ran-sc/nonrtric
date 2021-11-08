@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR CR PA RICSIM CP KUBEPROXY NGW"
@@ -61,9 +61,7 @@ use_agent_rest_http
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 start_ric_simulators  ricsim_g1 3 OSC_2.1.0
 
@@ -123,14 +121,14 @@ fi
 # Create policies
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
     notificationurl=""
 fi
 
 use_agent_rest_http
 
-api_put_service 201 "service1" 3600 "$CR_SERVICE_PATH/1"
+api_put_service 201 "service1" 3600 "$CR_SERVICE_APP_PATH/1"
 
 api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
@@ -175,7 +173,7 @@ fi
 #Update policies
 use_agent_rest_http
 
-api_put_service 200 "service1" 3600 "$CR_SERVICE_PATH/1"
+api_put_service 200 "service1" 3600 "$CR_SERVICE_APP_PATH/1"
 
 api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 

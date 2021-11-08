@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: $SDNC_APP_NAME
-  namespace: $KUBE_NONRTRIC_NAMESPACE
+  namespace: $KUBE_SNDC_NAMESPACE
   labels:
     run: $SDNC_APP_NAME
     autotest: SDNC
@@ -46,7 +46,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: $SDNC_DB_APP_NAME
-  namespace: $KUBE_NONRTRIC_NAMESPACE
+  namespace: $KUBE_SNDC_NAMESPACE
   labels:
     run: $SDNC_DB_APP_NAME
     autotest: SDNC

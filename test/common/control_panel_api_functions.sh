@@ -78,18 +78,21 @@ __CP_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __CP_store_docker_logs() {
-	docker logs $CONTROL_PANEL_APP_NAME > $1$2_control-panel.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=CP" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_control-panel.log 2>&1
+	else
+		docker logs $CONTROL_PANEL_APP_NAME > $1$2_control-panel.log 2>&1
+	fi
 }
 
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__CP_initial_setup() {
+	use_control_panel_http
+}
 #######################################################
 
-
-## Access to control panel
-# Host name may be changed if app started by kube
-# Direct access from script
-CP_HTTPX="http"
-CP_HOST_NAME=$LOCALHOST_NAME
-CP_PATH=$CP_HTTPX"://"$CP_HOST_NAME":"$CONTROL_PANEL_EXTERNAL_PORT
 
 ###########################
 ### Control Panel functions
@@ -99,22 +102,70 @@ CP_PATH=$CP_HTTPX"://"$CP_HOST_NAME":"$CONTROL_PANEL_EXTERNAL_PORT
 # args: -
 # (Function for test scripts)
 use_control_panel_http() {
-	echo -e $BOLD"Control Panel, CP, protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards CP"
-	CP_HTTPX="http"
-	CP_PATH=$CP_HTTPX"://"$CP_HOST_NAME":"$CONTROL_PANEL_EXTERNAL_PORT
-	echo ""
+	__control_panel_set_protocoll "http" $CONTROL_PANEL_INTERNAL_PORT $CONTROL_PANEL_EXTERNAL_PORT
 }
 
 # Set https as the protocol to use for all communication to the Control Panel
 # args: -
 # (Function for test scripts)
 use_control_panel_https() {
-	echo -e $BOLD"Control Panel, CP, protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards CP"
-	CP_HTTPX="https"
-	CP_PATH=$CP_HTTPX"://"$CP_HOST_NAME":"$CONTROL_PANEL_EXTERNAL_SECURE_PORT
+	__control_panel_set_protocoll "https" $CONTROL_PANEL_INTERNAL_SECURE_PORT $CONTROL_PANEL_EXTERNAL_SECURE_PORT
+}
+
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__control_panel_set_protocoll() {
+	echo -e $BOLD"$CONTROL_PANEL_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $CONTROL_PANEL_DISPLAY_NAME"
+
+	CP_SERVICE_PATH=$1"://"$CONTROL_PANEL_APP_NAME":"$2
+	if [ $RUNMODE == "KUBE" ]; then
+		CP_SERVICE_PATH=$1"://"$CONTROL_PANEL_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3
+	fi
 	echo ""
+}
+
+# Export env vars for config files, docker compose and kube resources
+# args: -
+__control_panel_export_vars() {
+	#Export all vars needed for service and deployment
+	export CONTROL_PANEL_APP_NAME
+	export CONTROL_PANEL_DISPLAY_NAME
+	export KUBE_NONRTRIC_NAMESPACE
+	export DOCKER_SIM_NWNAME
+
+	export CONTROL_PANEL_IMAGE
+	export CONTROL_PANEL_INTERNAL_PORT
+	export CONTROL_PANEL_INTERNAL_SECURE_PORT
+	export CONTROL_PANEL_EXTERNAL_PORT
+	export CONTROL_PANEL_EXTERNAL_SECURE_PORT
+	export CONTROL_PANEL_CONFIG_MOUNT_PATH
+	export CONTROL_PANEL_CONFIG_FILE
+	export CONTROL_PANEL_HOST_MNT_DIR
+
+	export CP_CONFIG_CONFIGMAP_NAME=$CONTROL_PANEL_APP_NAME"-config"
+	export CP_PROXY_CONFIGMAP_NAME=$CONTROL_PANEL_APP_NAME"-proxy"
+
+	export CONTROL_PANEL_PATH_POLICY_PREFIX
+	export CONTROL_PANEL_PATH_ECS_PREFIX
+	export CONTROL_PANEL_PATH_ECS_PREFIX2
+
+	export NRT_GATEWAY_APP_NAME
+	export NRT_GATEWAY_EXTERNAL_PORT
+
+	export POLICY_AGENT_EXTERNAL_SECURE_PORT
+	export ECS_EXTERNAL_SECURE_PORT
+
+	if [ $RUNMODE == "KUBE" ]; then
+		export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME.$KUBE_NONRTRIC_NAMESPACE.svc.cluster.local  # suffix needed for nginx name resolution
+		export CP_NGINX_RESOLVER=$CONTROL_PANEL_NGINX_KUBE_RESOLVER
+	else
+		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME
+		export ECS_DOMAIN_NAME=$ECS_APP_NAME
+
+		export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME
+		export CP_NGINX_RESOLVER=$CONTROL_PANEL_NGINX_DOCKER_RESOLVER
+	fi
 }
 
 # Start the Control Panel container
@@ -157,26 +208,7 @@ start_control_panel() {
 
 			echo -e " Creating $CONTROL_PANEL_APP_NAME app and expose service"
 
-			#Export all vars needed for service and deployment
-			export CONTROL_PANEL_APP_NAME
-			export KUBE_NONRTRIC_NAMESPACE
-			export CONTROL_PANEL_IMAGE
-			export CONTROL_PANEL_INTERNAL_PORT
-			export CONTROL_PANEL_INTERNAL_SECURE_PORT
-			export CONTROL_PANEL_EXTERNAL_PORT
-			export CONTROL_PANEL_EXTERNAL_SECURE_PORT
-			export CONTROL_PANEL_CONFIG_MOUNT_PATH
-			export CONTROL_PANEL_CONFIG_FILE
-			export CP_CONFIG_CONFIGMAP_NAME=$CONTROL_PANEL_APP_NAME"-config"
-			export CP_PROXY_CONFIGMAP_NAME=$CONTROL_PANEL_APP_NAME"-proxy"
-
-			export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME.$KUBE_NONRTRIC_NAMESPACE.svc.cluster.local  # suffix needed for nginx name resolution
-			export NRT_GATEWAY_EXTERNAL_PORT
-			export CONTROL_PANEL_PATH_POLICY_PREFIX
-			export CONTROL_PANEL_PATH_ECS_PREFIX
-			export CONTROL_PANEL_PATH_ECS_PREFIX2
-
-			export CP_NGINX_RESOLVER=$CONTROL_PANEL_NGINX_KUBE_RESOLVER
+			__control_panel_export_vars
 
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
@@ -206,20 +238,12 @@ start_control_panel() {
 
 		fi
 
-		echo " Retrieving host and ports for service..."
-		CP_HOST_NAME=$(__kube_get_service_host $CONTROL_PANEL_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+		__check_service_start $CONTROL_PANEL_APP_NAME $CP_SERVICE_PATH$CONTROL_PANEL_ALIVE_URL
 
-		CONTROL_PANEL_EXTERNAL_PORT=$(__kube_get_service_port $CONTROL_PANEL_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
-		CONTROL_PANEL_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $CONTROL_PANEL_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
+		CP_PORT1=$(__kube_get_service_nodeport $CONTROL_PANEL_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
+		CP_PORT2=$(__kube_get_service_nodeport $CONTROL_PANEL_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
 
-		echo " Host IP, http port, https port: $CP_HOST_NAME $CONTROL_PANEL_EXTERNAL_PORT $CONTROL_PANEL_EXTERNAL_SECURE_PORT"
-		if [ $CP_HTTPX == "http" ]; then
-			CP_PATH=$CP_HTTPX"://"$CP_HOST_NAME":"$CONTROL_PANEL_EXTERNAL_PORT
-		else
-			CP_PATH=$CP_HTTPX"://"$CP_HOST_NAME":"$CONTROL_PANEL_EXTERNAL_SECURE_PORT
-		fi
-
-		__check_service_start $CONTROL_PANEL_APP_NAME $CP_PATH$CONTROL_PANEL_ALIVE_URL
+		echo " $CONTROL_PANEL_DISPLAY_NAME node ports (http/https): $CP_PORT1 $CP_PORT2"
 	else
 		# Check if docker app shall be fully managed by the test script
 		__check_included_image 'CP'
@@ -229,36 +253,7 @@ start_control_panel() {
 			exit
 		fi
 
-		# Export needed vars for docker compose
-        export CONTROL_PANEL_APP_NAME
-        export CONTROL_PANEL_INTERNAL_PORT
-        export CONTROL_PANEL_EXTERNAL_PORT
-        export CONTROL_PANEL_INTERNAL_SECURE_PORT
-        export CONTROL_PANEL_EXTERNAL_SECURE_PORT
-        export DOCKER_SIM_NWNAME
-
-    	export CONTROL_PANEL_HOST_MNT_DIR
-		export CONTROL_PANEL_CONFIG_FILE
-		export CONTROL_PANEL_CONFIG_MOUNT_PATH
-
-		export NRT_GATEWAY_APP_NAME
-		export NRT_GATEWAY_EXTERNAL_PORT
-
-		export POLICY_AGENT_EXTERNAL_SECURE_PORT
-		export ECS_EXTERNAL_SECURE_PORT
-		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME
-		export ECS_DOMAIN_NAME=$ECS_APP_NAME
-
-		export CONTROL_PANEL_HOST_MNT_DIR
-		export CONTROL_PANEL_CONFIG_MOUNT_PATH
-		export CONTROL_PANEL_CONFIG_FILE
-		export CONTROL_PANEL_DISPLAY_NAME
-		export NGW_DOMAIN_NAME=$NRT_GATEWAY_APP_NAME
-		export CONTROL_PANEL_PATH_POLICY_PREFIX
-		export CONTROL_PANEL_PATH_ECS_PREFIX
-		export CONTROL_PANEL_PATH_ECS_PREFIX2
-
-		export CP_NGINX_RESOLVER=$CONTROL_PANEL_NGINX_DOCKER_RESOLVER
+		__control_panel_export_vars
 
 		dest_file=$SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_HOST_MNT_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -266,7 +261,9 @@ start_control_panel() {
 
 		__start_container $CONTROL_PANEL_COMPOSE_DIR "" NODOCKERARGS 1 $CONTROL_PANEL_APP_NAME
 
-		__check_service_start $CONTROL_PANEL_APP_NAME $CP_PATH$CONTROL_PANEL_ALIVE_URL
+		__check_service_start $CONTROL_PANEL_APP_NAME $CP_SERVICE_PATH$CONTROL_PANEL_ALIVE_URL
+
+		echo " $CONTROL_PANEL_DISPLAY_NAME locahost ports (http/https): $CONTROL_PANEL_EXTERNAL_PORT $CONTROL_PANEL_EXTERNAL_SECURE_PORT"
 	fi
 	echo ""
 }

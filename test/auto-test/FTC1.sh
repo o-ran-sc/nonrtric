@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and Agent REST/DMAAP with/without SDNC controller"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -71,9 +71,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         clean_environment
 
-        if [ $RUNMODE == "KUBE" ]; then
-            start_kube_proxy
-        fi
+        start_kube_proxy
 
         if [ $__httpx == "HTTPS" ]; then
             use_agent_rest_https
@@ -87,7 +85,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         # Create service to be able to receive events when rics becomes available
         # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
+        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -190,7 +188,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "##### Service registry and supervision #####"
         echo "############################################"
 
-        api_put_service 201 "serv1" 1000 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "serv1" 1000 "$CR_SERVICE_APP_PATH/1"
 
         api_get_service_ids 200 "serv1" "ric-registration"
 
@@ -211,7 +209,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_PATH"/test"
+            notificationurl=$CR_SERVICE_APP_PATH"/test"
         else
             notificationurl=""
         fi

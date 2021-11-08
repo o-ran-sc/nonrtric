@@ -73,7 +73,7 @@ __SDNC_image_data() {
 # All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
 # This function is called for apps fully managed by the test script
 __SDNC_kube_scale_zero() {
-	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
+	__kube_scale_all_resources $KUBE_SNDC_NAMESPACE autotest SDNC
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
@@ -85,66 +85,82 @@ __SDNC_kube_scale_zero_and_wait() {
 # Delete all kube resouces for the app
 # This function is called for apps managed by the test script.
 __SDNC_kube_delete_all() {
-	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
+	__kube_delete_all_resources $KUBE_SNDC_NAMESPACE autotest SDNC
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __SDNC_store_docker_logs() {
-	docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=SDNC" -n $KUBE_SNDC_NAMESPACE --tail=-1 > $1$2_SDNC.log 2>&1
+		podname=$(kubectl get pods -n $KUBE_SNDC_NAMESPACE -l "autotest=SDNC" -o custom-columns=":metadata.name")
+		kubectl exec -t -n $KUBE_SNDC_NAMESPACE $podname -- cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
+	else
+		docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__SDNC_initial_setup() {
+	use_sdnc_http
 }
 
 #######################################################
 
-
-SDNC_HTTPX="http"
-SDNC_HOST_NAME=$LOCALHOST_NAME
-SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT
-SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT$SDNC_API_URL
-#Docker/Kube internal path
-if [ $RUNMODE == "KUBE" ]; then
-	SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_PORT
-    #presume correct
-	SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
-	#test
-	#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
-else
-	SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_INTERNAL_PORT
-fi
-
+# Set http as the protocol to use for all communication to SDNC
+# args: -
+# (Function for test scripts)
 use_sdnc_http() {
-	echo -e $BOLD"SDNC NB protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards SDNC"
-	SDNC_HTTPX="http"
-	SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT
-	SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT$SDNC_API_URL
-	if [ $RUNMODE == "KUBE" ]; then
-		#presume correct
-		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
-		#test
-		#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_PORT
-	else
-		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_INTERNAL_PORT
-	fi
-	echo ""
+	__sdnc_set_protocoll "http" $SDNC_INTERNAL_PORT $SDNC_EXTERNAL_PORT
 }
 
+# Set https as the protocol to use for all communication to SDNC
+# args: -
+# (Function for test scripts)
 use_sdnc_https() {
-	echo -e $BOLD"SDNC NB protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards SDNC"
-	SDNC_HTTPX="https"
-	SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT
-	SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT$SDNC_API_URL
+	__sdnc_set_protocoll "https" $SDNC_INTERNAL_SECURE_PORT $SDNC_EXTERNAL_SECURE_PORT
+}
+
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__sdnc_set_protocoll() {
+	echo -e $BOLD"$SDNC_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $SDNC_DISPLAY_NAME"
+
+	## Access to SDNC
+
+	SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME":"$1$SDNC_API_URL
 	if [ $RUNMODE == "KUBE" ]; then
-		#presume correct
-		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_SECURE_PORT
-		#test
-		#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_SECURE_PORT
-	else
-		SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_INTERNAL_SECURE_PORT
+		SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME.$KUBE_SNDC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.KUBE_SNDC_NAMESPACE":"$1$SDNC_API_URL
 	fi
 	echo ""
+
+}
+
+# Export env vars for config files, docker compose and kube resources
+# args:
+__sdnc_export_vars() {
+	export KUBE_SNDC_NAMESPACE
+	export DOCKER_SIM_NWNAME
+
+	export SDNC_APP_NAME
+	export SDNC_DISPLAY_NAME
+
+	export SDNC_A1_CONTROLLER_IMAGE
+	export SDNC_INTERNAL_PORT
+	export SDNC_EXTERNAL_PORT
+	export SDNC_INTERNAL_SECURE_PORT
+	export SDNC_EXTERNAL_SECURE_PORT
+	export SDNC_A1_TRUSTSTORE_PASSWORD
+	export SDNC_DB_APP_NAME
+	export SDNC_DB_IMAGE
+	export SDNC_USER
+	export SDNC_PWD
 }
 
 ##################
@@ -183,7 +199,7 @@ start_sdnc() {
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $SDNC_APP_NAME deployment and service"
 			echo " Setting SDNC replicas=1"
-			__kube_scale deployment $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__kube_scale deployment $SDNC_APP_NAME $KUBE_SNDC_NAMESPACE 1
 		fi
 
 				# Check if app shall be fully managed by the test script
@@ -191,21 +207,10 @@ start_sdnc() {
 
 			echo -e " Creating $SDNC_APP_NAME app and expose service"
 
-			#Check if nonrtric namespace exists, if not create it
-			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
+			#Check if namespace exists, if not create it
+			__kube_create_namespace $KUBE_SNDC_NAMESPACE
 
-			export KUBE_NONRTRIC_NAMESPACE
-			export SDNC_APP_NAME
-			export SDNC_A1_CONTROLLER_IMAGE
-			export SDNC_INTERNAL_PORT
-			export SDNC_EXTERNAL_PORT
-			export SDNC_INTERNAL_SECURE_PORT
-			export SDNC_EXTERNAL_SECURE_PORT
-			export SDNC_A1_TRUSTSTORE_PASSWORD
-			export SDNC_DB_APP_NAME
-			export SDNC_DB_IMAGE
-			export SDNC_USER
-			export SDNC_PWD
+			__sdnc_export_vars
 
 			# Create service
 			input_yaml=$SIM_GROUP"/"$SDNC_COMPOSE_DIR"/"svc.yaml
@@ -219,30 +224,7 @@ start_sdnc() {
 
 		fi
 
-        echo " Retrieving host and ports for service..."
-		SDNC_HOST_NAME=$(__kube_get_service_host $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-		SDNC_EXTERNAL_PORT=$(__kube_get_service_port $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
-		SDNC_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $SDNC_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
-
-		echo " Host IP, http port, https port: $SDNC_HOST_NAME $SDNC_EXTERNAL_PORT $SDNC_EXTERNAL_SECURE_PORT"
-
-        if [ $SDNC_HTTPX == "http" ]; then
-			SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT
-			SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_PORT$SDNC_API_URL
-            #presume correct
-			SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_PORT
-			#test
-			#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_PORT
-		else
-			SDNC_PATH=$SDNC_HTTPX"://"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT
-			SDNC_API_PATH=$SDNC_HTTPX"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_HOST_NAME":"$SDNC_EXTERNAL_SECURE_PORT$SDNC_API_URL
-            #presume correct
-			SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME"."$KUBE_NONRTRIC_NAMESPACE":"$SDNC_EXTERNAL_SECURE_PORT
-			#test
-			#SDNC_SERVICE_PATH=$SDNC_HTTPX"://"$SDNC_APP_NAME":"$SDNC_EXTERNAL_SECURE_PORT
-		fi
-
-		__check_service_start $SDNC_APP_NAME $SDNC_PATH$SDNC_ALIVE_URL
+		__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH$SDNC_ALIVE_URL
 	else
 
 		__check_included_image 'SDNC'
@@ -252,21 +234,11 @@ start_sdnc() {
 			exit
 		fi
 
-		export SDNC_DB_APP_NAME
-        export SDNC_APP_NAME
-        export SDNC_INTERNAL_PORT
-        export SDNC_EXTERNAL_PORT
-        export SDNC_INTERNAL_SECURE_PORT
-        export SDNC_EXTERNAL_SECURE_PORT
-        export SDNC_A1_TRUSTSTORE_PASSWORD
-        export DOCKER_SIM_NWNAME
-		export SDNC_DISPLAY_NAME
-		export SDNC_USER
-		export SDNC_PWD
+		__sdnc_export_vars
 
 		__start_container $SDNC_COMPOSE_DIR $SDNC_COMPOSE_FILE NODOCKERARGS 1 $SDNC_APP_NAME
 
-		__check_service_start $SDNC_APP_NAME $SDNC_PATH$SDNC_ALIVE_URL
+		__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH$SDNC_ALIVE_URL
 	fi
     echo ""
     return 0
@@ -315,7 +287,7 @@ start_stopped_sdnc() {
 			return 1
 		fi
 	fi
-	__check_service_start $SDNC_APP_NAME $SDNC_PATH$SDNC_ALIVE_URL
+	__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH$SDNC_ALIVE_URL
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
@@ -356,16 +328,14 @@ __do_curl_to_controller() {
     echo "$json" > $payload
     echo "  FILE ($payload) : $json"  >> $HTTPLOG
 	proxyflag=""
-	if [ $RUNMODE == "KUBE" ]; then
-		if [ ! -z "$KUBE_PROXY_PATH" ]; then
-			if [ $KUBE_PROXY_HTTPX == "http" ]; then
-				proxyflag=" --proxy $KUBE_PROXY_PATH"
-			else
-				proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
-			fi
+	if [ ! -z "$KUBE_PROXY_PATH" ]; then
+		if [ $KUBE_PROXY_HTTPX == "http" ]; then
+			proxyflag=" --proxy $KUBE_PROXY_PATH"
+		else
+			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
-    curlString="curl -skw %{http_code} $proxyflag -X POST $SDNC_API_PATH$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"
+    curlString="curl -skw %{http_code} $proxyflag -X POST $SDNC_SERVICE_API_PATH$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"
     echo "  CMD: "$curlString >> $HTTPLOG
     res=$($curlString)
     retcode=$?
