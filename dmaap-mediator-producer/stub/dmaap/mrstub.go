@@ -57,7 +57,7 @@ func main() {
 	http.HandleFunc("/events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/STD_Fault_Messages", handleData)
 
 	fmt.Print("Starting mr on port: ", *port)
-	http.ListenAndServeTLS(fmt.Sprintf(":%v", *port), "../../configs/producer.crt", "../../configs/producer.key", nil)
+	http.ListenAndServeTLS(fmt.Sprintf(":%v", *port), "../../security/producer.crt", "../../security/producer.key", nil)
 
 }
 
