@@ -21,6 +21,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -39,16 +40,19 @@ type Config struct {
 
 func New() *Config {
 	return &Config{
-		LogLevel:               getLogLevel(),
 		InfoProducerHost:       getEnv("INFO_PRODUCER_HOST", ""),
 		InfoProducerPort:       getEnvAsInt("INFO_PRODUCER_PORT", 8085),
 		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "https://enrichmentservice:8434"),
 		DMaaPMRAddress:         getEnv("DMAAP_MR_ADDR", "https://message-router.onap:3905"),
-		ProducerCertPath:       getEnv("PRODUCER_CERT_PATH", "configs/producer.crt"),
-		ProducerKeyPath:        getEnv("PRODUCER_KEY_PATH", "configs/producer.key"),
+		ProducerCertPath:       getEnv("PRODUCER_CERT_PATH", "security/producer.crt"),
+		ProducerKeyPath:        getEnv("PRODUCER_KEY_PATH", "security/producer.key"),
+		LogLevel:               getLogLevel(),
 	}
 }
 
+func (c Config) String() string {
+	return fmt.Sprintf("InfoProducerHost: %v, InfoProducerPort: %v, InfoCoordinatorAddress: %v, DMaaPMRAddress: %v, ProducerCertPath: %v, ProducerKeyPath: %v, LogLevel: %v", c.InfoProducerHost, c.InfoProducerPort, c.InfoCoordinatorAddress, c.DMaaPMRAddress, c.ProducerCertPath, c.ProducerKeyPath, c.LogLevel)
+}
 func getEnv(key string, defaultVal string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

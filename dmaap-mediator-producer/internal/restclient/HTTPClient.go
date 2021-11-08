@@ -22,9 +22,14 @@ package restclient
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"time"
+
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 // HTTPClient interface
@@ -97,4 +102,45 @@ func getRequestError(response *http.Response) RequestError {
 		Body:       responseData,
 	}
 	return putError
+}
+
+func CreateClientCertificate(certPath string, keyPath string) (tls.Certificate, error) {
+	if cert, err := tls.LoadX509KeyPair(certPath, keyPath); err == nil {
+		return cert, nil
+	} else {
+		return tls.Certificate{}, fmt.Errorf("cannot create x509 keypair from cert file %s and key file %s due to: %v", certPath, keyPath, err)
+	}
+}
+
+func CreateRetryClient(cert tls.Certificate) *http.Client {
+	rawRetryClient := retryablehttp.NewClient()
+	rawRetryClient.RetryWaitMax = time.Minute
+	rawRetryClient.RetryMax = int(^uint(0) >> 1)
+	rawRetryClient.HTTPClient.Transport = getSecureTransportWithoutVerify(cert)
+
+	client := rawRetryClient.StandardClient()
+	return client
+}
+
+func CreateClientWithoutRetry(cert tls.Certificate, timeout time.Duration) *http.Client {
+	return &http.Client{
+		Timeout:   timeout,
+		Transport: getSecureTransportWithoutVerify(cert),
+	}
+}
+
+func getSecureTransportWithoutVerify(cert tls.Certificate) *http.Transport {
+	return &http.Transport{
+		TLSClientConfig: &tls.Config{
+			Certificates: []tls.Certificate{
+				cert,
+			},
+			InsecureSkipVerify: true,
+		},
+	}
+}
+
+func IsUrlSecure(configUrl string) bool {
+	u, _ := url.Parse(configUrl)
+	return u.Scheme == "https"
 }
