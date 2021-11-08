@@ -65,6 +65,10 @@ echo "=== Get counter - current events ==="
 RESULT="0"
 do_curl GET /counter/current_messages 200
 
+echo "=== Get counter - remote hosts ==="
+RESULT="*"
+do_curl GET /counter/remote_hosts 200
+
 echo "=== Send a request non json ==="
 RESULT="*"
 #create payload
@@ -234,6 +238,32 @@ echo "=== Get counter - current events ==="
 RESULT="0"
 do_curl GET /counter/current_messages 200
 
+
+# Check delay
+
+echo "=== Set delay 10 sec==="
+RESULT="*"
+do_curl POST /forcedelay?delay=10 200
+
+TSECONDS=$SECONDS
+echo "=== Send a request, dealyed ==="
+RESULT="*"
+#create payload
+echo "{\"DATA-MSG\":\"msg-del1\"}" > .tmp.json
+do_curl POST '/callbacks/test' 200 .tmp.json
+
+if [ $(($SECONDS-$TSECONDS)) -lt 10 ]; then
+    echo "  Delay failed $(($SECONDS-$TSECONDS))"
+    echo "  Exiting...."
+    exit 1
+else
+    echo "  Delay OK $(($SECONDS-$TSECONDS))"
+fi
+
+
+echo "=== Fetch an event ==="
+RESULT="json:{\"DATA-MSG\":\"msg-del1\"}"
+do_curl GET '/get-event/test' 200
 
 echo "********************"
 echo "*** All tests ok ***"

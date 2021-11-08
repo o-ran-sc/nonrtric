@@ -57,8 +57,7 @@ __RC_kube_scale_zero() {
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __RC_kube_scale_zero_and_wait() {
-	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-rappcatalogueservice
-	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
+	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-rappcatalogueservice
 }
 
 # Delete all kube resouces for the app
@@ -71,50 +70,71 @@ __RC_kube_delete_all() {
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
 __RC_store_docker_logs() {
-	docker logs $RAPP_CAT_APP_NAME > $1$2_rc.log 2>&1
+	if [ $RUNMODE == "KUBE" ]; then
+		kubectl  logs -l "autotest=RC" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_rc.log 2>&1
+	else
+		docker logs $RAPP_CAT_APP_NAME > $1$2_rc.log 2>&1
+	fi
+}
+
+# Initial setup of protocol, host and ports
+# This function is called for apps managed by the test script.
+# args: -
+__RC_initial_setup() {
+	use_rapp_catalogue_http
 }
 
 #######################################################
 
-## Access to RAPP Catalogue
-# Host name may be changed if app started by kube
-# Direct access from script
-RC_HTTPX="http"
-RC_HOST_NAME=$LOCALHOST_NAME
-RC_PATH=$RC_HTTPX"://"$RC_HOST_NAME":"$RAPP_CAT_EXTERNAL_PORT
-# RC_ADAPTER used for switch between REST and DMAAP (only REST supported currently)
-RC_ADAPTER_TYPE="REST"
-RC_ADAPTER=$RC_PATH
-
-
-###########################
-### RAPP Catalogue
-###########################
-
-# Set http as the protocol to use for all communication to the RAPP Catalogue
+# Set http as the protocol to use for all communication to the Rapp catalogue
 # args: -
 # (Function for test scripts)
 use_rapp_catalogue_http() {
-	echo -e $BOLD"RAPP Catalogue protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards the RAPP Catalogue"
-	RC_HTTPX="http"
-	RC_PATH=$RC_HTTPX"://"$RC_HOST_NAME":"$RAPP_CAT_EXTERNAL_PORT
-	RC_ADAPTER_TYPE="REST"
-	RC_ADAPTER=$RC_PATH
-	echo ""
+	__rapp_catalogue_set_protocoll "http" $RAPP_CAT_INTERNAL_PORT $RAPP_CAT_EXTERNAL_PORT
 }
 
-# Set https as the protocol to use for all communication to the RAPP Catalogue
+# Set https as the protocol to use for all communication to the Rapp catalogue
 # args: -
 # (Function for test scripts)
 use_rapp_catalogue_https() {
-	echo -e $BOLD"RAPP Catalogue protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards the RAPP Catalogue"
-	RC_HTTPX="https"
-	RC_PATH=$RC_HTTPX"://"$RC_HOST_NAME":"$RAPP_CAT_EXTERNAL_SECURE_PORT
+	__rapp_catalogue_set_protocoll "https" $RAPP_CAT_INTERNAL_SECURE_PORT $RAPP_CAT_EXTERNAL_SECURE_PORT
+}
+
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__rapp_catalogue_set_protocoll() {
+	echo -e $BOLD"$RAPP_CAT_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards $RAPP_CAT_DISPLAY_NAME"
+
+	## Access to Rapp catalogue
+
+	RC_SERVICE_PATH=$1"://"$RAPP_CAT_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	if [ $RUNMODE == "KUBE" ]; then
+		RC_SERVICE_PATH=$1"://"$RAPP_CAT_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+	fi
+
+	# RC_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
 	RC_ADAPTER_TYPE="REST"
-	RC_ADAPTER=$RC_PATH
+	RC_ADAPTER=$RC_SERVICE_PATH
+
 	echo ""
+}
+
+# Export env vars for config files, docker compose and kube resources
+# args:
+__rapp_catalogue_export_vars() {
+
+	export RAPP_CAT_APP_NAME
+	export RAPP_CAT_DISPLAY_NAME
+
+	export DOCKER_SIM_NWNAME
+	export KUBE_NONRTRIC_NAMESPACE
+
+	export RAPP_CAT_IMAGE
+	export RAPP_CAT_INTERNAL_PORT
+	export RAPP_CAT_INTERNAL_SECURE_PORT
+	export RAPP_CAT_EXTERNAL_PORT
+	export RAPP_CAT_EXTERNAL_SECURE_PORT
 }
 
 # Start the RAPP Catalogue container
@@ -158,13 +178,7 @@ start_rapp_catalogue() {
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
 
-			export RAPP_CAT_APP_NAME
-			export KUBE_NONRTRIC_NAMESPACE
-			export RAPP_CAT_IMAGE
-			export RAPP_CAT_INTERNAL_PORT
-			export RAPP_CAT_INTERNAL_SECURE_PORT
-			export RAPP_CAT_EXTERNAL_PORT
-			export RAPP_CAT_EXTERNAL_SECURE_PORT
+			__rapp_catalogue_export_vars
 
 			#Create service
 			input_yaml=$SIM_GROUP"/"$RAPP_CAT_COMPOSE_DIR"/"svc.yaml
@@ -177,25 +191,8 @@ start_rapp_catalogue() {
 			__kube_create_instance app $RAPP_CAT_APP_NAME $input_yaml $output_yaml
 		fi
 
-		echo " Retrieving host and ports for service..."
-		RC_HOST_NAME=$(__kube_get_service_host $RAPP_CAT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+		__check_service_start $RAPP_CAT_APP_NAME $RC_SERVICE_PATH$RAPP_CAT_ALIVE_URL
 
-		RAPP_CAT_EXTERNAL_PORT=$(__kube_get_service_port $RAPP_CAT_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
-		RAPP_CAT_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $RAPP_CAT_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
-
-		echo " Host IP, http port, https port: $RC_HOST_NAME $RAPP_CAT_EXTERNAL_PORT $RAPP_CAT_EXTERNAL_SECURE_PORT"
-		if [ $RC_HTTPX == "http" ]; then
-			RC_PATH=$RC_HTTPX"://"$RC_HOST_NAME":"$RAPP_CAT_EXTERNAL_PORT
-		else
-			RC_PATH=$RC_HTTPX"://"$RC_HOST_NAME":"$RAPP_CAT_EXTERNAL_SECURE_PORT
-		fi
-
-		__check_service_start $RAPP_CAT_APP_NAME $RC_PATH$RAPP_CAT_ALIVE_URL
-
-		# Update the curl adapter if set to rest, no change if type dmaap
-		if [ $RC_ADAPTER_TYPE == "REST" ]; then
-			RC_ADAPTER=$RC_PATH
-		fi
 	else
 		__check_included_image 'RC'
 		if [ $? -eq 1 ]; then
@@ -204,18 +201,11 @@ start_rapp_catalogue() {
 			exit
 		fi
 
-		export RAPP_CAT_APP_NAME
-        export RAPP_CAT_INTERNAL_PORT
-        export RAPP_CAT_EXTERNAL_PORT
-        export RAPP_CAT_INTERNAL_SECURE_PORT
-        export RAPP_CAT_EXTERNAL_SECURE_PORT
-        export DOCKER_SIM_NWNAME
-
-		export RAPP_CAT_DISPLAY_NAME
+		__rapp_catalogue_export_vars
 
 		__start_container $RAPP_CAT_COMPOSE_DIR "" NODOCKERARGS 1 $RAPP_CAT_APP_NAME
 
-		__check_service_start $RAPP_CAT_APP_NAME $RC_PATH$RAPP_CAT_ALIVE_URL
+		__check_service_start $RAPP_CAT_APP_NAME $RC_SERVICE_PATH$RAPP_CAT_ALIVE_URL
 	fi
 	echo ""
 }
@@ -230,7 +220,7 @@ start_rapp_catalogue() {
 rc_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
 		#__var_test RC "$LOCALHOST_HTTP:$RC_EXTERNAL_PORT/" $1 "=" $2 $3
-		__var_test RC "$RC_PATH/" $1 "=" $2 $3
+		__var_test RC "$RC_SERVICE_PATH/" $1 "=" $2 $3
 	else
 		__print_err "Wrong args to ecs_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi

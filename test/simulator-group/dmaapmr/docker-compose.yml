@@ -15,7 +15,7 @@
 #  ============LICENSE_END=================================================
 #
 
-version: '3.5'
+version: '3.0'
 networks:
   default:
     external:
@@ -36,10 +36,10 @@ services:
      ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: 3
      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: 24
      ZOOKEEPER_CLIENT_PORT: 2181
-     KAFKA_OPTS: -Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl
+     KAFKA_OPTS: -Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl -Dzookeeper.4lw.commands.whitelist=*
      ZOOKEEPER_SERVER_ID: 1
     volumes:
-      -  ./mnt/zk/zk_server_jaas.conf:/etc/zookeeper/secrets/jaas/zk_server_jaas.conf
+      -  .${MR_DMAAP_HOST_MNT_DIR}/zk/zk_server_jaas.conf:/etc/zookeeper/secrets/jaas/zk_server_jaas.conf
     networks:
       - default
     labels:
@@ -67,7 +67,7 @@ services:
     # Reduced the number of partitions only to avoid the timeout error for the first subscribe call in slow environment
     KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 1
    volumes:
-     -  ./mnt/kafka/zk_client_jaas.conf:/etc/kafka/secrets/jaas/zk_client_jaas.conf
+     -  .${MR_DMAAP_HOST_MNT_DIR}/kafka/zk_client_jaas.conf:/etc/kafka/secrets/jaas/zk_client_jaas.conf
    networks:
     - default
    depends_on:
@@ -85,9 +85,9 @@ services:
     environment:
      enableCadi: 'false'
     volumes:
-      - ./mnt/mr/MsgRtrApi.properties:/appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
-      - ./mnt/mr/logback.xml:/appl/dmaapMR1/bundleconfig/etc/logback.xml
-      - ./mnt/mr/cadi.properties:/appl/dmaapMR1/etc/cadi.properties
+      - .${MR_DMAAP_HOST_MNT_DIR}/mr/MsgRtrApi.properties:/appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
+      - .${MR_DMAAP_HOST_MNT_DIR}/mr/logback.xml:/appl/dmaapMR1/bundleconfig/etc/logback.xml
+      - .${MR_DMAAP_HOST_MNT_DIR}/mr/cadi.properties:/appl/dmaapMR1/etc/cadi.properties
     networks:
       - default
     depends_on:

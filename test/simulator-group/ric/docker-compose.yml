@@ -23,6 +23,7 @@ networks:
   default:
     external:
       name: ${DOCKER_SIM_NWNAME}
+
 services:
   g1:
     image: ${RIC_SIM_IMAGE}
@@ -69,6 +70,42 @@ services:
       - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
     environment:
       - A1_VERSION=${G3_A1_VERSION}
+      - REMOTE_HOSTS_LOGGING=1
+      - ALLOW_HTTP=true
+      - DUPLICATE_CHECK=1
+    volumes:
+      - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+    labels:
+      - "nrttest_app=RICSIM"
+      - "nrttest_dp=${RIC_SIM_DISPLAY_NAME}"
+
+  g4:
+    image: ${RIC_SIM_IMAGE}
+    networks:
+      - default
+    ports:
+      - ${RIC_SIM_INTERNAL_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
+    environment:
+      - A1_VERSION=${G4_A1_VERSION}
+      - REMOTE_HOSTS_LOGGING=1
+      - ALLOW_HTTP=true
+      - DUPLICATE_CHECK=1
+    volumes:
+      - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+    labels:
+      - "nrttest_app=RICSIM"
+      - "nrttest_dp=${RIC_SIM_DISPLAY_NAME}"
+
+  g5:
+    image: ${RIC_SIM_IMAGE}
+    networks:
+      - default
+    ports:
+      - ${RIC_SIM_INTERNAL_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
+    environment:
+      - A1_VERSION=${G5_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
       - ALLOW_HTTP=true
       - DUPLICATE_CHECK=1

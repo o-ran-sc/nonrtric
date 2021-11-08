@@ -20,7 +20,7 @@
 
 TC_ONELINE_DESCR="ONAP Use case REQ-626"
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -62,7 +62,7 @@ use_simulator_https
 use_mr_https
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
     echo "Version V2 of PMS is needed, exiting..."
     exit 1
@@ -82,9 +82,7 @@ for interface in $TESTED_VARIANTS ; do
 
     clean_environment
 
-    if [ $RUNMODE == "KUBE" ]; then
-        start_kube_proxy
-    fi
+    start_kube_proxy
 
     if [[ $interface = *"DMAAP"* ]]; then
         use_agent_dmaap_https
@@ -213,7 +211,7 @@ for interface in $TESTED_VARIANTS ; do
     # Create policies
     use_agent_rest_http
 
-    api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_PATH/1"
+    api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
 
     # Create policies in OSC
     for ((i=1; i<=$OSC_NUM_RICS; i++))

@@ -129,6 +129,19 @@ RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.0-SNAPSHOT"
 RIC_SIM_IMAGE_TAG_REMOTE="2.2.0"
 RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
 
+# DMAAP Mediator Service
+DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-dmaap-mediator-producer"
+DMAAP_MED_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
+DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
+DMAAP_MED_IMAGE_TAG_REMOTE="1.0.0"
+DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+
+# DMAAP Adapter Service
+DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-dmaap-adaptor"
+DMAAP_ADP_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE="1.0.0"
+DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
 
 #Consul remote image and tag
 CONSUL_IMAGE_BASE="consul"
@@ -166,17 +179,17 @@ HTTP_PROXY_IMAGE_TAG_LOCAL="latest"
 
 #ONAP Zookeeper remote image and tag
 ONAP_ZOOKEEPER_IMAGE_BASE="onap/dmaap/zookeeper"
-ONAP_ZOOKEEPER_IMAGE_TAG_REMOTE_RELEASE_ONAP="6.0.3"
+ONAP_ZOOKEEPER_IMAGE_TAG_REMOTE_RELEASE_ONAP="6.1.0"
 #No local image for ONAP Zookeeper, remote image always used
 
 #ONAP Kafka remote image and tag
 ONAP_KAFKA_IMAGE_BASE="onap/dmaap/kafka111"
-ONAP_KAFKA_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.0.4"
+ONAP_KAFKA_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.1"
 #No local image for ONAP Kafka, remote image always used
 
 #ONAP DMAAP-MR remote image and tag
 ONAP_DMAAPMR_IMAGE_BASE="onap/dmaap/dmaap-mr"
-ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
+ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.3.0"
 #No local image for ONAP DMAAP-MR, remote image always used
 
 #Kube proxy remote image and tag
@@ -184,8 +197,13 @@ KUBE_PROXY_IMAGE_BASE="nodejs-kube-proxy"
 KUBE_PROXY_IMAGE_TAG_LOCAL="latest"
 #No remote image for kube proxy, local image always used
 
+#Kube proxy remote image and tag
+PVC_CLEANER_IMAGE_BASE="ubuntu"
+PVC_CLEANER_IMAGE_TAG_REMOTE_PROXY="20.10"
+#No local image for pvc cleaner, remote image always used
+
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="PA ECS CP RC RICSIM NGW"  # Add SDNC here if oran image is used
+PROJECT_IMAGES_APP_NAMES="PA ECS CP RC RICSIM NGW DMAAPADP DMAAPMED"  # Add SDNC here if oran image is used
 
 # List of app short names which images pulled from ORAN
 ORAN_IMAGES_APP_NAMES=""  # Not used
@@ -198,11 +216,26 @@ ONAP_IMAGES_APP_NAMES="CBS DMAAPMR SDNC"   # SDNC added as ONAP image
 # Detailed settings per app
 ########################################
 
+# Port number variables
+# =====================
+# Port number vars <name>_INTERNAL_PORT and <name>_INTERNAL_SECURE_PORT are set as pod/container port in kube and container port in docker
+#
+# Port number vars <name>_EXTERNAL_PORT and <name>_EXTERNAL_SECURE_PORT are set as svc port in kube and localhost port in docker
+#
+# For some components, eg. MR, can be represented as the MR-STUB and/or the DMAAP MR. For these components
+# special vars nameed <name>_LOSTHOST_PORT and <name>_LOCALHOST_SECURE_PORT are used as localhost ports instead of
+# name>_EXTERNAL_PORT and <name>_EXTERNAL_SECURE_PORT ports in docker in order to prevent overalapping ports on local host
+#
+# For KUBE PROXY there are special external port for docker as the proyx exposes also the kube svc port on localhost,
+# therefore a special set of external port are needed for docker <name>_DOCKER_EXTERNAL_PORT and <name>_DOCKER_EXTERNAL_SECURE_PORT
+
 DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker private network
 
 KUBE_NONRTRIC_NAMESPACE="nonrtric"                       # Namespace for all nonrtric components
 KUBE_SIM_NAMESPACE="nonrtric-ft"                         # Namespace for simulators (except MR and RICSIM)
+KUBE_A1SIM_NAMESPACE="a1-sim"                            # Namespace for a1-p simulators (RICSIM)
 KUBE_ONAP_NAMESPACE="onap"                               # Namespace for onap (only message router)
+KUBE_SNDC_NAMESPACE="onap"                               # Namespace for sdnc
 
 POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
 POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
@@ -226,7 +259,6 @@ POLICY_AGENT_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config" # Path in containe
 POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container for data file
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
-POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 
 ECS_APP_NAME="enrichmentservice"                         # Name for ECS container
@@ -272,6 +304,7 @@ MR_DMAAP_COMPOSE_DIR="dmaapmr"                           # Dir in simulator_grou
 MR_STUB_COMPOSE_DIR="mrstub"                             # Dir in simulator_group for mr stub for - docker-compose
 MR_KAFKA_APP_NAME="kafka"                                # Kafka app name
 MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
+MR_DMAAP_HOST_MNT_DIR="/mnt2"                            # Config files dir on localhost
 
 
 CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
@@ -281,6 +314,7 @@ CR_INTERNAL_PORT=8090                                    # Callback receiver con
 CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
 CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
+CR_APP_CALLBACK_MR="/callbacks-mr"                       # Url for callbacks (data from mr which contains string encoded jsons in a json arr)
 CR_ALIVE_URL="/"                                         # Base path for alive check
 CR_COMPOSE_DIR="cr"                                      # Dir in simulator_group for docker-compose
 
@@ -434,9 +468,57 @@ KUBE_PROXY_WEB_EXTERNAL_PORT=8731                        # Kube Http Proxy conta
 KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy container internal port (container -> container)
 KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT=8783                 # Kube Proxy container external secure port (host -> container)
 KUBE_PROXY_WEB_INTERNAL_SECURE_PORT=8434                 # Kube Proxy container internal secure port (container -> container
+
+KUBE_PROXY_DOCKER_EXTERNAL_PORT=8732                     # Kube Http Proxy container external port, doocker (host -> container)
+KUBE_PROXY_DOCKER_EXTERNAL_SECURE_PORT=8784              # Kube Proxy container external secure port, doocker (host -> container)
+KUBE_PROXY_WEB_DOCKER_EXTERNAL_PORT=8733                 # Kube Http Proxy container external port, doocker (host -> container)
+KUBE_PROXY_WEB_DOCKER_EXTERNAL_SECURE_PORT=8785          # Kube Proxy container external secure port, doocker (host -> container)
+
 KUBE_PROXY_PATH=""                                       # Proxy url path, will be set if proxy is started
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
+
+DMAAP_ADP_APP_NAME="dmaapadapterservice"                 # Name for Dmaap Adapter container
+DMAAP_ADP_DISPLAY_NAME="Dmaap Adapter Service"           # Display name for Dmaap Adapter container
+DMAAP_ADP_EXTERNAL_PORT=9087                             # Dmaap Adapter container external port (host -> container)
+DMAAP_ADP_INTERNAL_PORT=8084                             # Dmaap Adapter container internal port (container -> container)
+DMAAP_ADP_EXTERNAL_SECURE_PORT=9088                      # Dmaap Adapter container external secure port (host -> container)
+DMAAP_ADP_INTERNAL_SECURE_PORT=8435                      # Dmaap Adapter container internal secure port (container -> container)
+
+#DMAAP_ADP_LOGPATH="/var/log/dmaap-adaptor-service/application.log" # Path the application log in the Dmaap Adapter container
+DMAAP_ADP_HOST_MNT_DIR="./mnt"                           # Mounted db dir, relative to compose file, on the host
+#MAAP_ADP_CONTAINER_MNT_DIR="/var/dmaap-adaptor-service" # Mounted dir in the container
+DMAAP_ADP_ACTUATOR="/actuator/loggers/org.oran.dmaapadapter"   # Url for trace/debug
+#DMAAP_ADP_CERT_MOUNT_DIR="./cert"
+DMAAP_ADP_ALIVE_URL="/actuator/info"                     # Base path for alive check
+DMAAP_ADP_COMPOSE_DIR="dmaapadp"                         # Dir in simulator_group for docker-compose
+DMAAP_ADP_CONFIG_MOUNT_PATH="/opt/app/dmaap-adaptor-service/config" # Internal container path for configuration
+DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adaptor-service/data" # Path in container for data file
+DMAAP_ADP_DATA_FILE="application_configuration.json"  # Container data file name
+DMAAP_ADP_CONFIG_FILE=application.yaml                   # Config file name
+
+DMAAP_MED_APP_NAME="dmaapmediatorservice"                # Name for Dmaap Mediator container
+DMAAP_MED_DISPLAY_NAME="Dmaap Mediator Service"          # Display name for Dmaap Mediator container
+DMAAP_MED_EXTERNAL_PORT=8085                             # Dmaap Mediator container external port (host -> container)
+DMAAP_MED_INTERNAL_PORT=8085                             # Dmaap Mediator container internal port (container -> container)
+DMAAP_MED_EXTERNAL_SECURE_PORT=8185                      # Dmaap Mediator container external secure port (host -> container)
+DMAAP_MED_INTERNAL_SECURE_PORT=8185                      # Dmaap Mediator container internal secure port (container -> container)
+
+DMAAP_MED_LOGPATH="/var/log/dmaap-adaptor-service/application.log" # Path the application log in the Dmaap Mediator container
+DMAAP_MED_HOST_MNT_DIR="./mnt"                          # Mounted db dir, relative to compose file, on the host
+#MAAP_ADP_CONTAINER_MNT_DIR="/var/dmaap-adaptor-service" # Mounted dir in the container
+#DMAAP_MED_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
+#DMAAP_MED_CERT_MOUNT_DIR="./cert"
+DMAAP_MED_ALIVE_URL="/status"                            # Base path for alive check
+DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose
+#MAAP_MED_CONFIG_MOUNT_PATH="/app" # Internal container path for configuration
+DMAAP_MED_DATA_MOUNT_PATH="/configs" # Path in container for data file
+DMAAP_MED_DATA_FILE="type_config.json"  # Container data file name
+#DMAAP_MED_CONFIG_FILE=application.yaml                   # Config file name
+
+PVC_CLEANER_APP_NAME="pvc-cleaner"                      # Name for Persistent Volume Cleaner container
+PVC_CLEANER_DISPLAY_NAME="Persistent Volume Cleaner"    # Display name for Persistent Volume Cleaner
+PVC_CLEANER_COMPOSE_DIR="pvc-cleaner"                   # Dir in simulator_group for yamls
 
 ########################################
 # Setting for common curl-base function

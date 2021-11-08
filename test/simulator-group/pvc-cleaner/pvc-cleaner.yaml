@@ -3,11 +3,14 @@ kind: Pod
 metadata:
   name: pvc-cleaner
   namespace: $PVC_CLEANER_NAMESPACE
+  labels:
+    run: $PVC_CLEANER_APP_NAME
+    autotest: PVCCLEANER
 spec:
   restartPolicy: Never
   containers:
   - name: pvc-cleaner
-    image: "ubuntu:20.10"
+    image: $PVC_CLEANER_IMAGE
     command: ["/bin/sh","-c"]
     args: ["rm -rf $PVC_CLEANER_RM_PATH/*"]
     volumeMounts:

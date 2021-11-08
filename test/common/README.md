@@ -151,6 +151,8 @@ The script can be started with these arguments
 | `-repo-policy` |  Policy controlling which images to re-tag and push to image repo in param --image-repo. Can be set to 'local' (push on locally built images) or 'remote' (push locally built images and images from nexus repo). Default is 'local' |
 | `--cluster-timeout` |  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds |
 | `--print-stats` |  Prints the number of tests, failed tests, failed configuration and deviations after each individual test or config |
+| `--override <file>` |  Override setting from the file supplied by --env-file |
+| `--pre-clean` |  Clean kube resouces when running docker and vice versa |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
 ## Function: setup_testenvironment ##

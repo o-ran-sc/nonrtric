@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -69,9 +69,7 @@ for interface in $TESTED_VARIANTS ; do
     # Clean container and start all needed containers #
     clean_environment
 
-    if [ $RUNMODE == "KUBE" ]; then
-        start_kube_proxy
-    fi
+    start_kube_proxy
 
     #Start simulators and prepare two configs
 
@@ -110,7 +108,7 @@ for interface in $TESTED_VARIANTS ; do
 
     # Create service to be able to receive events when rics becomes available
     # Must use rest towards the agent since dmaap is not configured yet
-    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
+    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
 
     #Load first config
     if [ $RUNMODE == "KUBE" ]; then
@@ -283,10 +281,10 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy_types 5
     fi
 
-    api_put_service 201 "serv1" 3600 "$CR_SERVICE_PATH/serv1"
+    api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH/serv1"
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        notificationurl=$CR_SERVICE_PATH"/test"
+        notificationurl=$CR_SERVICE_APP_PATH"/test"
     else
         notificationurl=""
     fi

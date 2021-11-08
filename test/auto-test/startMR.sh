@@ -21,20 +21,20 @@
 TC_ONELINE_DESCR="Starts DMAAP MR"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="MR DMAAPMR"
+DOCKER_INCLUDED_IMAGES="MR DMAAPMR KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="MR DMAAPMR KUBEPROXY"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
+SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ORAN-D-RELEASE ORAN-E-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -55,10 +55,13 @@ setup_testenvironment
 #### TEST BEGIN ####
 
 clean_environment
+start_kube_proxy
 start_mr
-docker kill mr-stub
+if [ $RUNMODE == "KUBE" ]; then
+    :
+else
+    docker kill $MR_STUB_APP_NAME
+fi
 
-
-print_result
 
 

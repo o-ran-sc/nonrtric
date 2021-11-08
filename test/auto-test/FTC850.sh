@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Create/delete policies in parallel over a number of rics using a number of child process"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
@@ -67,7 +67,7 @@ NUM_POLICIES_PER_RIC=500
 generate_policy_uuid
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH"/test"
 else
     notificationurl=""
 fi
@@ -102,9 +102,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         # Clean container and start all needed containers #
         clean_environment
 
-        if [ $RUNMODE == "KUBE" ]; then
-            start_kube_proxy
-        fi
+        start_kube_proxy
 
         start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
@@ -158,7 +156,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_equal json:policy_types 1 300  #Wait for the agent to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 600 "$CR_SERVICE_PATH/1"
+        api_put_service 201 "serv1" 600 "$CR_SERVICE_APP_PATH/1"
 
         echo "Check the number of types in the agent for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))

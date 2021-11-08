@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $DMAAP_MED_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $DMAAP_MED_APP_NAME
+    autotest: DMAAPMED
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $DMAAP_MED_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $DMAAP_MED_APP_NAME
+        autotest: DMAAPMED
+    spec:
+      containers:
+      - name: $DMAAP_MED_APP_NAME
+        image: $DMAAP_MED_IMAGE
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
+        ports:
+        - name: http
+          containerPort: $DMAAP_MED_INTERNAL_PORT
+        - name: https
+          containerPort: $DMAAP_MED_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $DMAAP_MED_DATA_MOUNT_PATH/$DMAAP_MED_DATA_FILE
+          subPath: $DMAAP_MED_DATA_FILE
+          name: dmaapadp-data-name
+        env:
+        - name: INFO_PRODUCER_HOST
+          value: "$DMAAP_MED_CONF_SELF_HOST"
+        - name: INFO_PRODUCER_PORT
+          value: "$DMAAP_MED_CONF_SELF_PORT"
+        - name: INFO_COORD_ADDR
+          value: "$ECS_SERVICE_PATH"
+        - name: DMAAP_MR_ADDR
+          value: "$MR_SERVICE_PATH"
+        - name: LOG_LEVEL
+          value: "Debug"
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $DMAAP_MED_DATA_CONFIGMAP_NAME
+        name: dmaapadp-data-name
+# Selector will be set when pod is started first time
+      nodeSelector:
+

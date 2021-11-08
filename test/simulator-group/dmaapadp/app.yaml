@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $DMAAP_ADP_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $DMAAP_ADP_APP_NAME
+    autotest: DMAAPADP
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $DMAAP_ADP_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $DMAAP_ADP_APP_NAME
+        autotest: DMAAPADP
+    spec:
+      containers:
+      - name: $DMAAP_ADP_APP_NAME
+        image: $DMAAP_ADP_IMAGE
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
+        ports:
+        - name: http
+          containerPort: $DMAAP_ADP_INTERNAL_PORT
+        - name: https
+          containerPort: $DMAAP_ADP_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $DMAAP_ADP_CONFIG_MOUNT_PATH
+          name: dmaapadp-conf-name
+        - mountPath: $DMAAP_ADP_DATA_MOUNT_PATH
+          name: dmaapadp-data-name
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $DMAAP_ADP_CONFIG_CONFIGMAP_NAME
+        name: dmaapadp-conf-name
+      - configMap:
+          defaultMode: 420
+          name: $DMAAP_ADP_DATA_CONFIGMAP_NAME
+        name: dmaapadp-data-name
+# Selector will be set when pod is started first time
+      nodeSelector:
+

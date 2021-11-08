@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="ECS Create 10000 jobs (ei and info) restart, test job persistency"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR CP NGW"
+DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR CP NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="ECS PRODSTUB CP CR KUBEPROXY NGW"
@@ -55,9 +55,7 @@ FLAT_A1_EI="1"
 
 clean_environment
 
-if [ $RUNMODE == "KUBE" ]; then
-    start_kube_proxy
-fi
+start_kube_proxy
 
 use_ecs_rest_http
 
@@ -90,8 +88,8 @@ fi
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     #Type registration status callbacks
-    TYPESTATUS1="$CR_SERVICE_PATH/type-status1"
-    TYPESTATUS2="$CR_SERVICE_PATH/type-status2"
+    TYPESTATUS1="$CR_SERVICE_APP_PATH/type-status1"
+    TYPESTATUS2="$CR_SERVICE_APP_PATH/type-status2"
 
     ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
 
@@ -275,62 +273,62 @@ ecs_api_edp_get_producer_status 200 prod-d ENABLED
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        ecs_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type1 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        ecs_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type2 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        ecs_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type3 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        ecs_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type4 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        ecs_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type5 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi

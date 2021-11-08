@@ -1,0 +1,9 @@
+{
+  "types": [
+     {
+        "id": "ExampleInformationType",
+        "dmaapTopicUrl": "/events/unauthenticated.dmaapadp.json/dmaapadapterproducer/msgs",
+        "useHttpProxy": ${DMMAAP_ADP_PROXY_FLAG}
+     }
+  ]
+}

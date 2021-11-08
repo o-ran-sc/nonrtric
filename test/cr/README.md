@@ -48,7 +48,8 @@ There are a number of counters that can be read to monitor the message processin
 ```/counter/fetched_callbacks``` - The total number of fetched callbacks<br>
 ```/counter/current_messages``` - The current number of callback messages waiting to be fetched<br>
 All counters also support the query parameter "id" to fetch counter for one individual id, eg ```/counter/current_messages?id=my-id```
-
+An additional counter is available to log remote hosts calling the server
+```/counter/remote_hosts``` - Lists all unique ip/host name that has sent messages on the callback endpoint<br>
 
 ### Build and start
 

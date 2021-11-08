@@ -184,6 +184,11 @@ KUBE_PROXY_IMAGE_BASE="nodejs-kube-proxy"
 KUBE_PROXY_IMAGE_TAG_LOCAL="latest"
 #No remote image for kube proxy, local image always used
 
+#Kube proxy remote image and tag
+PVC_CLEANER_IMAGE_BASE="ubuntu"
+PVC_CLEANER_IMAGE_TAG_REMOTE_PROXY="20.10"
+#No local image for pvc cleaner, remote image always used
+
 # List of app short names produced by the project
 PROJECT_IMAGES_APP_NAMES="PA ECS CP RC RICSIM NGW"  # Add SDNC here if oran image is used
 
@@ -202,7 +207,9 @@ DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker privat
 
 KUBE_NONRTRIC_NAMESPACE="nonrtric"                       # Namespace for all nonrtric components
 KUBE_SIM_NAMESPACE="nonrtric-ft"                         # Namespace for simulators (except MR and RICSIM)
+KUBE_A1SIM_NAMESPACE="a1-sim"                          # Namespace for a1-p simulators (RICSIM)
 KUBE_ONAP_NAMESPACE="onap"                               # Namespace for onap (only message router)
+KUBE_SNDC_NAMESPACE="onap"                               # Namespace for sdnc
 
 POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
 POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
@@ -226,7 +233,6 @@ POLICY_AGENT_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config" # Path in containe
 POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container for data file
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
-POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 
 ECS_APP_NAME="enrichmentservice"                         # Name for ECS container
@@ -272,6 +278,7 @@ MR_DMAAP_COMPOSE_DIR="dmaapmr"                           # Dir in simulator_grou
 MR_STUB_COMPOSE_DIR="mrstub"                             # Dir in simulator_group for mr stub for - docker-compose
 MR_KAFKA_APP_NAME="kafka"                                # Kafka app name
 MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
+MR_DMAAP_HOST_MNT_DIR="/mnt"                              # Config files dir on localhost
 
 
 CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
@@ -437,6 +444,11 @@ KUBE_PROXY_WEB_INTERNAL_SECURE_PORT=8434                 # Kube Proxy container 
 KUBE_PROXY_PATH=""                                       # Proxy url path, will be set if proxy is started
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
+
+
+PVC_CLEANER_APP_NAME="pvc-cleaner"                      # Name for Persistent Volume Cleaner container
+PVC_CLEANER_DISPLAY_NAME="Persistent Volume Cleaner"    # Display name for Persistent Volume Cleaner
+PVC_CLEANER_COMPOSE_DIR="pvc-cleaner"                   # Dir in simulator_group for yamls
 
 ########################################
 # Setting for common curl-base function

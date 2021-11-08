@@ -42,12 +42,15 @@ ORAN CHERRY
 
 ORAN D-RELEASE
 =========
->```./PM_EI_DEMO.sh remote-remove  docker   --env-file ../common/test_env-oran-d-release.sh  --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-d-release.sh  --use-release-image SDNC```
 
->```./PM_EI_DEMO.sh remote-remove  kube   --env-file ../common/test_env-oran-d-release.sh  --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-d-release.sh  --use-release-image SDNC```
 
-Note that D-Release has not updated the SDNC so cherry release is used<br>
-Note: When D-Release is released, add the 'release' arg to run released images.
+ORAN E-RELEASE
+=========
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-e-release.sh```
+
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-e-release.sh```
 
 ONAP GUILIN
 ===========
@@ -65,9 +68,9 @@ ONAP HONOLULU
 
 ONAP ISTANBUL
 =============
->```./PM_EI_DEMO.sh remote-remove  docker   --env-file ../common/test_env-onap-istanbul.sh```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-istanbul.sh```
 
->```./PM_EI_DEMO.sh remote-remove  kube   --env-file ../common/test_env-onap-istanbul.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-istanbul.sh```
 
 Note: When istanbul is released, add the 'release' arg to run released images.
 
@@ -85,6 +88,14 @@ The numbering in each series corresponds to the following groupings
 800-899 - Stability and capacity test
 
 900-999 - Misc test
+
+11XX - ECS API Tests
+
+18XX - ECS Stability and capacity test
+
+2000 - Southbound http proxy tests
+
+30XX - rApp tests
 
 Suites
 

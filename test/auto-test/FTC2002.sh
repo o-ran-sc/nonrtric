@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Testing southbound proxy for SDNC - docker only"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="RICSIM SDNC HTTPPROXY"
+DOCKER_INCLUDED_IMAGES="RICSIM SDNC HTTPPROXY KUBEPROXY"
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=""
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
@@ -64,6 +64,8 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
         # Clean container and start all needed containers #
         clean_environment
+
+        start_kube_proxy
 
         start_http_proxy
 

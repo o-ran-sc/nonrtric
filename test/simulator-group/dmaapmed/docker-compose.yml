@@ -1,0 +1,40 @@
+#  ============LICENSE_START===============================================
+#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+version: '3.0'
+networks:
+  default:
+    external:
+      name: ${DOCKER_SIM_NWNAME}
+services:
+  dmaap-mediator-service:
+    image: ${DMAAP_MED_IMAGE}
+    container_name: ${DMAAP_MED_APP_NAME}
+
+    ports:
+    - ${DMAAP_MED_EXTERNAL_PORT}:${DMAAP_MED_INTERNAL_PORT}
+    - ${DMAAP_MED_EXTERNAL_SECURE_PORT}:${DMAAP_MED_INTERNAL_SECURE_PORT}
+    environment:
+      - INFO_PRODUCER_HOST=${DMAAP_MED_CONF_SELF_HOST}
+      - INFO_PRODUCER_PORT=${DMAAP_MED_CONF_SELF_PORT}
+      - INFO_COORD_ADDR=${ECS_SERVICE_PATH}
+      - DMAAP_MR_ADDR=${MR_SERVICE_PATH}
+      - LOG_LEVEL="Debug"
+    volumes:
+    - ${DMAAP_MED_HOST_MNT_DIR}/$DMAAP_MED_DATA_FILE:${DMAAP_MED_DATA_MOUNT_PATH}/$DMAAP_MED_DATA_FILE
+    labels:
+      - "nrttest_app=DMAAPMED"
+      - "nrttest_dp=${DMAAP_MED_DISPLAY_NAME}"

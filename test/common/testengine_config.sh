@@ -18,16 +18,22 @@
 #
 
 # List of short names for all supported apps, including simulators etc
-APP_SHORT_NAMES="PA ECS SDNC CP NGW RC RICSIM HTTPPROXY CBS CONSUL DMAAPMR MR CR PRODSTUB KUBEPROXY"
+APP_SHORT_NAMES="PA ECS SDNC CP NGW RC RICSIM HTTPPROXY CBS CONSUL DMAAPMR MR CR PRODSTUB KUBEPROXY DMAAPMED DMAAPADP PVCCLEANER"
 
 # List of available apps that built and released of the project
-PROJECT_IMAGES="PA ECS SDNC CP NGW RICSIM RC"
+PROJECT_IMAGES="PA ECS SDNC CP NGW RICSIM RC DMAAPMED DMAAPADP"
 
 # List of available apps to override with local or remote staging/snapshot/release image
-AVAILABLE_IMAGES_OVERRIDE="PA ECS SDNC CP NGW RICSIM RC"
+AVAILABLE_IMAGES_OVERRIDE="PA ECS SDNC CP NGW RICSIM RC DMAAPMED DMAAPADP"
 
 # List of available apps where the image is built by the test environment
 LOCAL_IMAGE_BUILD="MR CR PRODSTUB KUBEPROXY HTTPPROXY"
+
+# List of system app used only by the test env - kubernetes
+TESTENV_KUBE_SYSTEM_APPS="PVCCLEANER"
+
+# List of system app used only by the test env - docker
+TESTENV_DOCKER_SYSTEM_APPS=""
 
 
 #Integrate a new app into the test environment
@@ -41,6 +47,7 @@ LOCAL_IMAGE_BUILD="MR CR PRODSTUB KUBEPROXY HTTPPROXY"
 #   This is default...so normally images shall be possible to override
 # 5 If the image is built by the test script,
 #   add the short name to LOCAL_IMAGE_BUILD
+# 6 Special app used only by the test env is added to TESTENV_KUBE_SYSTEM_APPS and/or TESTENV_DOCKER_SYSTEM_APPS
 # Summary:
 # All app short name shall exist in APP_SHORT_NAMES
 # Then the app short name be added to both PROJECT_IMAGES and AVAILABLE_IMAGES_OVERRIDE
