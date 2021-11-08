@@ -26,7 +26,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hashicorp/go-retryablehttp"
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
@@ -48,16 +47,15 @@ func main() {
 	}
 	callbackAddress := fmt.Sprintf("%v:%v", configuration.InfoProducerHost, configuration.InfoProducerPort)
 
-	var retryClient restclient.HTTPClient
-	if cert, err := createClientCertificate(); err == nil {
-		retryClient = createRetryClient(cert)
+	var cert tls.Certificate
+	if c, err := restclient.CreateClientCertificate(configuration.ProducerCertPath, configuration.ProducerKeyPath); err == nil {
+		cert = c
 	} else {
 		log.Fatalf("Stopping producer due to error: %v", err)
 	}
+	retryClient := restclient.CreateRetryClient(cert)
 
-	jobsManager := jobs.NewJobsManagerImpl("configs/type_config.json", retryClient, configuration.DMaaPMRAddress, &http.Client{
-		Timeout: time.Second * 5,
-	})
+	jobsManager := jobs.NewJobsManagerImpl("configs/type_config.json", retryClient, configuration.DMaaPMRAddress, restclient.CreateClientWithoutRetry(cert, 5*time.Second))
 	if err := registerTypesAndProducer(jobsManager, configuration.InfoCoordinatorAddress, callbackAddress, retryClient); err != nil {
 		log.Fatalf("Stopping producer due to: %v", err)
 	}
@@ -67,7 +65,11 @@ func main() {
 	go func() {
 		log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
 		r := server.NewRouter(jobsManager)
-		log.Fatalf("Server stopped: %v", http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.InfoProducerPort), configuration.ProducerCertPath, configuration.ProducerKeyPath, r))
+		if restclient.IsUrlSecure(callbackAddress) {
+			log.Fatalf("Server stopped: %v", http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.InfoProducerPort), configuration.ProducerCertPath, configuration.ProducerKeyPath, r))
+		} else {
+			log.Fatalf("Server stopped: %v", http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), r))
+		}
 	}()
 
 	keepProducerAlive()
@@ -82,34 +84,9 @@ func validateConfiguration(configuration *config.Config) error {
 	}
 	return nil
 }
-
-func createClientCertificate() (*tls.Certificate, error) {
-	if cert, err := tls.LoadX509KeyPair(configuration.ProducerCertPath, configuration.ProducerKeyPath); err == nil {
-		return &cert, nil
-	} else {
-		return nil, fmt.Errorf("cannot create x509 keypair from cert file %s and key file %s due to: %v", configuration.ProducerCertPath, configuration.ProducerKeyPath, err)
-	}
-}
-
-func createRetryClient(cert *tls.Certificate) *http.Client {
-	rawRetryClient := retryablehttp.NewClient()
-	rawRetryClient.RetryWaitMax = time.Minute
-	rawRetryClient.RetryMax = int(^uint(0) >> 1)
-	rawRetryClient.HTTPClient.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{
-			Certificates: []tls.Certificate{
-				*cert,
-			},
-			InsecureSkipVerify: true,
-		},
-	}
-
-	return rawRetryClient.StandardClient()
-}
-
-func registerTypesAndProducer(jobHandler jobs.JobTypesManager, infoCoordinatorAddress string, callbackAddress string, client restclient.HTTPClient) error {
+func registerTypesAndProducer(jobTypesHandler jobs.JobTypesManager, infoCoordinatorAddress string, callbackAddress string, client restclient.HTTPClient) error {
 	registrator := config.NewRegistratorImpl(infoCoordinatorAddress, client)
-	if types, err := jobHandler.LoadTypesFromConfiguration(); err == nil {
+	if types, err := jobTypesHandler.LoadTypesFromConfiguration(); err == nil {
 		if regErr := registrator.RegisterTypes(types); regErr != nil {
 			return fmt.Errorf("unable to register all types due to: %v", regErr)
 		}
@@ -118,7 +95,7 @@ func registerTypesAndProducer(jobHandler jobs.JobTypesManager, infoCoordinatorAd
 	}
 	producer := config.ProducerRegistrationInfo{
 		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusPath,
-		SupportedInfoTypes:                 jobHandler.GetSupportedTypes(),
+		SupportedInfoTypes:                 jobTypesHandler.GetSupportedTypes(),
 		InfoJobCallbackUrl:                 callbackAddress + server.AddJobPath,
 	}
 	if err := registrator.RegisterProducer("DMaaP_Mediator_Producer", &producer); err != nil {

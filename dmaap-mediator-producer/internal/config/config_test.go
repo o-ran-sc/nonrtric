@@ -72,8 +72,8 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		InfoProducerPort:       8085,
 		InfoCoordinatorAddress: "https://enrichmentservice:8434",
 		DMaaPMRAddress:         "https://message-router.onap:3905",
-		ProducerCertPath:       "configs/producer.crt",
-		ProducerKeyPath:        "configs/producer.key",
+		ProducerCertPath:       "security/producer.crt",
+		ProducerKeyPath:        "security/producer.key",
 	}
 	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
 		t.Errorf("New() = %v, want %v", got, &wantConfig)
@@ -99,8 +99,8 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 		InfoProducerPort:       8085,
 		InfoCoordinatorAddress: "https://enrichmentservice:8434",
 		DMaaPMRAddress:         "https://message-router.onap:3905",
-		ProducerCertPath:       "configs/producer.crt",
-		ProducerKeyPath:        "configs/producer.key",
+		ProducerCertPath:       "security/producer.crt",
+		ProducerKeyPath:        "security/producer.key",
 	}
 
 	got := New()
