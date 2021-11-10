@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70e13ab4_9464dd61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2021-11-10T11:21:31Z",
+      "side": 1,
+      "message": "Added a comment",
+      "revId": "fac7ab294778347fef06aa6ed2bee849b4464345",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "239bf56c_61a54f32",
+        "filename": "dmaap-mediator-producer/internal/restclient/HTTPClient.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2021-11-10T11:21:31Z",
+      "side": 1,
+      "message": "you could use the math.MaxInt constant from the math library here instead.",
+      "range": {
+        "startLine": 118,
+        "startChar": 27,
+        "endLine": 118,
+        "endChar": 45
+      },
+      "revId": "fac7ab294778347fef06aa6ed2bee849b4464345",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
