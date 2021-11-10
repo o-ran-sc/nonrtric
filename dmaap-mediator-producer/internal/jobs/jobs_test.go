@@ -74,11 +74,11 @@ func TestManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T) {
 		InfoJobData:      "{}",
 		InfoTypeIdentity: "type1",
 	}
-	jobHandler := jobHandler{
+	jobHandler := jobsHandler{
 		addJobCh: make(chan JobInfo)}
 	managerUnderTest.allTypes["type1"] = TypeData{
-		TypeId:     "type1",
-		jobHandler: &jobHandler,
+		TypeId:      "type1",
+		jobsHandler: &jobHandler,
 	}
 
 	var err error
@@ -137,11 +137,11 @@ func TestManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 func TestManagerDeleteJob(t *testing.T) {
 	assertions := require.New(t)
 	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
-	jobHandler := jobHandler{
+	jobHandler := jobsHandler{
 		deleteJobCh: make(chan string)}
 	managerUnderTest.allTypes["type1"] = TypeData{
-		TypeId:     "type1",
-		jobHandler: &jobHandler,
+		TypeId:      "type1",
+		jobsHandler: &jobHandler,
 	}
 
 	go managerUnderTest.DeleteJob("job2")
@@ -190,7 +190,7 @@ func TestHandlerPollAndDistributeMessages(t *testing.T) {
 		InfoJobIdentity:  "job1",
 		TargetUri:        "http://consumerHost/target",
 	}
-	handlerUnderTest := jobHandler{
+	handlerUnderTest := jobsHandler{
 		topicUrl:         "/topicUrl",
 		jobs:             map[string]JobInfo{jobInfo.InfoJobIdentity: jobInfo},
 		pollClient:       pollClientMock,
@@ -216,7 +216,7 @@ func TestHandlerAddJob_shouldAddJobToJobsMap(t *testing.T) {
 	}
 
 	addCh := make(chan JobInfo)
-	handlerUnderTest := jobHandler{
+	handlerUnderTest := jobsHandler{
 		mu:       sync.Mutex{},
 		jobs:     map[string]JobInfo{},
 		addJobCh: addCh,
@@ -236,7 +236,7 @@ func TestHandlerDeleteJob_shouldDeleteJobFromJobsMap(t *testing.T) {
 	assertions := require.New(t)
 
 	deleteCh := make(chan string)
-	handlerUnderTest := jobHandler{
+	handlerUnderTest := jobsHandler{
 		mu: sync.Mutex{},
 		jobs: map[string]JobInfo{"job1": {
 			InfoJobIdentity: "job1",
