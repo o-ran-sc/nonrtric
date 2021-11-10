@@ -70,8 +70,8 @@ func Put(url string, body []byte, client HTTPClient) error {
 	return do(http.MethodPut, url, body, client)
 }
 
-func Post(url string, body []byte, client HTTPClient) error {
-	return do(http.MethodPost, url, body, client)
+func Post(url string, body *[]byte, client HTTPClient) error {
+	return do(http.MethodPost, url, *body, client)
 }
 
 func do(method string, url string, body []byte, client HTTPClient) error {
