@@ -1028,7 +1028,7 @@ class ApplicationTest {
         // Test that subscriptions are removed for a unresponsive consumer
 
         // PUT a subscription with a junk callback
-        final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(baseUrl() + "JUNK", "owner");
+        final ConsumerTypeSubscriptionInfo info = new ConsumerTypeSubscriptionInfo(baseUrl() + "/JUNK", "owner");
         String body = gson.toJson(info);
         restClient().putForEntity(typeSubscriptionUrl() + "/subscriptionId", body).block();
         assertThat(this.infoTypeSubscriptions.size()).isEqualTo(1);

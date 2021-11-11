@@ -67,96 +67,85 @@ public class AsyncRestClient {
         logger.debug("{} POST uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} POST body: {}", traceTag, body);
         Mono<String> bodyProducer = body != null ? Mono.just(body) : Mono.empty();
-        return getWebClient() //
-            .flatMap(client -> {
-                RequestHeadersSpec<?> request = client.post() //
-                    .uri(uri) //
-                    .contentType(MediaType.APPLICATION_JSON) //
-                    .body(bodyProducer, String.class);
-                return retrieve(traceTag, request);
-            });
+
+        RequestHeadersSpec<?> request = getWebClient() //
+            .post() //
+            .uri(uri) //
+            .contentType(MediaType.APPLICATION_JSON) //
+            .body(bodyProducer, String.class);
+        return retrieve(traceTag, request);
     }
 
     public Mono<String> post(String uri, @Nullable String body) {
         return postForEntity(uri, body) //
-            .flatMap(this::toBody);
+            .map(this::toBody);
     }
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
         Object traceTag = createTraceTag();
         logger.debug("{} POST (auth) uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} POST body: {}", traceTag, body);
-        return getWebClient() //
-            .flatMap(client -> {
-                RequestHeadersSpec<?> request = client.post() //
-                    .uri(uri) //
-                    .headers(headers -> headers.setBasicAuth(username, password)) //
-                    .contentType(MediaType.APPLICATION_JSON) //
-                    .bodyValue(body);
-                return retrieve(traceTag, request) //
-                    .flatMap(this::toBody);
-            });
+
+        RequestHeadersSpec<?> request = getWebClient() //
+            .post() //
+            .uri(uri) //
+            .headers(headers -> headers.setBasicAuth(username, password)) //
+            .contentType(MediaType.APPLICATION_JSON) //
+            .bodyValue(body);
+        return retrieve(traceTag, request) //
+            .map(this::toBody);
     }
 
     public Mono<ResponseEntity<String>> putForEntity(String uri, String body) {
         Object traceTag = createTraceTag();
         logger.debug("{} PUT uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} PUT body: {}", traceTag, body);
-        return getWebClient() //
-            .flatMap(client -> {
-                RequestHeadersSpec<?> request = client.put() //
-                    .uri(uri) //
-                    .contentType(MediaType.APPLICATION_JSON) //
-                    .bodyValue(body);
-                return retrieve(traceTag, request);
-            });
+
+        RequestHeadersSpec<?> request = getWebClient() //
+            .put() //
+            .uri(uri) //
+            .contentType(MediaType.APPLICATION_JSON) //
+            .bodyValue(body);
+        return retrieve(traceTag, request);
     }
 
     public Mono<ResponseEntity<String>> putForEntity(String uri) {
         Object traceTag = createTraceTag();
         logger.debug("{} PUT uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} PUT body: <empty>", traceTag);
-        return getWebClient() //
-            .flatMap(client -> {
-                RequestHeadersSpec<?> request = client.put() //
-                    .uri(uri);
-                return retrieve(traceTag, request);
-            });
+        RequestHeadersSpec<?> request = getWebClient() //
+            .put() //
+            .uri(uri);
+        return retrieve(traceTag, request);
     }
 
     public Mono<String> put(String uri, String body) {
         return putForEntity(uri, body) //
-            .flatMap(this::toBody);
+            .map(this::toBody);
     }
 
     public Mono<ResponseEntity<String>> getForEntity(String uri) {
         Object traceTag = createTraceTag();
         logger.debug("{} GET uri = '{}{}''", traceTag, baseUrl, uri);
-        return getWebClient() //
-            .flatMap(client -> {
-                RequestHeadersSpec<?> request = client.get().uri(uri);
-                return retrieve(traceTag, request);
-            });
+        RequestHeadersSpec<?> request = getWebClient().get().uri(uri);
+        return retrieve(traceTag, request);
     }
 
     public Mono<String> get(String uri) {
         return getForEntity(uri) //
-            .flatMap(this::toBody);
+            .map(this::toBody);
     }
 
     public Mono<ResponseEntity<String>> deleteForEntity(String uri) {
         Object traceTag = createTraceTag();
         logger.debug("{} DELETE uri = '{}{}''", traceTag, baseUrl, uri);
-        return getWebClient() //
-            .flatMap(client -> {
-                RequestHeadersSpec<?> request = client.delete().uri(uri);
-                return retrieve(traceTag, request);
-            });
+        RequestHeadersSpec<?> request = getWebClient().delete().uri(uri);
+        return retrieve(traceTag, request);
     }
 
     public Mono<String> delete(String uri) {
         return deleteForEntity(uri) //
-            .flatMap(this::toBody);
+            .map(this::toBody);
     }
 
     private Mono<ResponseEntity<String>> retrieve(Object traceTag, RequestHeadersSpec<?> request) {
@@ -185,11 +174,11 @@ public class AsyncRestClient {
         }
     }
 
-    private Mono<String> toBody(ResponseEntity<String> entity) {
+    private String toBody(ResponseEntity<String> entity) {
         if (entity.getBody() == null) {
-            return Mono.just("");
+            return "";
         } else {
-            return Mono.just(entity.getBody());
+            return entity.getBody();
         }
     }
 
@@ -229,11 +218,10 @@ public class AsyncRestClient {
             .build();
     }
 
-    private Mono<WebClient> getWebClient() {
+    private WebClient getWebClient() {
         if (this.webClient == null) {
             this.webClient = buildWebClient(baseUrl);
         }
-        return Mono.just(buildWebClient(baseUrl));
+        return this.webClient;
     }
-
 }

@@ -84,7 +84,7 @@ public class ProducerCallbacks {
         return Flux.fromIterable(getProducersForJob(infoJob, infoProducers)) //
             .flatMap(infoProducer -> startInfoJob(infoProducer, infoJob, retrySpec)) //
             .collectList() //
-            .flatMap(okResponses -> Mono.just(Integer.valueOf(okResponses.size()))); //
+            .map(okResponses -> Integer.valueOf(okResponses.size())); //
     }
 
     /**

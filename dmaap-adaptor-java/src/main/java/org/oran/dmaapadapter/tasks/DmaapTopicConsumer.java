@@ -45,7 +45,6 @@ public class DmaapTopicConsumer {
 
     private final AsyncRestClient dmaapRestClient;
     private final InfiniteFlux infiniteSubmitter = new InfiniteFlux();
-    private final AsyncRestClient consumerRestClient;
     protected final ApplicationConfig applicationConfig;
     protected final InfoType type;
     protected final Jobs jobs;
@@ -85,8 +84,6 @@ public class DmaapTopicConsumer {
         AsyncRestClientFactory restclientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
         this.dmaapRestClient = restclientFactory.createRestClientNoHttpProxy("");
         this.applicationConfig = applicationConfig;
-        this.consumerRestClient = type.isUseHttpProxy() ? restclientFactory.createRestClientUseHttpProxy("")
-                : restclientFactory.createRestClientNoHttpProxy("");
         this.type = type;
         this.jobs = jobs;
     }
@@ -108,7 +105,8 @@ public class DmaapTopicConsumer {
 
     private Mono<String> handleDmaapErrorResponse(Throwable t) {
         logger.debug("error from DMAAP {} {}", t.getMessage(), type.getDmaapTopicUrl());
-        return Mono.delay(TIME_BETWEEN_DMAAP_RETRIES).flatMap(notUsed -> Mono.empty());
+        return Mono.delay(TIME_BETWEEN_DMAAP_RETRIES) //
+                .flatMap(notUsed -> Mono.empty());
     }
 
     private Mono<String> getFromMessageRouter(String topicUrl) {
@@ -130,8 +128,8 @@ public class DmaapTopicConsumer {
 
         // Distibute the body to all jobs for this type
         return Flux.fromIterable(this.jobs.getJobsForType(this.type)) //
-                .doOnNext(job -> logger.debug("Sending to consumer {}", job.getCallbackUrl()))
-                .flatMap(job -> consumerRestClient.post(job.getCallbackUrl(), body), CONCURRENCY) //
+                .doOnNext(job -> logger.debug("Sending to consumer {}", job.getCallbackUrl())) //
+                .flatMap(job -> job.getConsumerRestClient().post("", body), CONCURRENCY) //
                 .onErrorResume(this::handleConsumerErrorResponse);
     }
 }
