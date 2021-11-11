@@ -82,11 +82,9 @@ public class ProducerCallbacksController {
             @RequestBody String body) {
         try {
             ProducerJobInfo request = gson.fromJson(body, ProducerJobInfo.class);
-
-            logger.info("Job started callback {}", request.id);
-            Job job = new Job(request.id, request.targetUri, types.getType(request.typeId), request.owner,
+            logger.debug("Job started callback {}", request.id);
+            this.jobs.addJob(request.id, request.targetUri, types.getType(request.typeId), request.owner,
                     request.lastUpdated, toJobParameters(request.jobData));
-            this.jobs.put(job);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -123,7 +121,7 @@ public class ProducerCallbacksController {
     public ResponseEntity<Object> jobDeletedCallback( //
             @PathVariable("infoJobId") String infoJobId) {
 
-        logger.info("Job deleted callback {}", infoJobId);
+        logger.debug("Job deleted callback {}", infoJobId);
         this.jobs.remove(infoJobId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

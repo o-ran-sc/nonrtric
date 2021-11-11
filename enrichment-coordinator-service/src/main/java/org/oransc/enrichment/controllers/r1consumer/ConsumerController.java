@@ -308,7 +308,7 @@ public class ConsumerController {
         return validatePutInfoJob(jobId, informationJobObject, performTypeCheck) //
             .flatMap(this::startInfoSubscriptionJob) //
             .doOnNext(this.infoJobs::put) //
-            .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
+            .map(newEiJob -> new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)) //
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
 
@@ -441,7 +441,7 @@ public class ConsumerController {
         return this.producerCallbacks.startInfoSubscriptionJob(newInfoJob, infoProducers) //
             .doOnNext(noOfAcceptingProducers -> this.logger.debug("Started job {}, number of activated producers: {}",
                 newInfoJob.getId(), noOfAcceptingProducers)) //
-            .flatMap(noOfAcceptingProducers -> Mono.just(newInfoJob));
+            .map(noOfAcceptingProducers -> newInfoJob);
     }
 
     private Mono<InfoJob> validatePutInfoJob(String jobId, ConsumerJobInfo jobInfo, boolean performTypeCheck) {

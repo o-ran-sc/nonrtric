@@ -222,8 +222,7 @@ public class InfoTypeSubscriptions {
     private Mono<String> notifySubscriber(Function<? super SubscriptionInfo, Mono<String>> notifyFunc,
         SubscriptionInfo subscriptionInfo) {
         Retry retrySpec = Retry.backoff(3, Duration.ofSeconds(1));
-        return Mono.just(1) //
-            .flatMap(notUsed -> notifyFunc.apply(subscriptionInfo)) //
+        return notifyFunc.apply(subscriptionInfo) //
             .retryWhen(retrySpec) //
             .onErrorResume(throwable -> {
                 logger.warn("Consumer callback failed {}, removing subscription {}", throwable.getMessage(),
