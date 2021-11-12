@@ -22,6 +22,30 @@
       },
       "revId": "5e1623ab25b62c6c28849bfd862eba4648465922",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5174ceab_bfcd0451",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/KafkaTopicConsumer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-12T08:59:59Z",
+      "side": 1,
+      "message": "To get higher throughput. Order might be important ... or not, that depends. \nI might later make it a choice (parameter) for the consumer (to choose between throughput and guaranteed order).",
+      "parentUuid": "86552aa7_807266ad",
+      "range": {
+        "startLine": 81,
+        "startChar": 32,
+        "endLine": 81,
+        "endChar": 78
+      },
+      "revId": "5e1623ab25b62c6c28849bfd862eba4648465922",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
