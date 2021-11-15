@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0181602_ff3ec0f0",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/DmaapTopicConsumers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-15T16:00:01Z",
+      "side": 1,
+      "message": "This description does no longer match what the class does.",
+      "range": {
+        "startLine": 31,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 53
+      },
+      "revId": "00cd2a437fff47ba7e85d0872b252eba3f9bafe2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd375a72_f870f0ff",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/DmaapTopicConsumers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-15T16:00:01Z",
+      "side": 1,
+      "message": "I don\u0027t think this is needed any more",
+      "range": {
+        "startLine": 34,
+        "startChar": 18,
+        "endLine": 34,
+        "endChar": 31
+      },
+      "revId": "00cd2a437fff47ba7e85d0872b252eba3f9bafe2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3d66960_9574130d",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/KafkaJobDataConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-15T16:00:01Z",
+      "side": 1,
+      "message": "It isn\u0027t that obvious that the consumer is started the first time by the restartNonRunningTasks in KafkaTopicConsumers. Why not call this method in KafkaTopicConsumers\u0027 constructor, like it is done in the DmaapTopicConsumers, to make it easier to understand?",
+      "range": {
+        "startLine": 52,
+        "startChar": 29,
+        "endLine": 52,
+        "endChar": 34
+      },
+      "revId": "00cd2a437fff47ba7e85d0872b252eba3f9bafe2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
