@@ -22,9 +22,11 @@ package org.oran.dmaapadapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParser;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +49,8 @@ import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Job;
 import org.oran.dmaapadapter.repository.Jobs;
+import org.oran.dmaapadapter.tasks.KafkaJobDataConsumer;
+import org.oran.dmaapadapter.tasks.KafkaTopicConsumers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +93,9 @@ class IntegrationWithKafka {
 
     @Autowired
     private EcsSimulatorController ecsSimulatorController;
+
+    @Autowired
+    private KafkaTopicConsumers kafkaTopicConsumers;
 
     private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
 
@@ -174,8 +181,9 @@ class IntegrationWithKafka {
         return "https://localhost:" + this.applicationConfig.getLocalServerHttpPort();
     }
 
-    private Object jobParametersAsJsonObject(String filter, int maxTimeMiliseconds, int maxSize) {
-        Job.Parameters param = new Job.Parameters(filter, new Job.BufferTimeout(maxSize, maxTimeMiliseconds));
+    private Object jobParametersAsJsonObject(String filter, long maxTimeMiliseconds, int maxSize, int maxConcurrency) {
+        Job.Parameters param =
+                new Job.Parameters(filter, new Job.BufferTimeout(maxSize, maxTimeMiliseconds), maxConcurrency);
         String str = gson.toJson(param);
         return jsonObject(str);
     }
@@ -188,13 +196,14 @@ class IntegrationWithKafka {
         }
     }
 
-    private ConsumerJobInfo consumerJobInfo(String filter, int maxTimeMiliseconds, int maxSize) {
+    private ConsumerJobInfo consumerJobInfo(String filter, Duration maxTime, int maxSize, int maxConcurrency) {
         try {
             InfoType type = this.types.getAll().iterator().next();
             String typeId = type.getId();
             String targetUri = baseUrl() + ConsumerController.CONSUMER_TARGET_URL;
-            return new ConsumerJobInfo(typeId, jobParametersAsJsonObject(filter, maxTimeMiliseconds, maxSize), "owner",
-                    targetUri, "");
+            return new ConsumerJobInfo(typeId,
+                    jobParametersAsJsonObject(filter, maxTime.toMillis(), maxSize, maxConcurrency), "owner", targetUri,
+                    "");
         } catch (Exception e) {
             return null;
         }
@@ -217,6 +226,24 @@ class IntegrationWithKafka {
         return SenderRecord.create(new ProducerRecord<>(infoType.getKafkaInputTopic(), i, data + i), i);
     }
 
+    private void sendDataToStream(Flux<SenderRecord<Integer, String, Integer>> dataToSend) {
+        final KafkaSender<Integer, String> sender = KafkaSender.create(senderOptions());
+
+        sender.send(dataToSend) //
+                .doOnError(e -> logger.error("Send failed", e)) //
+                .doOnError(t -> logger.error("Error {}", t)) //
+                .blockLast();
+
+    }
+
+    private void verifiedReceivedByConsumer(String... strings) {
+        ConsumerController.TestResults consumer = this.consumerController.testResults;
+        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(strings.length));
+        for (String s : strings) {
+            assertTrue(consumer.hasReceived(s));
+        }
+    }
+
     @Test
     void kafkaIntegrationTest() throws InterruptedException {
         final String JOB_ID1 = "ID1";
@@ -226,31 +253,56 @@ class IntegrationWithKafka {
         await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
         assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
 
-        // Create a job
-        this.ecsSimulatorController.addJob(consumerJobInfo(null, 10, 1000), JOB_ID1, restClient());
-        this.ecsSimulatorController.addJob(consumerJobInfo("^Message_1$", 0, 0), JOB_ID2, restClient());
+        // Create two jobs. One buffering and one with a filter
+        this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ofMillis(40), 1000, 20), JOB_ID1,
+                restClient());
+        this.ecsSimulatorController.addJob(consumerJobInfo("^Message_1$", Duration.ZERO, 0, 1), JOB_ID2, restClient());
+
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
 
-        final KafkaSender<Integer, String> sender = KafkaSender.create(senderOptions());
-
         var dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message_", i)); // Message_1, Message_2 etc.
+        sendDataToStream(dataToSend);
 
-        sender.send(dataToSend) //
-                .doOnError(e -> logger.error("Send failed", e)) //
-                .doOnNext(senderResult -> logger.debug("Sent {}", senderResult)) //
-                .doOnError(t -> logger.error("Error {}", t)) //
-                .blockLast();
+        verifiedReceivedByConsumer("Message_1", "[Message_1, Message_2, Message_3]");
 
-        ConsumerController.TestResults consumer = this.consumerController.testResults;
-        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(2));
-        assertThat(consumer.receivedBodies.get(0)).isEqualTo("Message_1");
-        assertThat(consumer.receivedBodies.get(1)).isEqualTo("[Message_1, Message_2, Message_3]");
-
-        // Delete the job
+        // Delete the jobs
         this.ecsSimulatorController.deleteJob(JOB_ID1, restClient());
         this.ecsSimulatorController.deleteJob(JOB_ID2, restClient());
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
+        await().untilAsserted(() -> assertThat(this.kafkaTopicConsumers.getActiveSubscriptions()).isEmpty());
+    }
+
+    @Test
+    void kafkaIOverflow() throws InterruptedException {
+        // This does not work. After an overflow, the kafka stream does not seem to work
+        //
+        final String JOB_ID1 = "ID1";
+        final String JOB_ID2 = "ID2";
+
+        // Register producer, Register types
+        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
+
+        // Create two jobs.
+        this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ZERO, 0, 1), JOB_ID1, restClient());
+        this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ZERO, 0, 1), JOB_ID2, restClient());
+
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
+
+        var dataToSend = Flux.range(1, 1000000).map(i -> senderRecord("Message_", i)); // Message_1, Message_2 etc.
+        sendDataToStream(dataToSend); // this will overflow
+
+        KafkaJobDataConsumer consumer = kafkaTopicConsumers.getActiveSubscriptions().values().iterator().next();
+        await().untilAsserted(() -> assertThat(consumer.isRunning()).isFalse());
+        this.consumerController.testResults.reset();
+
+        kafkaTopicConsumers.restartNonRunningTasks();
+
+        dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message__", i)); // Message_1
+        sendDataToStream(dataToSend);
+
+        verifiedReceivedByConsumer("Message__1", "Message__1");
     }
 
 }

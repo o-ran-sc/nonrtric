@@ -5,6 +5,9 @@
     "filter": {
       "type": "string"
     },
+    "maxConcurrency": {
+      "type": "integer"
+    },
     "bufferTimeout": {
       "type": "object",
       "properties": {
@@ -21,6 +24,5 @@
       ]
     }
   },
-  "required": [
-  ]
+  "required": []
 }
