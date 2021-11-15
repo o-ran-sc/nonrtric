@@ -20,39 +20,48 @@
 
 package org.oran.dmaapadapter.repository;
 
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.Getter;
 
 import org.immutables.gson.Gson;
+import org.oran.dmaapadapter.clients.AsyncRestClient;
 
 public class Job {
 
     @Gson.TypeAdapters
     public static class Parameters {
-        public String filter;
-        public BufferTimeout bufferTimeout;
+        @Getter
+        private String filter;
+        @Getter
+        private BufferTimeout bufferTimeout;
 
-        public Parameters() {
-        }
+        public Parameters() {}
 
         public Parameters(String filter, BufferTimeout bufferTimeout) {
             this.filter = filter;
             this.bufferTimeout = bufferTimeout;
         }
+    }
 
-        public static class BufferTimeout {
-            public BufferTimeout(int maxSize, int maxTimeMiliseconds) {
-                this.maxSize = maxSize;
-                this.maxTimeMiliseconds = maxTimeMiliseconds;
-            }
+    @Gson.TypeAdapters
+    public static class BufferTimeout {
+        public BufferTimeout(int maxSize, int maxTimeMiliseconds) {
+            this.maxSize = maxSize;
+            this.maxTimeMiliseconds = maxTimeMiliseconds;
+        }
 
-            public BufferTimeout() {
-            }
+        public BufferTimeout() {}
 
-            public int maxSize;
-            public int maxTimeMiliseconds;
+        @Getter
+        private int maxSize;
+
+        private int maxTimeMiliseconds;
+
+        public Duration getMaxTime() {
+            return Duration.ofMillis(maxTimeMiliseconds);
         }
     }
 
@@ -76,7 +85,11 @@ public class Job {
 
     private final Pattern jobDataFilter;
 
-    public Job(String id, String callbackUrl, InfoType type, String owner, String lastUpdated, Parameters parameters) {
+    @Getter
+    private final AsyncRestClient consumerRestClient;
+
+    public Job(String id, String callbackUrl, InfoType type, String owner, String lastUpdated, Parameters parameters,
+            AsyncRestClient consumerRestClient) {
         this.id = id;
         this.callbackUrl = callbackUrl;
         this.type = type;
@@ -88,6 +101,7 @@ public class Job {
         } else {
             jobDataFilter = null;
         }
+        this.consumerRestClient = consumerRestClient;
     }
 
     public boolean isFilterMatch(String data) {

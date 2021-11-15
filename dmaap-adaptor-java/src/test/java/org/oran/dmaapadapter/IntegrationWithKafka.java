@@ -175,8 +175,7 @@ class IntegrationWithKafka {
     }
 
     private Object jobParametersAsJsonObject(String filter, int maxTimeMiliseconds, int maxSize) {
-        Job.Parameters param = new Job.Parameters(filter,
-                new Job.Parameters.BufferTimeout(maxSize, maxTimeMiliseconds));
+        Job.Parameters param = new Job.Parameters(filter, new Job.BufferTimeout(maxSize, maxTimeMiliseconds));
         String str = gson.toJson(param);
         return jsonObject(str);
     }
@@ -228,8 +227,8 @@ class IntegrationWithKafka {
         assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
 
         // Create a job
-        this.ecsSimulatorController.addJob(consumerJobInfo(".*", 10, 1000), JOB_ID1, restClient());
-        this.ecsSimulatorController.addJob(consumerJobInfo(".*Message_1.*", 0, 0), JOB_ID2, restClient());
+        this.ecsSimulatorController.addJob(consumerJobInfo(null, 10, 1000), JOB_ID1, restClient());
+        this.ecsSimulatorController.addJob(consumerJobInfo("^Message_1$", 0, 0), JOB_ID2, restClient());
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
 
         final KafkaSender<Integer, String> sender = KafkaSender.create(senderOptions());

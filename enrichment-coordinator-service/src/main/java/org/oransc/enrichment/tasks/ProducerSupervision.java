@@ -80,7 +80,7 @@ public class ProducerSupervision {
             })//
             .doOnNext(response -> handleRespondingProducer(response, producer))
             .flatMap(response -> checkProducerJobs(producer)) //
-            .flatMap(responses -> Mono.just(producer));
+            .map(responses -> producer);
     }
 
     private Mono<?> checkProducerJobs(InfoProducer producer) {
