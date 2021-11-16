@@ -22,6 +22,30 @@
       },
       "revId": "c36a835df10ec393553ce785e4365bda477741b0",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec345b87_f6993b28",
+        "filename": "docker-compose/dmaap-mediator-go/docker-compose.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-11-16T12:50:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc45b9c1_4956032a",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 35,
+        "endChar": 52
+      },
+      "revId": "c36a835df10ec393553ce785e4365bda477741b0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
