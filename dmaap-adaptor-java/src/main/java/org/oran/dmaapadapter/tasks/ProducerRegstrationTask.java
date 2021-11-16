@@ -87,7 +87,6 @@ public class ProducerRegstrationTask {
     }
 
     private void handleRegistrationCompleted() {
-        logger.debug("Registering types and producer completed");
         isRegisteredInEcs = true;
     }
 
@@ -106,7 +105,7 @@ public class ProducerRegstrationTask {
     private Mono<Boolean> isRegisterredInfoCorrect(String registerredInfoStr) {
         ProducerRegistrationInfo registerredInfo = gson.fromJson(registerredInfoStr, ProducerRegistrationInfo.class);
         if (isEqual(producerRegistrationInfo(), registerredInfo)) {
-            logger.trace("Already registered");
+            logger.trace("Already registered in ECS");
             return Mono.just(Boolean.TRUE);
         } else {
             return Mono.just(Boolean.FALSE);
