@@ -43,9 +43,10 @@ import org.springframework.stereotype.Component;
 public class KafkaTopicConsumers {
     private static final Logger logger = LoggerFactory.getLogger(KafkaTopicConsumers.class);
 
-    private final Map<String, KafkaTopicListener> topicListeners = new HashMap<>();
+    private final Map<String, KafkaTopicListener> topicListeners = new HashMap<>(); // Key is typeId
+
     @Getter
-    private final Map<String, KafkaJobDataConsumer> activeSubscriptions = new HashMap<>();
+    private final Map<String, KafkaJobDataConsumer> activeSubscriptions = new HashMap<>(); // Key is jobId
 
     private static final int CONSUMER_SUPERVISION_INTERVAL_MS = 1000 * 60 * 3;
 
@@ -77,8 +78,8 @@ public class KafkaTopicConsumers {
         if (this.activeSubscriptions.get(job.getId()) == null && job.getType().isKafkaTopicDefined()) {
             logger.debug("Kafka job added {}", job.getId());
             KafkaTopicListener topicConsumer = topicListeners.get(job.getType().getId());
-            KafkaJobDataConsumer subscription = new KafkaJobDataConsumer(topicConsumer.getOutput(), job);
-            subscription.start();
+            KafkaJobDataConsumer subscription = new KafkaJobDataConsumer(job);
+            subscription.start(topicConsumer.getOutput());
             activeSubscriptions.put(job.getId(), subscription);
         }
     }
@@ -93,11 +94,18 @@ public class KafkaTopicConsumers {
 
     @Scheduled(fixedRate = CONSUMER_SUPERVISION_INTERVAL_MS)
     public synchronized void restartNonRunningTasks() {
+
         for (KafkaJobDataConsumer consumer : activeSubscriptions.values()) {
             if (!consumer.isRunning()) {
-                consumer.start();
+                restartTopic(consumer);
             }
         }
+    }
+
+    private void restartTopic(KafkaJobDataConsumer consumer) {
+        KafkaTopicListener topic = this.topicListeners.get(consumer.getJob().getType().getId());
+        topic.start();
+        this.activeSubscriptions.forEach((jobId, aConsumer) -> aConsumer.start(topic.getOutput()));
     }
 
 }
