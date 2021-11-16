@@ -269,13 +269,11 @@ class IntegrationWithKafka {
         this.ecsSimulatorController.deleteJob(JOB_ID2, restClient());
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
-        await().untilAsserted(() -> assertThat(this.kafkaTopicConsumers.getActiveSubscriptions()).isEmpty());
+        await().untilAsserted(() -> assertThat(this.kafkaTopicConsumers.getConsumers()).isEmpty());
     }
 
     @Test
     void kafkaIOverflow() throws InterruptedException {
-        // This does not work. After an overflow, the kafka stream does not seem to work
-        //
         final String JOB_ID1 = "ID1";
         final String JOB_ID2 = "ID2";
 
@@ -292,16 +290,17 @@ class IntegrationWithKafka {
         var dataToSend = Flux.range(1, 1000000).map(i -> senderRecord("Message_", i)); // Message_1, Message_2 etc.
         sendDataToStream(dataToSend); // this will overflow
 
-        KafkaJobDataConsumer consumer = kafkaTopicConsumers.getActiveSubscriptions().values().iterator().next();
+        KafkaJobDataConsumer consumer = kafkaTopicConsumers.getConsumers().values().iterator().next();
         await().untilAsserted(() -> assertThat(consumer.isRunning()).isFalse());
         this.consumerController.testResults.reset();
 
         kafkaTopicConsumers.restartNonRunningTasks();
+        Thread.sleep(1000); // Restarting the input seems to take some asynch time
 
-        dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message__", i)); // Message_1
+        dataToSend = Flux.range(1, 1).map(i -> senderRecord("Howdy_", i));
         sendDataToStream(dataToSend);
 
-        verifiedReceivedByConsumer("Message__1", "Message__1");
+        verifiedReceivedByConsumer("Howdy_1", "Howdy_1");
     }
 
 }
