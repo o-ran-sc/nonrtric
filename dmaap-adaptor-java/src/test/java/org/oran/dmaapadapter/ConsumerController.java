@@ -56,6 +56,15 @@ public class ConsumerController {
 
         public TestResults() {}
 
+        public boolean hasReceived(String str) {
+            for (String received : receivedBodies) {
+                if (received.equals(str)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void reset() {
             receivedBodies.clear();
         }

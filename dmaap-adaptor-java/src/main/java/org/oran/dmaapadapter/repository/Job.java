@@ -38,17 +38,24 @@ public class Job {
         @Getter
         private BufferTimeout bufferTimeout;
 
+        private int maxConcurrency;
+
         public Parameters() {}
 
-        public Parameters(String filter, BufferTimeout bufferTimeout) {
+        public Parameters(String filter, BufferTimeout bufferTimeout, int maxConcurrency) {
             this.filter = filter;
             this.bufferTimeout = bufferTimeout;
+            this.maxConcurrency = maxConcurrency;
+        }
+
+        public int getMaxConcurrency() {
+            return maxConcurrency == 0 ? 1 : maxConcurrency;
         }
     }
 
     @Gson.TypeAdapters
     public static class BufferTimeout {
-        public BufferTimeout(int maxSize, int maxTimeMiliseconds) {
+        public BufferTimeout(int maxSize, long maxTimeMiliseconds) {
             this.maxSize = maxSize;
             this.maxTimeMiliseconds = maxTimeMiliseconds;
         }
@@ -58,7 +65,7 @@ public class Job {
         @Getter
         private int maxSize;
 
-        private int maxTimeMiliseconds;
+        private long maxTimeMiliseconds;
 
         public Duration getMaxTime() {
             return Duration.ofMillis(maxTimeMiliseconds);

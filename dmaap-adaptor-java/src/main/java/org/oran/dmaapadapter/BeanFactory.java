@@ -26,9 +26,6 @@ import org.apache.catalina.connector.Connector;
 import org.oran.dmaapadapter.configuration.ApplicationConfig;
 import org.oran.dmaapadapter.repository.InfoType;
 import org.oran.dmaapadapter.repository.InfoTypes;
-import org.oran.dmaapadapter.repository.Jobs;
-import org.oran.dmaapadapter.tasks.DmaapTopicConsumer;
-import org.oran.dmaapadapter.tasks.KafkaTopicConsumers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -38,7 +35,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BeanFactory {
-    private InfoTypes infoTypes;
 
     @Value("${server.http-port}")
     private int httpPort = 0;
@@ -49,24 +45,9 @@ public class BeanFactory {
     }
 
     @Bean
-    public InfoTypes types(@Autowired ApplicationConfig appConfig, @Autowired Jobs jobs,
-            @Autowired KafkaTopicConsumers kafkaConsumers) {
-        if (infoTypes != null) {
-            return infoTypes;
-        }
-
+    public InfoTypes types(@Autowired ApplicationConfig appConfig) {
         Collection<InfoType> types = appConfig.getTypes();
-
-        // Start a consumer for each type
-        for (InfoType type : types) {
-            if (type.isDmaapTopicDefined()) {
-                DmaapTopicConsumer topicConsumer = new DmaapTopicConsumer(appConfig, type, jobs);
-                topicConsumer.start();
-            }
-        }
-        infoTypes = new InfoTypes(types);
-        kafkaConsumers.start(infoTypes);
-        return infoTypes;
+        return new InfoTypes(types);
     }
 
     @Bean

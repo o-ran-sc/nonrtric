@@ -38,7 +38,6 @@ import reactor.core.publisher.Mono;
  * The class fetches incoming requests from DMAAP and sends them further to the
  * consumers that has a job for this InformationType.
  */
-
 public class DmaapTopicConsumer {
     private static final Duration TIME_BETWEEN_DMAAP_RETRIES = Duration.ofSeconds(10);
     private static final Logger logger = LoggerFactory.getLogger(DmaapTopicConsumer.class);
