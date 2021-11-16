@@ -274,8 +274,6 @@ class IntegrationWithKafka {
 
     @Test
     void kafkaIOverflow() throws InterruptedException {
-        // This does not work. After an overflow, the kafka stream does not seem to work
-        //
         final String JOB_ID1 = "ID1";
         final String JOB_ID2 = "ID2";
 
@@ -297,11 +295,12 @@ class IntegrationWithKafka {
         this.consumerController.testResults.reset();
 
         kafkaTopicConsumers.restartNonRunningTasks();
+        Thread.sleep(1000); // Restarting the input seems to take some asynch time
 
-        dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message__", i)); // Message_1
+        dataToSend = Flux.range(1, 1).map(i -> senderRecord("Howdy_", i));
         sendDataToStream(dataToSend);
 
-        verifiedReceivedByConsumer("Message__1", "Message__1");
+        verifiedReceivedByConsumer("Howdy_1", "Howdy_1");
     }
 
 }
