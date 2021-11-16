@@ -105,7 +105,7 @@ public class EcsSimulatorController {
                 new ProducerJobInfo(job.jobDefinition, jobId, job.infoTypeId, job.jobResultUri, job.owner, "TIMESTAMP");
         String body = gson.toJson(request);
         logger.info("ECS Simulator PUT job: {}", body);
-        restClient.post(url, body).block();
+        restClient.post(url, body, MediaType.APPLICATION_JSON).block();
     }
 
     public void deleteJob(String jobId, AsyncRestClient restClient) {
