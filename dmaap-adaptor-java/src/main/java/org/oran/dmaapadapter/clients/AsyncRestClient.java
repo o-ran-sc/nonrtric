@@ -62,7 +62,8 @@ public class AsyncRestClient {
         this.httpProxyConfig = httpProxyConfig;
     }
 
-    public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
+    public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body,
+            @Nullable MediaType contentType) {
         Object traceTag = createTraceTag();
         logger.debug("{} POST uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} POST body: {}", traceTag, body);
@@ -71,17 +72,18 @@ public class AsyncRestClient {
         RequestHeadersSpec<?> request = getWebClient() //
                 .post() //
                 .uri(uri) //
-                .contentType(MediaType.APPLICATION_JSON) //
+                .contentType(contentType) //
                 .body(bodyProducer, String.class);
         return retrieve(traceTag, request);
     }
 
-    public Mono<String> post(String uri, @Nullable String body) {
-        return postForEntity(uri, body) //
+    public Mono<String> post(String uri, @Nullable String body, @Nullable MediaType contentType) {
+        return postForEntity(uri, body, contentType) //
                 .map(this::toBody);
     }
 
-    public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
+    public Mono<String> postWithAuthHeader(String uri, String body, String username, String password,
+            MediaType mediaType) {
         Object traceTag = createTraceTag();
         logger.debug("{} POST (auth) uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} POST body: {}", traceTag, body);
@@ -90,7 +92,7 @@ public class AsyncRestClient {
                 .post() //
                 .uri(uri) //
                 .headers(headers -> headers.setBasicAuth(username, password)) //
-                .contentType(MediaType.APPLICATION_JSON) //
+                .contentType(mediaType) //
                 .bodyValue(body);
         return retrieve(traceTag, request) //
                 .map(this::toBody);
