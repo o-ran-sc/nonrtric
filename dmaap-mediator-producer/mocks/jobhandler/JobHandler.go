@@ -13,7 +13,7 @@ type JobHandler struct {
 }
 
 // AddJob provides a mock function with given fields: _a0
-func (_m *JobHandler) AddJob(_a0 jobs.JobInfo) error {
+func (_m *JobHandler) AddJobFromRESTCall(_a0 jobs.JobInfo) error {
 	ret := _m.Called(_a0)
 
 	var r0 error
@@ -27,6 +27,6 @@ func (_m *JobHandler) AddJob(_a0 jobs.JobInfo) error {
 }
 
 // DeleteJob provides a mock function with given fields: jobId
-func (_m *JobHandler) DeleteJob(jobId string) {
+func (_m *JobHandler) DeleteJobFromRESTCall(jobId string) {
 	_m.Called(jobId)
 }

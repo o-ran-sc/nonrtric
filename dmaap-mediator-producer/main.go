@@ -60,7 +60,7 @@ func main() {
 	if err := registerTypesAndProducer(jobsManager, configuration.InfoCoordinatorAddress, callbackAddress, retryClient); err != nil {
 		log.Fatalf("Stopping producer due to: %v", err)
 	}
-	jobsManager.StartJobs()
+	jobsManager.StartJobsForAllTypes()
 
 	log.Debug("Starting DMaaP Mediator Producer")
 	go func() {

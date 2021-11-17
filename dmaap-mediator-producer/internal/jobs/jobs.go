@@ -52,8 +52,8 @@ type JobTypesManager interface {
 }
 
 type JobsManager interface {
-	AddJob(JobInfo) error
-	DeleteJob(jobId string)
+	AddJobFromRESTCall(JobInfo) error
+	DeleteJobFromRESTCall(jobId string)
 }
 
 type JobsManagerImpl struct {
@@ -74,7 +74,7 @@ func NewJobsManagerImpl(typeConfigFilePath string, pollClient restclient.HTTPCli
 	}
 }
 
-func (jm *JobsManagerImpl) AddJob(ji JobInfo) error {
+func (jm *JobsManagerImpl) AddJobFromRESTCall(ji JobInfo) error {
 	if err := jm.validateJobInfo(ji); err == nil {
 		typeData := jm.allTypes[ji.InfoTypeIdentity]
 		typeData.jobsHandler.addJobCh <- ji
@@ -85,7 +85,7 @@ func (jm *JobsManagerImpl) AddJob(ji JobInfo) error {
 	}
 }
 
-func (jm *JobsManagerImpl) DeleteJob(jobId string) {
+func (jm *JobsManagerImpl) DeleteJobFromRESTCall(jobId string) {
 	for _, typeData := range jm.allTypes {
 		log.Debugf("Deleting job %v from type %v", jobId, typeData.TypeId)
 		typeData.jobsHandler.deleteJobCh <- jobId
@@ -137,10 +137,10 @@ func (jm *JobsManagerImpl) GetSupportedTypes() []string {
 	return supportedTypes
 }
 
-func (jm *JobsManagerImpl) StartJobs() {
+func (jm *JobsManagerImpl) StartJobsForAllTypes() {
 	for _, jobType := range jm.allTypes {
 
-		go jobType.jobsHandler.start(jm.mrAddress)
+		go jobType.jobsHandler.startPollingAndDistribution(jm.mrAddress)
 
 	}
 }
@@ -168,7 +168,7 @@ func newJobsHandler(typeId string, topicURL string, pollClient restclient.HTTPCl
 	}
 }
 
-func (jh *jobsHandler) start(mRAddress string) {
+func (jh *jobsHandler) startPollingAndDistribution(mRAddress string) {
 	go func() {
 		for {
 			jh.pollAndDistributeMessages(mRAddress)

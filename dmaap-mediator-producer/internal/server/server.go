@@ -71,7 +71,7 @@ func (h *ProducerCallbackHandler) addInfoJobHandler(w http.ResponseWriter, r *ht
 		http.Error(w, fmt.Sprintf("Invalid json body. Cause: %v", unmarshalErr), http.StatusBadRequest)
 		return
 	}
-	if err := h.jobsManager.AddJob(jobInfo); err != nil {
+	if err := h.jobsManager.AddJobFromRESTCall(jobInfo); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid job info. Cause: %v", err), http.StatusBadRequest)
 	}
 }
@@ -84,7 +84,7 @@ func (h *ProducerCallbackHandler) deleteInfoJobHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	h.jobsManager.DeleteJob(id)
+	h.jobsManager.DeleteJobFromRESTCall(id)
 }
 
 type notFoundHandler struct{}

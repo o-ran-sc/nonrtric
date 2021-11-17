@@ -83,7 +83,7 @@ func TestJobsManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T
 
 	var err error
 	go func() {
-		err = managerUnderTest.AddJob(wantedJob)
+		err = managerUnderTest.AddJobFromRESTCall(wantedJob)
 	}()
 
 	assertions.Nil(err)
@@ -98,7 +98,7 @@ func TestJobsManagerAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T)
 		InfoTypeIdentity: "type1",
 	}
 
-	err := managerUnderTest.AddJob(jobInfo)
+	err := managerUnderTest.AddJobFromRESTCall(jobInfo)
 	assertions.NotNil(err)
 	assertions.Equal("type not supported: type1", err.Error())
 }
@@ -113,7 +113,7 @@ func TestJobsManagerAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
 	jobInfo := JobInfo{
 		InfoTypeIdentity: "type1",
 	}
-	err := managerUnderTest.AddJob(jobInfo)
+	err := managerUnderTest.AddJobFromRESTCall(jobInfo)
 	assertions.NotNil(err)
 	assertions.Equal("missing required job identity: {    <nil> type1}", err.Error())
 }
@@ -129,7 +129,7 @@ func TestJobsManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 		InfoTypeIdentity: "type1",
 		InfoJobIdentity:  "job1",
 	}
-	err := managerUnderTest.AddJob(jobInfo)
+	err := managerUnderTest.AddJobFromRESTCall(jobInfo)
 	assertions.NotNil(err)
 	assertions.Equal("missing required target URI: {  job1  <nil> type1}", err.Error())
 }
@@ -144,7 +144,7 @@ func TestJobsManagerDeleteJob_shouldSendDeleteToChannel(t *testing.T) {
 		jobsHandler: &jobsHandler,
 	}
 
-	go managerUnderTest.DeleteJob("job2")
+	go managerUnderTest.DeleteJobFromRESTCall("job2")
 
 	assertions.Equal("job2", <-jobsHandler.deleteJobCh)
 }
@@ -199,7 +199,7 @@ func TestAddJobToJobsManager_shouldStartPollAndDistributeMessages(t *testing.T) 
 		jobsHandler:   jobsHandler,
 	}
 
-	jobsManager.StartJobs()
+	jobsManager.StartJobsForAllTypes()
 
 	jobInfo := JobInfo{
 		InfoTypeIdentity: "type1",
@@ -208,7 +208,7 @@ func TestAddJobToJobsManager_shouldStartPollAndDistributeMessages(t *testing.T) 
 	}
 
 	wg.Add(1) // Wait till the distribution has happened
-	jobsManager.AddJob(jobInfo)
+	jobsManager.AddJobFromRESTCall(jobInfo)
 
 	if waitTimeout(&wg, 2*time.Second) {
 		t.Error("Not all calls to server were made")
