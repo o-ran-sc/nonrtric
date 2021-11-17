@@ -36,7 +36,7 @@ import (
 
 const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}]}`
 
-func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *testing.T) {
+func TestJobsManagerGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *testing.T) {
 	assertions := require.New(t)
 	typesDir, err := os.MkdirTemp("", "configs")
 	if err != nil {
@@ -63,7 +63,7 @@ func TestGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *tes
 	assertions.EqualValues([]string{"type1"}, supportedTypes)
 }
 
-func TestManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T) {
+func TestJobsManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T) {
 	assertions := require.New(t)
 	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
 	wantedJob := JobInfo{
@@ -74,11 +74,11 @@ func TestManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T) {
 		InfoJobData:      "{}",
 		InfoTypeIdentity: "type1",
 	}
-	jobHandler := jobHandler{
+	jobsHandler := jobsHandler{
 		addJobCh: make(chan JobInfo)}
 	managerUnderTest.allTypes["type1"] = TypeData{
-		TypeId:     "type1",
-		jobHandler: &jobHandler,
+		TypeId:      "type1",
+		jobsHandler: &jobsHandler,
 	}
 
 	var err error
@@ -87,11 +87,11 @@ func TestManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T) {
 	}()
 
 	assertions.Nil(err)
-	addedJob := <-jobHandler.addJobCh
+	addedJob := <-jobsHandler.addJobCh
 	assertions.Equal(wantedJob, addedJob)
 }
 
-func TestManagerAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T) {
+func TestJobsManagerAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T) {
 	assertions := require.New(t)
 	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
 	jobInfo := JobInfo{
@@ -103,7 +103,7 @@ func TestManagerAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T) {
 	assertions.Equal("type not supported: type1", err.Error())
 }
 
-func TestManagerAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
+func TestJobsManagerAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
 	assertions := require.New(t)
 	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
 	managerUnderTest.allTypes["type1"] = TypeData{
@@ -118,7 +118,7 @@ func TestManagerAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
 	assertions.Equal("missing required job identity: {    <nil> type1}", err.Error())
 }
 
-func TestManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
+func TestJobsManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 	assertions := require.New(t)
 	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
 	managerUnderTest.allTypes["type1"] = TypeData{
@@ -134,33 +134,37 @@ func TestManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 	assertions.Equal("missing required target URI: {  job1  <nil> type1}", err.Error())
 }
 
-func TestManagerDeleteJob(t *testing.T) {
+func TestJobsManagerDeleteJob_shouldSendDeleteToChannel(t *testing.T) {
 	assertions := require.New(t)
 	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
-	jobHandler := jobHandler{
+	jobsHandler := jobsHandler{
 		deleteJobCh: make(chan string)}
 	managerUnderTest.allTypes["type1"] = TypeData{
-		TypeId:     "type1",
-		jobHandler: &jobHandler,
+		TypeId:      "type1",
+		jobsHandler: &jobsHandler,
 	}
 
 	go managerUnderTest.DeleteJob("job2")
 
-	assertions.Equal("job2", <-jobHandler.deleteJobCh)
+	assertions.Equal("job2", <-jobsHandler.deleteJobCh)
 }
 
-func TestHandlerPollAndDistributeMessages(t *testing.T) {
+func TestAddJobToJobsManager_shouldStartPollAndDistributeMessages(t *testing.T) {
 	assertions := require.New(t)
 
-	wg := sync.WaitGroup{}
+	called := false
 	messages := `[{"message": {"data": "data"}}]`
 	pollClientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == "http://mrAddr/topicUrl" {
 			assertions.Equal(req.Method, "GET")
-			wg.Done() // Signal that the poll call has been made
+			body := "[]"
+			if !called {
+				called = true
+				body = messages
+			}
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewReader([]byte(messages))),
+				Body:       ioutil.NopCloser(bytes.NewReader([]byte(body))),
 				Header:     make(http.Header), // Must be set to non-nil value or it panics
 			}
 		}
@@ -168,12 +172,14 @@ func TestHandlerPollAndDistributeMessages(t *testing.T) {
 		t.Fail()
 		return nil
 	})
+
+	wg := sync.WaitGroup{}
 	distributeClientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == "http://consumerHost/target" {
 			assertions.Equal(req.Method, "POST")
 			assertions.Equal(messages, getBodyAsString(req))
 			assertions.Equal("application/json", req.Header.Get("Content-Type"))
-			wg.Done() // Signal that the distribution call has been made
+			wg.Done()
 			return &http.Response{
 				StatusCode: 200,
 				Body:       ioutil.NopCloser(bytes.NewBufferString(`OK`)),
@@ -184,73 +190,72 @@ func TestHandlerPollAndDistributeMessages(t *testing.T) {
 		t.Fail()
 		return nil
 	})
+	jobsHandler := newJobsHandler("type1", "/topicUrl", pollClientMock, distributeClientMock)
+
+	jobsManager := NewJobsManagerImpl("", pollClientMock, "http://mrAddr", distributeClientMock)
+	jobsManager.allTypes["type1"] = TypeData{
+		DMaaPTopicURL: "/topicUrl",
+		TypeId:        "type1",
+		jobsHandler:   jobsHandler,
+	}
+
+	jobsManager.StartJobs()
 
 	jobInfo := JobInfo{
 		InfoTypeIdentity: "type1",
 		InfoJobIdentity:  "job1",
 		TargetUri:        "http://consumerHost/target",
 	}
-	handlerUnderTest := jobHandler{
-		topicUrl:         "/topicUrl",
-		jobs:             map[string]JobInfo{jobInfo.InfoJobIdentity: jobInfo},
-		pollClient:       pollClientMock,
-		distributeClient: distributeClientMock,
-	}
 
-	wg.Add(2) // Two calls should be made to the server, one to poll and one to distribute
-	handlerUnderTest.pollAndDistributeMessages("http://mrAddr")
+	wg.Add(1) // Wait till the distribution has happened
+	jobsManager.AddJob(jobInfo)
 
-	if waitTimeout(&wg, 100*time.Millisecond) {
+	if waitTimeout(&wg, 2*time.Second) {
 		t.Error("Not all calls to server were made")
 		t.Fail()
 	}
 }
 
-func TestHandlerAddJob_shouldAddJobToJobsMap(t *testing.T) {
-	assertions := require.New(t)
+func TestJobsHandlerDeleteJob_shouldDeleteJobFromJobsMap(t *testing.T) {
+	jobToDelete := newJob(JobInfo{}, nil)
+	go jobToDelete.start()
+	jobsHandler := newJobsHandler("type1", "/topicUrl", nil, nil)
+	jobsHandler.jobs["job1"] = jobToDelete
 
-	jobInfo := JobInfo{
-		InfoTypeIdentity: "type1",
-		InfoJobIdentity:  "job1",
-		TargetUri:        "http://consumerHost/target",
+	go jobsHandler.monitorManagementChannels()
+
+	jobsHandler.deleteJobCh <- "job1"
+
+	deleted := false
+	for i := 0; i < 100; i++ {
+		if len(jobsHandler.jobs) == 0 {
+			deleted = true
+			break
+		}
+		time.Sleep(time.Microsecond) // Need to drop control to let the job's goroutine do the job
 	}
-
-	addCh := make(chan JobInfo)
-	handlerUnderTest := jobHandler{
-		mu:       sync.Mutex{},
-		jobs:     map[string]JobInfo{},
-		addJobCh: addCh,
-	}
-
-	go func() {
-		addCh <- jobInfo
-	}()
-
-	handlerUnderTest.monitorManagementChannels()
-
-	assertions.Len(handlerUnderTest.jobs, 1)
-	assertions.Equal(jobInfo, handlerUnderTest.jobs["job1"])
+	require.New(t).True(deleted, "Job not deleted")
 }
 
-func TestHandlerDeleteJob_shouldDeleteJobFromJobsMap(t *testing.T) {
-	assertions := require.New(t)
+func TestJobsHandlerEmptyJobMessageBufferWhenItIsFull(t *testing.T) {
+	job := newJob(JobInfo{
+		InfoJobIdentity: "job",
+	}, nil)
 
-	deleteCh := make(chan string)
-	handlerUnderTest := jobHandler{
-		mu: sync.Mutex{},
-		jobs: map[string]JobInfo{"job1": {
-			InfoJobIdentity: "job1",
-		}},
-		deleteJobCh: deleteCh,
+	jobsHandler := newJobsHandler("type1", "/topicUrl", nil, nil)
+	jobsHandler.jobs["job1"] = job
+
+	fillMessagesBuffer(job.messagesChannel)
+
+	jobsHandler.distributeMessages([]byte("sent msg"))
+
+	require.New(t).Len(job.messagesChannel, 0)
+}
+
+func fillMessagesBuffer(mc chan []byte) {
+	for i := 0; i < cap(mc); i++ {
+		mc <- []byte("msg")
 	}
-
-	go func() {
-		deleteCh <- "job1"
-	}()
-
-	handlerUnderTest.monitorManagementChannels()
-
-	assertions.Len(handlerUnderTest.jobs, 0)
 }
 
 type RoundTripFunc func(req *http.Request) *http.Response

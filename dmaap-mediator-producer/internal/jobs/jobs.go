@@ -34,7 +34,7 @@ import (
 type TypeData struct {
 	TypeId        string `json:"id"`
 	DMaaPTopicURL string `json:"dmaapTopicUrl"`
-	jobHandler    *jobHandler
+	jobsHandler   *jobsHandler
 }
 
 type JobInfo struct {
@@ -64,17 +64,6 @@ type JobsManagerImpl struct {
 	distributeClient restclient.HTTPClient
 }
 
-type jobHandler struct {
-	mu               sync.Mutex
-	typeId           string
-	topicUrl         string
-	jobs             map[string]JobInfo
-	addJobCh         chan JobInfo
-	deleteJobCh      chan string
-	pollClient       restclient.HTTPClient
-	distributeClient restclient.HTTPClient
-}
-
 func NewJobsManagerImpl(typeConfigFilePath string, pollClient restclient.HTTPClient, mrAddr string, distributeClient restclient.HTTPClient) *JobsManagerImpl {
 	return &JobsManagerImpl{
 		configFile:       typeConfigFilePath,
@@ -88,7 +77,7 @@ func NewJobsManagerImpl(typeConfigFilePath string, pollClient restclient.HTTPCli
 func (jm *JobsManagerImpl) AddJob(ji JobInfo) error {
 	if err := jm.validateJobInfo(ji); err == nil {
 		typeData := jm.allTypes[ji.InfoTypeIdentity]
-		typeData.jobHandler.addJobCh <- ji
+		typeData.jobsHandler.addJobCh <- ji
 		log.Debug("Added job: ", ji)
 		return nil
 	} else {
@@ -99,7 +88,7 @@ func (jm *JobsManagerImpl) AddJob(ji JobInfo) error {
 func (jm *JobsManagerImpl) DeleteJob(jobId string) {
 	for _, typeData := range jm.allTypes {
 		log.Debugf("Deleting job %v from type %v", jobId, typeData.TypeId)
-		typeData.jobHandler.deleteJobCh <- jobId
+		typeData.jobsHandler.deleteJobCh <- jobId
 	}
 	log.Debug("Deleted job: ", jobId)
 }
@@ -131,21 +120,10 @@ func (jm *JobsManagerImpl) LoadTypesFromConfiguration() ([]config.TypeDefinition
 		return nil, err
 	}
 	for _, typeDef := range typeDefs.Types {
-		addCh := make(chan JobInfo)
-		deleteCh := make(chan string)
-		jh := jobHandler{
-			typeId:           typeDef.Id,
-			topicUrl:         typeDef.DmaapTopicURL,
-			jobs:             make(map[string]JobInfo),
-			addJobCh:         addCh,
-			deleteJobCh:      deleteCh,
-			pollClient:       jm.pollClient,
-			distributeClient: jm.distributeClient,
-		}
 		jm.allTypes[typeDef.Id] = TypeData{
 			TypeId:        typeDef.Id,
 			DMaaPTopicURL: typeDef.DmaapTopicURL,
-			jobHandler:    &jh,
+			jobsHandler:   newJobsHandler(typeDef.Id, typeDef.DmaapTopicURL, jm.pollClient, jm.distributeClient),
 		}
 	}
 	return typeDefs.Types, nil
@@ -162,12 +140,35 @@ func (jm *JobsManagerImpl) GetSupportedTypes() []string {
 func (jm *JobsManagerImpl) StartJobs() {
 	for _, jobType := range jm.allTypes {
 
-		go jobType.jobHandler.start(jm.mrAddress)
+		go jobType.jobsHandler.start(jm.mrAddress)
 
 	}
 }
 
-func (jh *jobHandler) start(mRAddress string) {
+type jobsHandler struct {
+	mu               sync.Mutex
+	typeId           string
+	topicUrl         string
+	jobs             map[string]job
+	addJobCh         chan JobInfo
+	deleteJobCh      chan string
+	pollClient       restclient.HTTPClient
+	distributeClient restclient.HTTPClient
+}
+
+func newJobsHandler(typeId string, topicURL string, pollClient restclient.HTTPClient, distributeClient restclient.HTTPClient) *jobsHandler {
+	return &jobsHandler{
+		typeId:           typeId,
+		topicUrl:         topicURL,
+		jobs:             make(map[string]job),
+		addJobCh:         make(chan JobInfo),
+		deleteJobCh:      make(chan string),
+		pollClient:       pollClient,
+		distributeClient: distributeClient,
+	}
+}
+
+func (jh *jobsHandler) start(mRAddress string) {
 	go func() {
 		for {
 			jh.pollAndDistributeMessages(mRAddress)
@@ -181,45 +182,104 @@ func (jh *jobHandler) start(mRAddress string) {
 	}()
 }
 
-func (jh *jobHandler) pollAndDistributeMessages(mRAddress string) {
+func (jh *jobsHandler) pollAndDistributeMessages(mRAddress string) {
 	log.Debugf("Processing jobs for type: %v", jh.typeId)
 	messagesBody, error := restclient.Get(mRAddress+jh.topicUrl, jh.pollClient)
 	if error != nil {
-		log.Warnf("Error getting data from MR. Cause: %v", error)
+		log.Warn("Error getting data from MR. Cause: ", error)
 	}
-	log.Debugf("Received messages: %v", string(messagesBody))
+	log.Debug("Received messages: ", string(messagesBody))
 	jh.distributeMessages(messagesBody)
 }
 
-func (jh *jobHandler) distributeMessages(messages []byte) {
+func (jh *jobsHandler) distributeMessages(messages []byte) {
 	if len(messages) > 2 {
 		jh.mu.Lock()
 		defer jh.mu.Unlock()
-		for _, jobInfo := range jh.jobs {
-			go jh.sendMessagesToConsumer(messages, jobInfo)
+		for _, job := range jh.jobs {
+			if len(job.messagesChannel) < cap(job.messagesChannel) {
+				job.messagesChannel <- messages
+			} else {
+				jh.emptyMessagesBuffer(job)
+			}
 		}
 	}
 }
 
-func (jh *jobHandler) sendMessagesToConsumer(messages []byte, jobInfo JobInfo) {
-	log.Debugf("Processing job: %v", jobInfo.InfoJobIdentity)
-	if postErr := restclient.Post(jobInfo.TargetUri, messages, jh.distributeClient); postErr != nil {
-		log.Warnf("Error posting data for job: %v. Cause: %v", jobInfo, postErr)
+func (jh *jobsHandler) emptyMessagesBuffer(job job) {
+	log.Debug("Emptying message queue for job: ", job.jobInfo.InfoJobIdentity)
+out:
+	for {
+		select {
+		case <-job.messagesChannel:
+		default:
+			break out
+		}
 	}
-	log.Debugf("Messages distributed to consumer: %v.", jobInfo.Owner)
 }
 
-func (jh *jobHandler) monitorManagementChannels() {
+func (jh *jobsHandler) monitorManagementChannels() {
 	select {
 	case addedJob := <-jh.addJobCh:
-		jh.mu.Lock()
-		log.Debugf("received %v from addJobCh\n", addedJob)
-		jh.jobs[addedJob.InfoJobIdentity] = addedJob
-		jh.mu.Unlock()
+		jh.addJob(addedJob)
 	case deletedJob := <-jh.deleteJobCh:
-		jh.mu.Lock()
-		log.Debugf("received %v from deleteJobCh\n", deletedJob)
-		delete(jh.jobs, deletedJob)
-		jh.mu.Unlock()
+		jh.deleteJob(deletedJob)
 	}
+}
+
+func (jh *jobsHandler) addJob(addedJob JobInfo) {
+	jh.mu.Lock()
+	log.Debug("Add job: ", addedJob)
+	newJob := newJob(addedJob, jh.distributeClient)
+	go newJob.start()
+	jh.jobs[addedJob.InfoJobIdentity] = newJob
+	jh.mu.Unlock()
+}
+
+func (jh *jobsHandler) deleteJob(deletedJob string) {
+	jh.mu.Lock()
+	log.Debug("Delete job: ", deletedJob)
+	j, exist := jh.jobs[deletedJob]
+	if exist {
+		j.controlChannel <- struct{}{}
+		delete(jh.jobs, deletedJob)
+	}
+	jh.mu.Unlock()
+}
+
+type job struct {
+	jobInfo         JobInfo
+	client          restclient.HTTPClient
+	messagesChannel chan []byte
+	controlChannel  chan struct{}
+}
+
+func newJob(j JobInfo, c restclient.HTTPClient) job {
+	return job{
+		jobInfo:         j,
+		client:          c,
+		messagesChannel: make(chan []byte, 10),
+		controlChannel:  make(chan struct{}),
+	}
+}
+
+func (j *job) start() {
+out:
+	for {
+		select {
+		case <-j.controlChannel:
+			log.Debug("Stop distribution for job: ", j.jobInfo.InfoJobIdentity)
+			break out
+		case msg := <-j.messagesChannel:
+			j.sendMessagesToConsumer(msg)
+		}
+	}
+}
+
+func (j *job) sendMessagesToConsumer(messages []byte) {
+	log.Debug("Processing job: ", j.jobInfo.InfoJobIdentity)
+	if postErr := restclient.Post(j.jobInfo.TargetUri, messages, j.client); postErr != nil {
+		log.Warnf("Error posting data for job: %v. Cause: %v", j.jobInfo, postErr)
+	}
+	log.Debugf("Messages for job: %v distributed to consumer: %v", j.jobInfo.InfoJobIdentity, j.jobInfo.Owner)
 }
