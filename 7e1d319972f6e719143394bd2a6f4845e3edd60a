@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4e1cd8e_9681ede2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-11-17T10:25:00Z",
+      "side": 1,
+      "message": "Please add a comment with the main changes in ONAP since the last uplift. \nThanks. \n",
+      "revId": "7e1d319972f6e719143394bd2a6f4845e3edd60a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
