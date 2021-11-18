@@ -1,0 +1,116 @@
+{
+    "event":{
+        "commonEventHeader":{
+            "domain":"measurement",
+            "eventId":"_1634181300_PM15min",
+            "eventName":"measurement_O_RAN_COMPONENT_PM15min",
+            "eventType":"O_RAN_COMPONENT_PM15min",
+            "internalHeaderFields":{
+                "intervalEndTime":"Thu, 14 Oct 2021 03:15:00 +0000",
+                "intervalStartTime":"Thu, 14 Oct 2021 03:00:00 +0000"
+            },
+            "lastEpochMicrosec":1634181300000000,
+            "priority":"Low",
+            "reportingEntityId":"",
+            "reportingEntityName":"ORAN-DEV",
+            "sequence":0,
+            "sourceId":"",
+            "sourceName":"",
+            "startEpochMicrosec":1634180400000000,
+            "version":"4.1",
+            "vesEventListenerVersion":"7.2.1"
+        },
+        "measurementFields":{
+            "additionalFields":{
+
+            },
+            "additionalMeasurements":[
+                {
+                    "hashMap":{
+                        "cses":"0",
+                        "es":"0",
+                        "ses":"1",
+                        "unavailability":"0"
+                    },
+                    "name":"-1"
+                },
+                {
+                    "hashMap":{
+                        "cses":"0",
+                        "es":"0",
+                        "ses":"1",
+                        "unavailability":"0"
+                    },
+                    "name":"-2"
+                }
+            ],
+            "additionalObjects":[
+
+            ],
+            "codecUsageArray":[
+
+            ],
+            "concurrentSessions":2,
+            "configuredEntities":2,
+            "cpuUsageArray":[
+
+            ],
+            "diskUsageArray":[
+
+            ],
+            "featureUsageArray":{
+                "https://www.itu.int/rec/T-REC-G.841":"true"
+            },
+            "filesystemUsageArray":[
+
+            ],
+            "hugePagesArray":[
+
+            ],
+            "ipmi":{
+
+            },
+            "latencyDistribution":[
+
+            ],
+            "loadArray":[
+
+            ],
+            "machineCheckExceptionArray":[
+
+            ],
+            "meanRequestLatency":1000,
+            "measurementFieldsVersion":"4.0",
+            "measurementInterval":234,
+            "memoryUsageArray":[
+
+            ],
+            "networkSliceArray":[
+                {
+                    "DRB.UEThDl.SNSSAI":300,
+                    "DRB.UEThUl.SNSSAI":400,
+                    "networkSliceIdentifier":"SD0001"
+                },
+                {
+                    "DRB.UEThDl.SNSSAI":150,
+                    "DRB.UEThUl.SNSSAI":250,
+                    "networkSliceIdentifier":"SD0002"
+                },
+                {
+                    "DRB.UEThDl.SNSSAI":350,
+                    "DRB.UEThUl.SNSSAI":450,
+                    "networkSliceIdentifier":"SD0003"
+                }
+            ],
+            "nfcScalingMetric":3,
+            "nicPerformanceArray":[
+
+            ],
+            "numberOfMediaPortsInUse":234,
+            "processStatsArray":[
+
+            ],
+            "requestRate":23
+        }
+    }
+}
