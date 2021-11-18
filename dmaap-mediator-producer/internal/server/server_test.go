@@ -136,7 +136,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			jobHandlerMock := jobhandler.JobHandler{}
-			jobHandlerMock.On("AddJob", tt.args.job).Return(tt.args.mockReturn)
+			jobHandlerMock.On("AddJobFromRESTCall", tt.args.job).Return(tt.args.mockReturn)
 
 			callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
 
@@ -148,7 +148,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 
 			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
 			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
-			jobHandlerMock.AssertCalled(t, "AddJob", tt.args.job)
+			jobHandlerMock.AssertCalled(t, "AddJobFromRESTCall", tt.args.job)
 		})
 	}
 }
@@ -156,7 +156,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 func TestDeleteJob(t *testing.T) {
 	assertions := require.New(t)
 	jobHandlerMock := jobhandler.JobHandler{}
-	jobHandlerMock.On("DeleteJob", mock.Anything).Return(nil)
+	jobHandlerMock.On("DeleteJobFromRESTCall", mock.Anything).Return(nil)
 
 	callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
 
@@ -168,7 +168,7 @@ func TestDeleteJob(t *testing.T) {
 
 	assertions.Equal("", responseRecorder.Body.String())
 
-	jobHandlerMock.AssertCalled(t, "DeleteJob", "job1")
+	jobHandlerMock.AssertCalled(t, "DeleteJobFromRESTCall", "job1")
 }
 
 func newRequest(method string, url string, jobInfo *jobs.JobInfo, t *testing.T) *http.Request {
