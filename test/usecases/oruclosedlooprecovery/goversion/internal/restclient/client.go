@@ -22,9 +22,15 @@ package restclient
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
+	"net/url"
+	"time"
+
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 type RequestError struct {
@@ -33,7 +39,7 @@ type RequestError struct {
 }
 
 func (e RequestError) Error() string {
-	return fmt.Sprintf("Request failed due to error response with status: %v and body: %v", e.StatusCode, string(e.Body))
+	return fmt.Sprintf("error response with status: %v and body: %v", e.StatusCode, string(e.Body))
 }
 
 // HTTPClient interface
@@ -53,6 +59,40 @@ func Put(url string, body string, client HTTPClient, userName string, password s
 
 func Delete(url string, client HTTPClient) error {
 	return do(http.MethodDelete, url, nil, client)
+}
+
+func CreateClientCertificate(certPath string, keyPath string) (tls.Certificate, error) {
+	if cert, err := tls.LoadX509KeyPair(certPath, keyPath); err == nil {
+		return cert, nil
+	} else {
+		return tls.Certificate{}, fmt.Errorf("cannot create x509 keypair from cert file %s and key file %s due to: %v", certPath, keyPath, err)
+	}
+}
+
+func CreateRetryClient(cert tls.Certificate) *http.Client {
+	rawRetryClient := retryablehttp.NewClient()
+	rawRetryClient.RetryWaitMax = time.Minute
+	rawRetryClient.RetryMax = math.MaxInt
+	rawRetryClient.HTTPClient.Transport = getSecureTransportWithoutVerify(cert)
+
+	client := rawRetryClient.StandardClient()
+	return client
+}
+
+func IsUrlSecure(configUrl string) bool {
+	u, _ := url.Parse(configUrl)
+	return u.Scheme == "https"
+}
+
+func getSecureTransportWithoutVerify(cert tls.Certificate) *http.Transport {
+	return &http.Transport{
+		TLSClientConfig: &tls.Config{
+			Certificates: []tls.Certificate{
+				cert,
+			},
+			InsecureSkipVerify: true,
+		},
+	}
 }
 
 func do(method string, url string, body []byte, client HTTPClient, userInfo ...string) error {

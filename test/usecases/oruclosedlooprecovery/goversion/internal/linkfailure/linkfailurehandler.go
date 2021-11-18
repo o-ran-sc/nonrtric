@@ -76,10 +76,10 @@ func (lfh LinkFailureHandler) sendUnlockMessage(oRuId string) {
 		if error := restclient.Put(lfh.config.SDNRAddress+sdnrPath, unlockMessage, lfh.client, lfh.config.SDNRUser, lfh.config.SDNRPassword); error == nil {
 			log.Debugf("Sent unlock message for O-RU: %v to O-DU: %v.", oRuId, oDuId)
 		} else {
-			log.Warn(error)
+			log.Warn("Send of unlock message failed due to ", error)
 		}
 	} else {
-		log.Warn(err)
+		log.Warn("Send of unlock message failed due to ", err)
 	}
 
 }
