@@ -21,6 +21,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -28,29 +29,35 @@ import (
 )
 
 type Config struct {
-	LogLevel               log.Level
 	ConsumerHost           string
 	ConsumerPort           int
 	InfoCoordinatorAddress string
-	SDNRHost               string
-	SDNRPort               int
+	SDNRAddress            string
 	SDNRUser               string
 	SDNPassword            string
 	ORUToODUMapFile        string
+	ConsumerCertPath       string
+	ConsumerKeyPath        string
+	LogLevel               log.Level
 }
 
 func New() *Config {
 	return &Config{
-		LogLevel:               getLogLevel(),
 		ConsumerHost:           getEnv("CONSUMER_HOST", ""),
 		ConsumerPort:           getEnvAsInt("CONSUMER_PORT", 0),
 		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "http://enrichmentservice:8083"),
-		SDNRHost:               getEnv("SDNR_HOST", "http://localhost"),
-		SDNRPort:               getEnvAsInt("SDNR_PORT", 3904),
+		SDNRAddress:            getEnv("SDNR_ADDR", "http://localhost:3904"),
 		SDNRUser:               getEnv("SDNR_USER", "admin"),
 		SDNPassword:            getEnv("SDNR_PASSWORD", "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"),
 		ORUToODUMapFile:        getEnv("ORU_TO_ODU_MAP_FILE", "o-ru-to-o-du-map.csv"),
+		ConsumerCertPath:       getEnv("CONSUMER_CERT_PATH", "security/consumer.crt"),
+		ConsumerKeyPath:        getEnv("CONSUMER_KEY_PATH", "security/consumer.key"),
+		LogLevel:               getLogLevel(),
 	}
+}
+
+func (c Config) String() string {
+	return fmt.Sprintf("ConsumerHost: %v, ConsumerPort: %v, InfoCoordinatorAddress: %v, SDNRAddress: %v, SDNRUser: %v, SDRNPassword: %v, ORUToODUMapFile: %v, ConsumerCertPath: %v, ConsumerKeyPath: %v, LogLevel: %v", c.ConsumerHost, c.ConsumerPort, c.InfoCoordinatorAddress, c.SDNRAddress, c.SDNRUser, c.SDNPassword, c.ORUToODUMapFile, c.ConsumerCertPath, c.ConsumerKeyPath, c.LogLevel)
 }
 
 func getEnv(key string, defaultVal string) string {

@@ -21,13 +21,13 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -41,7 +41,6 @@ type Server interface {
 	ListenAndServe() error
 }
 
-const timeoutHTTPClient = time.Second * 5
 const jobId = "14e7bb84-a44d-44c1-90b7-6995a92ad43c"
 
 var jobRegistrationInfo = struct {
@@ -70,16 +69,13 @@ func doInit() {
 	configuration = config.New()
 
 	log.SetLevel(configuration.LogLevel)
-
-	client = &http.Client{
-		Timeout: timeoutHTTPClient,
-	}
+	log.Debug("Using configuration: ", configuration)
 
 	consumerPort = fmt.Sprint(configuration.ConsumerPort)
 	jobRegistrationInfo.JobResultUri = configuration.ConsumerHost + ":" + consumerPort
 
 	linkfailureConfig = linkfailure.Configuration{
-		SDNRAddress:  configuration.SDNRHost + ":" + fmt.Sprint(configuration.SDNRPort),
+		SDNRAddress:  configuration.SDNRAddress,
 		SDNRUser:     configuration.SDNRUser,
 		SDNRPassword: configuration.SDNPassword,
 	}
@@ -95,12 +91,16 @@ func main() {
 		log.Fatalf("Unable to create LookupService due to inability to get O-RU-ID to O-DU-ID map. Cause: %v", initErr)
 	}
 
+	var cert tls.Certificate
+	if c, err := restclient.CreateClientCertificate(configuration.ConsumerCertPath, configuration.ConsumerKeyPath); err == nil {
+		cert = c
+	} else {
+		log.Fatalf("Stopping producer due to error: %v", err)
+	}
+	client = restclient.CreateRetryClient(cert)
+
 	go func() {
-		startServer(&http.Server{
-			Addr:    ":" + consumerPort,
-			Handler: getRouter(),
-		})
-		deleteJob()
+		startServer()
 		os.Exit(1) // If the startServer function exits, it is because there has been a failure in the server, so we exit.
 	}()
 
@@ -116,6 +116,11 @@ func validateConfiguration(configuration *config.Config) error {
 	if configuration.ConsumerHost == "" || configuration.ConsumerPort == 0 {
 		return fmt.Errorf("consumer host and port must be provided")
 	}
+
+	if configuration.ConsumerCertPath == "" || configuration.ConsumerKeyPath == "" {
+		return fmt.Errorf("missing CONSUMER_CERT and/or CONSUMER_KEY")
+	}
+
 	return nil
 }
 
@@ -135,8 +140,14 @@ func getRouter() *mux.Router {
 	return r
 }
 
-func startServer(server Server) {
-	if err := server.ListenAndServe(); err != nil {
+func startServer() {
+	var err error
+	if restclient.IsUrlSecure(configuration.ConsumerHost) {
+		err = http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.ConsumerPort), configuration.ConsumerCertPath, configuration.ConsumerKeyPath, getRouter())
+	} else {
+		err = http.ListenAndServe(fmt.Sprintf(":%v", configuration.ConsumerPort), getRouter())
+	}
+	if err != nil {
 		log.Errorf("Server stopped unintentionally due to: %v. Deleteing job.", err)
 		if deleteErr := deleteJob(); deleteErr != nil {
 			log.Error(fmt.Sprintf("Unable to delete consumer job due to: %v. Please remove job %v manually.", deleteErr, jobId))

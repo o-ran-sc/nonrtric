@@ -31,28 +31,30 @@ import (
 
 func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	assertions := require.New(t)
-	os.Setenv("LOG_LEVEL", "Debug")
 	os.Setenv("CONSUMER_HOST", "consumerHost")
 	os.Setenv("CONSUMER_PORT", "8095")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
-	os.Setenv("SDNR_HOST", "sdnrHost")
-	os.Setenv("SDNR_PORT", "3908")
+	os.Setenv("SDNR_ADDR", "sdnrHost:3908")
 	os.Setenv("SDNR_USER", "admin")
 	os.Setenv("SDNR_PASSWORD", "pwd")
 	os.Setenv("ORU_TO_ODU_MAP_FILE", "file")
+	os.Setenv("CONSUMER_CERT_PATH", "cert")
+	os.Setenv("CONSUMER_KEY_PATH", "key")
+	os.Setenv("LOG_LEVEL", "Debug")
 	t.Cleanup(func() {
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:               log.DebugLevel,
 		ConsumerHost:           "consumerHost",
 		ConsumerPort:           8095,
 		InfoCoordinatorAddress: "infoCoordAddr",
-		SDNRHost:               "sdnrHost",
-		SDNRPort:               3908,
+		SDNRAddress:            "sdnrHost:3908",
 		SDNRUser:               "admin",
 		SDNPassword:            "pwd",
 		ORUToODUMapFile:        "file",
+		ConsumerCertPath:       "cert",
+		ConsumerKeyPath:        "key",
+		LogLevel:               log.DebugLevel,
 	}
 
 	got := New()
@@ -70,15 +72,16 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:               log.InfoLevel,
 		ConsumerHost:           "",
 		ConsumerPort:           0,
 		InfoCoordinatorAddress: "http://enrichmentservice:8083",
-		SDNRHost:               "http://localhost",
-		SDNRPort:               3904,
+		SDNRAddress:            "http://localhost:3904",
 		SDNRUser:               "admin",
 		SDNPassword:            "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U",
 		ORUToODUMapFile:        "o-ru-to-o-du-map.csv",
+		ConsumerCertPath:       "security/consumer.crt",
+		ConsumerKeyPath:        "security/consumer.key",
+		LogLevel:               log.InfoLevel,
 	}
 
 	got := New()
@@ -99,15 +102,16 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 		os.Clearenv()
 	})
 	wantConfig := Config{
-		LogLevel:               log.InfoLevel,
 		ConsumerHost:           "",
 		ConsumerPort:           0,
 		InfoCoordinatorAddress: "http://enrichmentservice:8083",
-		SDNRHost:               "http://localhost",
-		SDNRPort:               3904,
+		SDNRAddress:            "http://localhost:3904",
 		SDNRUser:               "admin",
 		SDNPassword:            "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U",
 		ORUToODUMapFile:        "o-ru-to-o-du-map.csv",
+		ConsumerCertPath:       "security/consumer.crt",
+		ConsumerKeyPath:        "security/consumer.key",
+		LogLevel:               log.InfoLevel,
 	}
 	got := New()
 	assertions.Equal(&wantConfig, got)

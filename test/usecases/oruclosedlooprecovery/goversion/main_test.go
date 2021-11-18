@@ -54,15 +54,16 @@ func Test_init(t *testing.T) {
 	doInit()
 
 	wantedConfiguration := &config.Config{
-		LogLevel:               log.InfoLevel,
 		ConsumerHost:           "consumerHost",
 		ConsumerPort:           8095,
 		InfoCoordinatorAddress: "http://enrichmentservice:8083",
-		SDNRHost:               "http://localhost",
-		SDNRPort:               3904,
+		SDNRAddress:            "http://localhost:3904",
 		SDNRUser:               "admin",
 		SDNPassword:            "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U",
 		ORUToODUMapFile:        "o-ru-to-o-du-map.csv",
+		ConsumerCertPath:       "security/consumer.crt",
+		ConsumerKeyPath:        "security/consumer.key",
+		LogLevel:               log.InfoLevel,
 	}
 	assertions.Equal(wantedConfiguration, configuration)
 
@@ -70,7 +71,7 @@ func Test_init(t *testing.T) {
 	assertions.Equal(wantedConfiguration.ConsumerHost+":"+fmt.Sprint(wantedConfiguration.ConsumerPort), jobRegistrationInfo.JobResultUri)
 
 	wantedLinkFailureConfig := linkfailure.Configuration{
-		SDNRAddress:  wantedConfiguration.SDNRHost + ":" + fmt.Sprint(wantedConfiguration.SDNRPort),
+		SDNRAddress:  wantedConfiguration.SDNRAddress,
 		SDNRUser:     wantedConfiguration.SDNRUser,
 		SDNRPassword: wantedConfiguration.SDNPassword,
 	}
@@ -92,8 +93,10 @@ func Test_validateConfiguration(t *testing.T) {
 			name: "Valid config, should return nil",
 			args: args{
 				configuration: &config.Config{
-					ConsumerHost: "host",
-					ConsumerPort: 80,
+					ConsumerHost:     "host",
+					ConsumerPort:     80,
+					ConsumerCertPath: "security/consumer.crt",
+					ConsumerKeyPath:  "security/consumer.key",
 				},
 			},
 		},
@@ -186,28 +189,6 @@ func Test_getRouter_shouldContainAllPathsWithHandlers(t *testing.T) {
 	assertions.Nil(err)
 	path, _ = stopHandlerRoute.GetPathTemplate()
 	assertions.Equal("/admin/stop", path)
-}
-
-func Test_startServer_shouldDeleteJobWhenServerStopsWithErrorAndLog(t *testing.T) {
-	assertions := require.New(t)
-
-	var buf bytes.Buffer
-	log.SetOutput(&buf)
-
-	os.Setenv("CONSUMER_PORT", "wrong")
-	t.Cleanup(func() {
-		log.SetOutput(os.Stderr)
-	})
-
-	mockServer := &mocks.Server{}
-	mockServer.On("ListenAndServe").Return(errors.New("Server failure"))
-
-	startServer(mockServer)
-
-	log := buf.String()
-	assertions.Contains(log, "level=error")
-	assertions.Contains(log, "Server stopped unintentionally due to: Server failure. Deleteing job.")
-	assertions.Contains(log, "Please remove job 14e7bb84-a44d-44c1-90b7-6995a92ad43c manually")
 }
 
 func Test_startHandler(t *testing.T) {
