@@ -43,7 +43,7 @@
         <swagger-annotations.version>1.5.22</swagger-annotations.version>
         <springfox.version>2.9.2</springfox.version>
         <jackson-databind-nullable.version>0.2.1</jackson-databind-nullable.version>
-        <openapi-generator-maven-plugin.version>4.3.1</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.11</swagger-codegen-maven-plugin.version>
         <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.24.3</spotless-maven-plugin.version>
