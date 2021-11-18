@@ -21,11 +21,16 @@ package restclient
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
+	"reflect"
 	"testing"
+	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"oransc.org/usecase/oruclosedloop/mocks"
@@ -38,7 +43,7 @@ func TestRequestError_Error(t *testing.T) {
 		StatusCode: http.StatusBadRequest,
 		Body:       []byte("error"),
 	}
-	assertions.Equal("Request failed due to error response with status: 400 and body: error", actualError.Error())
+	assertions.Equal("error response with status: 400 and body: error", actualError.Error())
 }
 
 func TestPutWithoutAuth(t *testing.T) {
@@ -166,4 +171,64 @@ func Test_doErrorCases(t *testing.T) {
 			assertions.Equal(tt.wantErr, err, tt.name)
 		})
 	}
+}
+
+func Test_createClientCertificate(t *testing.T) {
+	assertions := require.New(t)
+	wantedCert, _ := tls.LoadX509KeyPair("../../security/consumer.crt", "../../security/consumer.key")
+	type args struct {
+		certPath string
+		keyPath  string
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantCert tls.Certificate
+		wantErr  error
+	}{
+		{
+			name: "Paths to cert info ok should return cerftificate",
+			args: args{
+				certPath: "../../security/consumer.crt",
+				keyPath:  "../../security/consumer.key",
+			},
+			wantCert: wantedCert,
+		},
+		{
+			name: "Paths to cert info not ok should return error with info about error",
+			args: args{
+				certPath: "wrong_cert",
+				keyPath:  "wrong_key",
+			},
+			wantErr: fmt.Errorf("cannot create x509 keypair from cert file wrong_cert and key file wrong_key due to: open wrong_cert: no such file or directory"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cert, err := CreateClientCertificate(tt.args.certPath, tt.args.keyPath)
+			assertions.Equal(tt.wantCert, cert, tt.name)
+			assertions.Equal(tt.wantErr, err, tt.name)
+		})
+	}
+}
+
+func Test_CreateRetryClient(t *testing.T) {
+	assertions := require.New(t)
+
+	client := CreateRetryClient(tls.Certificate{})
+
+	transport := client.Transport
+	assertions.Equal("*retryablehttp.RoundTripper", reflect.TypeOf(transport).String())
+	retryableTransport := transport.(*retryablehttp.RoundTripper)
+	retryableClient := retryableTransport.Client
+	assertions.Equal(time.Minute, retryableClient.RetryWaitMax)
+	assertions.Equal(math.MaxInt, retryableClient.RetryMax)
+}
+
+func TestIsUrlSecured(t *testing.T) {
+	assertions := require.New(t)
+
+	assertions.True(IsUrlSecure("https://url"))
+
+	assertions.False(IsUrlSecure("http://url"))
 }
