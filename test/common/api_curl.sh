@@ -23,7 +23,8 @@
 # one for sending the requests and one for receiving the response
 # but only when using the DMAAP interface
 # REST or DMAAP is controlled of the base url of $XX_ADAPTER
-# arg: (PA|ECS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file>]) | (PA|ECS RESPONSE <correlation-id>)
+# arg: (PA|ECS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file> [mime-type]]) | (PA|ECS RESPONSE <correlation-id>)
+# Default mime type for file is application/json unless specified in parameter mime-type
 # (Not for test scripts)
 __do_curl_to_api() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
@@ -39,6 +40,7 @@ __do_curl_to_api() {
 
 	paramError=0
 	input_url=$3
+	fname=$4
     if [ $# -gt 0 ]; then
         if [ $1 == "PA" ]; then
 			__ADAPTER=$PA_ADAPTER
@@ -75,17 +77,21 @@ __do_curl_to_api() {
 			__ADAPTER=$MR_STUB_ADAPTER
 			__ADAPTER_TYPE=$MR_STUB_ADAPTER_TYPE
             __RETRY_CODES=""
-        else
+        elif [ $1 == "DMAAPMR" ]; then
+			__ADAPTER=$MR_DMAAP_ADAPTER_HTTP
+			__ADAPTER_TYPE=$MR_DMAAP_ADAPTER_TYPE
+            __RETRY_CODES=""
+		else
             paramError=1
         fi
-		if [ $__ADAPTER_TYPE == "MR-HTTP" ]; then
+		if [ "$__ADAPTER_TYPE" == "MR-HTTP" ]; then
 			__ADAPTER=$MR_ADAPTER_HTTP
 		fi
-		if [ $__ADAPTER_TYPE == "MR-HTTPS" ]; then
+		if [ "$__ADAPTER_TYPE" == "MR-HTTPS" ]; then
 			__ADAPTER=$MR_ADAPTER_HTTPS
 		fi
     fi
-    if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+    if [ $# -lt 3 ] || [ $# -gt 5 ]; then
 		paramError=1
     else
 		timeout=""
@@ -100,6 +106,10 @@ __do_curl_to_api() {
 		fi
 		if [ $# -gt 3 ]; then
 			content=" -H Content-Type:application/json"
+			fname=$4
+			if [ $# -gt 4 ]; then
+				content=" -H Content-Type:"$5
+			fi
 		fi
 		if [ $2 == "GET" ] || [ $2 == "GET_BATCH" ]; then
 			oper="GET"
@@ -108,15 +118,15 @@ __do_curl_to_api() {
 			fi
 		elif [ $2 == "PUT" ] || [ $2 == "PUT_BATCH" ]; then
 			oper="PUT"
-			if [ $# -eq 4 ]; then
-				file=" --data-binary @$4"
+			if [ $# -gt 3 ]; then
+				file=" --data-binary @$fname"
 			fi
 			accept=" -H accept:application/json"
 		elif [ $2 == "POST" ] || [ $2 == "POST_BATCH" ]; then
 			oper="POST"
 			accept=" -H accept:*/*"
-			if [ $# -eq 4 ]; then
-				file=" --data-binary @$4"
+			if [ $# -gt 3 ]; then
+				file=" --data-binary @$fname"
 				accept=" -H accept:application/json"
 			fi
 		elif [ $2 == "DELETE" ] || [ $2 == "DELETE_BATCH" ]; then
@@ -153,8 +163,8 @@ __do_curl_to_api() {
         oper=" -X "$oper
         curlString="curl -k $proxyflag "${oper}${timeout}${httpcode}${accept}${content}${url}${file}
         echo " CMD: "$curlString >> $HTTPLOG
-		if [ $# -eq 4 ]; then
-			echo " FILE: $(<$4)" >> $HTTPLOG
+		if [ $# -gt 3 ]; then
+			echo " FILE: $(<$fname)" >> $HTTPLOG
 		fi
 
 		# Do retry for configured response codes, otherwise only one attempt
@@ -190,12 +200,12 @@ __do_curl_to_api() {
     else
 		if [ $oper != "RESPONSE" ]; then
 			requestUrl=$input_url
-			if [ $2 == "PUT" ] && [ $# -eq 4 ]; then
-				payload="$(cat $4 | tr -d '\n' | tr -d ' ' )"
+			if [ $2 == "PUT" ] && [ $# -gt 3 ]; then
+				payload="$(cat $fname | tr -d '\n' | tr -d ' ' )"
 				echo "payload: "$payload >> $HTTPLOG
 				file=" --data-binary "$payload
-			elif [ $# -eq 4 ]; then
-				echo " FILE: $(cat $4)" >> $HTTPLOG
+			elif [ $# -gt 3 ]; then
+				echo " FILE: $(cat $fname)" >> $HTTPLOG
 			fi
 			#urlencode the request url since it will be carried by send-request url
 			requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$input_url")

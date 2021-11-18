@@ -26,7 +26,7 @@ services:
     image: $ONAP_ZOOKEEPER_IMAGE
     container_name: $MR_ZOOKEEPER_APP_NAME
     ports:
-      - "2181:2181"
+      - "$MR_ZOOKEEPER_PORT:$MR_ZOOKEEPER_PORT"
     environment:
      ZOOKEEPER_REPLICAS: 1
      ZOOKEEPER_TICK_TIME: 2000
@@ -35,7 +35,7 @@ services:
      ZOOKEEPER_MAX_CLIENT_CNXNS: 200
      ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: 3
      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: 24
-     ZOOKEEPER_CLIENT_PORT: 2181
+     ZOOKEEPER_CLIENT_PORT: $MR_ZOOKEEPER_PORT
      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl -Dzookeeper.4lw.commands.whitelist=*
      ZOOKEEPER_SERVER_ID: 1
     volumes:
@@ -50,15 +50,15 @@ services:
    image: $ONAP_KAFKA_IMAGE
    container_name: $MR_KAFKA_APP_NAME
    ports:
-    - "9092:9092"
+    - "$MR_KAFKA_PORT:$MR_KAFKA_PORT"
    environment:
     enableCadi: 'false'
-    KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    KAFKA_ZOOKEEPER_CONNECT: $MR_ZOOKEEPER_APP_NAME:$MR_ZOOKEEPER_PORT
     KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 40000
     KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS: 40000
     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT
-    KAFKA_ADVERTISED_LISTENERS: INTERNAL_PLAINTEXT://kafka:9092
-    KAFKA_LISTENERS: INTERNAL_PLAINTEXT://0.0.0.0:9092
+    KAFKA_ADVERTISED_LISTENERS: INTERNAL_PLAINTEXT://$MR_KAFKA_APP_NAME:$MR_KAFKA_PORT
+    KAFKA_LISTENERS: INTERNAL_PLAINTEXT://0.0.0.0:$MR_KAFKA_PORT
     KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL_PLAINTEXT
     KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: 'false'
     KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/jaas/zk_client_jaas.conf

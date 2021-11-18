@@ -91,6 +91,18 @@ __RICSIM_initial_setup() {
 	use_simulator_http
 }
 
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__RICSIM_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo ""
+	else
+		echo ""
+	fi
+}
+
 #######################################################
 
 

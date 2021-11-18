@@ -73,7 +73,7 @@ __SDNC_image_data() {
 # All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
 # This function is called for apps fully managed by the test script
 __SDNC_kube_scale_zero() {
-	__kube_scale_all_resources $KUBE_SNDC_NAMESPACE autotest SDNC
+	__kube_scale_all_resources $KUBE_SDNC_NAMESPACE autotest SDNC
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
@@ -85,7 +85,7 @@ __SDNC_kube_scale_zero_and_wait() {
 # Delete all kube resouces for the app
 # This function is called for apps managed by the test script.
 __SDNC_kube_delete_all() {
-	__kube_delete_all_resources $KUBE_SNDC_NAMESPACE autotest SDNC
+	__kube_delete_all_resources $KUBE_SDNC_NAMESPACE autotest SDNC
 }
 
 # Store docker logs
@@ -93,9 +93,9 @@ __SDNC_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __SDNC_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=SDNC" -n $KUBE_SNDC_NAMESPACE --tail=-1 > $1$2_SDNC.log 2>&1
-		podname=$(kubectl get pods -n $KUBE_SNDC_NAMESPACE -l "autotest=SDNC" -o custom-columns=":metadata.name")
-		kubectl exec -t -n $KUBE_SNDC_NAMESPACE $podname -- cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
+		kubectl  logs -l "autotest=SDNC" -n $KUBE_SDNC_NAMESPACE --tail=-1 > $1$2_SDNC.log 2>&1
+		podname=$(kubectl get pods -n $KUBE_SDNC_NAMESPACE -l "autotest=SDNC" -o custom-columns=":metadata.name")
+		kubectl exec -t -n $KUBE_SDNC_NAMESPACE $podname -- cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
 	else
 		docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
 	fi
@@ -106,6 +106,18 @@ __SDNC_store_docker_logs() {
 # args: -
 __SDNC_initial_setup() {
 	use_sdnc_http
+}
+
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__SDNC_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo "SDNC $SDNC_APP_NAME $KUBE_SDNC_NAMESPACE"
+	else
+		echo "SDNC $SDNC_APP_NAME"
+	fi
 }
 
 #######################################################
@@ -135,8 +147,8 @@ __sdnc_set_protocoll() {
 	SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME":"$2  # docker access, container->container and script->container via proxy
 	SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME":"$1$SDNC_API_URL
 	if [ $RUNMODE == "KUBE" ]; then
-		SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME.$KUBE_SNDC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
-		SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.KUBE_SNDC_NAMESPACE":"$1$SDNC_API_URL
+		SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME.$KUBE_SDNC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.KUBE_SDNC_NAMESPACE":"$1$SDNC_API_URL
 	fi
 	echo ""
 
@@ -145,7 +157,7 @@ __sdnc_set_protocoll() {
 # Export env vars for config files, docker compose and kube resources
 # args:
 __sdnc_export_vars() {
-	export KUBE_SNDC_NAMESPACE
+	export KUBE_SDNC_NAMESPACE
 	export DOCKER_SIM_NWNAME
 
 	export SDNC_APP_NAME
@@ -199,7 +211,7 @@ start_sdnc() {
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $SDNC_APP_NAME deployment and service"
 			echo " Setting SDNC replicas=1"
-			__kube_scale deployment $SDNC_APP_NAME $KUBE_SNDC_NAMESPACE 1
+			__kube_scale deployment $SDNC_APP_NAME $KUBE_SDNC_NAMESPACE 1
 		fi
 
 				# Check if app shall be fully managed by the test script
@@ -208,7 +220,7 @@ start_sdnc() {
 			echo -e " Creating $SDNC_APP_NAME app and expose service"
 
 			#Check if namespace exists, if not create it
-			__kube_create_namespace $KUBE_SNDC_NAMESPACE
+			__kube_create_namespace $KUBE_SDNC_NAMESPACE
 
 			__sdnc_export_vars
 

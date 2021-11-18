@@ -25,6 +25,7 @@ import traceback
 import logging
 import socket
 from threading import RLock
+from hashlib import md5
 
 # Disable all logging of GET on reading counters and db
 class AjaxFilter(logging.Filter):
@@ -54,6 +55,7 @@ hosts_set=set()
 # Request and response constants
 CALLBACK_URL="/callbacks/<string:id>"
 CALLBACK_MR_URL="/callbacks-mr/<string:id>" #Json list with string encoded items
+CALLBACK_TEXT_URL="/callbacks-text/<string:id>" # Callback for string of text
 APP_READ_URL="/get-event/<string:id>"
 APP_READ_ALL_URL="/get-all-events/<string:id>"
 DUMP_ALL_URL="/db"
@@ -111,7 +113,14 @@ def receiveresponse(id):
                 cntr_callbacks[id][1]+=1
                 msg=msg_callbacks[id][0]
                 print("Fetching msg for id: "+id+", msg="+str(msg))
-                del msg[TIME_STAMP]
+
+                if (isinstance(msg,dict)):
+                    del msg[TIME_STAMP]
+                    if ("md5" in msg.keys()):
+                        print("EXTRACTED MD5")
+                        msg=msg["md5"]
+                        print("MD5: "+str(msg))
+
                 del msg_callbacks[id][0]
                 return json.dumps(msg),200
             print("No messages for id: "+id)
@@ -139,7 +148,8 @@ def receiveresponse_all(id):
                 msg=msg_callbacks[id]
                 print("Fetching all msgs for id: "+id+", msg="+str(msg))
                 for sub_msg in msg:
-                    del sub_msg[TIME_STAMP]
+                    if (isinstance(sub_msg, dict)):
+                        del sub_msg[TIME_STAMP]
                 del msg_callbacks[id]
                 return json.dumps(msg),200
             print("No messages for id: "+id)
@@ -180,7 +190,8 @@ def events_write(id):
 
         with lock:
             cntr_msg_callbacks += 1
-            msg[TIME_STAMP]=str(datetime.now())
+            if (isinstance(msg, dict)):
+                msg[TIME_STAMP]=str(datetime.now())
             if (id in msg_callbacks.keys()):
                 msg_callbacks[id].append(msg)
             else:
@@ -202,8 +213,9 @@ def events_write(id):
     return 'OK',200
 
 
-# Receive a json callback message with payload fromatted accoirding to output frm the message router
-# URI and payload, (PUT or POST): /callbacks/<id> <json messages>
+# Receive a json callback message with payload formatted according to output from the message router
+# Array of stringified json objects
+# URI and payload, (PUT or POST): /callbacks-mr/<id> <json messages>
 # json is a list of string encoded json items
 # response: OK 200 or 500 for other errors
 @app.route(CALLBACK_MR_URL,
@@ -212,17 +224,21 @@ def events_write_mr(id):
     global msg_callbacks
     global cntr_msg_callbacks
 
+    storeas=request.args.get('storeas') #If set, store payload as a md5 hascode and dont log the payload
+                                        #Large payloads will otherwise overload the server
     try:
         print("Received callback (mr) for id: "+id +", content-type="+request.content_type)
-        remote_host_logging(request)
         print("raw data: str(request.data): "+str(request.data))
+        if (storeas is None):
+            print("raw data: str(request.data): "+str(request.data))
         do_delay()
         try:
             #if (request.content_type == MIME_JSON):
             if (MIME_JSON in request.content_type):
                 data = request.data
                 msg_list = json.loads(data)
-                print("Payload(json): "+str(msg_list))
+                if (storeas is None):
+                    print("Payload(json): "+str(msg_list))
             else:
                 msg_list=[]
                 print("Payload(content-type="+request.content_type+"). Setting empty json as payload")
@@ -234,11 +250,21 @@ def events_write_mr(id):
         with lock:
             remote_host_logging(request)
             for msg in msg_list:
-                print("msg (str): "+str(msg))
-                msg=json.loads(msg)
-                print("msg (json): "+str(msg))
+                if (storeas is None):
+                    msg=json.loads(msg)
+                else:
+                    #Convert to compact json without ws between parameter and value...
+                    #It seem that ws is added somewhere along to way to this server
+                    msg=json.loads(msg)
+                    msg=json.dumps(msg, separators=(',', ':'))
+
+                    md5msg={}
+                    md5msg["md5"]=md5(msg.encode('utf-8')).hexdigest()
+                    msg=md5msg
+                    print("msg (json converted to md5 hash): "+str(msg["md5"]))
                 cntr_msg_callbacks += 1
-                msg[TIME_STAMP]=str(datetime.now())
+                if (isinstance(msg, dict)):
+                    msg[TIME_STAMP]=str(datetime.now())
                 if (id in msg_callbacks.keys()):
                     msg_callbacks[id].append(msg)
                 else:
@@ -251,6 +277,73 @@ def events_write_mr(id):
                     cntr_callbacks[id]=[]
                     cntr_callbacks[id].append(1)
                     cntr_callbacks[id].append(0)
+
+    except Exception as e:
+        print(CAUGHT_EXCEPTION+str(e))
+        traceback.print_exc()
+        return 'NOTOK',500
+
+    return 'OK',200
+
+# Receive a callback message of a single text message (content type ignored)
+# or a json array of strings (content type json)
+# URI and payload, (PUT or POST): /callbacks-text/<id> <text message>
+# response: OK 200 or 500 for other errors
+@app.route(CALLBACK_TEXT_URL,
+    methods=['PUT','POST'])
+def events_write_text(id):
+    global msg_callbacks
+    global cntr_msg_callbacks
+
+    storeas=request.args.get('storeas') #If set, store payload as a md5 hascode and dont log the payload
+                                        #Large payloads will otherwise overload the server
+    try:
+        print("Received callback for id: "+id +", content-type="+request.content_type)
+        remote_host_logging(request)
+        if (storeas is None):
+            print("raw data: str(request.data): "+str(request.data))
+        do_delay()
+
+        try:
+            msg_list=None
+            if (MIME_JSON in request.content_type):  #Json array of strings
+                msg_list=json.loads(request.data)
+            else:
+                data=request.data.decode("utf-8")    #Assuming string
+                msg_list=[]
+                msg_list.append(data)
+
+            for msg in msg_list:
+                if (storeas == "md5"):
+                    md5msg={}
+                    print("msg: "+str(msg))
+                    print("msg (endcode str): "+str(msg.encode('utf-8')))
+                    md5msg["md5"]=md5(msg.encode('utf-8')).hexdigest()
+                    msg=md5msg
+                    print("msg (data converted to md5 hash): "+str(msg["md5"]))
+
+                if (isinstance(msg, dict)):
+                    msg[TIME_STAMP]=str(datetime.now())
+
+                with lock:
+                    cntr_msg_callbacks += 1
+                    if (id in msg_callbacks.keys()):
+                        msg_callbacks[id].append(msg)
+                    else:
+                        msg_callbacks[id]=[]
+                        msg_callbacks[id].append(msg)
+
+                    if (id in cntr_callbacks.keys()):
+                        cntr_callbacks[id][0] += 1
+                    else:
+                        cntr_callbacks[id]=[]
+                        cntr_callbacks[id].append(1)
+                        cntr_callbacks[id].append(0)
+        except Exception as e:
+            print(CAUGHT_EXCEPTION+str(e))
+            traceback.print_exc()
+            return 'NOTOK',500
+
 
     except Exception as e:
         print(CAUGHT_EXCEPTION+str(e))

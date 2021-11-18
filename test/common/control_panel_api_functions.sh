@@ -91,6 +91,19 @@ __CP_store_docker_logs() {
 __CP_initial_setup() {
 	use_control_panel_http
 }
+
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__CP_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo "CP $CONTROL_PANEL_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
+	else
+		echo "CP $CONTROL_PANEL_APP_NAME"
+	fi
+}
+
 #######################################################
 
 

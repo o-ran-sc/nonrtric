@@ -34,6 +34,7 @@ services:
     environment:
       - TOPIC_READ=${TOPIC_READ}
       - TOPIC_WRITE=${TOPIC_WRITE}
+      - GENERIC_TOPICS_UPLOAD_BASEURL=${GENERIC_TOPICS_UPLOAD_BASEURL}
     labels:
       - "nrttest_app=MR"
       - "nrttest_dp=${MR_STUB_DISPLAY_NAME}"

@@ -107,6 +107,18 @@ __CR_initial_setup() {
 	use_cr_http
 }
 
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__CR_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo "CR $CR_APP_NAME $KUBE_SIM_NAMESPACE"
+	else
+		echo "CR $CR_APP_NAME"
+	fi
+}
+
 #######################################################
 
 ################
@@ -142,6 +154,7 @@ __cr_set_protocoll() {
 	fi
 	# Service paths are used in test script to provide callbacck urls to app
 	CR_SERVICE_MR_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK_MR  #Only for messages from dmaap adapter/mediator
+	CR_SERVICE_TEXT_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK_TEXT  #Callbacks for text payload
 	CR_SERVICE_APP_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK    #For general callbacks from apps
 
 	# CR_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
@@ -573,10 +586,134 @@ cr_api_check_single_genric_json_event() {
 	body=${res:0:${#res}-3}
 	targetJson=$3
 
+	if [ $targetJson == "EMPTY" ] && [ ${#body} -ne 0 ]; then
+		__log_test_fail_body
+		return 1
+	fi
 	echo " TARGET JSON: $targetJson" >> $HTTPLOG
 	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
+		__log_test_fail_body
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# CR API: Check a single (oldest) json in md5 format (or none if empty) for path.
+# Note that if a json message is given, it shall be compact, no ws except inside string.
+# The MD5 will generate different hash if ws is present or not in otherwise equivalent json
+# arg: <response-code> <topic-url> (EMPTY | <data-msg> )
+# (Function for test scripts)
+cr_api_check_single_genric_event_md5() {
+	__log_test_start $@
+
+	if [ $# -ne 3 ]; then
+		__print_err "<response-code> <topic-url> (EMPTY | <data-msg> )" $@
+		return 1
+	fi
+
+	query="/get-event/"$2
+	res="$(__do_curl_to_api CR GET $query)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	body=${res:0:${#res}-3}
+	if [ $3 == "EMPTY" ]; then
+		if [ ${#body} -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		else
+			__log_test_pass
+			return 0
+		fi
+	fi
+	command -v md5 > /dev/null # Mac
+	if [ $? -eq 0 ]; then
+		targetMd5=$(echo -n "$3" | md5)
+	else
+		command -v md5sum > /dev/null # Linux
+		if [ $? -eq 0 ]; then
+			targetMd5=$(echo -n "$3" | md5sum | cut -d' ' -f 1)  # Need to cut additional info printed by cmd
+		else
+			__log_test_fail_general "Command md5 nor md5sum is available"
+			return 1
+		fi
+	fi
+	targetMd5="\""$targetMd5"\"" #Quotes needed
+
+	echo " TARGET MD5 hash: $targetMd5" >> $HTTPLOG
+
+	if [ "$body" != "$targetMd5" ]; then
+		__log_test_fail_body
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}
+
+# CR API: Check a single (oldest) event in md5 format (or none if empty) for path.
+# Note that if a file with json message is given, the json shall be compact, no ws except inside string and not newlines.
+# The MD5 will generate different hash if ws/newlines is present or not in otherwise equivalent json
+# arg: <response-code> <topic-url> (EMPTY | <data-file> )
+# (Function for test scripts)
+cr_api_check_single_genric_event_md5_file() {
+	__log_test_start $@
+
+	if [ $# -ne 3 ]; then
+		__print_err "<response-code> <topic-url> (EMPTY | <data-file> )" $@
+		return 1
+	fi
+
+	query="/get-event/"$2
+	res="$(__do_curl_to_api CR GET $query)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	body=${res:0:${#res}-3}
+	if [ $3 == "EMPTY" ]; then
+		if [ ${#body} -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		else
+			__log_test_pass
+			return 0
+		fi
+	fi
+
+	if [ ! -f $3 ]; then
+		__log_test_fail_general "File $3 does not exist"
+		return 1
+	fi
+
+	filedata=$(cat $3)
+
+	command -v md5 > /dev/null # Mac
+	if [ $? -eq 0 ]; then
+		targetMd5=$(echo -n "$filedata" | md5)
+	else
+		command -v md5sum > /dev/null # Linux
+		if [ $? -eq 0 ]; then
+			targetMd5=$(echo -n "$filedata" | md5sum | cut -d' ' -f 1)  # Need to cut additional info printed by cmd
+		else
+			__log_test_fail_general "Command md5 nor md5sum is available"
+			return 1
+		fi
+	fi
+	targetMd5="\""$targetMd5"\""   #Quotes needed
+
+	echo " TARGET MD5 hash: $targetMd5" >> $HTTPLOG
+
+	if [ "$body" != "$targetMd5" ]; then
 		__log_test_fail_body
 		return 1
 	fi

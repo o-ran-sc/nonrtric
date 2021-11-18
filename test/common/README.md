@@ -153,6 +153,7 @@ The script can be started with these arguments
 | `--print-stats` |  Prints the number of tests, failed tests, failed configuration and deviations after each individual test or config |
 | `--override <file>` |  Override setting from the file supplied by --env-file |
 | `--pre-clean` |  Clean kube resouces when running docker and vice versa |
+| `--gen-stats`  | Collect container/pod runtime statistics |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
 ## Function: setup_testenvironment ##

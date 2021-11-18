@@ -91,6 +91,19 @@ __PA_initial_setup() {
 	use_agent_rest_http
 }
 
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__PA_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo "PA $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
+	else
+		echo "PA $POLICY_AGENT_APP_NAME"
+	fi
+}
+
+
 #######################################################
 
 ###########################

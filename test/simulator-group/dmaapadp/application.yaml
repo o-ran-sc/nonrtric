@@ -69,3 +69,6 @@ app:
   dmaap-base-url: $MR_SERVICE_PATH
   # The url used to adress this component. This is used as a callback url sent to other components.
   dmaap-adapter-base-url: $DMAAP_ADP_SERVICE_PATH
+  # KAFKA boostrap server. This is only needed if there are Information Types that uses a kafkaInputTopic
+  kafka:
+    bootstrap-servers: $MR_KAFKA_SERVICE_PATH

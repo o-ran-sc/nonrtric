@@ -165,6 +165,21 @@ __CBS_initial_setup() {
 	CBS_SERVICE_PATH="http://"$CBS_APP_NAME":"$CBS_INTERNAL_PORT
 }
 
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__CONSUL_statisics_setup() {
+	echo ""
+}
+
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__CBS_statisics_setup() {
+	echo ""
+}
 #######################################################
 
 

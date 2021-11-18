@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="ONAP Use case REQ-626"
 DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR PA RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -99,7 +99,8 @@ for interface in $TESTED_VARIANTS ; do
 
     start_ric_simulators $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
 
-    start_mr
+    start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
+                "$MR_WRITE_TOPIC" "/events" "users/mr-stub"
 
     start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
