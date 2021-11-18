@@ -22,6 +22,30 @@
       },
       "revId": "39558da38b7ee9d3b1a16320eb636f93b520765f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6503dc03_ffdb484e",
+        "filename": "test/usecases/oruclosedlooprecovery/goversion/internal/config/config.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-18T13:43:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59cf1af4_9c0530be",
+      "range": {
+        "startLine": 60,
+        "startChar": 116,
+        "endLine": 60,
+        "endChar": 128
+      },
+      "revId": "39558da38b7ee9d3b1a16320eb636f93b520765f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
