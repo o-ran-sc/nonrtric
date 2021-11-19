@@ -1,8 +1,13 @@
 {
    "types": [
       {
-         "id": "ExampleInformationType",
+         "id": "DmaapInformationType",
          "dmaapTopicUrl": "/dmaap-topic-1",
+         "useHttpProxy": false
+      },
+      {
+         "id": "KafkaInformationType",
+         "kafkaInputTopic": "TutorialTopic",
          "useHttpProxy": false
       }
    ]

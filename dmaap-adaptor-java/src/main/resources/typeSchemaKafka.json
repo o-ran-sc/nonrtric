@@ -18,11 +18,12 @@
           "type": "integer"
         }
       },
+      "additionalProperties": false,
       "required": [
         "maxSize",
         "maxTimeMiliseconds"
       ]
     }
   },
-  "required": []
+  "additionalProperties": false
 }

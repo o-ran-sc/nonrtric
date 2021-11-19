@@ -1,9 +1,0 @@
-{
-   "types": [
-      {
-         "id": "ExampleInformationType",
-         "kafkaInputTopic": "TutorialTopic",
-         "useHttpProxy": false
-      }
-   ]
-}

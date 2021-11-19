@@ -75,9 +75,11 @@ import reactor.kafka.sender.SenderRecord;
 @TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
-        "app.configuration-filepath=./src/test/resources/test_application_configuration_kafka.json"//
+        "app.configuration-filepath=./src/test/resources/test_application_configuration.json"//
 })
 class IntegrationWithKafka {
+
+    final String TYPE_ID = "KafkaInformationType";
 
     @Autowired
     private ApplicationConfig applicationConfig;
@@ -97,7 +99,7 @@ class IntegrationWithKafka {
     @Autowired
     private KafkaTopicConsumers kafkaTopicConsumers;
 
-    private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
+    private static com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
 
     private static final Logger logger = LoggerFactory.getLogger(IntegrationWithKafka.class);
 
@@ -181,14 +183,15 @@ class IntegrationWithKafka {
         return "https://localhost:" + this.applicationConfig.getLocalServerHttpPort();
     }
 
-    private Object jobParametersAsJsonObject(String filter, long maxTimeMiliseconds, int maxSize, int maxConcurrency) {
+    private static Object jobParametersAsJsonObject(String filter, long maxTimeMiliseconds, int maxSize,
+            int maxConcurrency) {
         Job.Parameters param =
                 new Job.Parameters(filter, new Job.BufferTimeout(maxSize, maxTimeMiliseconds), maxConcurrency);
         String str = gson.toJson(param);
         return jsonObject(str);
     }
 
-    private Object jsonObject(String json) {
+    private static Object jsonObject(String json) {
         try {
             return JsonParser.parseString(json).getAsJsonObject();
         } catch (Exception e) {
@@ -196,12 +199,10 @@ class IntegrationWithKafka {
         }
     }
 
-    private ConsumerJobInfo consumerJobInfo(String filter, Duration maxTime, int maxSize, int maxConcurrency) {
+    ConsumerJobInfo consumerJobInfo(String filter, Duration maxTime, int maxSize, int maxConcurrency) {
         try {
-            InfoType type = this.types.getAll().iterator().next();
-            String typeId = type.getId();
             String targetUri = baseUrl() + ConsumerController.CONSUMER_TARGET_URL;
-            return new ConsumerJobInfo(typeId,
+            return new ConsumerJobInfo(TYPE_ID,
                     jobParametersAsJsonObject(filter, maxTime.toMillis(), maxSize, maxConcurrency), "owner", targetUri,
                     "");
         } catch (Exception e) {
@@ -221,9 +222,11 @@ class IntegrationWithKafka {
         return SenderOptions.create(props);
     }
 
-    private SenderRecord<Integer, String, Integer> senderRecord(String data, int i) {
-        final InfoType infoType = this.types.getAll().iterator().next();
-        return SenderRecord.create(new ProducerRecord<>(infoType.getKafkaInputTopic(), i, data + i), i);
+    private SenderRecord<Integer, String, Integer> senderRecord(String data) {
+        final InfoType infoType = this.types.get(TYPE_ID);
+        int key = 1;
+        int correlationMetadata = 2;
+        return SenderRecord.create(new ProducerRecord<>(infoType.getKafkaInputTopic(), key, data), correlationMetadata);
     }
 
     private void sendDataToStream(Flux<SenderRecord<Integer, String, Integer>> dataToSend) {
@@ -244,13 +247,13 @@ class IntegrationWithKafka {
     }
 
     @Test
-    void kafkaIntegrationTest() throws InterruptedException {
+    void kafkaIntegrationTest() throws Exception {
         final String JOB_ID1 = "ID1";
         final String JOB_ID2 = "ID2";
 
         // Register producer, Register types
         await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
-        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(this.types.size());
 
         // Create two jobs. One buffering and one with a filter
         this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ofMillis(400), 1000, 20), JOB_ID1,
@@ -259,23 +262,17 @@ class IntegrationWithKafka {
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
 
-        var dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message_", i)); // Message_1, Message_2 etc.
+        var dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message_" + i)); // Message_1, Message_2 etc.
         sendDataToStream(dataToSend);
 
         verifiedReceivedByConsumer("Message_1", "[\"Message_1\", \"Message_2\", \"Message_3\"]");
-
-        // Just for testing quoting
-        this.consumerController.testResults.reset();
-        dataToSend = Flux.just(senderRecord("Message\"_", 1));
-        sendDataToStream(dataToSend);
-        verifiedReceivedByConsumer("[\"Message\\\"_1\"]");
 
         // Delete the jobs
         this.ecsSimulatorController.deleteJob(JOB_ID1, restClient());
         this.ecsSimulatorController.deleteJob(JOB_ID2, restClient());
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
-        await().untilAsserted(() -> assertThat(this.kafkaTopicConsumers.getConsumers()).isEmpty());
+        await().untilAsserted(() -> assertThat(this.kafkaTopicConsumers.getConsumers().keySet()).isEmpty());
     }
 
     @Test
@@ -285,29 +282,37 @@ class IntegrationWithKafka {
 
         // Register producer, Register types
         await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
-        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(1);
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(this.types.size());
 
         // Create two jobs.
-        this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ZERO, 0, 1), JOB_ID1, restClient());
+        this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ofMillis(400), 1000, 1), JOB_ID1,
+                restClient());
         this.ecsSimulatorController.addJob(consumerJobInfo(null, Duration.ZERO, 0, 1), JOB_ID2, restClient());
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
 
-        var dataToSend = Flux.range(1, 1000000).map(i -> senderRecord("Message_", i)); // Message_1, Message_2 etc.
+        var dataToSend = Flux.range(1, 1000000).map(i -> senderRecord("Message_" + i)); // Message_1, Message_2 etc.
         sendDataToStream(dataToSend); // this should overflow
 
-        KafkaJobDataConsumer consumer = kafkaTopicConsumers.getConsumers().values().iterator().next();
+        KafkaJobDataConsumer consumer = kafkaTopicConsumers.getConsumers().get(TYPE_ID).iterator().next();
         await().untilAsserted(() -> assertThat(consumer.isRunning()).isFalse());
         this.consumerController.testResults.reset();
 
-        kafkaTopicConsumers.restartNonRunningTasks();
         this.ecsSimulatorController.deleteJob(JOB_ID2, restClient()); // Delete one job
+        kafkaTopicConsumers.restartNonRunningTasks();
         Thread.sleep(1000); // Restarting the input seems to take some asynch time
 
-        dataToSend = Flux.range(1, 1).map(i -> senderRecord("Howdy_", i));
+        dataToSend = Flux.just(senderRecord("Howdy\""));
         sendDataToStream(dataToSend);
 
-        verifiedReceivedByConsumer("Howdy_1");
+        verifiedReceivedByConsumer("[\"Howdy\\\"\"]");
+
+        // Delete the jobs
+        this.ecsSimulatorController.deleteJob(JOB_ID1, restClient());
+        this.ecsSimulatorController.deleteJob(JOB_ID2, restClient());
+
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
+        await().untilAsserted(() -> assertThat(this.kafkaTopicConsumers.getConsumers().keySet()).isEmpty());
     }
 
 }

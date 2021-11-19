@@ -87,6 +87,7 @@ public class ProducerCallbacksController {
                     request.lastUpdated, toJobParameters(request.jobData));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            logger.warn("jobCreatedCallback failed: {}", e.getMessage());
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
