@@ -44,7 +44,7 @@ func main() {
 	registerJob(*port)
 
 	fmt.Print("Starting consumer on port: ", *port)
-	http.ListenAndServe(fmt.Sprintf(":%v", *port), nil)
+	fmt.Println(http.ListenAndServe(fmt.Sprintf(":%v", *port), nil))
 }
 
 func registerJob(port int) {

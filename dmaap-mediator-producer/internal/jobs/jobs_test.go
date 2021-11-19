@@ -177,7 +177,7 @@ func TestAddJobToJobsManager_shouldStartPollAndDistributeMessages(t *testing.T) 
 	distributeClientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == "http://consumerHost/target" {
 			assertions.Equal(req.Method, "POST")
-			assertions.Equal(messages, getBodyAsString(req))
+			assertions.Equal(messages, getBodyAsString(req, t))
 			assertions.Equal("application/json", req.Header.Get("Content-Type"))
 			wg.Done()
 			return &http.Response{
@@ -208,7 +208,8 @@ func TestAddJobToJobsManager_shouldStartPollAndDistributeMessages(t *testing.T) 
 	}
 
 	wg.Add(1) // Wait till the distribution has happened
-	jobsManager.AddJobFromRESTCall(jobInfo)
+	err := jobsManager.AddJobFromRESTCall(jobInfo)
+	assertions.Nil(err)
 
 	if waitTimeout(&wg, 2*time.Second) {
 		t.Error("Not all calls to server were made")
@@ -287,8 +288,10 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 	}
 }
 
-func getBodyAsString(req *http.Request) string {
+func getBodyAsString(req *http.Request, t *testing.T) string {
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(req.Body)
+	if _, err := buf.ReadFrom(req.Body); err != nil {
+		t.Fail()
+	}
 	return buf.String()
 }
