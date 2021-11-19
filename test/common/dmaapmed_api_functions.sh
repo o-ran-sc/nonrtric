@@ -92,6 +92,18 @@ __DMAAPMED_initial_setup() {
 	use_dmaapmed_http
 }
 
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__DMAAPMED_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo "DMAAPMED $DMAAP_MED_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
+	else
+		echo "DMAAPMED $DMAAP_MED_APP_NAME"
+	fi
+}
+
 #######################################################
 
 # Set http as the protocol to use for all communication to the Dmaap mediator

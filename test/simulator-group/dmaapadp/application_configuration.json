@@ -2,8 +2,13 @@
   "types": [
      {
         "id": "ExampleInformationType",
-        "dmaapTopicUrl": "/events/unauthenticated.dmaapadp.json/dmaapadapterproducer/msgs",
+        "dmaapTopicUrl": "/events/unauthenticated.dmaapadp.json/dmaapadapterproducer/msgs?timeout=15000&limit=100",
         "useHttpProxy": ${DMMAAP_ADP_PROXY_FLAG}
-     }
+     },
+     {
+      "id": "ExampleInformationTypeKafka",
+      "kafkaInputTopic": "unauthenticated.dmaapadp_kafka.text",
+      "useHttpProxy": ${DMMAAP_ADP_PROXY_FLAG}
+   }
   ]
 }

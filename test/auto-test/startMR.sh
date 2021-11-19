@@ -56,7 +56,11 @@ setup_testenvironment
 
 clean_environment
 start_kube_proxy
-start_mr
+start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
+            "$MR_WRITE_TOPIC" "/events" "users/mr-stub" \
+            "unauthenticated.dmaapadp.json" "/events" "dmaapadapterproducer/msgs" \
+            "unauthenticated.dmaapmed.json" "/events" "maapmediatorproducer/STD_Fault_Messages"
+
 if [ $RUNMODE == "KUBE" ]; then
     :
 else

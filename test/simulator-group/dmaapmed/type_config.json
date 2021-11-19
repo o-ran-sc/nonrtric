@@ -3,7 +3,7 @@
      [
        {
          "id": "STD_Fault_Messages",
-         "dmaapTopicUrl": "/events/unauthenticated.dmaapmed.json/dmaapmediatorproducer/STD_Fault_Messages"
+         "dmaapTopicUrl": "/events/unauthenticated.dmaapmed.json/dmaapmediatorproducer/STD_Fault_Messages?timeout=15000&limit=100"
        }
    ]
  }

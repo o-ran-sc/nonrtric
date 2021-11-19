@@ -31,3 +31,5 @@ spec:
           value: $TOPIC_READ
         - name: TOPIC_WRITE
           value: $TOPIC_WRITE
+        - name: GENERIC_TOPICS_UPLOAD_BASEURL
+          value: $GENERIC_TOPICS_UPLOAD_BASEURL

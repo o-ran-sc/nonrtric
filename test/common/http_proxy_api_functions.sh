@@ -106,6 +106,18 @@ __HTTPPROXY_initial_setup() {
 	:
 }
 
+# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# For docker, the namespace shall be excluded
+# This function is called for apps managed by the test script as well as for prestarted apps.
+# args: -
+__HTTPPROXY_statisics_setup() {
+	if [ $RUNMODE == "KUBE" ]; then
+		echo "HTTPPROXY $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE"
+	else
+		echo "HTTPPROXY $HTTP_PROXY_APP_NAME"
+	fi
+}
+
 #######################################################
 
 

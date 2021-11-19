@@ -235,7 +235,7 @@ KUBE_NONRTRIC_NAMESPACE="nonrtric"                       # Namespace for all non
 KUBE_SIM_NAMESPACE="nonrtric-ft"                         # Namespace for simulators (except MR and RICSIM)
 KUBE_A1SIM_NAMESPACE="a1-sim"                            # Namespace for a1-p simulators (RICSIM)
 KUBE_ONAP_NAMESPACE="onap"                               # Namespace for onap (only message router)
-KUBE_SNDC_NAMESPACE="onap"                               # Namespace for sdnc
+KUBE_SDNC_NAMESPACE="onap"                               # Namespace for sdnc
 
 POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
 POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
@@ -281,7 +281,7 @@ ECS_CONFIG_FILE=application.yaml                         # Config file name
 ECS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
 ECS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS INFO-TYPE-INFO"  # Space separated list of features
 
-MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
+MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
 MR_DMAAP_DISPLAY_NAME="DMAAP Message Router"
 MR_STUB_DISPLAY_NAME="Message Router stub"
@@ -302,10 +302,12 @@ MR_STUB_ALIVE_URL="/"                                    # Base path for mr stub
 MR_DMAAP_ALIVE_URL="/topics"                             # Base path for dmaap-mr alive check
 MR_DMAAP_COMPOSE_DIR="dmaapmr"                           # Dir in simulator_group for dmaap mr for - docker-compose
 MR_STUB_COMPOSE_DIR="mrstub"                             # Dir in simulator_group for mr stub for - docker-compose
-MR_KAFKA_APP_NAME="kafka"                                # Kafka app name
+MR_KAFKA_APP_NAME="message-router-kafka"                 # Kafka app name, if just named "kafka" the image will not start...
+MR_KAFKA_PORT=9092                                       # Kafka port number
 MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
-MR_DMAAP_HOST_MNT_DIR="/mnt2"                            # Config files dir on localhost
-
+MR_ZOOKEEPER_PORT="2181"                                 # Zookeeper port number
+MR_DMAAP_HOST_MNT_DIR="/mnt"                             # Basedir localhost for mounted files
+MR_DMAAP_HOST_CONFIG_DIR="/configs"                      # Config files dir on localhost
 
 CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
 CR_DISPLAY_NAME="Callback receiver"
@@ -315,6 +317,7 @@ CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver con
 CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
 CR_APP_CALLBACK_MR="/callbacks-mr"                       # Url for callbacks (data from mr which contains string encoded jsons in a json arr)
+CR_APP_CALLBACK_TEXT="/callbacks-text"                   # Url for callbacks (data containing text data)
 CR_ALIVE_URL="/"                                         # Base path for alive check
 CR_COMPOSE_DIR="cr"                                      # Dir in simulator_group for docker-compose
 
@@ -478,6 +481,10 @@ KUBE_PROXY_PATH=""                                       # Proxy url path, will 
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
 KUBE_PROXY_COMPOSE_DIR="kubeproxy"                       # Dir in simulator_group for docker-compose
 
+PVC_CLEANER_APP_NAME="pvc-cleaner"                      # Name for Persistent Volume Cleaner container
+PVC_CLEANER_DISPLAY_NAME="Persistent Volume Cleaner"    # Display name for Persistent Volume Cleaner
+PVC_CLEANER_COMPOSE_DIR="pvc-cleaner"                   # Dir in simulator_group for yamls
+
 DMAAP_ADP_APP_NAME="dmaapadapterservice"                 # Name for Dmaap Adapter container
 DMAAP_ADP_DISPLAY_NAME="Dmaap Adapter Service"           # Display name for Dmaap Adapter container
 DMAAP_ADP_EXTERNAL_PORT=9087                             # Dmaap Adapter container external port (host -> container)
@@ -511,18 +518,13 @@ DMAAP_MED_HOST_MNT_DIR="./mnt"                          # Mounted db dir, relati
 #DMAAP_MED_CERT_MOUNT_DIR="./cert"
 DMAAP_MED_ALIVE_URL="/status"                            # Base path for alive check
 DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose
-#MAAP_MED_CONFIG_MOUNT_PATH="/app" # Internal container path for configuration
-DMAAP_MED_DATA_MOUNT_PATH="/configs" # Path in container for data file
-DMAAP_MED_DATA_FILE="type_config.json"  # Container data file name
-#DMAAP_MED_CONFIG_FILE=application.yaml                   # Config file name
-
-PVC_CLEANER_APP_NAME="pvc-cleaner"                      # Name for Persistent Volume Cleaner container
-PVC_CLEANER_DISPLAY_NAME="Persistent Volume Cleaner"    # Display name for Persistent Volume Cleaner
-PVC_CLEANER_COMPOSE_DIR="pvc-cleaner"                   # Dir in simulator_group for yamls
+#MAAP_MED_CONFIG_MOUNT_PATH="/app"                       # Internal container path for configuration
+DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
+DMAAP_MED_DATA_FILE="type_config.json"                   # Container data file name
 
 ########################################
 # Setting for common curl-base function
 ########################################
 
-UUID=""                                                   # UUID used as prefix to the policy id to simulate a real UUID
-                                                          # Testscript need to set the UUID otherwise this empty prefix is used
+UUID=""                                                  # UUID used as prefix to the policy id to simulate a real UUID
+                                                         # Testscript need to set the UUID otherwise this empty prefix is used

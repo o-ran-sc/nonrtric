@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete 
 DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY "
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -119,7 +119,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_ric_simulators ricsim_g3 1  STD_2.0.0
         fi
 
-        start_mr
+        start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
+                    "$MR_WRITE_TOPIC" "/events" "users/mr-stub"
 
         start_cr
 

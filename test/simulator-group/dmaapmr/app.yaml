@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $MR_DMAAP_KUBE_APP_NAME
+  name: $MR_DMAAP_APP_NAME
   namespace: $KUBE_ONAP_NAMESPACE
   labels:
-    run: $MR_DMAAP_KUBE_APP_NAME
+    run: $MR_DMAAP_APP_NAME
     autotest: DMAAPMR
 spec:
   replicas: 1
   selector:
     matchLabels:
-      run: $MR_DMAAP_KUBE_APP_NAME
+      run: $MR_DMAAP_APP_NAME
   template:
     metadata:
       labels:
-        run: $MR_DMAAP_KUBE_APP_NAME
+        run: $MR_DMAAP_APP_NAME
         autotest: DMAAPMR
     spec:
       containers:
-      - name: $MR_DMAAP_KUBE_APP_NAME
+      - name: $MR_DMAAP_APP_NAME
         image: $ONAP_DMAAPMR_IMAGE
         imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
@@ -33,11 +33,9 @@ spec:
         - mountPath: /appl/dmaapMR1/bundleconfig/etc/appprops/MsgRtrApi.properties
           subPath: MsgRtrApi.properties
           name: dmaapmr-msg-rtr-api
-        volumeMounts:
         - mountPath: /appl/dmaapMR1/bundleconfig/etc/logback.xml
           subPath: logback.xml
           name: dmaapmr-log-back
-        volumeMounts:
         - mountPath: /appl/dmaapMR1/etc/cadi.properties
           subPath: cadi.properties
           name: dmaapmr-cadi
@@ -58,34 +56,34 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $MR_KAFKA_BWDS_NAME
+  name: $MR_KAFKA_APP_NAME
   namespace: $KUBE_ONAP_NAMESPACE
   labels:
-    run: $MR_KAFKA_BWDS_NAME
+    run: $MR_KAFKA_APP_NAME
     autotest: DMAAPMR
 spec:
   replicas: 1
   selector:
     matchLabels:
-      run: $MR_KAFKA_BWDS_NAME
+      run: $MR_KAFKA_APP_NAME
   template:
     metadata:
       labels:
-        run: $MR_KAFKA_BWDS_NAME
+        run: $MR_KAFKA_APP_NAME
         autotest: DMAAPMR
     spec:
       containers:
-      - name: $MR_KAFKA_BWDS_NAME
+      - name: $MR_KAFKA_APP_NAME
         image: $ONAP_KAFKA_IMAGE
         imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
-          containerPort: 9095
+          containerPort: $MR_KAFKA_PORT
         env:
         - name: enableCadi
           value: 'false'
         - name: KAFKA_ZOOKEEPER_CONNECT
-          value: 'zookeeper.onap:2181'
+          value: '$MR_ZOOKEEPER_APP_NAME:$MR_ZOOKEEPER_PORT'
         - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
           value: '40000'
         - name: KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS
@@ -93,11 +91,11 @@ spec:
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
           value: 'INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT'
         - name: KAFKA_ADVERTISED_LISTENERS
-          value: 'INTERNAL_PLAINTEXT://kaka:9092'
-#        - name: KAFKA_ADVERTISED_LISTENERS
-#          value: 'INTERNAL_PLAINTEXT://localhost:9092'
+          value: 'INTERNAL_PLAINTEXT://$MR_KAFKA_APP_NAME:$MR_KAFKA_PORT'
         - name: KAFKA_LISTENERS
-          value: 'EXTERNAL_PLAINTEXT://0.0.0.0:9095,INTERNAL_PLAINTEXT://0.0.0.0:9092'
+          value: 'INTERNAL_PLAINTEXT://0.0.0.0:$MR_KAFKA_PORT'
+        # - name: KAFKA_LISTENERS
+        #   value: 'EXTERNAL_PLAINTEXT://0.0.0.0:9091,INTERNAL_PLAINTEXT://0.0.0.0:$MR_KAFKA_PORT'
         - name: KAFKA_INTER_BROKER_LISTENER_NAME
           value: INTERNAL_PLAINTEXT
         - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE
@@ -105,12 +103,11 @@ spec:
         - name: KAFKA_OPTS
           value: '-Djava.security.auth.login.config=/etc/kafka/secrets/jaas/zk_client_jaas.conf'
         - name: KAFKA_ZOOKEEPER_SET_ACL
-          value: 'true'
+          value: 'false'
         - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
           value: '1'
         - name: KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS
           value: '1'
-
         volumeMounts:
         - mountPath: /etc/kafka/secrets/jaas/zk_client_jaas.conf
           subPath: zk_client_jaas.conf
@@ -146,7 +143,7 @@ spec:
         imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
         ports:
         - name: http
-          containerPort: 2181
+          containerPort: $MR_ZOOKEEPER_PORT
         env:
         - name: ZOOKEEPER_REPLICAS
           value: '1'
@@ -163,7 +160,7 @@ spec:
         - name: ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL
           value: '24'
         - name: ZOOKEEPER_CLIENT_PORT
-          value: '2181'
+          value: '$MR_ZOOKEEPER_PORT'
         - name: KAFKA_OPTS
           value: '-Djava.security.auth.login.config=/etc/zookeeper/secrets/jaas/zk_server_jaas.conf -Dzookeeper.kerberos.removeHostFromPrincipal=true -Dzookeeper.kerberos.removeRealmFromPrincipal=true -Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl'
         - name: ZOOKEEPER_SERVER_ID

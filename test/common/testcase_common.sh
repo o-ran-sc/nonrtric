@@ -28,7 +28,7 @@ __print_args() {
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
-	echo "      [--override <override-environment-filename> --pre-clean]"
+	echo "      [--override <override-environment-filename> --pre-clean --gen-stats]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -59,6 +59,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--print-stats         -  Print current test stats after each test."
 	echo "--override <file>     -  Override setting from the file supplied by --env-file"
 	echo "--pre-clean           -  Will clean kube resouces when running docker and vice versa"
+	echo "--gen-stats           -  Collect container/pod runtime statistics"
 
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
@@ -207,6 +208,9 @@ RES_DEVIATION=0
 #Var to control if current stats shall be printed
 PRINT_CURRENT_STATS=0
 
+#Var to control if container/pod runtim statistics shall be collected
+COLLECT_RUNTIME_STATS=0
+
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
 rm $DEVIATION_FILE &> /dev/null
@@ -221,6 +225,9 @@ trap_fnc() {
 	fi
 }
 trap trap_fnc ERR
+
+# Trap to kill subprocesses
+trap "kill 0" EXIT
 
 # Counter for tests
 TEST_SEQUENCE_NR=1
@@ -652,6 +659,15 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			foundparm=0
 		fi
 	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--gen-stats" ]; then
+			COLLECT_RUNTIME_STATS=1
+			echo "Option set - Collect runtime statistics"
+			shift;
+			foundparm=0
+		fi
+	fi
+
 done
 echo ""
 
@@ -768,7 +784,7 @@ if [ $? -ne 0 ] || [ -z tmp ]; then
 	fi
 fi
 if [ $RUNMODE == "DOCKER" ]; then
-	tmp=$(docker-compose version | grep -i 'Docker Compose version')
+	tmp=$(docker-compose version | grep -i 'docker' | grep -i 'compose' | grep -i 'version')
 	if [[ "$tmp" == *'v2'* ]]; then
 		echo -e $RED"docker-compose is using docker-compose version 2"$ERED
 		echo -e $RED"The test environment only support version 1"$ERED
@@ -1449,6 +1465,8 @@ setup_testenvironment() {
 	echo -e $BOLD"======================================================="$EBOLD
 	echo ""
 
+	LOG_STAT_ARGS=""
+
 	for imagename in $APP_SHORT_NAMES; do
 		__check_included_image $imagename
 		retcode_i=$?
@@ -1464,8 +1482,15 @@ setup_testenvironment() {
 
 			function_pointer="__"$imagename"_initial_setup"
 			$function_pointer
+
+			function_pointer="__"$imagename"_statisics_setup"
+			LOG_STAT_ARGS=$LOG_STAT_ARGS" "$($function_pointer)
 		fi
 	done
+
+	if [ $COLLECT_RUNTIME_STATS -eq 1 ]; then
+		../common/genstat.sh $RUNMODE $SECONDS $TESTLOGS/$ATC/stat_data.csv $LOG_STAT_ARGS &
+	fi
 
 }
 
@@ -1498,7 +1523,15 @@ print_result() {
 	echo "Timer measurement in the test script"
 	echo "===================================="
 	column -t -s $'\t' $TIMER_MEASUREMENTS
+	if [ $RES_PASS != $RES_TEST ]; then
+		echo -e $RED"Measurement may not be reliable when there are failed test - script timeouts may cause long measurement values"$ERED
+	fi
 	echo ""
+
+	if [ $COLLECT_RUNTIME_STATS -eq 1 ]; then
+		echo "Runtime statistics collected in file: "$TESTLOGS/$ATC/stat_data.csv
+		echo ""
+	fi
 
 	total=$((RES_PASS+RES_FAIL))
 	if [ $RES_TEST -eq 0 ]; then
@@ -2142,41 +2175,6 @@ __kube_create_configmap() {
 	return 0
 }
 
-# Function to create a configmap in kubernetes
-# args: <configmap-name> <namespace> <labelname> <labelid> <path-to-data-file> <path-to-output-yaml>
-# (Not for test scripts)
-__kube_create_configmapXXXXXXXXXXXXX() {
-	echo -ne " Creating configmap $1 "$SAMELINE
-	#envsubst < $5 > $5"_tmp"
-	#cp $5"_tmp" $5  #Need to copy back to orig file name since create configmap neeed the original file name
-	kubectl create configmap $1  -n $2 --from-file=$5 --dry-run=client -o yaml > $6
-	if [ $? -ne 0 ]; then
-		echo -e " Creating configmap $1 $RED Failed $ERED"
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-
-	kubectl apply -f $6 1> /dev/null 2> ./tmp/kubeerr
-	if [ $? -ne 0 ]; then
-		echo -e " Creating configmap $1 $RED Apply failed $ERED"
-		echo "  Message: $(<./tmp/kubeerr)"
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	kubectl label configmap $1 -n $2 $3"="$4 --overwrite 1> /dev/null 2> ./tmp/kubeerr
-	if [ $? -ne 0 ]; then
-		echo -e " Creating configmap $1 $RED Labeling failed $ERED"
-		echo "  Message: $(<./tmp/kubeerr)"
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	# Log the resulting map
-	kubectl get configmap $1 -n $2 -o yaml > $6
-
-	echo -e " Creating configmap $1 $GREEN OK $EGREEN"
-	return 0
-}
-
 # This function runs a kubectl cmd where a single output value is expected, for example get ip with jsonpath filter.
 # The function retries up to the timeout given in the cmd flag '--cluster-timeout'
 # args: <full kubectl cmd with parameters>
@@ -2294,12 +2292,14 @@ clean_environment() {
 		if [ $PRE_CLEAN -eq 1 ]; then
 			echo " Clean docker resouces to free up resources, may take time..."
 			../common/clean_docker.sh 2&>1 /dev/null
+			echo ""
 		fi
 	else
 		__clean_containers
 		if [ $PRE_CLEAN -eq 1 ]; then
-			echo " Clean kubernetes resouces to free up resources, may take time..."
+			echo " Cleaning kubernetes resouces to free up resources, may take time..."
 			../common/clean_kube.sh 2&>1 /dev/null
+			echo ""
 		fi
 	fi
 }
