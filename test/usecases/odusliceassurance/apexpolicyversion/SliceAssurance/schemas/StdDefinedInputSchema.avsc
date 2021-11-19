@@ -1,0 +1,174 @@
+{
+    "type": "record",
+    "name": "Std_Defined_Input",
+    "fields": [
+        {
+            "name": "event",
+            "type": {
+                "type": "record",
+                "name": "Event_Type",
+                "fields": [
+                    {
+                        "name": "commonEventHeader",
+                        "type": {
+                            "type": "record",
+                            "name": "Common_Event_Header_Type",
+                            "fields": [
+                                {
+                                    "name": "domain",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "eventType",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "sequence",
+                                    "type": "int"
+                                },
+                                {
+                                    "name": "priority",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "reportingEntityId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "reportingEntityName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "sourceId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "sourceName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "startEpochMicrosec",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "lastEpochMicrosec",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "nfNamingCode",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "nfVendorName",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "stndDefinedNamespace",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "timeZoneOffset",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "version",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "vesEventListenerVersion",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "stndDefinedFields",
+                        "type": {
+                            "type": "record",
+                            "name": "Stnd_Defined_Fields_Type",
+                            "fields": [
+                                {
+                                    "name": "stndDefinedFieldsVersion",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "schemaReference",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "data",
+                                    "type": {
+                                        "type": "record",
+                                        "name": "Data_Type",
+                                        "fields": [
+                                            {
+                                                "name": "id",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "start_DasH_time",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "administrative_DasH_state",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "operational_DasH_state",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "user_DasH_label",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "job_DasH_tag",
+                                                "type": "string"
+                                            },
+                                            {
+                                                "name": "granularity_DasH_period",
+                                                "type": "int"
+                                            },
+                                            {
+                                                "name": "measurements",
+                                                "type": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "name": "Measurements_Array",
+                                                        "type": "record",
+                                                        "fields": [
+                                                            {
+                                                                "name": "measurement_DasH_type_DasH_instance_DasH_reference",
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "name": "value",
+                                                                "type": "int"
+                                                            },
+                                                            {
+                                                                "name": "unit",
+                                                                "type": "string"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
