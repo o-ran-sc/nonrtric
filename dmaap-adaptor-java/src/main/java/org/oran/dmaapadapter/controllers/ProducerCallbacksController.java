@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.oran.dmaapadapter.exceptions.ServiceException;
 import org.oran.dmaapadapter.r1.ProducerJobInfo;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Job;
@@ -77,6 +78,8 @@ public class ProducerCallbacksController {
                     content = @Content(schema = @Schema(implementation = VoidResponse.class))), //
             @ApiResponse(responseCode = "404", description = "Information type is not found", //
                     content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))), //
+            @ApiResponse(responseCode = "400", description = "Other error in the request", //
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
     })
     public ResponseEntity<Object> jobCreatedCallback( //
             @RequestBody String body) {
@@ -86,8 +89,12 @@ public class ProducerCallbacksController {
             this.jobs.addJob(request.id, request.targetUri, types.getType(request.typeId), request.owner,
                     request.lastUpdated, toJobParameters(request.jobData));
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (ServiceException e) {
+            logger.warn("jobCreatedCallback failed: {}", e.getMessage());
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.warn("jobCreatedCallback failed: {}", e.getMessage());
+            return ErrorResponse.create(e, HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -53,7 +53,6 @@ public class KafkaTopicListener {
     public KafkaTopicListener(ApplicationConfig applicationConfig, InfoType type) {
         this.applicationConfig = applicationConfig;
         this.type = type;
-        start();
     }
 
     public Many<String> getOutput() {

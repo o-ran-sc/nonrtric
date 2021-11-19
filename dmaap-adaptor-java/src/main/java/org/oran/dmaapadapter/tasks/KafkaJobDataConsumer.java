@@ -82,8 +82,13 @@ public class KafkaJobDataConsumer {
                 .flatMap(this::postToClient, job.getParameters().getMaxConcurrency()) //
                 .onErrorResume(this::handleError) //
                 .subscribe(this::handleConsumerSentOk, //
-                        t -> stop(), //
+                        this::handleExceptionInStream, //
                         () -> logger.warn("KafkaMessageConsumer stopped jobId: {}", job.getId()));
+    }
+
+    private void handleExceptionInStream(Throwable t) {
+        logger.warn("KafkaMessageConsumer exception: {}, jobId: {}", t.getMessage(), job.getId());
+        stop();
     }
 
     private Mono<String> postToClient(String body) {

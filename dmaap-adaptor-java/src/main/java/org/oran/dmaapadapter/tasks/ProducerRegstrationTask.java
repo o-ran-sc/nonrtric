@@ -152,12 +152,17 @@ public class ProducerRegstrationTask {
             // An object with no properties
             String schemaStr = "{" //
                     + "\"type\": \"object\"," //
-                    + "\"properties\": {}," //
+                    + "\"properties\": {" //
+                    + "   \"filter\": { \"type\": \"string\" }" //
+                    + "}," //
                     + "\"additionalProperties\": false" //
                     + "}"; //
 
-            return jsonObject(schemaStr);
+            return
+
+            jsonObject(schemaStr);
         }
+
     }
 
     private String readSchemaFile(String filePath) throws IOException, ServiceException {

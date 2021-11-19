@@ -47,6 +47,7 @@ import reactor.netty.transport.ProxyProvider;
 /**
  * Generic reactive REST client.
  */
+@SuppressWarnings("java:S4449") // @Add Nullable to third party api
 public class AsyncRestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -83,7 +84,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password,
-            MediaType mediaType) {
+            @Nullable MediaType mediaType) {
         Object traceTag = createTraceTag();
         logger.debug("{} POST (auth) uri = '{}{}''", traceTag, baseUrl, uri);
         logger.trace("{} POST body: {}", traceTag, body);

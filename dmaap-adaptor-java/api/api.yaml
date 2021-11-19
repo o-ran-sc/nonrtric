@@ -51,6 +51,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/void'
+        400:
+          description: Other error in the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error_information'
         404:
           description: Information type is not found
           content:
