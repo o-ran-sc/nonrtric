@@ -34,7 +34,7 @@
     </properties>
     <modules>
         <module>policy-agent</module>
-        <module>enrichment-coordinator-service</module>
+        <module>information-coordinator-service</module>
         <module>r-app-catalogue</module>
         <module>helm-manager</module>
         <module>dmaap-adaptor-java</module>

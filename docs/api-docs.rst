@@ -20,7 +20,7 @@ Here we describe the APIs to access the Non-RT RIC functions.
 The core Non-RT RIC consists of several parts, with available APIs described in the sections below:
 
 * The A1 Policy Management Service
-* The Enrichment Coordinator Service
+* The Information Coordinator Service
 * The Non-RT-RIC App Catalogue
 * K8S Helm Chart LCM Manager (Initial) **<ToDo>**
 
@@ -29,10 +29,10 @@ A1 Policy Management Service
 
 For information about the A1 Policy Management Service that is implemented in ONAP, see `ONAP docs <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_ and `wiki <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_.
 
-Enrichment Coordinator Service
-==============================
+Information Coordinator Service
+===============================
 
-See `A1 Enrichment Information Coordination Service API <./ecs-api.html>`_ for full details of the API.
+See `A1 Information Information Coordination Service API <./ics-api.html>`_ for full details of the API.
 
 The API is also described in Swagger-JSON and YAML:
 
@@ -40,7 +40,7 @@ The API is also described in Swagger-JSON and YAML:
    :header: "API name", "|swagger-icon|", "|yaml-icon|"
    :widths: 10,5,5
 
-   "A1 Enrichment Information Coordination Service API", ":download:`link <../enrichment-coordinator-service/api/ecs-api.json>`", ":download:`link <../enrichment-coordinator-service/api/ecs-api.yaml>`"
+   "A1 Enrichment Information Coordination Service API", ":download:`link <../information-coordinator-service/api/ics-api.json>`", ":download:`link <../information-coordinator-service/api/ics-api.yaml>`"
 
 Non-RT-RIC App Catalogue (Initial)
 ==================================
