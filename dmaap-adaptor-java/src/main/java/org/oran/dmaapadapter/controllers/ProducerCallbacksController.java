@@ -59,8 +59,8 @@ public class ProducerCallbacksController {
 
     public static final String API_NAME = "Producer job control API";
     public static final String API_DESCRIPTION = "";
-    public static final String JOB_URL = "/dmaap_dataproducer/info_job";
-    public static final String SUPERVISION_URL = "/dmaap_dataproducer/health_check";
+    public static final String JOB_URL = "/generic_dataproducer/info_job";
+    public static final String SUPERVISION_URL = "/generic_dataproducer/health_check";
     private static Gson gson = new GsonBuilder().create();
     private final Jobs jobs;
     private final InfoTypes types;
@@ -91,7 +91,7 @@ public class ProducerCallbacksController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ServiceException e) {
             logger.warn("jobCreatedCallback failed: {}", e.getMessage());
-            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+            return ErrorResponse.create(e, e.getHttpStatus());
         } catch (Exception e) {
             logger.warn("jobCreatedCallback failed: {}", e.getMessage());
             return ErrorResponse.create(e, HttpStatus.BAD_REQUEST);

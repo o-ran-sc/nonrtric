@@ -38,6 +38,6 @@ import io.swagger.v3.oas.annotations.info.License;
 public class SwaggerConfig {
     private SwaggerConfig() {}
 
-    static final String API_TITLE = "Generic Dmaap Information Producer";
-    static final String DESCRIPTION = "Reads data from DMAAP and sends it further to information consumers";
+    static final String API_TITLE = "Generic Dmaap and Kafka Information Producer";
+    static final String DESCRIPTION = "Reads data from DMaaP and Kafka and posts it further to information consumers";
 }
