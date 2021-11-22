@@ -24,7 +24,7 @@ These are the components that make up the Non-RT-RIC:
 * Non-RT-RIC Control Panel / Dashboard
 * A1 Policy Management Service (developed in ONAP)
 * A1/SDNC Controller & A1 Adapter (Controller plugin)
-* Enrichment Information Coordinator
+* Information Coordinator Service
 * Non-RT-RIC (Spring Cloud) Service Gateway
 * Non-RT-RIC (Kong) Service Exposure Prototyping
 * Initial Non-RT-RIC App Catalogue
@@ -40,7 +40,7 @@ Graphical user interface
 * View and Manage A1 policies in the RAN (near-RT-RICs)
 * Interacts with the Policy agent’s NBI (REST API)
 * Graphical A1 policy creation/editing is model-driven, based on policy type’s JSON schema
-* View and manage producers and jobs for the Enrichment coordinator service
+* View and manage producers and jobs for the Information coordinator service
 * Configure A1 Policy Management Service (e.g. add/remove near-rt-rics)
 * Interacts with the A1-PolicyManagementService & A1-EI-Coordinator (REST NBIs) via Service Exposure gateway
      
@@ -90,8 +90,8 @@ Mediation point for A1 interface termination in SMO/NONRTRIC
 
 See also: `A1 Adapter/Controller Functions in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_  
   
-Enrichment Information Job Coordination Service
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Information Job Coordination Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs.
 
@@ -106,14 +106,14 @@ Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs.
 * Query status of A1-EI jobs
 * Monitors all near-RT-RICs and recovers from inconsistencies
 * After EI-type/Producer/Consumer/Job is successfully registered delivery/flow can happen directly between A1-EI Producers (in SMO/NONRTRIC domain) and A1-EI consumers (near-RT-RICs in RAN domain)
-* *Being extended to coordinate non-A1 Enrichment Information exchange between NONRTRIC Apps*
+* *Being extended to coordinate non-A1 Information exchange between NONRTRIC Apps*
 
 Non-RT-RIC (Spring Cloud) Service Gateway
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Support Apps to use A1 Services 
 
 * `Spring Cloud Gateway <https://cloud.spring.io/spring-cloud-gateway>`_ provides the library to build a basic API gateway
-* Exposes A1 Policy Management Service & Enrichment Coordinator Service.  
+* Exposes A1 Policy Management Service & Information Coordinator Service.  
 * Additional predicates can be added in code or preferably in the Gateway yaml configuration.
 
 Implementation:
@@ -162,7 +162,7 @@ A1 Interface / Near-RT-RIC Simulator
 Stateful A1 test stub.
 
 * Used to create multiple stateful A1 providers (simulated near-rt-rics)
-* Supports A1-Policy and A1-EnrichmentInformation
+* Supports A1-Policy and A1-Enrichment Information
 * Swagger-based northbound interface, so easy to change the A1 profile exposed (e.g. A1 version, A1 Policy Types, A1-E1 consumers, etc)
 * All A1-AP versions supported
 
