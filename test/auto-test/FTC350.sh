@@ -32,16 +32,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -75,7 +66,7 @@ for interface in $TESTED_VARIANTS ; do
 
     start_ric_simulators ricsim_g1 $NUM_RICS_2 OSC_2.1.0
 
-    start_cr
+    start_cr 1
 
     start_mr
 
@@ -108,7 +99,7 @@ for interface in $TESTED_VARIANTS ; do
 
     # Create service to be able to receive events when rics becomes available
     # Must use rest towards the agent since dmaap is not configured yet
-    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
+    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
     #Load first config
     if [ $RUNMODE == "KUBE" ]; then
@@ -126,8 +117,8 @@ for interface in $TESTED_VARIANTS ; do
     api_equal json:rics 8 300
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        cr_equal received_callbacks?id=ric-registration 8 120
-        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g1_2  ricsim_g1_3 ricsim_g1_4 ricsim_g1_5 ricsim_g1_6  ricsim_g1_7  ricsim_g1_8
+        cr_equal 0 received_callbacks?id=ric-registration 8 120
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g1_2  ricsim_g1_3 ricsim_g1_4 ricsim_g1_5 ricsim_g1_6  ricsim_g1_7  ricsim_g1_8
     fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:NOTYPE:???? \
@@ -205,8 +196,8 @@ for interface in $TESTED_VARIANTS ; do
                              ricsim_g1_8:me1_ricsim_g1_8,me2_ricsim_g1_8:4,5:???? "
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        cr_equal received_callbacks?id=ric-registration 16 120
-        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g1_2  ricsim_g1_3 ricsim_g1_4 ricsim_g1_5 ricsim_g1_6  ricsim_g1_7  ricsim_g1_8
+        cr_equal 0 received_callbacks?id=ric-registration 16 120
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g1_2  ricsim_g1_3 ricsim_g1_4 ricsim_g1_5 ricsim_g1_6  ricsim_g1_7  ricsim_g1_8
     fi
 
     #Load config with all rics
@@ -219,8 +210,8 @@ for interface in $TESTED_VARIANTS ; do
     api_equal json:rics 10 120
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        cr_equal received_callbacks?id=ric-registration 18 120
-        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_9  ricsim_g1_10
+        cr_equal 0 received_callbacks?id=ric-registration 18 120
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_9  ricsim_g1_10
     fi
 
     sim_put_policy_type 201 ricsim_g1_9 5 testdata/OSC/sim_5.json
@@ -269,8 +260,8 @@ for interface in $TESTED_VARIANTS ; do
                              ricsim_g1_10:me1_ricsim_g1_10,me2_ricsim_g1_10:NOTYPE:???? "
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        cr_equal received_callbacks?id=ric-registration 19 120
-        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_9
+        cr_equal 0 received_callbacks?id=ric-registration 19 120
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_9
     fi
 
     #No policy type in sim #10
@@ -281,10 +272,10 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy_types 5
     fi
 
-    api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH/serv1"
+    api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH_0/serv1"
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        notificationurl=$CR_SERVICE_APP_PATH"/test"
+        notificationurl=$CR_SERVICE_APP_PATH_0"/test"
     else
         notificationurl=""
     fi
@@ -301,8 +292,8 @@ for interface in $TESTED_VARIANTS ; do
     api_equal json:rics 8 120
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        cr_equal received_callbacks?id=ric-registration 19 120
-        cr_api_check_all_sync_events 200 ric-registration EMPTY
+        cr_equal 0 received_callbacks?id=ric-registration 19 120
+        cr_api_check_all_sync_events 200 0 ric-registration EMPTY
     fi
 
     if [ "$PMS_VERSION" == "V2" ]; then

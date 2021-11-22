@@ -37,15 +37,7 @@ SUPPORTED_PROFILES="ONAP-ISTANBUL ORAN-D-RELEASE ORAN-E-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -67,7 +59,7 @@ NUM_POLICIES_PER_RIC=2000
 generate_policy_uuid
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
     notificationurl=""
 fi
@@ -131,7 +123,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             consul_config_app                      ".consul_config.json"
         fi
 
-        start_cr
+        start_cr 1
 
         api_get_status 200
 
@@ -152,7 +144,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_equal json:policy_types 1 300  #Wait for the agent to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
         echo "Check the number of types in the agent for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))
@@ -180,7 +172,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
         done
 
-        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH/1"
+        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
         stop_policy_agent
 
@@ -217,7 +209,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         print_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
 
-        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH/1"
+        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
         start_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
@@ -247,7 +239,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sleep_wait 200
 
-        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH/1"
+        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
         api_equal json:policies 0
 

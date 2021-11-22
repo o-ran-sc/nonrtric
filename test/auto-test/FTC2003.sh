@@ -38,12 +38,6 @@ SUPPORTED_PROFILES="ORAN-E-RELEASE"
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/ecs_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/http_proxy_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/dmaapadp_api_functions.sh
 
 setup_testenvironment
 
@@ -66,7 +60,7 @@ start_kube_proxy
 
 start_http_proxy
 
-start_cr
+start_cr 1
 
 start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE
 
@@ -92,7 +86,7 @@ ecs_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ecs_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
@@ -105,20 +99,20 @@ done
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-1"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
 
-cr_equal received_callbacks $(($NUM_JOBS*2)) 60
+cr_equal 0 received_callbacks $(($NUM_JOBS*2)) 60
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_equal received_callbacks?id=joby-data$i 2
+    cr_equal 0 received_callbacks?id=joby-data$i 2
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_json_event 200 joby-data$i '{"msg":"msg-1"}'
-    cr_api_check_single_genric_json_event 200 joby-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
+    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
 done
 
-cr_contains_str remote_hosts $HTTP_PROXY_APP_NAME
+cr_contains_str 0 remote_hosts $HTTP_PROXY_APP_NAME
 
 #### TEST COMPLETE ####
 

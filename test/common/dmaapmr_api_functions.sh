@@ -1,5 +1,7 @@
+#!/bin/bash
+
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,20 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-version: '3.0'
-networks:
-  default:
-    external:
-      name: ${DOCKER_SIM_NWNAME}
-services:
-  cr:
-    scale: $CR_APP_COUNT
-    networks:
-      - default
-    image: ${CR_IMAGE}
-    ports:
-      - ${CR_INTERNAL_PORT}/tcp
-      - ${CR_INTERNAL_SECURE_PORT}/tcp
-    labels:
-      - "nrttest_app=CR"
-      - "nrttest_dp=${CR_DISPLAY_NAME}"
+# Functions for DMAAPMR is included in mr_api_functions.sh
+
+
+

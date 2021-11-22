@@ -31,7 +31,7 @@ print_usage() {
   echo "or"
   echo "Usage: genstat.sh KUBE <start-time-seconds> <log-file> <app-short-name> <app-name> <namespace> [ <app-short-name> <app-name> <namespace> ]*"
 }
-
+DD=$@
 STARTTIME=-1
 
 if [ $# -lt 4 ]; then
@@ -66,7 +66,8 @@ else
 fi
 
 
-echo "Time;Name;PIDS;CPU perc;Mem perc" > $LOGFILE
+echo "Name;Time;PIDS;CPU perc;Mem perc" > $LOGFILE
+echo $DD >> $LOGFILE
 
 if [ "$STARTTIME" -ne -1 ]; then
     STARTTIME=$(($SECONDS-$STARTTIME))

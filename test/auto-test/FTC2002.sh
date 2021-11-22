@@ -31,11 +31,7 @@ SUPPORTED_PROFILES="ONAP-ISTANBUL"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER"
 
-. ../common/testcase_common.sh  $@
-. ../common/controller_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/http_proxy_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 

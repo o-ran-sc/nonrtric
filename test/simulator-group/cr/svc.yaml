@@ -7,15 +7,9 @@ metadata:
     run: $CR_APP_NAME
     autotest: CR
 spec:
-  type: ClusterIP
   ports:
-  - port: $CR_EXTERNAL_PORT
-    targetPort: $CR_INTERNAL_PORT
-    protocol: TCP
+  - port: 80
     name: http
-  - port: $CR_EXTERNAL_SECURE_PORT
-    targetPort: $CR_INTERNAL_SECURE_PORT
-    protocol: TCP
-    name: https
+  clusterIP: None
   selector:
     run: $CR_APP_NAME

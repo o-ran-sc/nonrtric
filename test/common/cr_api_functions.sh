@@ -94,9 +94,14 @@ __CR_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __CR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=CR" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_cr.log 2>&1
+		for podname in $(kubectl get pods -n $KUBE_SIM_NAMESPACE -l "autotest=CR" -o custom-columns=":metadata.name"); do
+			kubectl logs -n $KUBE_SIM_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
+		done
 	else
-		docker logs $CR_APP_NAME > $1$2_cr.log 2>&1
+		crs=$(docker ps --filter "name=$CR_APP_NAME" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})
+		for crid in $crs; do
+			docker logs $crid > $1$2_$crid.log 2>&1
+		done
 	fi
 }
 
@@ -112,11 +117,14 @@ __CR_initial_setup() {
 # This function is called for apps managed by the test script as well as for prestarted apps.
 # args: -
 __CR_statisics_setup() {
-	if [ $RUNMODE == "KUBE" ]; then
-		echo "CR $CR_APP_NAME $KUBE_SIM_NAMESPACE"
-	else
-		echo "CR $CR_APP_NAME"
-	fi
+	for ((CR_INSTANCE=MAX_CR_APP_COUNT; CR_INSTANCE>0; CR_INSTANCE-- )); do
+		if [ $RUNMODE == "KUBE" ]; then
+			CR_INSTANCE_KUBE=$(($CR_INSTANCE-1))
+			echo -n " CR-$CR_INSTANCE_KUBE $CR_APP_NAME-$CR_INSTANCE_KUBE $KUBE_SIM_NAMESPACE "
+		else
+			echo -n " CR_$CR_INSTANCE ${CR_APP_NAME}_cr_$CR_INSTANCE "
+		fi
+	done
 }
 
 #######################################################
@@ -124,6 +132,10 @@ __CR_statisics_setup() {
 ################
 ### CR functions
 ################
+
+#Var to hold the current number of CR instances
+CR_APP_COUNT=1
+MAX_CR_APP_COUNT=10
 
 # Set http as the protocol to use for all communication to the Dmaap adapter
 # args: -
@@ -142,25 +154,30 @@ use_cr_https() {
 # Setup paths to svc/container for internal and external access
 # args: <protocol> <internal-port> <external-port>
 __cr_set_protocoll() {
+
 	echo -e $BOLD"$CR_DISPLAY_NAME protocol setting"$EBOLD
 	echo -e " Using $BOLD http $EBOLD towards $CR_DISPLAY_NAME"
-
 	## Access to Dmaap adapter
+	for ((CR_INSTANCE=0; CR_INSTANCE<$MAX_CR_APP_COUNT; CR_INSTANCE++ )); do
+		CR_DOCKER_INSTANCE=$(($CR_INSTANCE+1))
+		# CR_SERVICE_PATH is the base path to cr
+		__CR_SERVICE_PATH=$1"://"$CR_APP_NAME"_cr_"${CR_DOCKER_INSTANCE}":"$2  # docker access, container->container and script->container via proxy
+		if [ $RUNMODE == "KUBE" ]; then
+			__CR_SERVICE_PATH=$1"://"$CR_APP_NAME"-"$CR_INSTANCE.$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		fi
+		export CR_SERVICE_PATH"_"${CR_INSTANCE}=$__CR_SERVICE_PATH
+		# Service paths are used in test script to provide callbacck urls to app
+		export CR_SERVICE_MR_PATH"_"${CR_INSTANCE}=$__CR_SERVICE_PATH$CR_APP_CALLBACK_MR  #Only for messages from dmaap adapter/mediator
+		export CR_SERVICE_TEXT_PATH"_"${CR_INSTANCE}=$__CR_SERVICE_PATH$CR_APP_CALLBACK_TEXT  #Callbacks for text payload
+		export CR_SERVICE_APP_PATH"_"${CR_INSTANCE}=$__CR_SERVICE_PATH$CR_APP_CALLBACK    #For general callbacks from apps
 
-	# CR_SERVICE_PATH is the base path to cr
-	CR_SERVICE_PATH=$1"://"$CR_APP_NAME":"$2  # docker access, container->container and script->container via proxy
-	if [ $RUNMODE == "KUBE" ]; then
-		CR_SERVICE_PATH=$1"://"$CR_APP_NAME.$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
-	fi
-	# Service paths are used in test script to provide callbacck urls to app
-	CR_SERVICE_MR_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK_MR  #Only for messages from dmaap adapter/mediator
-	CR_SERVICE_TEXT_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK_TEXT  #Callbacks for text payload
-	CR_SERVICE_APP_PATH=$CR_SERVICE_PATH$CR_APP_CALLBACK    #For general callbacks from apps
-
-	# CR_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
-	CR_ADAPTER_TYPE="REST"
-	CR_ADAPTER=$CR_SERVICE_PATH
-
+		if [ $CR_INSTANCE -eq 0 ]; then
+			# CR_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
+			# CR_ADDAPTER need to be set before each call to CR....only set for instance 0 here
+			CR_ADAPTER_TYPE="REST"
+			CR_ADAPTER=$__CR_SERVICE_PATH
+		fi
+	done
 	echo ""
 }
 
@@ -179,14 +196,26 @@ __cr_export_vars() {
 	export CR_INTERNAL_SECURE_PORT
 	export CR_EXTERNAL_PORT
 	export CR_EXTERNAL_SECURE_PORT
+
+	export CR_APP_COUNT
 }
 
 # Start the Callback reciver in the simulator group
-# args: -
+# args: <app-count>
 # (Function for test scripts)
 start_cr() {
 
 	echo -e $BOLD"Starting $CR_DISPLAY_NAME"$EBOLD
+
+	if [ $# -ne 1 ]; then
+		echo -e $RED" Number of CR instances missing, usage: start_cr <app-count>"$ERED
+		exit 1
+	fi
+	if [ $1 -lt 1 ] || [ $1 -gt 10 ]; then
+		echo -e $RED" Number of CR shall be 1...10, usage: start_cr <app-count>"$ERED
+		exit 1
+	fi
+	export CR_APP_COUNT=$1
 
 	if [ $RUNMODE == "KUBE" ]; then
 
@@ -235,15 +264,13 @@ start_cr() {
 
 		fi
 
-		__check_service_start $CR_APP_NAME $CR_SERVICE_PATH$CR_ALIVE_URL
+		for ((CR_INSTANCE=0; CR_INSTANCE<$CR_APP_COUNT; CR_INSTANCE++ )); do
+			__dynvar="CR_SERVICE_PATH_"$CR_INSTANCE
+			__cr_app_name=$CR_APP_NAME"-"$CR_INSTANCE
+			__check_service_start $__cr_app_name ${!__dynvar}$CR_ALIVE_URL
+			result=$(__do_curl ${!__dynvar}/reset)
+		done
 
-		echo -ne " Service $CR_APP_NAME - reset  "$SAMELINE
-		result=$(__do_curl CR $CR_SERVICE_PATH/reset)
-		if [ $? -ne 0 ]; then
-			echo -e " Service $CR_APP_NAME - reset  $RED Failed $ERED - will continue"
-		else
-			echo -e " Service $CR_APP_NAME - reset  $GREEN OK $EGREEN"
-		fi
 	else
 		# Check if docker app shall be fully managed by the test script
 		__check_included_image 'CR'
@@ -255,65 +282,124 @@ start_cr() {
 
 		__cr_export_vars
 
-		__start_container $CR_COMPOSE_DIR "" NODOCKERARGS 1 $CR_APP_NAME
+		app_data=""
+		cntr=1
+		while [ $cntr -le $CR_APP_COUNT ]; do
+			app=$CR_APP_NAME"_cr_"$cntr
+			app_data="$app_data $app"
+			let cntr=cntr+1
+		done
 
-        __check_service_start $CR_APP_NAME $CR_SERVICE_PATH$CR_ALIVE_URL
+		echo "COMPOSE_PROJECT_NAME="$CR_APP_NAME > $SIM_GROUP/$CR_COMPOSE_DIR/.env
+
+		__start_container $CR_COMPOSE_DIR "" NODOCKERARGS $CR_APP_COUNT $app_data
+
+		cntr=1   #Counter for docker instance, starts on 1
+		cntr2=0  #Couter for env var name, starts with 0 to be compablible with kube
+		while [ $cntr -le $CR_APP_COUNT ]; do
+			app=$CR_APP_NAME"_cr_"$cntr
+			__dynvar="CR_SERVICE_PATH_"$cntr2
+			__check_service_start $app ${!__dynvar}$CR_ALIVE_URL
+			let cntr=cntr+1
+			let cntr2=cntr2+1
+		done
 	fi
 	echo ""
 }
 
+#Convert a cr path id to the value of the environment var holding the url
+# arg: <cr-path-id>
+# returns: <base-url-to-the-app>
+__cr_get_service_path(){
+	if [ $# -ne 1 ]; then
+		echo "DUMMY"
+		return 1
+	fi
+	if [ $1 -lt 0 ] || [ $1 -ge $MAX_CR_APP_COUNT ]; then
+		echo "DUMMY"
+		return 1
+	fi
+	__dynvar="CR_SERVICE_PATH_"$1
+	echo ${!__dynvar}
+	return 0
+}
 
 # Tests if a variable value in the CR is equal to a target value and and optional timeout.
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
 # equal to the target or not.
-# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# Arg: <cr-path-id> <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
 # before setting pass or fail depending on if the variable value becomes equal to the target
 # value or not.
 # (Function for test scripts)
 cr_equal() {
-	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "CR" "$CR_SERVICE_PATH/counter/" $1 "=" $2 $3
+	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
+		CR_SERVICE_PATH=$(__cr_get_service_path $1)
+		CR_ADAPTER=$CR_SERVICE_PATH
+		if [ $? -ne 0 ]; then
+			__print_err "<cr-path-id> missing or incorrect" $@
+			return 1
+		fi
+		__var_test "CR" "$CR_SERVICE_PATH/counter/" $2 "=" $3 $4
 	else
-		__print_err "Wrong args to cr_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
+		__print_err "Wrong args to cr_equal, needs three or four args: <cr-path-id>  <variable-name> <target-value> [ timeout ]" $@
 	fi
 }
 
 # Tests if a variable value in the CR contains the target string and and optional timeout
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable contains
 # the target or not.
-# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# Arg: <cr-path-id> <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
 # before setting pass or fail depending on if the variable value contains the target
 # value or not.
 # (Function for test scripts)
 cr_contains_str() {
 
-	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "CR" "$CR_SERVICE_PATH/counter/" $1 "contain_str" $2 $3
+	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
+		CR_SERVICE_PATH=$(__cr_get_service_path $1)
+		CR_ADAPTER=$CR_SERVICE_PATH
+		if [ $? -ne 0 ]; then
+			__print_err "<cr-path-id> missing or incorrect" $@
+			return 1
+		fi
+		__var_test "CR" "$CR_SERVICE_PATH/counter/" $2 "contain_str" $3 $4
 		return 0
 	else
-		__print_err "needs two or three args: <sim-param> <target-value> [ timeout ]"
+		__print_err "needs two or three args: <cr-path-id> <variable-name> <target-value> [ timeout ]"
 		return 1
 	fi
 }
 
 # Read a variable value from CR sim and send to stdout. Arg: <variable-name>
 cr_read() {
+	CR_SERVICE_PATH=$(__cr_get_service_path $1)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return  1
+	fi
 	echo "$(__do_curl $CR_SERVICE_PATH/counter/$1)"
 }
 
 # Function to configure write delay on callbacks
 # Delay given in seconds.
-# arg <response-code> <delay-in-sec>
+# arg <response-code> <cr-path-id>  <delay-in-sec>
 # (Function for test scripts)
 cr_delay_callback() {
 	__log_conf_start $@
 
-	if [ $# -ne 2 ]; then
-        __print_err "<response-code> <delay-in-sec>]" $@
+	if [ $# -ne 3 ]; then
+        __print_err "<response-code> <cr-path-id> <delay-in-sec>]" $@
         return 1
 	fi
 
-	res="$(__do_curl_to_api CR POST /forcedelay?delay=$2)"
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	res="$(__do_curl_to_api CR POST /forcedelay?delay=$3)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne 200 ]; then
@@ -326,7 +412,7 @@ cr_delay_callback() {
 }
 
 # CR API: Check the contents of all current ric sync events for one id from PMS
-# <response-code> <id> [ EMPTY | ( <ric-id> )+ ]
+# <response-code> <cr-path-id> <id> [ EMPTY | ( <ric-id> )+ ]
 # (Function for test scripts)
 cr_api_check_all_sync_events() {
 	__log_test_start $@
@@ -336,12 +422,19 @@ cr_api_check_all_sync_events() {
 		return 1
 	fi
 
-    if [ $# -lt 2 ]; then
-        __print_err "<response-code> <id> [ EMPTY | ( <ric-id> )+ ]" $@
+    if [ $# -lt 3 ]; then
+        __print_err "<response-code> <cr-path-id> <id> [ EMPTY | ( <ric-id> )+ ]" $@
         return 1
     fi
 
-	query="/get-all-events/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-all-events/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -350,15 +443,15 @@ cr_api_check_all_sync_events() {
 		return 1
 	fi
 
-	if [ $# -gt 2 ]; then
+	if [ $# -gt 3 ]; then
 		body=${res:0:${#res}-3}
-		if [ $# -eq 3 ] && [ $3 == "EMPTY" ]; then
+		if [ $# -eq 4 ] && [ $4 == "EMPTY" ]; then
 			targetJson="["
 		else
 			targetJson="["
-			arr=(${@:3})
+			arr=(${@:4})
 
-			for ((i=0; i<$(($#-2)); i=i+1)); do
+			for ((i=0; i<$(($#-3)); i=i+1)); do
 
 				if [ "$targetJson" != "[" ]; then
 					targetJson=$targetJson","
@@ -381,17 +474,24 @@ cr_api_check_all_sync_events() {
 }
 
 # CR API: Check the contents of all current status events for one id from ECS
-# <response-code> <id> [ EMPTY | ( <status> )+ ]
+# <response-code> <cr-path-id> <id> [ EMPTY | ( <status> )+ ]
 # (Function for test scripts)
 cr_api_check_all_ecs_events() {
 	__log_test_start $@
 
-    if [ $# -lt 2 ]; then
-        __print_err "<response-code> <id> [ EMPTY | ( <status> )+ ]" $@
+    if [ $# -lt 3 ]; then
+        __print_err "<response-code> <cr-path-id> <id> [ EMPTY | ( <status> )+ ]" $@
         return 1
     fi
 
-	query="/get-all-events/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-all-events/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -400,15 +500,15 @@ cr_api_check_all_ecs_events() {
 		return 1
 	fi
 
-	if [ $# -gt 2 ]; then
+	if [ $# -gt 3 ]; then
 		body=${res:0:${#res}-3}
-		if [ $# -eq 3 ] && [ $3 == "EMPTY" ]; then
+		if [ $# -eq 4 ] && [ $4 == "EMPTY" ]; then
 			targetJson="["
 		else
 			targetJson="["
-			arr=(${@:3})
+			arr=(${@:4})
 
-			for ((i=0; i<$(($#-2)); i=i+1)); do
+			for ((i=0; i<$(($#-3)); i=i+1)); do
 
 				if [ "$targetJson" != "[" ]; then
 					targetJson=$targetJson","
@@ -431,29 +531,36 @@ cr_api_check_all_ecs_events() {
 }
 
 # CR API: Check the contents of all current type subscription events for one id from ECS
-# <response-code> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]
+# <response-code> <cr-path-id> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]
 # (Function for test scripts)
 cr_api_check_all_ecs_subscription_events() {
 	__log_test_start $@
 
-	#Valid number of parameter 2,3,7,11
+	#Valid number of parameter 3,4,8,12
 	paramError=1
-	if [ $# -eq 2 ]; then
+	if [ $# -eq 3 ]; then
 		paramError=0
 	fi
-	if [ $# -eq 3 ] && [ "$3" == "EMPTY" ]; then
+	if [ $# -eq 4 ] && [ "$4" == "EMPTY" ]; then
 		paramError=0
 	fi
-	variablecount=$(($#-2))
-	if [ $# -gt 3 ] && [ $(($variablecount%3)) -eq 0 ]; then
+	variablecount=$(($#-3))
+	if [ $# -gt 4 ] && [ $(($variablecount%3)) -eq 0 ]; then
 		paramError=0
 	fi
 	if [ $paramError -eq 1 ]; then
-		__print_err "<response-code> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]" $@
+		__print_err "<response-code> <cr-path-id> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]" $@
 		return 1
 	fi
 
-	query="/get-all-events/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-all-events/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -462,12 +569,12 @@ cr_api_check_all_ecs_subscription_events() {
 		return 1
 	fi
 
-	if [ $# -gt 2 ]; then
+	if [ $# -gt 3 ]; then
 		body=${res:0:${#res}-3}
 		targetJson="["
-		if [ $# -gt 3 ]; then
-			arr=(${@:3})
-			for ((i=0; i<$(($#-3)); i=i+3)); do
+		if [ $# -gt 4 ]; then
+			arr=(${@:4})
+			for ((i=0; i<$(($#-4)); i=i+3)); do
 				if [ "$targetJson" != "[" ]; then
 					targetJson=$targetJson","
 				fi
@@ -497,10 +604,22 @@ cr_api_check_all_ecs_subscription_events() {
 
 
 # CR API: Reset all events and counters
-# Arg: -
+# Arg: <cr-path-id>
 # (Function for test scripts)
 cr_api_reset() {
 	__log_conf_start $@
+
+	if [ $# -ne 0 ]; then
+		__print_err "<cr-path-id>" $@
+		return 1
+	fi
+
+	CR_SERVICE_PATH=$(__cr_get_service_path $1)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
 
 	res="$(__do_curl_to_api CR GET /reset)"
 	status=${res:${#res}-3}
@@ -516,17 +635,24 @@ cr_api_reset() {
 
 
 # CR API: Check the contents of all json events for path
-# <response-code> <topic-url> (EMPTY | <json-msg>+ )
+# <response-code> <cr-path-id> <topic-url> (EMPTY | <json-msg>+ )
 # (Function for test scripts)
 cr_api_check_all_genric_json_events() {
 	__log_test_start $@
 
-	if [ $# -lt 3 ]; then
-		__print_err "<response-code> <topic-url> (EMPTY | <json-msg>+ )" $@
+	if [ $# -lt 4 ]; then
+		__print_err "<response-code> <cr-path-id>  <topic-url> (EMPTY | <json-msg>+ )" $@
 		return 1
 	fi
 
-	query="/get-all-events/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-all-events/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -537,7 +663,8 @@ cr_api_check_all_genric_json_events() {
 	body=${res:0:${#res}-3}
 	targetJson="["
 
-	if [ $3 != "EMPTY" ]; then
+	if [ $4 != "EMPTY" ]; then
+		shift
 		shift
 		shift
 		while [ $# -gt 0 ]; do
@@ -563,19 +690,25 @@ cr_api_check_all_genric_json_events() {
 }
 
 
-
 # CR API: Check a single (oldest) json event (or none if empty) for path
-# <response-code> <topic-url> (EMPTY | <json-msg> )
+# <response-code> <cr-path-id> <topic-url> (EMPTY | <json-msg> )
 # (Function for test scripts)
 cr_api_check_single_genric_json_event() {
 	__log_test_start $@
 
-	if [ $# -ne 3 ]; then
-		__print_err "<response-code> <topic-url> (EMPTY | <json-msg> )" $@
+	if [ $# -ne 4 ]; then
+		__print_err "<response-code> <cr-path-id>  <topic-url> (EMPTY | <json-msg> )" $@
 		return 1
 	fi
 
-	query="/get-event/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-event/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -584,7 +717,7 @@ cr_api_check_single_genric_json_event() {
 		return 1
 	fi
 	body=${res:0:${#res}-3}
-	targetJson=$3
+	targetJson=$4
 
 	if [ $targetJson == "EMPTY" ] && [ ${#body} -ne 0 ]; then
 		__log_test_fail_body
@@ -605,17 +738,24 @@ cr_api_check_single_genric_json_event() {
 # CR API: Check a single (oldest) json in md5 format (or none if empty) for path.
 # Note that if a json message is given, it shall be compact, no ws except inside string.
 # The MD5 will generate different hash if ws is present or not in otherwise equivalent json
-# arg: <response-code> <topic-url> (EMPTY | <data-msg> )
+# arg: <response-code> <cr-path-id> <topic-url> (EMPTY | <data-msg> )
 # (Function for test scripts)
 cr_api_check_single_genric_event_md5() {
 	__log_test_start $@
 
-	if [ $# -ne 3 ]; then
-		__print_err "<response-code> <topic-url> (EMPTY | <data-msg> )" $@
+	if [ $# -ne 4 ]; then
+		__print_err "<response-code> <cr-path-id> <topic-url> (EMPTY | <data-msg> )" $@
 		return 1
 	fi
 
-	query="/get-event/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-event/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -624,7 +764,7 @@ cr_api_check_single_genric_event_md5() {
 		return 1
 	fi
 	body=${res:0:${#res}-3}
-	if [ $3 == "EMPTY" ]; then
+	if [ $4 == "EMPTY" ]; then
 		if [ ${#body} -ne 0 ]; then
 			__log_test_fail_body
 			return 1
@@ -635,11 +775,11 @@ cr_api_check_single_genric_event_md5() {
 	fi
 	command -v md5 > /dev/null # Mac
 	if [ $? -eq 0 ]; then
-		targetMd5=$(echo -n "$3" | md5)
+		targetMd5=$(echo -n "$4" | md5)
 	else
 		command -v md5sum > /dev/null # Linux
 		if [ $? -eq 0 ]; then
-			targetMd5=$(echo -n "$3" | md5sum | cut -d' ' -f 1)  # Need to cut additional info printed by cmd
+			targetMd5=$(echo -n "$4" | md5sum | cut -d' ' -f 1)  # Need to cut additional info printed by cmd
 		else
 			__log_test_fail_general "Command md5 nor md5sum is available"
 			return 1
@@ -661,17 +801,24 @@ cr_api_check_single_genric_event_md5() {
 # CR API: Check a single (oldest) event in md5 format (or none if empty) for path.
 # Note that if a file with json message is given, the json shall be compact, no ws except inside string and not newlines.
 # The MD5 will generate different hash if ws/newlines is present or not in otherwise equivalent json
-# arg: <response-code> <topic-url> (EMPTY | <data-file> )
+# arg: <response-code> <cr-path-id> <topic-url> (EMPTY | <data-file> )
 # (Function for test scripts)
 cr_api_check_single_genric_event_md5_file() {
 	__log_test_start $@
 
-	if [ $# -ne 3 ]; then
-		__print_err "<response-code> <topic-url> (EMPTY | <data-file> )" $@
+	if [ $# -ne 4 ]; then
+		__print_err "<response-code> <cr-path-id> <topic-url> (EMPTY | <data-file> )" $@
 		return 1
 	fi
 
-	query="/get-event/"$2
+	CR_SERVICE_PATH=$(__cr_get_service_path $2)
+	CR_ADAPTER=$CR_SERVICE_PATH
+	if [ $? -ne 0 ]; then
+		__print_err "<cr-path-id> missing or incorrect" $@
+		return 1
+	fi
+
+	query="/get-event/"$3
 	res="$(__do_curl_to_api CR GET $query)"
 	status=${res:${#res}-3}
 
@@ -680,7 +827,7 @@ cr_api_check_single_genric_event_md5_file() {
 		return 1
 	fi
 	body=${res:0:${#res}-3}
-	if [ $3 == "EMPTY" ]; then
+	if [ $4 == "EMPTY" ]; then
 		if [ ${#body} -ne 0 ]; then
 			__log_test_fail_body
 			return 1
@@ -690,12 +837,12 @@ cr_api_check_single_genric_event_md5_file() {
 		fi
 	fi
 
-	if [ ! -f $3 ]; then
+	if [ ! -f $4 ]; then
 		__log_test_fail_general "File $3 does not exist"
 		return 1
 	fi
 
-	filedata=$(cat $3)
+	filedata=$(cat $4)
 
 	command -v md5 > /dev/null # Mac
 	if [ $? -eq 0 ]; then

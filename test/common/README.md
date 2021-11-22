@@ -203,17 +203,6 @@ Print the value of the timer (in seconds) previously started by 'start_timer'. (
 | --------- | ----------- |
 | `<timer-message-to-print>` | Any text message to be printed along with the timer result.(It is good practice to use same args for this function as for the `start_timer`) |
 
-## Function: print_and_reset_timer ##
-
-Print the value of the timer (in seconds) previously started by 'start_timer'. Also reset the timer to 0. The result of the timer as well as the args to the function will also be printed in the test report.
-| arg list |
-|--|
-| `<timer-message-to-print>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<timer-message-to-print>` | Any text message to be printed along with the timer result.(It is good practice to use same args for this function as for the `start_timer`) |
-
 ## Function: deviation ##
 
 Mark a test as a deviation from the requirements. The list of deviations will be printed in the test report.

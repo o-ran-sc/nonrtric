@@ -32,10 +32,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/controller_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 

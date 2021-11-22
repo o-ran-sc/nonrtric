@@ -215,7 +215,7 @@ MR_KAFKA_PORT=9092                                       # Kafka port number
 MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
 MR_ZOOKEEPER_PORT="2181"                                 # Zookeeper port number
 MR_DMAAP_HOST_MNT_DIR="/mnt"                             # Basedir localhost for mounted files
-MR_DMAAP_HOST_CONFIG_DIR="/configs"                      # Config files dir on localhost
+MR_DMAAP_HOST_CONFIG_DIR="/configs0"                      # Config files dir on localhost
 
 CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
 CR_DISPLAY_NAME="Callback Reciever"
@@ -226,7 +226,7 @@ CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver con
 CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
 CR_APP_CALLBACK_MR="/callbacks-mr"                       # Url for callbacks (data from mr which contains string encoded jsons in a json arr)
 CR_APP_CALLBACK_TEXT="/callbacks-text"                   # Url for callbacks (data containing text data)
-CR_ALIVE_URL="/"                                         # Base path for alive check
+CR_ALIVE_URL="/reset"                                    # Base path for alive check
 CR_COMPOSE_DIR="cr"                                      # Dir in simulator_group for docker-compose
 
 CONSUL_HOST="consul-server"                              # Host name of consul

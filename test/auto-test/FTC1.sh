@@ -38,17 +38,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/http_proxy_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -85,7 +75,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         # Create service to be able to receive events when rics becomes available
         # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
+        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -122,7 +112,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
                     "$MR_WRITE_TOPIC" "/events" "users/mr-stub"
 
-        start_cr
+        start_cr 1
 
         start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -163,9 +153,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_equal json:policy-instances 0
 
-            cr_equal received_callbacks 3 120
+            cr_equal 0 received_callbacks 3 120
 
-            cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
+            cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
 
         else
             api_equal json:rics 2 300
@@ -189,7 +179,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "##### Service registry and supervision #####"
         echo "############################################"
 
-        api_put_service 201 "serv1" 1000 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 201 "serv1" 1000 "$CR_SERVICE_APP_PATH_0/1"
 
         api_get_service_ids 200 "serv1" "ric-registration"
 
@@ -210,7 +200,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_APP_PATH"/test"
+            notificationurl=$CR_SERVICE_APP_PATH_0"/test"
         else
             notificationurl=""
         fi
@@ -249,7 +239,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            cr_equal received_callbacks 3
+            cr_equal 0 received_callbacks 3
         fi
 
         if [[ $interface = *"DMAAP"* ]]; then
