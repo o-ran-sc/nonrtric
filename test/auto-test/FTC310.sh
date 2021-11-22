@@ -28,15 +28,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -62,7 +54,7 @@ for consul_conf in $TESTED_VARIANTS ; do
 
     # Create service to be able to receive events when rics becomes available
     # Must use rest towards the agent since dmaap is not configured yet
-    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
+    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
     # Start one RIC of each type
     start_ric_simulators ricsim_g1 1  OSC_2.1.0
@@ -73,7 +65,7 @@ for consul_conf in $TESTED_VARIANTS ; do
 
     start_mr
 
-    start_cr
+    start_cr 1
 
     start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -93,9 +85,9 @@ for consul_conf in $TESTED_VARIANTS ; do
     if [ "$PMS_VERSION" == "V2" ]; then
         api_equal json:rics 3 300
 
-        cr_equal received_callbacks 3 120
+        cr_equal 0 received_callbacks 3 120
 
-        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
     else
         api_equal json:rics 2 300
     fi
@@ -114,9 +106,9 @@ for consul_conf in $TESTED_VARIANTS ; do
     if [ "$PMS_VERSION" == "V2" ]; then
         api_equal json:rics 4 120
 
-        cr_equal received_callbacks 4 120
+        cr_equal 0 received_callbacks 4 120
 
-        cr_api_check_all_sync_events 200 ric-registration ricsim_g2_2
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g2_2
     else
         api_equal json:rics 3 120
     fi
@@ -138,7 +130,7 @@ for consul_conf in $TESTED_VARIANTS ; do
     if [ "$PMS_VERSION" == "V2" ]; then
         api_equal json:rics 3 120
 
-        cr_equal received_callbacks 4 120
+        cr_equal 0 received_callbacks 4 120
     else
         api_equal json:rics 2 120
     fi

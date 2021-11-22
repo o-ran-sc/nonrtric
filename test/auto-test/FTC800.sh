@@ -37,16 +37,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -101,7 +92,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_mr
 
-        start_cr
+        start_cr 1
 
         start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -151,10 +142,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_equal json:policy_types 2 300  #Wait for the agent to refresh types from the simulators
         fi
 
-        api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_APP_PATH"/test"
+            notificationurl=$CR_SERVICE_APP_PATH_0"/test"
         else
             notificationurl=""
         fi

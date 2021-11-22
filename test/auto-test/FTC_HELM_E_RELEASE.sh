@@ -35,18 +35,6 @@ SUPPORTED_PROFILES="ORAN-E-RELEASE"
 SUPPORTED_RUNMODES="KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/ecs_api_functions.sh
-. ../common/prodstub_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/rapp_catalogue_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/dmaapmed_api_functions.sh
-. ../common/dmaapadp_api_functions.sh
 
 setup_testenvironment
 
@@ -108,7 +96,7 @@ start_sdnc
 
 start_policy_agent
 
-start_cr
+start_cr 1
 
 start_prod_stub
 
@@ -240,16 +228,16 @@ else
     api_equal json:policy_ids 0
 fi
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/ER-app"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/ER-app"
 
 # Create policies in STD
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
     ricid=$((3+$i))
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH/"std2" testdata/STD/pi1_template.json 1
+    api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH/"std2" testdata/STD/pi1_template.json 1
+    api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
 done
 
 #Create policies in STD 2
@@ -257,9 +245,9 @@ for ((i=0; i<$STD_NUM_RICS; i++))
 do
    ricid=$((5+$i))
    generate_policy_uuid
-   api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS_0_2_0 $((2100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH/"std2" testdata/STD2/pi_qos_template.json 1
+   api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS_0_2_0 $((2100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos_template.json 1
    generate_policy_uuid
-   api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS2_0.1.0 $((2200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH/"std2" testdata/STD2/pi_qos2_template.json 1
+   api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS2_0.1.0 $((2200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos2_template.json 1
 done
 
 # Create policies in OSC
@@ -267,9 +255,9 @@ for ((i=0; i<$OSC_NUM_RICS; i++))
 do
     ricid=$((1+$i))
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid 1 $((3100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH/"osc" testdata/OSC/pi1_template.json 1
+    api_put_policy 201 "Emergency-response-app" ric$ricid 1 $((3100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi1_template.json 1
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid 2 $((3200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH/"osc" testdata/OSC/pi2_template.json 1
+    api_put_policy 201 "Emergency-response-app" ric$ricid 2 $((3200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi2_template.json 1
 done
 
 
@@ -338,8 +326,8 @@ CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
 TARGET1="$RIC_SIM_HTTPX://a1-sim-std2-0.a1-sim:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://a1-sim-std2-1.a1-sim:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_SERVICE_APP_PATH/job1-status"
-STATUS2="$CR_SERVICE_APP_PATH/job2-status"
+STATUS1="$CR_SERVICE_APP_PATH_0/job1-status"
+STATUS2="$CR_SERVICE_APP_PATH_0/job2-status"
 
 prodstub_arm_producer 200 prod-a
 prodstub_arm_type 200 prod-a type1
@@ -420,12 +408,12 @@ NUM_JOBS=5
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 jobx$i STD_Fault_Messages $CR_SERVICE_MR_PATH/jobx-data$i info-ownerx$i $CR_SERVICE_MR_PATH/job_status_info-ownerx$i testdata/dmaap-adapter/job-template.json
+    ecs_api_idc_put_job 201 jobx$i STD_Fault_Messages $CR_SERVICE_MR_PATH_0/jobx-data$i info-ownerx$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerx$i testdata/dmaap-adapter/job-template.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ecs_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
@@ -438,19 +426,19 @@ mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-1"}'
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-2"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
 
-cr_equal received_callbacks $(($NUM_JOBS*2*2)) 60
+cr_equal 0 received_callbacks $(($NUM_JOBS*2*2)) 60
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_equal received_callbacks?id=jobx-data$i 2
-    cr_equal received_callbacks?id=joby-data$i 2
+    cr_equal 0 received_callbacks?id=jobx-data$i 2
+    cr_equal 0 received_callbacks?id=joby-data$i 2
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_json_event 200 jobx-data$i '{"msg":"msg-0"}'
-    cr_api_check_single_genric_json_event 200 jobx-data$i '{"msg":"msg-2"}'
-    cr_api_check_single_genric_json_event 200 joby-data$i '{"msg":"msg-1"}'
-    cr_api_check_single_genric_json_event 200 joby-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_genric_json_event 200 0 jobx-data$i '{"msg":"msg-0"}'
+    cr_api_check_single_genric_json_event 200 0 jobx-data$i '{"msg":"msg-2"}'
+    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
+    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
 done
 
 

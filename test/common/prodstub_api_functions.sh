@@ -161,7 +161,6 @@ __prod_stub_set_protocoll() {
 # args:
 __prodstub_export_vars() {
 	export PROD_STUB_APP_NAME
-	export PROD_STUB_APP_NAME_ALIAS
 	export PROD_STUB_DISPLAY_NAME
 
 	export DOCKER_SIM_NWNAME

@@ -37,16 +37,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -97,7 +88,7 @@ fi
 
 start_mr
 
-start_cr
+start_cr 1
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -197,7 +188,7 @@ do
 done
 
 echo "Register a service"
-api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH/1"
+api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 TEST_DURATION=$((24*3600*$DAYS))
 TEST_START=$SECONDS
@@ -207,7 +198,7 @@ AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 MR_MESSAGES=0
 
 if [ "$PMS_VERSION" == "V2" ]; then
-      notificationurl=$CR_SERVICE_APP_PATH"/test"
+      notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
       notificationurl=""
 fi

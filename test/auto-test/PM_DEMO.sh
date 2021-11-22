@@ -38,15 +38,6 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
 
 setup_testenvironment
 
@@ -61,7 +52,7 @@ use_sdnc_https
 use_simulator_https
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
     notificationurl=""
 fi
@@ -210,7 +201,7 @@ fi
 # Create policies
 use_agent_rest_http
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 # Create policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))

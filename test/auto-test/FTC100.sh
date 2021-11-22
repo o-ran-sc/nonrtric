@@ -38,16 +38,7 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/agent_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -89,7 +80,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         # Create service to be able to receive events when rics becomes available
         # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
+        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
 
         if [ $__httpx == "HTTPS" ]; then
@@ -124,7 +115,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_mr
 
-        start_cr
+        start_cr 1
 
         start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -176,8 +167,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            cr_equal received_callbacks 3 120
-            cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
+            cr_equal 0 received_callbacks 3 120
+            cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
         fi
         mr_equal requests_submitted 0
 
@@ -194,14 +185,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_get_services 404 "service1"
 
-        api_put_service 201 "service1" 1000 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 201 "service1" 1000 "$CR_SERVICE_APP_PATH_0/1"
 
-        api_put_service 200 "service1" 2000 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 200 "service1" 2000 "$CR_SERVICE_APP_PATH_0/1"
 
 
-        api_put_service 400 "service2" -1 "$CR_SERVICE_APP_PATH/2"
+        api_put_service 400 "service2" -1 "$CR_SERVICE_APP_PATH_0/2"
 
-        api_put_service 400 "service2" "wrong" "$CR_SERVICE_APP_PATH/2"
+        api_put_service 400 "service2" "wrong" "$CR_SERVICE_APP_PATH_0/2"
 
         api_put_service 400 "service2" 100 "/test"
 
@@ -209,20 +200,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_put_service 201 "service2" 300 "ftp://localhost:80/test"
 
-        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_APP_PATH/1"
+        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_APP_PATH_0/1"
 
         api_get_service_ids 200 "service1" "service2" "ric-registration"
 
 
-        api_put_service 201 "service3" 5000 "$CR_SERVICE_APP_PATH/3"
+        api_put_service 201 "service3" 5000 "$CR_SERVICE_APP_PATH_0/3"
 
 
         api_get_service_ids 200 "service1" "service2" "service3" "ric-registration"
 
 
-        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_APP_PATH/1"
+        api_get_services 200 "service1" "service1" 2000 "$CR_SERVICE_APP_PATH_0/1"
 
-        api_get_services 200 NOSERVICE "service1" 2000 "$CR_SERVICE_APP_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_SERVICE_APP_PATH/3"  "ric-registration" 0 "$CR_SERVICE_APP_PATH/ric-registration"
+        api_get_services 200 NOSERVICE "service1" 2000 "$CR_SERVICE_APP_PATH_0/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_SERVICE_APP_PATH_0/3"  "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
         api_get_services 200
 
@@ -251,7 +242,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_get_service_ids 200 "service2" "service3" "ric-registration"
 
 
-        api_put_service 201 "service1" 50 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 201 "service1" 50 "$CR_SERVICE_APP_PATH_0/1"
 
         api_get_service_ids 200 "service1" "service2" "service3"  "ric-registration"
 
@@ -386,10 +377,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
 
 
-        api_put_service 201 "service10" 3600 "$CR_SERVICE_APP_PATH/1"
+        api_put_service 201 "service10" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_APP_PATH"/test"
+            notificationurl=$CR_SERVICE_APP_PATH_0"/test"
         else
             notificationurl=""
         fi
@@ -544,7 +535,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            cr_equal received_callbacks 3
+            cr_equal 0 received_callbacks 3
         fi
 
         if [[ $interface = *"DMAAP"* ]]; then

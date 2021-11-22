@@ -90,7 +90,7 @@ __kube_delete_all_resources() {
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid in namespace $namespace with label autotest "
-				kubectl delete $restype $resid -n $namespace 1> /dev/null 2> /dev/null
+				kubectl delete --grace-period=1 $restype $resid -n $namespace 1> /dev/null 2> /dev/null
 			done
 		fi
 	done
@@ -104,7 +104,7 @@ __kube_delete_all_pv() {
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid with label autotest "
-				kubectl delete $restype $resid 1> /dev/null 2> /dev/null
+				kubectl delete --grace-period=1 $restype $resid 1> /dev/null 2> /dev/null
 			done
 		fi
 	done
@@ -119,7 +119,7 @@ __kube_wait_for_delete() {
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid in namespace $namespace with label autotest "
-				kubectl delete $restype $resid -n $namespace #1> /dev/null 2> /dev/null
+				kubectl delete --grace-period=1 $restype $resid -n $namespace #1> /dev/null 2> /dev/null
 				echo -ne "  Waiting for $restype $resid in namespace $namespace with label autotest to be deleted..."$SAMELINE
 				T_START=$SECONDS
 				result="dummy"
@@ -147,7 +147,7 @@ __kube_wait_for_delete_pv() {
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid with label autotest "
-				kubectl delete $restype $resid -n $namespace #1> /dev/null 2> /dev/null
+				kubectl delete --grace-period=1 $restype $resid -n $namespace #1> /dev/null 2> /dev/null
 				echo -ne "  Waiting for $restype $resid with label autotest to be deleted..."$SAMELINE
 				T_START=$SECONDS
 				result="dummy"

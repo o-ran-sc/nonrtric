@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: $CR_APP_NAME
   namespace: $KUBE_SIM_NAMESPACE
@@ -7,7 +7,8 @@ metadata:
     run: $CR_APP_NAME
     autotest: CR
 spec:
-  replicas: 1
+  replicas: $CR_APP_COUNT
+  serviceName: $CR_APP_NAME
   selector:
     matchLabels:
       run: $CR_APP_NAME

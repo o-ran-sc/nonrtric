@@ -38,15 +38,6 @@ SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-R
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/agent_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
 
 setup_testenvironment
 
@@ -73,7 +64,7 @@ fi
 
 start_mr
 
-start_cr
+start_cr 1
 
 if [ $RUNMODE == "DOCKER" ]; then
     start_consul_cbs
@@ -121,14 +112,14 @@ fi
 # Create policies
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
     notificationurl=""
 fi
 
 use_agent_rest_http
 
-api_put_service 201 "service1" 3600 "$CR_SERVICE_APP_PATH/1"
+api_put_service 201 "service1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
 api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
@@ -173,7 +164,7 @@ fi
 #Update policies
 use_agent_rest_http
 
-api_put_service 200 "service1" 3600 "$CR_SERVICE_APP_PATH/1"
+api_put_service 200 "service1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
 api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 

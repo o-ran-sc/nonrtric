@@ -23,9 +23,7 @@ networks:
 services:
   producer-stub:
     networks:
-      default:
-        aliases:
-          - ${PROD_STUB_APP_NAME_ALIAS}
+      - default
     container_name: ${PROD_STUB_APP_NAME}
     image: ${PROD_STUB_IMAGE}
     ports:

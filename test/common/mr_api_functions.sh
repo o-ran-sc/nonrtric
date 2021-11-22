@@ -199,9 +199,9 @@ __DMAAPMR_initial_setup() {
 # args: -
 __MR_statisics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
-		echo "MR $MR_STUB_APP_NAME $KUBE_ONAP_NAMESPACE"
+		echo "MR-STUB $MR_STUB_APP_NAME $KUBE_ONAP_NAMESPACE"
 	else
-		echo "MR $MR_STUB_APP_NAME"
+		echo "MR-STUB $MR_STUB_APP_NAME"
 	fi
 }
 
@@ -211,9 +211,9 @@ __MR_statisics_setup() {
 # args: -
 __DMAAPMR_statisics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
-		echo ""
+		echo "KAFKA $MR_KAFKA_APP_NAME $KUBE_ONAP_NAMESPACE MESSAGE-ROUTER $MR_DMAAP_APP_NAME $KUBE_ONAP_NAMESPACE ZOOKEEPER $MR_ZOOKEEPER_APP_NAME $KUBE_ONAP_NAMESPACE"
 	else
-		echo ""
+		echo "KAFKA $MR_KAFKA_APP_NAME MESSAGE-ROUTER $MR_DMAAP_APP_NAME ZOOKEEPER $MR_ZOOKEEPER_APP_NAME"
 	fi
 }
 
@@ -294,12 +294,14 @@ __mr_set_protocoll() {
 
 	MR_SERVICE_PATH=$MR_STUB_PATH # access container->container, docker -  access pod->svc, kube
 	MR_KAFKA_SERVICE_PATH=""
+	MR_ZOOKEEPER_SERVICE_PATH=""
 	__check_included_image "DMAAPMR"
 	if [ $? -eq 0 ]; then
 		MR_SERVICE_PATH=$MR_DMAAP_PATH # access container->container, docker -  access pod->svc, kube
 		MR_DMAAP_ADAPTER_HTTP=$MR_DMAAP_PATH
 
 		MR_KAFKA_SERVICE_PATH=$MR_KAFKA_APP_NAME":"$MR_KAFKA_PORT
+		MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME":"$MR_ZOOKEEPER_PORT
 	fi
 
 	# For directing calls from script to e.g.PMS via message rounter
@@ -321,12 +323,14 @@ __mr_set_protocoll() {
 			MR_SERVICE_PATH=$MR_DMAAP_PATH
 			MR_DMAAP_ADAPTER_HTTP=$MR_DMAAP_PATH
 			MR_KAFKA_SERVICE_PATH=$MR_KAFKA_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_KAFKA_PORT
+			MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_ZOOKEEPER_PORT
 		fi
 		__check_prestarted_image "DMAAPMR"
 		if [ $? -eq 0 ]; then
 			MR_SERVICE_PATH=$MR_DMAAP_PATH
 			MR_DMAAP_ADAPTER_HTTP=$MR_DMAAP_PATH
 			MR_KAFKA_SERVICE_PATH=$MR_KAFKA_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_KAFKA_PORT
+			MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_ZOOKEEPER_PORT
 		fi
 
 		# For directing calls from script to e.g.PMS, via message rounter
@@ -342,74 +346,6 @@ __mr_set_protocoll() {
 	echo ""
 
 }
-
-
-# use_mr_http() {                2                3                  4                5                  6                       7
-# 	__mr_set_protocoll "http" $MR_INTERNAL_PORT $MR_EXTERNAL_PORT $MR_INTERNAL_PORT $MR_EXTERNAL_PORT $MR_INTERNAL_SECURE_PORT $MR_EXT_SECURE_PORT
-# }
-
-# use_mr_https() {
-# 	__mr_set_protocoll "https" $MR_INTERNAL_SECURE_PORT $MR_EXTERNAL_SECURE_PORT
-# }
-
-# # Setup paths to svc/container for internal and external access
-# # args: <protocol> <internal-port> <external-port> <mr-stub-internal-port> <mr-stub-external-port> <mr-stub-internal-secure-port> <mr-stub-external-secure-port>
-# __mr_set_protocoll() {
-# 	echo -e $BOLD"$MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME protocol setting"$EBOLD
-# 	echo -e " Using $BOLD http $EBOLD towards $MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME"
-
-# 	## Access to Dmaap mediator
-
-# 	MR_HTTPX=$1
-
-# 	# Access via test script
-# 	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME":"$2  # access from script via proxy, docker
-# 	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME":"$2 # access from script via proxy, docker
-# 	MR_DMAAP_ADAPTER_HTTP="" # Access to dmaap mr via proyx - set only if app is included
-
-# 	MR_SERVICE_PATH=$MR_STUB_PATH # access container->container, docker -  access pod->svc, kube
-# 	__check_included_image "DMAAPMR"
-# 	if [ $? -eq 0 ]; then
-# 		MR_SERVICE_PATH=$MR_DMAAP_PATH # access container->container, docker -  access pod->svc, kube
-# 		MR_DMAAP_ADAPTER_HTTP=$MR_DMAAP_PATH
-# 	fi
-
-# 	# For directing calls from script to e.g.PMS via message rounter
-# 	# These cases shall always go though the  mr-stub
-# 	MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME":"$4
-# 	MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME":"$6
-
-# 	MR_DMAAP_ADAPTER_TYPE="REST"
-
-# 	if [ $RUNMODE == "KUBE" ]; then
-# 		MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME.$KUBE_ONAP_NAMESPACE":"$3 # access from script via proxy, kube
-# 		MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME.$KUBE_ONAP_NAMESPACE":"$3 # access from script via proxy, kube
-
-# 		MR_SERVICE_PATH=$MR_STUB_PATH
-# 		__check_included_image "DMAAPMR"
-# 		if [ $? -eq 0 ]; then
-# 			MR_SERVICE_PATH=$MR_DMAAP_PATH
-# 			MR_DMAAP_ADAPTER_HTTP=$MR_DMAAP_PATH
-# 		fi
-# 		__check_prestarted_image "DMAAPMR"
-# 		if [ $? -eq 0 ]; then
-# 			MR_SERVICE_PATH=$MR_DMAAP_PATH
-# 			MR_DMAAP_ADAPTER_HTTP=$MR_DMAAP_PATH
-# 		fi
-
-# 		# For directing calls from script to e.g.PMS, via message rounter
-# 		# These calls shall always go though the  mr-stub
-# 		MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME":"$5
-# 		MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME":"$7
-# 	fi
-
-# 	# For calls from script to the mr-stub
-# 	MR_STUB_ADAPTER=$MR_STUB_PATH
-# 	MR_STUB_ADAPTER_TYPE="REST"
-
-# 	echo ""
-
-# }
 
 # Export env vars for config files, docker compose and kube resources
 # args: -
@@ -435,6 +371,7 @@ __dmaapmr_export_vars() {
 	export MR_ZOOKEEPER_PORT
 
 	export MR_KAFKA_SERVICE_PATH
+	export MR_ZOOKEEPER_SERVICE_PATH
 }
 
 # Export env vars for config files, docker compose and kube resources
@@ -457,6 +394,7 @@ __mr_export_vars() {
 	export MR_EXTERNAL_PORT
 
 	export MR_KAFKA_SERVICE_PATH
+	export MR_ZOOKEEPER_SERVICE_PATH
 }
 
 
@@ -569,36 +507,7 @@ start_mr() {
 			__kube_create_instance app $MR_DMAAP_APP_NAME $input_yaml $output_yaml
 
 
-			# echo " Retrieving host and ports for service..."
-			# MR_DMAAP_HOST_NAME=$(__kube_get_service_host $MR_DMAAP_APP_NAME $KUBE_ONAP_NAMESPACE)
-
-			# MR_EXT_PORT=$(__kube_get_service_port $MR_DMAAP_APP_NAME $KUBE_ONAP_NAMESPACE "http")
-			# MR_EXT_SECURE_PORT=$(__kube_get_service_port $MR_DMAAP_APP_NAME $KUBE_ONAP_NAMESPACE "https")
-
-			# echo " Host IP, http port, https port: $MR_DMAAP_APP_NAME $MR_EXT_PORT $MR_EXT_SECURE_PORT"
-			# MR_SERVICE_PATH=""
-			# if [ $MR_HTTPX == "http" ]; then
-			# 	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_HOST_NAME":"$MR_EXT_PORT
-			# 	MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXT_PORT
-			# else
-			# 	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_HOST_NAME":"$MR_EXT_SECURE_PORT
-			# 	MR_SERVICE_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXT_SECURE_PORT
-			# fi
-
 			__check_service_start $MR_DMAAP_APP_NAME $MR_DMAAP_PATH$MR_DMAAP_ALIVE_URL
-
-			# Cannot create topics, returns 400 forever.....topics will be created during pipeclean below
-			#__create_topic $MR_READ_TOPIC "Topic for reading policy messages"
-
-			#__create_topic $MR_WRITE_TOPIC "Topic for writing policy messages"
-
-#			__dmaap_pipeclean $MR_READ_TOPIC "/events/$MR_READ_TOPIC" "/events/$MR_READ_TOPIC/users/policy-agent?timeout=1000&limit=100"
-#
-#			__dmaap_pipeclean $MR_WRITE_TOPIC "/events/$MR_WRITE_TOPIC" "/events/$MR_WRITE_TOPIC/users/mr-stub?timeout=1000&limit=100"
-
-
-			#__dmaap_pipeclean "unauthenticated.dmaapmed.json" "/events/unauthenticated.dmaapmed.json" "/events/unauthenticated.dmaapmed.json/dmaapmediatorproducer/STD_Fault_Messages?timeout=1000&limit=100"
-			#__dmaap_pipeclean "unauthenticated.dmaapadp.json" "/events/unauthenticated.dmaapadp.json" "/events/unauthenticated.dmaapadp.json/dmaapadapterproducer/msgs?timeout=1000&limit=100"
 
 			if [ $# -gt 0 ]; then
 				if [ $(($#%3)) -eq 0 ]; then
@@ -650,40 +559,7 @@ start_mr() {
 
 		fi
 
-		# echo " Retrieving host and ports for service..."
-		# MR_STUB_HOST_NAME=$(__kube_get_service_host $MR_STUB_APP_NAME $KUBE_ONAP_NAMESPACE)
-
-		# MR_EXT_PORT=$(__kube_get_service_port $MR_STUB_APP_NAME $KUBE_ONAP_NAMESPACE "http")
-		# MR_EXT_SECURE_PORT=$(__kube_get_service_port $MR_STUB_APP_NAME $KUBE_ONAP_NAMESPACE "https")
-
-		# echo " Host IP, http port, https port: $MR_STUB_APP_NAME $MR_EXT_PORT $MR_EXT_SECURE_PORT"
-		# if [ $MR_HTTPX == "http" ]; then
-		# 	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_HOST_NAME":"$MR_EXT_PORT
-		# 	if [ -z "$MR_SERVICE_PATH" ]; then
-		# 		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXT_PORT
-		# 	fi
-		# else
-		# 	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_HOST_NAME":"$MR_EXT_SECURE_PORT
-		# 	if [ -z "$MR_SERVICE_PATH" ]; then
-		# 		MR_SERVICE_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_EXT_SECURE_PORT
-		# 	fi
-		# fi
-		# MR_ADAPTER_HTTP="http://"$MR_STUB_HOST_NAME":"$MR_EXT_PORT
-		# MR_ADAPTER_HTTPS="https://"$MR_STUB_HOST_NAME":"$MR_EXT_SECURE_PORT
-
-		# MR_STUB_ADAPTER=$MR_STUB_PATH
-		# MR_STUB_ADAPTER_TYPE="REST"
-
 		__check_service_start $MR_STUB_APP_NAME $MR_STUB_PATH$MR_STUB_ALIVE_URL
-
-		echo -ne " Service $MR_STUB_APP_NAME - reset  "$SAMELINE
-		result=$(__do_curl $MR_STUB_PATH/reset)
-		if [ $? -ne 0 ]; then
-			echo -e " Service $MR_STUB_APP_NAME - reset  $RED Failed $ERED - will continue"
-		else
-			echo -e " Service $MR_STUB_APP_NAME - reset  $GREEN OK $EGREEN"
-		fi
-
 
 	else
 
@@ -732,16 +608,6 @@ start_mr() {
 
 			__check_service_start $MR_DMAAP_APP_NAME $MR_DMAAP_PATH$MR_DMAAP_ALIVE_URL
 
-
-			# Cannot create topics, returns 400 forever.....topics will be created during pipeclean below
-			#__create_topic $MR_READ_TOPIC "Topic for reading policy messages"
-
-			#__create_topic $MR_WRITE_TOPIC "Topic for writing policy messages"
-
-			#__dmaap_pipeclean $MR_READ_TOPIC "/events/$MR_READ_TOPIC" "/events/$MR_READ_TOPIC/users/policy-agent?timeout=1000&limit=100"
-
-			#__dmaap_pipeclean $MR_WRITE_TOPIC "/events/$MR_WRITE_TOPIC" "/events/$MR_WRITE_TOPIC/users/mr-stub?timeout=1000&limit=100"
-
 			if [ $# -gt 0 ]; then
 				if [ $(($#%3)) -eq 0 ]; then
 					while [ $# -gt 0 ]; do
@@ -754,9 +620,6 @@ start_mr() {
 					exit 1
 				fi
 			fi
-
-			#__dmaap_pipeclean "unauthenticated.dmaapmed.json" "/events/unauthenticated.dmaapmed.json" "/events/unauthenticated.dmaapmed.json/dmaapmediatorproducer/STD_Fault_Messages?timeout=1000&limit=100"
-			#__dmaap_pipeclean "unauthenticated.dmaapadp.json" "/events/unauthenticated.dmaapadp.json" "/events/unauthenticated.dmaapadp.json/dmaapadapterproducer/msgs?timeout=1000&limit=100"
 
 			echo " Current topics:"
 			curlString="$MR_DMAAP_PATH/topics"
@@ -1017,12 +880,12 @@ mr_api_generate_json_payload_file() {
 		__log_conf_fail_general "Only size between 1k and 10000k supported"
 		return 1
 	fi
-	echo -n "{\"a\":[" > $2
-	LEN=$(($1*150))
-	echo -n "\"a0\"" >> $2
+	echo -n "{\"abcdefghijklmno\":[" > $2
+	LEN=$(($1*100-2))
+	echo -n "\""ABCDEFG"\"" >> $2
 	for ((idx=1; idx<$LEN; idx++))
 	do
-		echo -n ",\"a$idx\"" >> $2
+		echo -n ",\"ABCDEFG\"" >> $2
 	done
 	echo -n "]}" >> $2
 

@@ -345,9 +345,16 @@ __log_conf_ok() {
 #Var for measuring execution time
 TCTEST_START=$SECONDS
 
+#Vars to hold the start time and timer text for a custom timer
+TC_TIMER_STARTTIME=""
+TC_TIMER_TIMER_TEXT=""
+TC_TIMER_CURRENT_FAILS="" # Then numer of failed test when timer starts.
+                          # Compared with the current number of fails at timer stop
+						  # to judge the measurement reliability
+
 #File to save timer measurement results
 TIMER_MEASUREMENTS=".timer_measurement.txt"
-echo -e "Activity \t Duration" > $TIMER_MEASUREMENTS
+echo -e "Activity \t Duration \t Info" > $TIMER_MEASUREMENTS
 
 # If this is set, some images (control by the parameter repo-polcy) will be re-tagged and pushed to this repo before any
 IMAGE_REPO_ADR=""
@@ -762,7 +769,20 @@ if [ ! -z "$TMP_APPS" ]; then
 else
 	echo " None"
 fi
+
+echo -e $BOLD"Auto adding included apps"$EBOLD
+	for iapp in $INCLUDED_IMAGES; do
+		file_pointer=$(echo $iapp | tr '[:upper:]' '[:lower:]')
+		file_pointer="../common/"$file_pointer"_api_functions.sh"
+		echo " Auto-adding included app $iapp.  Sourcing $file_pointer"
+		. $file_pointer
+		if [ ! -f "$file_pointer" ]; then
+			echo " Include file $file_pointer for app $iapp does not exist"
+			exit 1
+		fi
+	done
 echo ""
+
 
 # Check needed installed sw
 tmp=$(which python3)
@@ -1524,7 +1544,7 @@ print_result() {
 	echo "===================================="
 	column -t -s $'\t' $TIMER_MEASUREMENTS
 	if [ $RES_PASS != $RES_TEST ]; then
-		echo -e $RED"Measurement may not be reliable when there are failed test - script timeouts may cause long measurement values"$ERED
+		echo -e $RED"Measurement may not be reliable when there are failed test - failures may cause long measurement values due to timeouts etc."$ERED
 	fi
 	echo ""
 
@@ -1607,57 +1627,44 @@ print_result() {
 #####################################################################
 
 # Start timer for time measurement
-# args - (any args will be printed though)
+# args:  <timer message to print>  -  timer value and message will be printed both on screen
+#                                     and in the timer measurement report - if at least one "print_timer is called"
 start_timer() {
 	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
-	TC_TIMER=$SECONDS
+	TC_TIMER_STARTTIME=$SECONDS
+	TC_TIMER_TIMER_TEXT="${@:1}"
+	if [ $# -ne 1 ]; then
+		__print_err "need 1 arg,  <timer message to print>" $@
+		TC_TIMER_TIMER_TEXT=${FUNCNAME[0]}":"${BASH_LINENO[0]}
+		echo " Assigning timer name: "$TC_TIMER_TIMER_TEXT
+	fi
+	TC_TIMER_CURRENT_FAILS=$(($RES_FAIL+$RES_CONF_FAIL))
 	echo " Timer started: $(date)"
 }
 
-# Print the value of the time (in seconds)
-# args - <timer message to print>  -  timer value and message will be printed both on screen
-#                                     and in the timer measurement report
+# Print the running timer  the value of the time (in seconds)
+# Timer value and message will be printed both on screen and in the timer measurement report
 print_timer() {
-	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
-	if [ $# -lt 1 ]; then
-		((RES_CONF_FAIL++))
-    	__print_err "need 1 or more args,  <timer message to print>" $@
-		exit 1
+	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $TC_TIMER_TIMER_TEXT $EBOLD
+	if [ -z  "$TC_TIMER_STARTTIME" ]; then
+		__print_err "timer not started" $@
+		return 1
 	fi
-	duration=$(($SECONDS-$TC_TIMER))
+	duration=$(($SECONDS-$TC_TIMER_STARTTIME))
 	if [ $duration -eq 0 ]; then
 		duration="<1 second"
 	else
 		duration=$duration" seconds"
 	fi
 	echo " Timer duration :" $duration
+	res="-"
+	if [ $(($RES_FAIL+$RES_CONF_FAIL)) -ne $TC_TIMER_CURRENT_FAILS ]; then
+		res="Failures occured during test - timer not reliabled"
+	fi
 
-	echo -e "${@:1} \t $duration" >> $TIMER_MEASUREMENTS
+	echo -e "$TC_TIMER_TIMER_TEXT \t $duration \t $res" >> $TIMER_MEASUREMENTS
 }
 
-# Print the value of the time (in seconds) and reset the timer
-# args - <timer message to print>  -  timer value and message will be printed both on screen
-#                                     and in the timer measurement report
-print_and_reset_timer() {
-	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
-	if [ $# -lt 1 ]; then
-		((RES_CONF_FAIL++))
-    	__print_err "need 1 or more args,  <timer message to print>" $@
-		exit 1
-	fi
-	duration=$(($SECONDS-$TC_TIMER))" seconds"
-	if [ $duration -eq 0 ]; then
-		duration="<1 second"
-	else
-		duration=$duration" seconds"
-	fi
-	echo " Timer duration :" $duration
-	TC_TIMER=$SECONDS
-	echo " Timer reset"
-
-	echo -e "${@:1} \t $duration" >> $TIMER_MEASUREMENTS
-
-}
 # Print info about a deviations from intended tests
 # Each deviation counted is also printed in the testreport
 # args <deviation message to print>
@@ -1989,7 +1996,7 @@ __kube_delete_all_resources() {
 					echo -e "  Scaled $restype $resid $ns_text with label $labelname=$labelid to 0, current count=$count $GREEN OK $EGREEN"
 				fi
 				echo -ne "  Deleting $restype $resid $ns_text with label $labelname=$labelid "$SAMELINE
-				kubectl delete $restype $resid $ns_flag 1> /dev/null 2> ./tmp/kubeerr
+				kubectl delete --grace-period=1 $restype $resid $ns_flag 1> /dev/null 2> ./tmp/kubeerr
 				if [ $? -eq 0 ]; then
 					echo -e "  Deleted $restype $resid $ns_text with label $labelname=$labelid $GREEN OK $EGREEN"
 				else
@@ -2290,7 +2297,7 @@ clean_environment() {
 	if [ $RUNMODE == "KUBE" ]; then
 		__clean_kube
 		if [ $PRE_CLEAN -eq 1 ]; then
-			echo " Clean docker resouces to free up resources, may take time..."
+			echo " Cleaning docker resouces to free up resources, may take time..."
 			../common/clean_docker.sh 2&>1 /dev/null
 			echo ""
 		fi
@@ -2398,6 +2405,9 @@ __start_container() {
 	shift
 	appcount=$1
 	shift
+
+	envsubst < $compose_file > "gen_"$compose_file
+	compose_file="gen_"$compose_file
 
 	if [ "$compose_args" == "NODOCKERARGS" ]; then
 		docker-compose -f $compose_file up -d &> .dockererr

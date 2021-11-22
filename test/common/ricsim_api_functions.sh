@@ -96,11 +96,18 @@ __RICSIM_initial_setup() {
 # This function is called for apps managed by the test script as well as for prestarted apps.
 # args: -
 __RICSIM_statisics_setup() {
-	if [ $RUNMODE == "KUBE" ]; then
-		echo ""
-	else
-		echo ""
-	fi
+	for ((RICSIM_INSTANCE=10; RICSIM_INSTANCE>0; RICSIM_INSTANCE-- )); do
+		if [ $RUNMODE == "KUBE" ]; then
+			RICSIM_INSTANCE_KUBE=$(($RICSIM_INSTANCE-1))
+			echo -n " RICSIM_G1_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g1-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
+			echo -n " RICSIM_G2_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
+			echo -n " RICSIM_G3_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
+		else
+			echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g1_$RICSIM_INSTANCE "
+			echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g2_$RICSIM_INSTANCE "
+			echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g3_$RICSIM_INSTANCE "
+		fi
+	done
 }
 
 #######################################################

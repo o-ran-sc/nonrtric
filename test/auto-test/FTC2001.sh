@@ -38,17 +38,6 @@ SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/ecs_api_functions.sh
-. ../common/prodstub_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/http_proxy_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
 
 setup_testenvironment
 
@@ -64,7 +53,7 @@ use_ecs_rest_https
 use_prod_stub_https
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
    echo "PMS VERSION 2 (V2) is required"
    exit 1
@@ -102,7 +91,7 @@ else
     consul_config_app                      ".consul_config.json"
 fi
 
-start_cr
+start_cr 1
 
 start_prod_stub
 
@@ -144,7 +133,7 @@ done
 #Check the number of types
 api_equal json:policy-types 2 300
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
@@ -182,8 +171,8 @@ fi
 TARGET1="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_SERVICE_APP_PATH/job1-status"
-STATUS2="$CR_SERVICE_APP_PATH/job2-status"
+STATUS1="$CR_SERVICE_APP_PATH_0/job1-status"
+STATUS2="$CR_SERVICE_APP_PATH_0/job2-status"
 
 prodstub_arm_producer 200 prod-a
 prodstub_arm_type 200 prod-a type1
@@ -195,7 +184,7 @@ ecs_api_service_status 200
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     #Type registration status callbacks
-    TYPESTATUS1="$CR_SERVICE_APP_PATH/type-status1"
+    TYPESTATUS1="$CR_SERVICE_APP_PATH_0/type-status1"
 
     ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
 
@@ -270,17 +259,17 @@ else
 fi
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-    cr_equal received_callbacks 3 30
-    cr_api_check_all_ecs_subscription_events 200 type-status1 type1 testdata/ecs/ei-type-1.json REGISTERED
-    cr_api_check_all_ecs_events 200 job1-status DISABLED
-    cr_api_check_all_ecs_events 200 job2-status DISABLED
+    cr_equal 0 received_callbacks 3 30
+    cr_api_check_all_ecs_subscription_events 200 0 type-status1 type1 testdata/ecs/ei-type-1.json REGISTERED
+    cr_api_check_all_ecs_events 200 0 job1-status DISABLED
+    cr_api_check_all_ecs_events 200 0 job2-status DISABLED
 else
-    cr_equal received_callbacks 2 30
-    cr_api_check_all_ecs_events 200 job1-status DISABLED
-    cr_api_check_all_ecs_events 200 job2-status DISABLED
+    cr_equal 0 received_callbacks 2 30
+    cr_api_check_all_ecs_events 200 0 job1-status DISABLED
+    cr_api_check_all_ecs_events 200 0 job2-status DISABLED
 fi
 
-cr_contains_str remote_hosts $HTTP_PROXY_APP_NAME
+cr_contains_str 0 remote_hosts $HTTP_PROXY_APP_NAME
 
 check_policy_agent_logs
 check_ecs_logs

@@ -127,8 +127,7 @@ SUPPORTED_RUNMODES=<List of runmodes, DOCKER and/or KUBE>
 
 CONDITIONALLY_IGNORED_IMAGES=<list of images to exclude if it does not exist in the profile file>
 
-. ../common/testcase_common.sh  $@
-< other scripts need to be sourced for specific interfaces>
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 

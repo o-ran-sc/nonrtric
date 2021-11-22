@@ -38,19 +38,6 @@ SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/ecs_api_functions.sh
-. ../common/prodstub_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/rapp_catalogue_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/http_proxy_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
 
 setup_testenvironment
 
@@ -73,7 +60,7 @@ fi
 
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH"/test"
+    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
    echo "PMS VERSION 2 (V2) is required"
    exit 1
@@ -113,7 +100,7 @@ else
     consul_config_app                      ".consul_config.json"
 fi
 
-start_cr
+start_cr 1
 
 start_prod_stub
 
@@ -168,7 +155,7 @@ done
 #Check the number of types
 api_equal json:policy-types 2 300
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH/1"
+api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
@@ -205,8 +192,8 @@ fi
 TARGET1="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://$RIC_G1_1:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_SERVICE_APP_PATH/callbacks/job1-status"
-STATUS2="$CR_SERVICE_APP_PATH/callbacks/job2-status"
+STATUS1="$CR_SERVICE_APP_PATH_0/callbacks/job1-status"
+STATUS2="$CR_SERVICE_APP_PATH_0/callbacks/job2-status"
 
 prodstub_arm_producer 200 prod-a
 prodstub_arm_type 200 prod-a type1

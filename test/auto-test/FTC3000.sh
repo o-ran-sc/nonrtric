@@ -39,21 +39,6 @@ SUPPORTED_PROFILES="ORAN-E-RELEASE"
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh $@
-. ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
-. ../common/ecs_api_functions.sh
-. ../common/prodstub_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/rapp_catalogue_api_functions.sh
-. ../common/mr_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/consul_cbs_functions.sh
-. ../common/http_proxy_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
-. ../common/dmaapmed_api_functions.sh
-. ../common/dmaapadp_api_functions.sh
 
 setup_testenvironment
 
@@ -62,7 +47,13 @@ setup_testenvironment
 #Local vars in test script
 ##########################
 FLAT_A1_EI="1"
-NUM_JOBS=100  # Mediator and adapter gets same number of jobs
+NUM_CR=10 # Number of callback receivers, divide all callbacks to this number of servers - for load sharing
+## Note: The number jobs must be a multiple of the number of CRs in order to calculate the number of expected event in each CR
+NUM_JOBS=200  # Mediator and adapter gets same number of jobs for every type
+
+if [ $NUM_JOBS -lt $NUM_CR ]; then
+    __log_conf_fail_general "Number of jobs: $NUM_JOBS must be greater then the number of CRs: $NUM_CR"
+fi
 
 clean_environment
 
@@ -75,7 +66,7 @@ use_dmaapmed_https
 
 start_kube_proxy
 
-start_cr
+start_cr $NUM_CR
 
 start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE
 
@@ -103,27 +94,36 @@ ecs_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediato
 start_timer "Create adapter jobs: $NUM_JOBS"
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 job-adp-$i ExampleInformationType $CR_SERVICE_MR_PATH/job-adp-data$i"?storeas=md5" info-owner-adp-$i $CR_SERVICE_APP_PATH/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template.json
+    cr_index=$(($i%$NUM_CR))
+    service_mr="CR_SERVICE_MR_PATH_"$cr_index
+    service_app="CR_SERVICE_APP_PATH_"$cr_index
+    ecs_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template.json
 
 done
-print_timer "Create adapter jobs: $NUM_JOBS"
+print_timer
 
 # Create jobs for adapter kafka - CR stores data as MD5 hash
 start_timer "Create adapter (kafka) jobs: $NUM_JOBS"
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka $CR_SERVICE_TEXT_PATH/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i $CR_SERVICE_APP_PATH/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1-kafka.json
+    cr_index=$(($i%$NUM_CR))
+    service_text="CR_SERVICE_TEXT_PATH_"$cr_index
+    service_app="CR_SERVICE_APP_PATH_"$cr_index
+    ecs_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka ${!service_text}/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i ${!service_app}/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1-kafka.json
 
 done
-print_timer "Create adapter (kafka) jobs: $NUM_JOBS"
+print_timer
 
 # Create jobs for mediator - CR stores data as MD5 hash
 start_timer "Create mediator jobs: $NUM_JOBS"
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 job-med-$i STD_Fault_Messages $CR_SERVICE_MR_PATH/job-med-data$i"?storeas=md5" info-owner-med-$i $CR_SERVICE_APP_PATH/job_status_info-owner-med-$i testdata/dmaap-adapter/job-template.json
+    cr_index=$(($i%$NUM_CR))
+    service_mr="CR_SERVICE_MR_PATH_"$cr_index
+    service_app="CR_SERVICE_APP_PATH_"$cr_index
+    ecs_api_idc_put_job 201 job-med-$i STD_Fault_Messages ${!service_mr}/job-med-data$i"?storeas=md5" info-owner-med-$i ${!service_app}/job_status_info-owner-med-$i testdata/dmaap-adapter/job-template.json
 done
-print_timer "Create mediator jobs: $NUM_JOBS"
+print_timer
 
 # Check job status
 for ((i=1; i<=$NUM_JOBS; i++))
@@ -134,109 +134,155 @@ do
 done
 
 
-EXPECTED_DATA_DELIV=0
+EXPECTED_DATA_DELIV=0 #Total delivered msg per CR
+DATA_DELIV_JOBS=0 #Total delivered msg per job per CR
 
 mr_api_generate_json_payload_file 1 ./tmp/data_for_dmaap_test.json
 mr_api_generate_text_payload_file 1 ./tmp/data_for_dmaap_test.txt
 
 ## Send json file via message-router to adapter
-
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
-
+DATA_DELIV_JOBS=5 #Each job will eventuall get 2 msgs
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
 # Check received data callbacks from adapter
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_event_md5_file 200 job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_index=$(($i%$NUM_CR))
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
 done
 
 
 ## Send text file via message-router to adapter kafka
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
-
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
 # Check received data callbacks from adapter kafka
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_event_md5_file 200 job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_index=$(($i%$NUM_CR))
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
 done
 
 ## Send json file via message-router to mediator
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
-
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
-EXPECTED_DATA_DELIV=$(($NUM_JOBS+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 200
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
 
 # Check received data callbacks from mediator
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_event_md5_file 200 job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_index=$(($i%$NUM_CR))
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
 done
 
 
@@ -244,64 +290,83 @@ done
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-1"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
 
+DATA_DELIV_JOBS=7 #Each job will eventuall get 5+2 msgs
+
 # Wait for data recetption, adapter
-EXPECTED_DATA_DELIV=$(($NUM_JOBS*2+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter, 2 json per job"
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 100
-print_timer "Data delivery adapter, 2 json per job"
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
+print_timer
 
 # Send small text via message-routere to adapter
 mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------1'
 mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------3'
 
 # Wait for data recetption, adapter kafka
-EXPECTED_DATA_DELIV=$(($NUM_JOBS*2+$EXPECTED_DATA_DELIV))
-start_timer "Data delivery adapte kafkar, 2 strings per job"
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 100
-print_timer "Data delivery adapte kafkar, 2 strings per job"
+EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
+start_timer "Data delivery adapter kafka, 2 strings per job"
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
+done
+print_timer
 
 # Send small json via message-router to mediator
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-0"}'
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-2"}'
 
 # Wait for data reception, mediator
-EXPECTED_DATA_DELIV=$(($NUM_JOBS*2+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery mediator, 2 json per job"
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 100
-print_timer "Data delivery mediator, 2 json per job"
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
+done
+print_timer
 
 # Check received number of messages for mediator and adapter callbacks
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_equal received_callbacks?id=job-med-data$i 7
-    cr_equal received_callbacks?id=job-adp-data$i 7
-    cr_equal received_callbacks?id=job-adp-kafka-data$i 7
+    cr_index=$(($i%$NUM_CR))
+    cr_equal $cr_index received_callbacks?id=job-med-data$i $DATA_DELIV_JOBS
+    cr_equal $cr_index received_callbacks?id=job-adp-data$i $DATA_DELIV_JOBS
+    cr_equal $cr_index received_callbacks?id=job-adp-kafka-data$i $DATA_DELIV_JOBS
 done
 
 # Check received data and order for mediator and adapter callbacks
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_event_md5 200 job-med-data$i '{"msg":"msg-0"}'
-    cr_api_check_single_genric_event_md5 200 job-med-data$i '{"msg":"msg-2"}'
-    cr_api_check_single_genric_event_md5 200 job-adp-data$i '{"msg":"msg-1"}'
-    cr_api_check_single_genric_event_md5 200 job-adp-data$i '{"msg":"msg-3"}'
-    cr_api_check_single_genric_event_md5 200 job-adp-kafka-data$i 'Message-------1'
-    cr_api_check_single_genric_event_md5 200 job-adp-kafka-data$i 'Message-------3'
+    cr_index=$(($i%$NUM_CR))
+    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-0"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-2"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-1"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------1'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------3'
 done
 
 # Set delay in the callback receiver to slow down callbacks
 SEC_DELAY=2
-cr_delay_callback 200 $SEC_DELAY
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_delay_callback 200 $i $SEC_DELAY
+done
 
 # Send small json via message-router to adapter
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-5"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-7"}'
 
 # Wait for data recetption, adapter
-EXPECTED_DATA_DELIV=$(($NUM_JOBS*2+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter with $SEC_DELAY seconds delay in consumer, 2 json per job"
-cr_equal received_callbacks $EXPECTED_DATA_DELIV $(($NUM_JOBS+300))
-print_timer "Data delivery adapter with $SEC_DELAY seconds delay in consumer, 2 json per job"
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
+done
+print_timer
 
 
 # Send small text via message-router to adapter kafka
@@ -309,10 +374,13 @@ mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------5'
 mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------7'
 
 # Wait for data recetption, adapter kafka
-EXPECTED_DATA_DELIV=$(($NUM_JOBS*2+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter kafka with $SEC_DELAY seconds delay in consumer, 2 strings per job"
-cr_equal received_callbacks $EXPECTED_DATA_DELIV $(($NUM_JOBS+300))
-print_timer "Data delivery adapter with kafka $SEC_DELAY seconds delay in consumer, 2 strings per job"
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
+done
+print_timer
 
 
 # Send small json via message-router to mediator
@@ -320,28 +388,33 @@ mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-4"}'
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-6"}'
 
 # Wait for data reception, mediator
-EXPECTED_DATA_DELIV=$(($NUM_JOBS*2+$EXPECTED_DATA_DELIV))
+EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery mediator with $SEC_DELAY seconds delay in consumer, 2 json per job"
-cr_equal received_callbacks $EXPECTED_DATA_DELIV 1000
-print_timer "Data delivery mediator with $SEC_DELAY seconds delay in consumer, 2 json per job"
+for ((i=0; i<$NUM_CR; i++))
+do
+    cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
+done
+print_timer
 
 # Check received number of messages for mediator and adapter callbacks
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_equal received_callbacks?id=job-med-data$i 9
-    cr_equal received_callbacks?id=job-adp-data$i 9
-    cr_equal received_callbacks?id=job-adp-kafka-data$i 9
+    cr_index=$(($i%$NUM_CR))
+    cr_equal $cr_index received_callbacks?id=job-med-data$i 9
+    cr_equal $cr_index received_callbacks?id=job-adp-data$i 9
+    cr_equal $cr_index received_callbacks?id=job-adp-kafka-data$i 9
 done
 
 # Check received data and order for mediator and adapter callbacks
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_event_md5 200 job-med-data$i '{"msg":"msg-4"}'
-    cr_api_check_single_genric_event_md5 200 job-med-data$i '{"msg":"msg-6"}'
-    cr_api_check_single_genric_event_md5 200 job-adp-data$i '{"msg":"msg-5"}'
-    cr_api_check_single_genric_event_md5 200 job-adp-data$i '{"msg":"msg-7"}'
-    cr_api_check_single_genric_event_md5 200 job-adp-kafka-data$i 'Message-------5'
-    cr_api_check_single_genric_event_md5 200 job-adp-kafka-data$i 'Message-------7'
+    cr_index=$(($i%$NUM_CR))
+    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-4"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-6"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-5"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-7"}'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------5'
+    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------7'
 done
 
 #### TEST COMPLETE ####

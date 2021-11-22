@@ -38,14 +38,7 @@ SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
-. ../common/testcase_common.sh  $@
-. ../common/ecs_api_functions.sh
-. ../common/prodstub_api_functions.sh
-. ../common/control_panel_api_functions.sh
-. ../common/controller_api_functions.sh
-. ../common/cr_api_functions.sh
-. ../common/kube_proxy_api_functions.sh
-. ../common/gateway_api_functions.sh
+. ../common/testcase_common.sh $@
 
 setup_testenvironment
 
@@ -73,7 +66,7 @@ if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
     start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
 fi
 
-start_cr
+start_cr 1
 
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
 CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
@@ -88,8 +81,8 @@ fi
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     #Type registration status callbacks
-    TYPESTATUS1="$CR_SERVICE_APP_PATH/type-status1"
-    TYPESTATUS2="$CR_SERVICE_APP_PATH/type-status2"
+    TYPESTATUS1="$CR_SERVICE_APP_PATH_0/type-status1"
+    TYPESTATUS2="$CR_SERVICE_APP_PATH_0/type-status2"
 
     ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
 
@@ -219,11 +212,11 @@ else
 
 
         if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-            cr_equal received_callbacks 20 30
-            cr_equal received_callbacks?id=type-status1 10
-            cr_equal received_callbacks?id=type-status2 10
+            cr_equal 0 received_callbacks 20 30
+            cr_equal 0 received_callbacks?id=type-status1 10
+            cr_equal 0 received_callbacks?id=type-status2 10
 
-            cr_api_check_all_ecs_subscription_events 200 type-status1 \
+            cr_api_check_all_ecs_subscription_events 200 0 type-status1 \
                 type1 testdata/ecs/ei-type-1.json REGISTERED \
                 type2 testdata/ecs/ei-type-2.json REGISTERED \
                 type3 testdata/ecs/ei-type-3.json REGISTERED \
@@ -235,7 +228,7 @@ else
                 type104 testdata/ecs/info-type-4.json REGISTERED \
                 type105 testdata/ecs/info-type-5.json REGISTERED
 
-            cr_api_check_all_ecs_subscription_events 200 type-status2 \
+            cr_api_check_all_ecs_subscription_events 200 0 type-status2 \
                 type1 testdata/ecs/ei-type-1.json REGISTERED \
                 type2 testdata/ecs/ei-type-2.json REGISTERED \
                 type3 testdata/ecs/ei-type-3.json REGISTERED \
@@ -273,62 +266,62 @@ ecs_api_edp_get_producer_status 200 prod-d ENABLED
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        ecs_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type1 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        ecs_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type2 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        ecs_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type3 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        ecs_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type4 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        ecs_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH/job_status_ric1 testdata/ecs/job-template.json
+        ecs_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ecs_api_a1_get_job_status 200 type5 job$i ENABLED
         else
             ecs_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH/job_status_info-owner testdata/ecs/job-template.json VALIDATE
+            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
             ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
@@ -356,10 +349,10 @@ if [ $use_info_jobs ]; then
 fi
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-    cr_equal received_callbacks 20 30
+    cr_equal 0 received_callbacks 20 30
 
 else
-    cr_equal received_callbacks 0 30
+    cr_equal 0 received_callbacks 0 30
 
 fi
 
@@ -381,7 +374,7 @@ fi
 
 stop_ecs
 
-cr_api_reset
+cr_api_reset 0
 
 start_stopped_ecs
 
@@ -401,7 +394,7 @@ if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     fi
 fi
 
-cr_equal received_callbacks 0
+cr_equal 0 received_callbacks 0
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
@@ -787,18 +780,18 @@ if [ $use_info_jobs ]; then
 fi
 
 if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-    cr_equal received_callbacks 10 30
-    cr_equal received_callbacks?id=type-status1 5
-    cr_equal received_callbacks?id=type-status2 5
+    cr_equal 0 received_callbacks 10 30
+    cr_equal 0 received_callbacks?id=type-status1 5
+    cr_equal 0 received_callbacks?id=type-status2 5
 
-    cr_api_check_all_ecs_subscription_events 200 type-status1 \
+    cr_api_check_all_ecs_subscription_events 200 0 type-status1 \
         type101 testdata/ecs/info-type-1.json REGISTERED \
         type102 testdata/ecs/info-type-2.json REGISTERED \
         type103 testdata/ecs/info-type-3.json REGISTERED \
         type104 testdata/ecs/info-type-4.json REGISTERED \
         type105 testdata/ecs/info-type-5.json REGISTERED
 
-    cr_api_check_all_ecs_subscription_events 200 type-status2 \
+    cr_api_check_all_ecs_subscription_events 200 0 type-status2 \
         type101 testdata/ecs/info-type-1.json REGISTERED \
         type102 testdata/ecs/info-type-2.json REGISTERED \
         type103 testdata/ecs/info-type-3.json REGISTERED \
@@ -806,7 +799,7 @@ if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
         type105 testdata/ecs/info-type-5.json REGISTERED
 
 else
-    cr_equal received_callbacks 0 30
+    cr_equal 0 received_callbacks 0 30
 fi
 
 check_ecs_logs
