@@ -53,7 +53,8 @@ app:
   dmaap-base-url: http://dradmin:dradmin@localhost:2222
   # The url used to adress this component. This is used as a callback url sent to other components.
   dmaap-adapter-base-url: https://localhost:8435
-  # KAFKA boostrap server. This is only needed if there are Information Types that uses a kafkaInputTopic
+  # KAFKA boostrap servers. This is only needed if there are Information Types that uses a kafkaInputTopic
+  # several redundant boostrap servers can be spåecified, separated by a comma ','.
   kafka:
     bootstrap-servers: localhost:9092
 

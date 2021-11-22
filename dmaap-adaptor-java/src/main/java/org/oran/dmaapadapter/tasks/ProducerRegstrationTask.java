@@ -144,25 +144,8 @@ public class ProducerRegstrationTask {
     }
 
     private Object jsonSchemaObject(InfoType type) throws IOException, ServiceException {
-
-        if (type.isKafkaTopicDefined()) {
-            String schemaStrKafka = readSchemaFile("/typeSchemaKafka.json");
-            return jsonObject(schemaStrKafka);
-        } else {
-            // An object with no properties
-            String schemaStr = "{" //
-                    + "\"type\": \"object\"," //
-                    + "\"properties\": {" //
-                    + "   \"filter\": { \"type\": \"string\" }" //
-                    + "}," //
-                    + "\"additionalProperties\": false" //
-                    + "}"; //
-
-            return
-
-            jsonObject(schemaStr);
-        }
-
+        String schemaFile = type.isKafkaTopicDefined() ? "/typeSchemaKafka.json" : "/typeSchemaDmaap.json";
+        return jsonObject(readSchemaFile(schemaFile));
     }
 
     private String readSchemaFile(String filePath) throws IOException, ServiceException {
@@ -174,12 +157,13 @@ public class ProducerRegstrationTask {
         return CharStreams.toString(new InputStreamReader(in, StandardCharsets.UTF_8));
     }
 
+    @SuppressWarnings("java:S2139") // Log exception
     private Object jsonObject(String json) {
         try {
             return JsonParser.parseString(json).getAsJsonObject();
         } catch (Exception e) {
-            logger.error("Bug, error in JSON: {}", json);
-            throw new NullPointerException(e.toString());
+            logger.error("Bug, error in JSON: {} {}", json, e.getMessage());
+            throw new NullPointerException(e.getMessage());
         }
     }
 
@@ -190,7 +174,6 @@ public class ProducerRegstrationTask {
     }
 
     private ProducerRegistrationInfo producerRegistrationInfo() {
-
         return ProducerRegistrationInfo.builder() //
                 .jobCallbackUrl(baseUrl() + ProducerCallbacksController.JOB_URL) //
                 .producerSupervisionCallbackUrl(baseUrl() + ProducerCallbacksController.SUPERVISION_URL) //
