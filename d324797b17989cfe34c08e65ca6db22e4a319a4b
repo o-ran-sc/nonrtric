@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "97bc5629_330bbdd4",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/repository/MultiMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-22T09:15:36Z",
+      "side": 1,
+      "message": "No Maps (or other collections) are synchronized in java, and this follows that.\nSo synchronization must done on a higher level.",
+      "parentUuid": "b5d6a8b4_82d16770",
+      "range": {
+        "startLine": 34,
+        "startChar": 13,
+        "endLine": 34,
+        "endChar": 21
+      },
+      "revId": "d324797b17989cfe34c08e65ca6db22e4a319a4b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "da2d5b28_8bb863eb",
         "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/repository/MultiMap.java",
         "patchSetId": 1
@@ -54,6 +78,30 @@
       "writtenOn": "2021-11-19T14:53:56Z",
       "side": 1,
       "message": "Would collections.unmodifiableCollection be better",
+      "range": {
+        "startLine": 59,
+        "startChar": 19,
+        "endLine": 59,
+        "endChar": 25
+      },
+      "revId": "d324797b17989cfe34c08e65ca6db22e4a319a4b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2314a477_c7c35db6",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/repository/MultiMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-22T09:15:36Z",
+      "side": 1,
+      "message": "The class returns a new vector. That can be modified (if the caller wants to). \n\nI do not want to change this class, it is a copy and has been used for years.",
+      "parentUuid": "da2d5b28_8bb863eb",
       "range": {
         "startLine": 59,
         "startChar": 19,
@@ -89,6 +137,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6227b7bc_1b8e77f5",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/repository/MultiMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-22T09:15:36Z",
+      "side": 1,
+      "message": "The returned keyset can be modified without problem.",
+      "parentUuid": "6dff6ba5_4b2a746c",
+      "range": {
+        "startLine": 63,
+        "startChar": 20,
+        "endLine": 63,
+        "endChar": 23
+      },
+      "revId": "d324797b17989cfe34c08e65ca6db22e4a319a4b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3bd82a6c_c873b1be",
         "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/DmaapTopicConsumer.java",
         "patchSetId": 1
@@ -100,6 +172,30 @@
       "writtenOn": "2021-11-19T14:53:56Z",
       "side": 1,
       "message": "This seems a bit dangerous ... e.g. \"{7}\"  ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 32,
+        "endLine": 86,
+        "endChar": 49
+      },
+      "revId": "d324797b17989cfe34c08e65ca6db22e4a319a4b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fd9793f_28691864",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/DmaapTopicConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-22T09:15:36Z",
+      "side": 1,
+      "message": "DMAAP always returns brackets around the data. \nThe shortest possible payload is [\"\"] (which would be one empty message).",
+      "parentUuid": "3bd82a6c_c873b1be",
       "range": {
         "startLine": 86,
         "startChar": 32,
@@ -135,6 +231,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c326889b_1a117014",
+        "filename": "dmaap-adaptor-java/src/main/java/org/oran/dmaapadapter/tasks/KafkaTopicListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-22T09:15:36Z",
+      "side": 1,
+      "message": "It must be. A string is just an array of bytes. This can hold anything, even an int (which is the case for key used in the test).",
+      "parentUuid": "0b2b70fe_a4762f3c",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "d324797b17989cfe34c08e65ca6db22e4a319a4b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "111d2ba6_0d7ce0b4",
         "filename": "dmaap-adaptor-java/src/test/java/org/oran/dmaapadapter/IntegrationWithEcs.java",
         "patchSetId": 1
@@ -146,6 +266,30 @@
       "writtenOn": "2021-11-19T14:53:56Z",
       "side": 1,
       "message": "Might need to catch PatternSyntaxException here?",
+      "range": {
+        "startLine": 186,
+        "startChar": 53,
+        "endLine": 186,
+        "endChar": 59
+      },
+      "revId": "d324797b17989cfe34c08e65ca6db22e4a319a4b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62f923f9_54ca4369",
+        "filename": "dmaap-adaptor-java/src/test/java/org/oran/dmaapadapter/IntegrationWithEcs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-22T09:15:36Z",
+      "side": 1,
+      "message": "This is just test class. The tested expressions are hardcoded in the class and that would result in failed tests. \n\nBut in the production code, that must be handled. I will check that.",
+      "parentUuid": "111d2ba6_0d7ce0b4",
       "range": {
         "startLine": 186,
         "startChar": 53,
