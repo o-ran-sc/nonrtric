@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oran.dmaapadapter.clients.AsyncRestClient;
@@ -68,7 +69,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
@@ -136,6 +137,11 @@ class ApplicationTest {
             TestApplicationConfig cfg = new TestApplicationConfig();
             return cfg;
         }
+    }
+
+    @BeforeEach
+    void setPort() {
+        this.applicationConfig.setLocalServerHttpPort(this.localServerHttpPort);
     }
 
     @AfterEach

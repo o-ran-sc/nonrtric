@@ -1,9 +1,15 @@
 {
    "types": [
       {
-         "id": "ExampleInformationType",
+         "id": "ExampleInformationType1",
          "dmaapTopicUrl": "/events/unauthenticated.VES_NOTIFICATION_OUTPUT/OpenDcae-c12/C12",
          "useHttpProxy": true
+      },
+      {
+         "id": "ExampleInformationType2",
+         "kafkaInputTopic": "TutorialTopic",
+         "useHttpProxy": false
       }
+      
    ]
 }

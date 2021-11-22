@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import org.oran.dmaapadapter.configuration.WebClientConfig.HttpProxyConfig;
 import org.oran.dmaapadapter.repository.InfoType;
@@ -73,6 +74,7 @@ public class ApplicationConfig {
     private int httpProxyPort = 0;
 
     @Getter
+    @Setter
     @Value("${server.port}")
     private int localServerHttpPort;
 
