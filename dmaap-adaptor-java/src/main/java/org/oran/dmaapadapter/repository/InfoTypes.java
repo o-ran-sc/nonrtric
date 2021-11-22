@@ -28,6 +28,7 @@ import java.util.Vector;
 import org.oran.dmaapadapter.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 public class InfoTypes {
     private static final Logger logger = LoggerFactory.getLogger(InfoTypes.class);
@@ -47,7 +48,7 @@ public class InfoTypes {
     public synchronized InfoType getType(String id) throws ServiceException {
         InfoType type = allTypes.get(id);
         if (type == null) {
-            throw new ServiceException("Could not find type: " + id);
+            throw new ServiceException("Could not find type: " + id, HttpStatus.NOT_FOUND);
         }
         return type;
     }

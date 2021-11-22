@@ -91,7 +91,7 @@ public class ProducerCallbacksController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ServiceException e) {
             logger.warn("jobCreatedCallback failed: {}", e.getMessage());
-            return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+            return ErrorResponse.create(e, e.getHttpStatus());
         } catch (Exception e) {
             logger.warn("jobCreatedCallback failed: {}", e.getMessage());
             return ErrorResponse.create(e, HttpStatus.BAD_REQUEST);
