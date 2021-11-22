@@ -15,21 +15,21 @@ A1 Policy Management Service & SDNC/A1 Controller & A1 Adapter
 The A1 Policy Management Service is implemented in ONAP. For documentation see `ONAP CCSDK documentation <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_
 and `wiki <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_.
 
-Enrichment Coordinator Service
-------------------------------
-The Enrichment Coordinator Service is a Java 11 web application built using the Spring Framework. Using Spring Boot
+Information Coordinator Service
+-------------------------------
+The Information Coordinator Service is a Java 11 web application built using the Spring Framework. Using Spring Boot
 dependencies, it runs as a standalone application.
 
 Its main functionality is to act as a data subscription broker and to decouple data producer from data consumers.
 
-See the ./config/README file in the *enrichment-coordinator-service* directory Gerrit repo on how to create and setup
+See the ./config/README file in the *information-coordinator-service* directory Gerrit repo on how to create and setup
 the certificates and private keys needed for HTTPS.
 
 Start standalone
 ++++++++++++++++
 
-The project uses Maven. To start the Enrichment Coordinator Service as a freestanding application, run the following
-command in the *enrichment-coordinator-service* directory:
+The project uses Maven. To start the Information Coordinator Service as a freestanding application, run the following
+command in the *information-coordinator-service* directory:
 
     +-----------------------------+
     | mvn spring-boot:run         |
@@ -38,7 +38,7 @@ command in the *enrichment-coordinator-service* directory:
 Start in Docker
 +++++++++++++++
 
-To build and deploy the Enrichment Coordinator Service, go to the "enrichment-coordinator-service" folder and run the
+To build and deploy the Information Coordinator Service, go to the "information-coordinator-service" folder and run the
 following command:
 
     +-----------------------------+
@@ -48,7 +48,7 @@ following command:
 Then start the container by running the following command:
 
     +--------------------------------------------------------------------+
-    | docker run nonrtric-enrichment-coordinator-service                 |
+    | docker run nonrtric-information-coordinator-service                 |
     +--------------------------------------------------------------------+
 
 Initial Non-RT-RIC App Catalogue
