@@ -533,7 +533,11 @@ prepare_consul_config() {
 			ric_id=${ric%.*.*} #extract pod id from full hosthame
 			ric_id=$(echo "$ric_id" | tr '-' '_')
 		else
-			ric_id=$ric
+			if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+				ric_id=$ric
+			else
+				ric_id=$(echo "$ric" | tr '-' '_')  #ric id still needs underscore as it is different from the container name
+			fi
 		fi
 		echo " Found a1 sim: "$ric_id
 		config_json=$config_json"\n            \"name\": \"$ric_id\","

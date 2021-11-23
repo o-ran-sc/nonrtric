@@ -128,6 +128,11 @@ STOP_AT_ERROR=0
 # Applies only to images defined in the test-env files with image names and tags defined as XXXX_RELEASE
 IMAGE_CATEGORY="DEV"
 
+#Var to indicate docker-compose version, V1 or V2
+#V1 names replicated containers <proj-name>_<service-name>_<index>
+#V2 names replicated containers <proj-name>-<service-name>-<index>
+DOCKER_COMPOSE_VERION="V1"
+
 # Function to indent cmd output with one space
 indent1() { sed 's/^/ /'; }
 
@@ -783,34 +788,44 @@ echo -e $BOLD"Auto adding included apps"$EBOLD
 	done
 echo ""
 
+echo -e $BOLD"Test environment info"$EBOLD
 
 # Check needed installed sw
+
+tmp=$(which bash)
+if [ $? -ne 0 ] || [ -z "$tmp" ]; then
+	echo -e $RED"bash is required to run the test environment, pls install"$ERED
+	exit 1
+fi
+echo " bash is installed and using version:"
+echo "$(bash --version)" | indent2
+
 tmp=$(which python3)
-if [ $? -ne 0 ] || [ -z tmp ]; then
+if [ $? -ne 0 ] || [ -z "$tmp" ]; then
 	echo -e $RED"python3 is required to run the test environment, pls install"$ERED
 	exit 1
 fi
+echo " python3 is installed and using version: $(python3 --version)"
+
 tmp=$(which docker)
-if [ $? -ne 0 ] || [ -z tmp ]; then
+if [ $? -ne 0 ] || [ -z "$tmp" ]; then
 	echo -e $RED"docker is required to run the test environment, pls install"$ERED
 	exit 1
 fi
+echo " docker is installed and using versions:"
+echo  "  $(docker version --format 'Client version {{.Client.Version}} Server version {{.Server.Version}}')"
 
 tmp=$(which docker-compose)
-if [ $? -ne 0 ] || [ -z tmp ]; then
+if [ $? -ne 0 ] || [ -z "$tmp" ]; then
 	if [ $RUNMODE == "DOCKER" ]; then
 		echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
 		exit 1
 	fi
 fi
-if [ $RUNMODE == "DOCKER" ]; then
-	tmp=$(docker-compose version | grep -i 'docker' | grep -i 'compose' | grep -i 'version')
-	if [[ "$tmp" == *'v2'* ]]; then
-		echo -e $RED"docker-compose is using docker-compose version 2"$ERED
-		echo -e $RED"The test environment only support version 1"$ERED
-		echo -e $RED"Disable version 2 by cmd 'docker-compose disable-v2' and re-run the script "$ERED
-		exit 1
-	fi
+tmp=$(docker-compose version --short)
+echo " docker-compose installed and using version $tmp"
+if [[ "$tmp" == *'v2'* ]]; then
+	DOCKER_COMPOSE_VERION="V2"
 fi
 
 tmp=$(which kubectl)
@@ -821,6 +836,8 @@ if [ $? -ne 0 ] || [ -z tmp ]; then
 	fi
 else
 	if [ $RUNMODE == "KUBE" ]; then
+		echo " kubectl is installed and using versions:"
+		echo $(kubectl version --short=true) | indent2
 		res=$(kubectl cluster-info 2>&1)
 		if [ $? -ne 0 ]; then
 			echo -e "$BOLD$RED############################################# $ERED$EBOLD"
@@ -851,6 +868,8 @@ else
 		fi
 	fi
 fi
+
+echo ""
 
 echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
 

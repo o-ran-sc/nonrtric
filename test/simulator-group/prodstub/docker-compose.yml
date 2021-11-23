@@ -18,8 +18,8 @@
 version: '3.0'
 networks:
   default:
-    external:
-      name: ${DOCKER_SIM_NWNAME}
+    external: true
+    name: ${DOCKER_SIM_NWNAME}
 services:
   producer-stub:
     networks:

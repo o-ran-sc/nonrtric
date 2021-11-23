@@ -103,9 +103,15 @@ __RICSIM_statisics_setup() {
 			echo -n " RICSIM_G2_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
 			echo -n " RICSIM_G3_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
 		else
-			echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g1_$RICSIM_INSTANCE "
-			echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g2_$RICSIM_INSTANCE "
-			echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g3_$RICSIM_INSTANCE "
+			if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+				echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g1_$RICSIM_INSTANCE "
+				echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g2_$RICSIM_INSTANCE "
+				echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g3_$RICSIM_INSTANCE "
+			else
+				echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g1-$RICSIM_INSTANCE "
+				echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE "
+				echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE "
+			fi
 		fi
 	done
 }
@@ -114,16 +120,10 @@ __RICSIM_statisics_setup() {
 
 
 RIC_SIM_HTTPX="http"
-RIC_SIM_HOST=$RIC_SIM_HTTPX"://"$LOCALHOST_NAME
 RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
 
 
-#Vars for A1 interface version and container count
-G1_A1_VERSION=""
-G2_A1_VERSION=""
-G3_A1_VERSION=""
-G4_A1_VERSION=""
-G5_A1_VERSION=""
+#Vars for container count
 G1_COUNT=0
 G2_COUNT=0
 G3_COUNT=0
@@ -139,7 +139,6 @@ use_simulator_http() {
 	echo -e $BOLD"RICSIM protocol setting"$EBOLD
 	echo -e " Using $BOLD http $EBOLD towards the simulators"
 	RIC_SIM_HTTPX="http"
-	RIC_SIM_HOST=$RIC_SIM_HTTPX"://"$LOCALHOST_NAME
 	RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
 	echo ""
 }
@@ -148,7 +147,6 @@ use_simulator_https() {
 	echo -e $BOLD"RICSIM protocol setting"$EBOLD
 	echo -e " Using $BOLD https $EBOLD towards the simulators"
 	RIC_SIM_HTTPX="https"
-	RIC_SIM_HOST=$RIC_SIM_HTTPX"://"$LOCALHOST_NAME
 	RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
 	echo ""
 }
@@ -208,19 +206,14 @@ start_ric_simulators() {
 	#Set env var for simulator count and A1 interface vesion for the given group
 	if [ $1 == "$RIC1" ]; then
 		G1_COUNT=$2
-		G1_A1_VERSION=$3
 	elif [ $1 == "$RIC2" ]; then
 		G2_COUNT=$2
-		G2_A1_VERSION=$3
 	elif [ $1 == "$RIC3" ]; then
 		G3_COUNT=$2
-		G3_A1_VERSION=$3
 	elif [ $1 == "$RIC4" ]; then
 		G4_COUNT=$2
-		G4_A1_VERSION=$3
 	elif [ $1 == "$RIC5" ]; then
 		G5_COUNT=$2
-		G5_A1_VERSION=$3
 	else
 		((RES_CONF_FAIL++))
 		__print_err "need three args, $RIC1|$RIC2|$RIC3|$RIC4|$RIC5 <count> <interface-id>" $@
@@ -275,22 +268,34 @@ start_ric_simulators() {
 		# Create .env file to compose project, all ric container will get this prefix
 		echo "COMPOSE_PROJECT_NAME="$RIC_SIM_PREFIX > $SIM_GROUP/$RIC_SIM_COMPOSE_DIR/.env
 
-		export G1_A1_VERSION
-		export G2_A1_VERSION
-		export G3_A1_VERSION
-		export G4_A1_VERSION
-		export G5_A1_VERSION
+		#extract service name (group), g1, g2, g3, g4 or g5 from var $1
+		#E.g. ricsim_g1 -> g1 is the service name
+		TMP_GRP=$1
+		RICSIM_COMPOSE_SERVICE_NAME=$(echo "${TMP_GRP##*_}")
+
+		export RICSIM_COMPOSE_A1_VERSION=$3
+		export RICSIM_COMPOSE_SERVICE_NAME
 		export RIC_SIM_INTERNAL_PORT
 		export RIC_SIM_INTERNAL_SECURE_PORT
 		export RIC_SIM_CERT_MOUNT_DIR
 		export DOCKER_SIM_NWNAME
 		export RIC_SIM_DISPLAY_NAME
 
-		docker_args="--scale g1=$G1_COUNT --scale g2=$G2_COUNT --scale g3=$G3_COUNT --scale g4=$G4_COUNT --scale g5=$G5_COUNT"
+		docker_args="--no-recreate --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
+
+		#Create a list of contsiner names
+		#Will be <ricsim-prefix>_<service-name>_<index>
+		# or
+		# <ricsim-prefix>-<service-name>-<index>
 		app_data=""
 		cntr=1
+		if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+			app_name_prefix=$RIC_SIM_PREFIX"_"$RICSIM_COMPOSE_SERVICE_NAME"_"
+		else
+			app_name_prefix=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"
+		fi
 		while [ $cntr -le $2 ]; do
-			app=$1"_"$cntr
+			app=$app_name_prefix$cntr
 			app_data="$app_data $app"
 			let cntr=cntr+1
 		done
@@ -299,7 +304,11 @@ start_ric_simulators() {
 
 		cntr=1
 		while [ $cntr -le $2 ]; do
-			app=$1"_"$cntr
+			if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+				app=$RIC_SIM_PREFIX"_"$RICSIM_COMPOSE_SERVICE_NAME"_"$cntr
+			else
+				app=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"$cntr
+			fi
 			__check_service_start $app $RIC_SIM_HTTPX"://"$app:$RIC_SIM_PORT$RIC_SIM_ALIVE_URL
 			let cntr=cntr+1
 		done
@@ -329,7 +338,12 @@ __find_sim_host() {
 		ric_setname="${ricname%-*}"  #Extract the stateful set name
 		echo $RIC_SIM_HTTPX"://"$ricname.$ric_setname.$KUBE_A1SIM_NAMESPACE":"$RIC_SIM_PORT
 	else
-		echo $RIC_SIM_HTTPX"://"$1":"$RIC_SIM_PORT
+		if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+			echo $RIC_SIM_HTTPX"://"$1":"$RIC_SIM_PORT
+		else
+			ricname=$(echo "$1" | tr '_' '-')
+			echo $RIC_SIM_HTTPX"://"$ricname":"$RIC_SIM_PORT
+		fi
 
 	fi
 }
