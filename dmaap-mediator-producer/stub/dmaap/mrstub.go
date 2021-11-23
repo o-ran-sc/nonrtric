@@ -71,12 +71,13 @@ func handleData(w http.ResponseWriter, req *http.Request) {
 	var responseBody []byte
 	if critical {
 		responseBody = getFaultMessage("CRITICAL")
+		fmt.Println("Sending CRITICAL")
 		critical = false
 	} else {
 		responseBody = getFaultMessage("NORMAL")
+		fmt.Println("Sending NORMAL")
 		critical = true
 	}
-	// w.Write(responseBody)
 	fmt.Fprint(w, string(responseBody))
 }
 

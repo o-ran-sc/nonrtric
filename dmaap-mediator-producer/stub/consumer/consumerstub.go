@@ -43,7 +43,7 @@ func main() {
 
 	registerJob(*port)
 
-	fmt.Print("Starting consumer on port: ", *port)
+	fmt.Println("Starting consumer on port: ", *port)
 	fmt.Println(http.ListenAndServe(fmt.Sprintf(":%v", *port), nil))
 }
 
@@ -59,11 +59,11 @@ func registerJob(port int) {
 		InfoTypeId:    "STD_Fault_Messages",
 		JobDefinition: "{}",
 	}
-	fmt.Print("Registering consumer: ", jobInfo)
+	fmt.Println("Registering consumer: ", jobInfo)
 	body, _ := json.Marshal(jobInfo)
 	putErr := restclient.Put(fmt.Sprintf("http://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body, &httpClient)
 	if putErr != nil {
-		fmt.Printf("Unable to register consumer: %v", putErr)
+		fmt.Println("Unable to register consumer: ", putErr)
 	}
 }
 
