@@ -35,6 +35,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d8b5a4a_f6e12749",
+        "filename": "information-coordinator-service/api/ecs-api.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-23T10:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b382fbf9_08e80202",
+      "revId": "2b350e302d8c43adcc8fed48a7beb84c41b7e688",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "312f2a06_6bb90a12",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-11-23T10:17:20Z",
       "side": 1,
       "message": "Shouldn\u0027t hte file itself also be renamed to ics-api.yaml?",
+      "revId": "2b350e302d8c43adcc8fed48a7beb84c41b7e688",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87ffc227_df6f5d9d",
+        "filename": "information-coordinator-service/api/ecs-api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-11-23T10:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "312f2a06_6bb90a12",
       "revId": "2b350e302d8c43adcc8fed48a7beb84c41b7e688",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
