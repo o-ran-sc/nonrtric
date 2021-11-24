@@ -24,7 +24,7 @@ redoc = [
             {
                 'name': 'ECS API',
                 'page': 'ecs-api',
-                'spec': '../enrichment-coordinator-service/api/ecs-api.json',
+                'spec': '../information-coordinator-service/api/ics-api.json',
                 'embed': True,
             }
         ]
