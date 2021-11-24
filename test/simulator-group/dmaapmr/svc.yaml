@@ -25,12 +25,17 @@ metadata:
     run: $MR_KAFKA_APP_NAME
     autotest: DMAAPMR
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: $MR_KAFKA_PORT
     targetPort: $MR_KAFKA_PORT
     protocol: TCP
     name: http
+  - port: $MR_KAFKA_KUBE_NODE_PORT
+    targetPort: $MR_KAFKA_KUBE_NODE_PORT
+    protocol: TCP
+    name: http-external
+    nodePort: $MR_KAFKA_KUBE_NODE_PORT
   selector:
     run: $MR_KAFKA_APP_NAME
 ---

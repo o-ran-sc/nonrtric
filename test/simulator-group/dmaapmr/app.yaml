@@ -80,6 +80,8 @@ spec:
         ports:
         - name: http
           containerPort: $MR_KAFKA_PORT
+        - name: http-external
+          containerPort: $MR_KAFKA_KUBE_NODE_PORT
         env:
         - name: enableCadi
           value: 'false'
@@ -90,11 +92,11 @@ spec:
         - name: KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS
           value: '40000'
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: 'INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT'
+          value: 'INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
         - name: KAFKA_ADVERTISED_LISTENERS
-          value: 'INTERNAL_PLAINTEXT://$MR_KAFKA_SERVICE_PATH'
+          value: 'INTERNAL_PLAINTEXT://$MR_KAFKA_SERVICE_PATH,PLAINTEXT_HOST://localhost:$MR_KAFKA_KUBE_NODE_PORT'
         - name: KAFKA_LISTENERS
-          value: 'INTERNAL_PLAINTEXT://0.0.0.0:$MR_KAFKA_PORT'
+          value: 'INTERNAL_PLAINTEXT://0.0.0.0:$MR_KAFKA_PORT,PLAINTEXT_HOST://0.0.0.0:$MR_KAFKA_KUBE_NODE_PORT'
         - name: KAFKA_INTER_BROKER_LISTENER_NAME
           value: INTERNAL_PLAINTEXT
         - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE

@@ -372,6 +372,9 @@ __dmaapmr_export_vars() {
 
 	export MR_KAFKA_SERVICE_PATH
 	export MR_ZOOKEEPER_SERVICE_PATH
+
+	export MR_KAFKA_KUBE_NODE_PORT
+	export MR_KAFKA_DOCKER_LOCALHOST_PORT
 }
 
 # Export env vars for config files, docker compose and kube resources
@@ -509,6 +512,9 @@ start_mr() {
 
 			__check_service_start $MR_DMAAP_APP_NAME $MR_DMAAP_PATH$MR_DMAAP_ALIVE_URL
 
+			echo " Kafka TCP node port $MR_KAFKA_KUBE_NODE_PORT"
+
+
 			if [ $# -gt 0 ]; then
 				if [ $(($#%3)) -eq 0 ]; then
 					while [ $# -gt 0 ]; do
@@ -607,6 +613,8 @@ start_mr() {
 			__start_container $MR_DMAAP_COMPOSE_DIR "" NODOCKERARGS 1 $MR_DMAAP_APP_NAME
 
 			__check_service_start $MR_DMAAP_APP_NAME $MR_DMAAP_PATH$MR_DMAAP_ALIVE_URL
+
+			echo " Kafka TCP node port $MR_KAFKA_DOCKER_LOCALHOST_PORT"
 
 			if [ $# -gt 0 ]; then
 				if [ $(($#%3)) -eq 0 ]; then

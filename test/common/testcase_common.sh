@@ -1726,6 +1726,10 @@ __clean_containers() {
 	for imagename in $APP_SHORT_NAMES; do
 		docker ps -a --filter "label=nrttest_app=$imagename"  --filter "network=$DOCKER_SIM_NWNAME" --format ' {{.Label "nrttest_dp"}}\n{{.Label "nrttest_app"}}\n{{.Names}}' >> $running_contr_file
 	done
+	running_contr_file_empty="No docker containers running, started by previous test execution"
+	if [ -s $running_contr_file ]; then
+		running_contr_file_empty=""
+	fi
 
 	# Kill all containers started by the test env - to speed up shut down
     docker kill $(docker ps -a  --filter "label=nrttest_app" --format '{{.Names}}') &> /dev/null
@@ -1773,37 +1777,41 @@ __clean_containers() {
 		tab_heading3="$tab_heading3"" "
 	done
 
-	echo " $tab_heading1$tab_heading2$tab_heading3"" Actions"
-	cntr=0
-	while read p; do
-		if (( $cntr % 3 == 0 ));then
-			row=""
-			heading=$p
-			heading_len=$tab_heading1_len
-		fi
-		if (( $cntr % 3 == 1));then
-			heading=$p
-			heading_len=$tab_heading2_len
-		fi
-		if (( $cntr % 3 == 2));then
-			contr=$p
-			heading=$p
-			heading_len=$tab_heading3_len
-		fi
-		while (( ${#heading} < $heading_len)); do
-			heading="$heading"" "
-		done
-		row=$row$heading
-		if (( $cntr % 3 == 2));then
-			echo -ne $row$SAMELINE
-			echo -ne " $row ${GREEN}stopping...${EGREEN}${SAMELINE}"
-			docker stop $(docker ps -qa --filter name=${contr} --filter network=$DOCKER_SIM_NWNAME) &> /dev/null
-			echo -ne " $row ${GREEN}stopped removing...${EGREEN}${SAMELINE}"
-			docker rm --force $(docker ps -qa --filter name=${contr} --filter network=$DOCKER_SIM_NWNAME) &> /dev/null
-			echo -e  " $row ${GREEN}stopped removed     ${EGREEN}"
-		fi
-		let cntr=cntr+1
-	done <$running_contr_file
+	if [ ! -z "$running_contr_file_empty" ]; then
+		echo $running_contr_file_empty | indent1
+	else
+		echo " $tab_heading1$tab_heading2$tab_heading3"" Actions"
+		cntr=0
+		while read p; do
+			if (( $cntr % 3 == 0 ));then
+				row=""
+				heading=$p
+				heading_len=$tab_heading1_len
+			fi
+			if (( $cntr % 3 == 1));then
+				heading=$p
+				heading_len=$tab_heading2_len
+			fi
+			if (( $cntr % 3 == 2));then
+				contr=$p
+				heading=$p
+				heading_len=$tab_heading3_len
+			fi
+			while (( ${#heading} < $heading_len)); do
+				heading="$heading"" "
+			done
+			row=$row$heading
+			if (( $cntr % 3 == 2));then
+				echo -ne $row$SAMELINE
+				echo -ne " $row ${GREEN}stopping...${EGREEN}${SAMELINE}"
+				docker stop $(docker ps -qa --filter name=${contr} --filter network=$DOCKER_SIM_NWNAME) &> /dev/null
+				echo -ne " $row ${GREEN}stopped removing...${EGREEN}${SAMELINE}"
+				docker rm --force $(docker ps -qa --filter name=${contr} --filter network=$DOCKER_SIM_NWNAME) &> /dev/null
+				echo -e  " $row ${GREEN}stopped removed     ${EGREEN}"
+			fi
+			let cntr=cntr+1
+		done <$running_contr_file
+	fi
 
 	echo ""
 
