@@ -1,7 +1,8 @@
 openapi: 3.0.1
 info:
-  title: Generic Dmaap Information Producer
-  description: Reads data from DMAAP and sends it further to information consumers
+  title: Generic Dmaap and Kafka Information Producer
+  description: Reads data from DMaaP and Kafka and posts it further to information
+    consumers
   license:
     name: Copyright (C) 2021 Nordix Foundation. Licensed under the Apache License.
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -15,69 +16,6 @@ tags:
     description: Spring Boot Actuator Web API Documentation
     url: https://docs.spring.io/spring-boot/docs/current/actuator-api/html/
 paths:
-  /dmaap_dataproducer/info_job:
-    get:
-      tags:
-      - Producer job control API
-      summary: Get all jobs
-      description: Returns all info jobs, can be used for trouble shooting
-      operationId: getJobs
-      responses:
-        200:
-          description: Information jobs
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/producer_info_job_request'
-    post:
-      tags:
-      - Producer job control API
-      summary: Callback for Information Job creation/modification
-      description: The call is invoked to activate or to modify a data subscription.
-        The endpoint is provided by the Information Producer.
-      operationId: jobCreatedCallback
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-        required: true
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/void'
-        400:
-          description: Other error in the request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error_information'
-        404:
-          description: Information type is not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error_information'
-  /dmaap_dataproducer/health_check:
-    get:
-      tags:
-      - Producer job control API
-      summary: Producer supervision
-      description: The endpoint is provided by the Information Producer and is used
-        for supervision of the producer.
-      operationId: producerSupervision
-      responses:
-        200:
-          description: The producer is OK
-          content:
-            application/json:
-              schema:
-                type: string
   /actuator/threaddump:
     get:
       tags:
@@ -130,6 +68,69 @@ paths:
             application/json:
               schema:
                 type: object
+  /generic_dataproducer/health_check:
+    get:
+      tags:
+      - Producer job control API
+      summary: Producer supervision
+      description: The endpoint is provided by the Information Producer and is used
+        for supervision of the producer.
+      operationId: producerSupervision
+      responses:
+        200:
+          description: The producer is OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /generic_dataproducer/info_job:
+    get:
+      tags:
+      - Producer job control API
+      summary: Get all jobs
+      description: Returns all info jobs, can be used for trouble shooting
+      operationId: getJobs
+      responses:
+        200:
+          description: Information jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/producer_info_job_request'
+    post:
+      tags:
+      - Producer job control API
+      summary: Callback for Information Job creation/modification
+      description: The call is invoked to activate or to modify a data subscription.
+        The endpoint is provided by the Information Producer.
+      operationId: jobCreatedCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/void'
+        400:
+          description: Other error in the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error_information'
+        404:
+          description: Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error_information'
   /actuator/loggers:
     get:
       tags:
@@ -201,6 +202,29 @@ paths:
             application/json:
               schema:
                 type: object
+  /generic_dataproducer/info_job/{infoJobId}:
+    delete:
+      tags:
+      - Producer job control API
+      summary: Callback for Information Job deletion
+      description: The call is invoked to terminate a data subscription. The endpoint
+        is provided by the Information Producer.
+      operationId: jobDeletedCallback
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/void'
   /actuator/metrics/{requiredMetricName}:
     get:
       tags:
@@ -293,29 +317,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /dmaap_dataproducer/info_job/{infoJobId}:
-    delete:
-      tags:
-      - Producer job control API
-      summary: Callback for Information Job deletion
-      description: The call is invoked to terminate a data subscription. The endpoint
-        is provided by the Information Producer.
-      operationId: jobDeletedCallback
-      parameters:
-      - name: infoJobId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/void'
   /actuator/health:
     get:
       tags:
