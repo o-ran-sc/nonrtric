@@ -86,7 +86,7 @@ class IntegrationWithEcs {
     static class TestApplicationConfig extends ApplicationConfig {
 
         @Override
-        public String getEcsBaseUrl() {
+        public String getIcsBaseUrl() {
             return "https://localhost:8434";
         }
 
@@ -161,7 +161,7 @@ class IntegrationWithEcs {
     }
 
     private String ecsBaseUrl() {
-        return applicationConfig.getEcsBaseUrl();
+        return applicationConfig.getIcsBaseUrl();
     }
 
     private String jobUrl(String jobId) {
@@ -214,7 +214,7 @@ class IntegrationWithEcs {
 
     @Test
     void testCreateKafkaJob() {
-        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInEcs()).isTrue());
+        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInIcs()).isTrue());
         final String TYPE_ID = "KafkaInformationType";
 
         Job.Parameters param = new Job.Parameters("filter", new Job.BufferTimeout(123, 456), 1);
@@ -233,7 +233,7 @@ class IntegrationWithEcs {
 
     @Test
     void testWholeChain() throws Exception {
-        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInEcs()).isTrue());
+        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInIcs()).isTrue());
 
         createInformationJobInEcs(DMAAP_TYPE_ID, DMAAP_JOB_ID, ".*DmaapResponse.*");
 

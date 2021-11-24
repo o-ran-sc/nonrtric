@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController("IcsSimulatorController")
 @Tag(name = "Information Coordinator Service Simulator (exists only in test)")
-public class EcsSimulatorController {
+public class IcsSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final static Gson gson = new GsonBuilder().create();

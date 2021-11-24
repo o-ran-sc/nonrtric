@@ -79,8 +79,8 @@ public class ApplicationConfig {
     private int localServerHttpPort;
 
     @Getter
-    @Value("${app.ecs-base-url}")
-    private String ecsBaseUrl;
+    @Value("${app.ics-base-url}")
+    private String icsBaseUrl;
 
     @Getter
     @Value("${app.dmaap-adapter-base-url}")

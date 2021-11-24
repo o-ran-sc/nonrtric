@@ -50,7 +50,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Registers the types and this producer in ECS. This is done when needed.
+ * Registers the types and this producer in Innformation Coordinator Service.
+ * This is done when needed.
  */
 @Component
 @EnableScheduling
@@ -65,7 +66,7 @@ public class ProducerRegstrationTask {
 
     private static final String PRODUCER_ID = "DmaapGenericInfoProducer";
     @Getter
-    private boolean isRegisteredInEcs = false;
+    private boolean isRegisteredInIcs = false;
     private static final int REGISTRATION_SUPERVISION_INTERVAL_MS = 1000 * 5;
 
     public ProducerRegstrationTask(@Autowired ApplicationConfig applicationConfig, @Autowired InfoTypes types) {
@@ -78,7 +79,7 @@ public class ProducerRegstrationTask {
     @Scheduled(fixedRate = REGISTRATION_SUPERVISION_INTERVAL_MS)
     public void supervisionTask() {
         checkRegistration() //
-                .filter(isRegistrationOk -> !isRegistrationOk || !this.isRegisteredInEcs) //
+                .filter(isRegistrationOk -> !isRegistrationOk || !this.isRegisteredInIcs) //
                 .flatMap(isRegisterred -> registerTypesAndProducer()) //
                 .subscribe( //
                         null, //
@@ -87,7 +88,7 @@ public class ProducerRegstrationTask {
     }
 
     private void handleRegistrationCompleted() {
-        isRegisteredInEcs = true;
+        isRegisteredInIcs = true;
     }
 
     private void handleRegistrationFailure(Throwable t) {
@@ -96,7 +97,7 @@ public class ProducerRegstrationTask {
 
     // Returns TRUE if registration is correct
     private Mono<Boolean> checkRegistration() {
-        final String url = applicationConfig.getEcsBaseUrl() + "/data-producer/v1/info-producers/" + PRODUCER_ID;
+        final String url = applicationConfig.getIcsBaseUrl() + "/data-producer/v1/info-producers/" + PRODUCER_ID;
         return restClient.get(url) //
                 .flatMap(this::isRegisterredInfoCorrect) //
                 .onErrorResume(t -> Mono.just(Boolean.FALSE));
@@ -105,7 +106,7 @@ public class ProducerRegstrationTask {
     private Mono<Boolean> isRegisterredInfoCorrect(String registerredInfoStr) {
         ProducerRegistrationInfo registerredInfo = gson.fromJson(registerredInfoStr, ProducerRegistrationInfo.class);
         if (isEqual(producerRegistrationInfo(), registerredInfo)) {
-            logger.trace("Already registered in ECS");
+            logger.trace("Already registered in ICS");
             return Mono.just(Boolean.TRUE);
         } else {
             return Mono.just(Boolean.FALSE);
@@ -113,13 +114,13 @@ public class ProducerRegstrationTask {
     }
 
     private String registerTypeUrl(InfoType type) {
-        return applicationConfig.getEcsBaseUrl() + "/data-producer/v1/info-types/" + type.getId();
+        return applicationConfig.getIcsBaseUrl() + "/data-producer/v1/info-types/" + type.getId();
     }
 
     private Mono<String> registerTypesAndProducer() {
         final int CONCURRENCY = 20;
         final String producerUrl =
-                applicationConfig.getEcsBaseUrl() + "/data-producer/v1/info-producers/" + PRODUCER_ID;
+                applicationConfig.getIcsBaseUrl() + "/data-producer/v1/info-producers/" + PRODUCER_ID;
 
         return Flux.fromIterable(this.types.getAll()) //
                 .doOnNext(type -> logger.info("Registering type {}", type.getId())) //
