@@ -22,6 +22,30 @@
       },
       "revId": "4ce4914a4dbd7a2f396b094e301847086675f2df",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c529e0d_325c8ddc",
+        "filename": "dmaap-mediator-producer/internal/restclient/HTTPClient.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-11-24T15:32:50Z",
+      "side": 1,
+      "message": "It has been around since 2014 and have nearly 20000 stars on github, so I think it is stable enough. See https://github.com/sirupsen/logrus/graphs/code-frequency",
+      "parentUuid": "c2158060_d9f97021",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 34,
+        "endChar": 32
+      },
+      "revId": "4ce4914a4dbd7a2f396b094e301847086675f2df",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
