@@ -299,7 +299,7 @@ class IntegrationWithKafka {
         this.consumerController.testResults.reset();
 
         this.ecsSimulatorController.deleteJob(JOB_ID2, restClient()); // Delete one job
-        kafkaTopicConsumers.restartNonRunningTasks();
+        kafkaTopicConsumers.restartNonRunningTopics();
         Thread.sleep(1000); // Restarting the input seems to take some asynch time
 
         dataToSend = Flux.just(senderRecord("Howdy\""));

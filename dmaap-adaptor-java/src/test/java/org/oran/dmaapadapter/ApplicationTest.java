@@ -50,6 +50,8 @@ import org.oran.dmaapadapter.r1.ProducerJobInfo;
 import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Job;
 import org.oran.dmaapadapter.repository.Jobs;
+import org.oran.dmaapadapter.tasks.KafkaJobDataConsumer;
+import org.oran.dmaapadapter.tasks.KafkaTopicConsumers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -65,6 +67,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -91,6 +94,9 @@ class ApplicationTest {
 
     @Autowired
     private EcsSimulatorController ecsSimulatorController;
+
+    @Autowired
+    KafkaTopicConsumers kafkaTopicConsumers;
 
     private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
 
@@ -237,7 +243,46 @@ class ApplicationTest {
     }
 
     @Test
-    void testWholeChain() throws Exception {
+    void testReceiveAndPostDataFromKafka() {
+        final String JOB_ID = "ID";
+        final String TYPE_ID = "KafkaInformationType";
+        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
+        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(this.types.size());
+
+        // Create a job
+        Job.Parameters param = new Job.Parameters("", new Job.BufferTimeout(123, 456), 1);
+        String targetUri = baseUrl() + ConsumerController.CONSUMER_TARGET_URL;
+        ConsumerJobInfo kafkaJobInfo =
+                new ConsumerJobInfo(TYPE_ID, jsonObject(gson.toJson(param)), "owner", targetUri, "");
+
+        this.ecsSimulatorController.addJob(kafkaJobInfo, JOB_ID, restClient());
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
+
+        KafkaJobDataConsumer kafkaConsumer = this.kafkaTopicConsumers.getConsumers().get(TYPE_ID, JOB_ID);
+
+        // Handle received data from Kafka, check that it has been posted to the
+        // consumer
+        kafkaConsumer.start(Flux.just("data"));
+
+        ConsumerController.TestResults consumer = this.consumerController.testResults;
+        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(1));
+        assertThat(consumer.receivedBodies.get(0)).isEqualTo("[\"data\"]");
+
+        // Test send an exception
+        kafkaConsumer.start(Flux.error(new NullPointerException()));
+
+        // Test regular restart of stopped
+        kafkaConsumer.stop();
+        this.kafkaTopicConsumers.restartNonRunningTopics();
+        await().untilAsserted(() -> assertThat(kafkaConsumer.isRunning()).isTrue());
+
+        // Delete the job
+        this.ecsSimulatorController.deleteJob(JOB_ID, restClient());
+        await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
+    }
+
+    @Test
+    void testReceiveAndPostDataFromDmaap() throws Exception {
         final String JOB_ID = "ID";
 
         // Register producer, Register types
@@ -280,26 +325,6 @@ class ApplicationTest {
         ecsSimulatorController.testResults.types.clear();
         await().untilAsserted(
                 () -> assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(2));
-    }
-
-    @Test
-    void testCreateKafkaJob() {
-        await().untilAsserted(() -> assertThat(ecsSimulatorController.testResults.registrationInfo).isNotNull());
-        assertThat(ecsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(this.types.size());
-
-        final String TYPE_ID = "KafkaInformationType";
-
-        Job.Parameters param = new Job.Parameters("filter", new Job.BufferTimeout(123, 456), 1);
-        String targetUri = baseUrl() + ConsumerController.CONSUMER_TARGET_URL;
-        ConsumerJobInfo jobInfo = new ConsumerJobInfo(TYPE_ID, jsonObject(gson.toJson(param)), "owner", targetUri, "");
-
-        // Create a job
-        this.ecsSimulatorController.addJob(jobInfo, "JOB_ID", restClient());
-        await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
-
-        // Delete the job
-        this.ecsSimulatorController.deleteJob("JOB_ID", restClient());
-        await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
     }
 
     private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {

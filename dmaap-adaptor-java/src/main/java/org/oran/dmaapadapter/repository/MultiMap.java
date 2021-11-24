@@ -51,6 +51,15 @@ public class MultiMap<T> {
         return null;
     }
 
+    public T get(String key1, String key2) {
+        Map<String, T> innerMap = this.map.get(key1);
+        if (innerMap == null) {
+            return null;
+        }
+        return innerMap.get(key2);
+
+    }
+
     public Collection<T> get(String key) {
         Map<String, T> innerMap = this.map.get(key);
         if (innerMap == null) {
