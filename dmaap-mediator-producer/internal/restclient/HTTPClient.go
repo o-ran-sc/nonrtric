@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
+	log "github.com/sirupsen/logrus"
 )
 
 // HTTPClient interface
@@ -115,6 +116,7 @@ func CreateClientCertificate(certPath string, keyPath string) (tls.Certificate, 
 
 func CreateRetryClient(cert tls.Certificate) *http.Client {
 	rawRetryClient := retryablehttp.NewClient()
+	rawRetryClient.Logger = leveledLogger{}
 	rawRetryClient.RetryWaitMax = time.Minute
 	rawRetryClient.RetryMax = math.MaxInt
 	rawRetryClient.HTTPClient.Transport = getSecureTransportWithoutVerify(cert)
@@ -144,4 +146,29 @@ func getSecureTransportWithoutVerify(cert tls.Certificate) *http.Transport {
 func IsUrlSecure(configUrl string) bool {
 	u, _ := url.Parse(configUrl)
 	return u.Scheme == "https"
+}
+
+// Used to get leveled logging in the RetryClient
+type leveledLogger struct {
+}
+
+func (ll leveledLogger) Error(msg string, keysAndValues ...interface{}) {
+	log.WithFields(getFields(keysAndValues)).Error(msg)
+}
+func (ll leveledLogger) Info(msg string, keysAndValues ...interface{}) {
+	log.WithFields(getFields(keysAndValues)).Info(msg)
+}
+func (ll leveledLogger) Debug(msg string, keysAndValues ...interface{}) {
+	log.WithFields(getFields(keysAndValues)).Debug(msg)
+}
+func (ll leveledLogger) Warn(msg string, keysAndValues ...interface{}) {
+	log.WithFields(getFields(keysAndValues)).Warn(msg)
+}
+
+func getFields(keysAndValues []interface{}) log.Fields {
+	fields := log.Fields{}
+	for i := 0; i < len(keysAndValues); i = i + 2 {
+		fields[fmt.Sprint(keysAndValues[i])] = keysAndValues[i+1]
+	}
+	return fields
 }

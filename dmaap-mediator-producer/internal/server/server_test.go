@@ -78,6 +78,14 @@ func TestNewRouter(t *testing.T) {
 	handler.ServeHTTP(responseRecorder, newRequest(http.MethodPut, "/status", nil, t))
 	assertions.Equal(http.StatusMethodNotAllowed, responseRecorder.Code)
 	assertions.Contains(responseRecorder.Body.String(), "Method is not supported.")
+
+	setLogLevelRoute := r.Get("setLogLevel")
+	assertions.NotNil(setLogLevelRoute)
+	supportedMethods, err = setLogLevelRoute.GetMethods()
+	assertions.Equal([]string{http.MethodPut}, supportedMethods)
+	assertions.Nil(err)
+	path, _ = setLogLevelRoute.GetPathTemplate()
+	assertions.Equal("/admin/log", path)
 }
 
 func TestStatusHandler(t *testing.T) {
@@ -119,7 +127,6 @@ func TestAddInfoJobHandler(t *testing.T) {
 				},
 			},
 			wantedStatus: http.StatusOK,
-			wantedBody:   "",
 		},
 		{
 			name: "AddInfoJobHandler with incorrect job info, should return BadRequest",
@@ -169,6 +176,50 @@ func TestDeleteJob(t *testing.T) {
 	assertions.Equal("", responseRecorder.Body.String())
 
 	jobHandlerMock.AssertCalled(t, "DeleteJobFromRESTCall", "job1")
+}
+
+func TestSetLogLevel(t *testing.T) {
+	assertions := require.New(t)
+
+	type args struct {
+		logLevel string
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantedStatus int
+		wantedBody   string
+	}{
+		{
+			name: "Set to valid log level, should return OK",
+			args: args{
+				logLevel: "Debug",
+			},
+			wantedStatus: http.StatusOK,
+		},
+		{
+			name: "Set to invalid log level, should return BadRequest",
+			args: args{
+				logLevel: "bad",
+			},
+			wantedStatus: http.StatusBadRequest,
+			wantedBody:   "Invalid log level: bad",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			callbackHandlerUnderTest := NewProducerCallbackHandler(nil)
+
+			handler := http.HandlerFunc(callbackHandlerUnderTest.setLogLevel)
+			responseRecorder := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPut, "/admin/log?level="+tt.args.logLevel, nil)
+
+			handler.ServeHTTP(responseRecorder, r)
+
+			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
+			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
+		})
+	}
 }
 
 func newRequest(method string, url string, jobInfo *jobs.JobInfo, t *testing.T) *http.Request {

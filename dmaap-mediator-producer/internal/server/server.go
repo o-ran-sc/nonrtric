@@ -27,6 +27,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 )
 
@@ -34,6 +35,8 @@ const StatusPath = "/status"
 const AddJobPath = "/jobs"
 const jobIdToken = "infoJobId"
 const deleteJobPath = AddJobPath + "/{" + jobIdToken + "}"
+const logLevelToken = "level"
+const logAdminPath = "/admin/log"
 
 type ProducerCallbackHandler struct {
 	jobsManager jobs.JobsManager
@@ -51,6 +54,7 @@ func NewRouter(jm jobs.JobsManager) *mux.Router {
 	r.HandleFunc(StatusPath, statusHandler).Methods(http.MethodGet).Name("status")
 	r.HandleFunc(AddJobPath, callbackHandler.addInfoJobHandler).Methods(http.MethodPost).Name("add")
 	r.HandleFunc(deleteJobPath, callbackHandler.deleteInfoJobHandler).Methods(http.MethodDelete).Name("delete")
+	r.HandleFunc(logAdminPath, callbackHandler.setLogLevel).Methods(http.MethodPut).Name("setLogLevel")
 	r.NotFoundHandler = &notFoundHandler{}
 	r.MethodNotAllowedHandler = &methodNotAllowedHandler{}
 	return r
@@ -85,6 +89,17 @@ func (h *ProducerCallbackHandler) deleteInfoJobHandler(w http.ResponseWriter, r 
 	}
 
 	h.jobsManager.DeleteJobFromRESTCall(id)
+}
+
+func (h *ProducerCallbackHandler) setLogLevel(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	logLevelStr := query.Get(logLevelToken)
+	if loglevel, err := log.ParseLevel(logLevelStr); err == nil {
+		log.SetLevel(loglevel)
+	} else {
+		http.Error(w, fmt.Sprintf("Invalid log level: %v. Log level will not be changed!", logLevelStr), http.StatusBadRequest)
+		return
+	}
 }
 
 type notFoundHandler struct{}
