@@ -45,6 +45,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: TOPIC_READ
+            value: http://dmaap-mr:3904/events/unauthenticated.SEC_FAULT_OUTPUT
+          - name: TOPIC_WRITE
+            value: http://dmaap-mr:3904/events/unauthenticated.SEC_FAULT_OUTPUT
+          - name: GENERIC_TOPICS_UPLOAD_BASEURL
+            value: http://dmaap-mr:3904
           ports:
             - name: http
               containerPort: 3904
