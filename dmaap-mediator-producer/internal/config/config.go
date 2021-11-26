@@ -21,6 +21,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -80,4 +81,20 @@ func getLogLevel() log.Level {
 		log.Warnf("Invalid log level: %v. Log level will be Info!", logLevelStr)
 		return log.InfoLevel
 	}
+}
+
+func GetJobTypesFromConfiguration(configFile string) ([]TypeDefinition, error) {
+	typeDefsByte, err := os.ReadFile(configFile)
+	if err != nil {
+		return nil, err
+	}
+	typeDefs := struct {
+		Types []TypeDefinition `json:"types"`
+	}{}
+	err = json.Unmarshal(typeDefsByte, &typeDefs)
+	if err != nil {
+		return nil, err
+	}
+
+	return typeDefs.Types, nil
 }

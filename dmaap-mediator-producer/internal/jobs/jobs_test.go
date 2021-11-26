@@ -24,8 +24,6 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"path/filepath"
 	"sync"
 	"testing"
 	"time"
@@ -38,26 +36,18 @@ const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unau
 
 func TestJobsManagerGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedTypes(t *testing.T) {
 	assertions := require.New(t)
-	typesDir, err := os.MkdirTemp("", "configs")
-	if err != nil {
-		t.Errorf("Unable to create temporary directory for types due to: %v", err)
-	}
-	fname := filepath.Join(typesDir, "type_config.json")
-	managerUnderTest := NewJobsManagerImpl(fname, nil, "", nil)
-	t.Cleanup(func() {
-		os.RemoveAll(typesDir)
-	})
-	if err = os.WriteFile(fname, []byte(typeDefinition), 0666); err != nil {
-		t.Errorf("Unable to create temporary config file for types due to: %v", err)
-	}
-	types, err := managerUnderTest.LoadTypesFromConfiguration()
+
+	managerUnderTest := NewJobsManagerImpl(nil, "", nil)
+
 	wantedType := config.TypeDefinition{
 		Id:            "type1",
 		DmaapTopicURL: "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1",
 	}
 	wantedTypes := []config.TypeDefinition{wantedType}
+
+	types := managerUnderTest.LoadTypesFromConfiguration(wantedTypes)
+
 	assertions.EqualValues(wantedTypes, types)
-	assertions.Nil(err)
 
 	supportedTypes := managerUnderTest.GetSupportedTypes()
 	assertions.EqualValues([]string{"type1"}, supportedTypes)
@@ -65,7 +55,7 @@ func TestJobsManagerGetTypes_filesOkShouldReturnSliceOfTypesAndProvideSupportedT
 
 func TestJobsManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T) {
 	assertions := require.New(t)
-	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
+	managerUnderTest := NewJobsManagerImpl(nil, "", nil)
 	wantedJob := JobInfo{
 		Owner:            "owner",
 		LastUpdated:      "now",
@@ -93,7 +83,7 @@ func TestJobsManagerAddJobWhenTypeIsSupported_shouldAddJobToChannel(t *testing.T
 
 func TestJobsManagerAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T) {
 	assertions := require.New(t)
-	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
+	managerUnderTest := NewJobsManagerImpl(nil, "", nil)
 	jobInfo := JobInfo{
 		InfoTypeIdentity: "type1",
 	}
@@ -105,7 +95,7 @@ func TestJobsManagerAddJobWhenTypeIsNotSupported_shouldReturnError(t *testing.T)
 
 func TestJobsManagerAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
 	assertions := require.New(t)
-	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
+	managerUnderTest := NewJobsManagerImpl(nil, "", nil)
 	managerUnderTest.allTypes["type1"] = TypeData{
 		TypeId: "type1",
 	}
@@ -120,7 +110,7 @@ func TestJobsManagerAddJobWhenJobIdMissing_shouldReturnError(t *testing.T) {
 
 func TestJobsManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 	assertions := require.New(t)
-	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
+	managerUnderTest := NewJobsManagerImpl(nil, "", nil)
 	managerUnderTest.allTypes["type1"] = TypeData{
 		TypeId: "type1",
 	}
@@ -136,7 +126,7 @@ func TestJobsManagerAddJobWhenTargetUriMissing_shouldReturnError(t *testing.T) {
 
 func TestJobsManagerDeleteJob_shouldSendDeleteToChannel(t *testing.T) {
 	assertions := require.New(t)
-	managerUnderTest := NewJobsManagerImpl("", nil, "", nil)
+	managerUnderTest := NewJobsManagerImpl(nil, "", nil)
 	jobsHandler := jobsHandler{
 		deleteJobCh: make(chan string)}
 	managerUnderTest.allTypes["type1"] = TypeData{
@@ -192,7 +182,7 @@ func TestAddJobToJobsManager_shouldStartPollAndDistributeMessages(t *testing.T) 
 	})
 	jobsHandler := newJobsHandler("type1", "/topicUrl", pollClientMock, distributeClientMock)
 
-	jobsManager := NewJobsManagerImpl("", pollClientMock, "http://mrAddr", distributeClientMock)
+	jobsManager := NewJobsManagerImpl(pollClientMock, "http://mrAddr", distributeClientMock)
 	jobsManager.allTypes["type1"] = TypeData{
 		DMaaPTopicURL: "/topicUrl",
 		TypeId:        "type1",

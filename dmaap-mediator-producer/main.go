@@ -56,7 +56,7 @@ func main() {
 	}
 	retryClient := restclient.CreateRetryClient(cert)
 
-	jobsManager := jobs.NewJobsManagerImpl("configs/type_config.json", retryClient, configuration.DMaaPMRAddress, restclient.CreateClientWithoutRetry(cert, 10*time.Second))
+	jobsManager := jobs.NewJobsManagerImpl(retryClient, configuration.DMaaPMRAddress, restclient.CreateClientWithoutRetry(cert, 10*time.Second))
 	if err := registerTypesAndProducer(jobsManager, configuration.InfoCoordinatorAddress, callbackAddress, retryClient); err != nil {
 		log.Fatalf("Stopping producer due to: %v", err)
 	}
@@ -87,13 +87,15 @@ func validateConfiguration(configuration *config.Config) error {
 }
 func registerTypesAndProducer(jobTypesHandler jobs.JobTypesManager, infoCoordinatorAddress string, callbackAddress string, client restclient.HTTPClient) error {
 	registrator := config.NewRegistratorImpl(infoCoordinatorAddress, client)
-	if types, err := jobTypesHandler.LoadTypesFromConfiguration(); err == nil {
-		if regErr := registrator.RegisterTypes(types); regErr != nil {
-			return fmt.Errorf("unable to register all types due to: %v", regErr)
-		}
-	} else {
-		return fmt.Errorf("unable to get types to register due to: %v", err)
+	configTypes, err := config.GetJobTypesFromConfiguration("configs/type_config.json")
+	if err != nil {
+		return fmt.Errorf("unable to register all types due to: %v", err)
 	}
+	regErr := registrator.RegisterTypes(jobTypesHandler.LoadTypesFromConfiguration(configTypes))
+	if regErr != nil {
+		return fmt.Errorf("unable to register all types due to: %v", regErr)
+	}
+
 	producer := config.ProducerRegistrationInfo{
 		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusPath,
 		SupportedInfoTypes:                 jobTypesHandler.GetSupportedTypes(),

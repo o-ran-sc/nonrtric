@@ -23,7 +23,7 @@ package config
 import (
 	"bytes"
 	"os"
-	"reflect"
+	"path/filepath"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -75,9 +75,8 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		ProducerCertPath:       "security/producer.crt",
 		ProducerKeyPath:        "security/producer.key",
 	}
-	if got := New(); !reflect.DeepEqual(got, &wantConfig) {
-		t.Errorf("New() = %v, want %v", got, &wantConfig)
-	}
+	got := New()
+	assertions.Equal(&wantConfig, got)
 	logString := buf.String()
 	assertions.Contains(logString, "Invalid int value: wrong for variable: INFO_PRODUCER_PORT. Default value: 8085 will be used")
 }
@@ -108,4 +107,31 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 	assertions.Equal(&wantConfig, got)
 	logString := buf.String()
 	assertions.Contains(logString, "Invalid log level: wrong. Log level will be Info!")
+}
+
+const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}]}`
+
+func TestGetTypesFromConfiguration_fileOkShouldReturnSliceOfTypeDefinitions(t *testing.T) {
+	assertions := require.New(t)
+	typesDir, err := os.MkdirTemp("", "configs")
+	if err != nil {
+		t.Errorf("Unable to create temporary directory for types due to: %v", err)
+	}
+	fname := filepath.Join(typesDir, "type_config.json")
+	t.Cleanup(func() {
+		os.RemoveAll(typesDir)
+	})
+	if err = os.WriteFile(fname, []byte(typeDefinition), 0666); err != nil {
+		t.Errorf("Unable to create temporary config file for types due to: %v", err)
+	}
+
+	types, err := GetJobTypesFromConfiguration(fname)
+
+	wantedType := TypeDefinition{
+		Id:            "type1",
+		DmaapTopicURL: "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1",
+	}
+	wantedTypes := []TypeDefinition{wantedType}
+	assertions.EqualValues(wantedTypes, types)
+	assertions.Nil(err)
 }
