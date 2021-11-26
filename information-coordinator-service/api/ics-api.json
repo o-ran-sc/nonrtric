@@ -251,7 +251,7 @@
             }
         },
         "consumer_job": {
-            "description": "Information for an Enrichment Information Job",
+            "description": "Information for an Information Job",
             "type": "object",
             "required": [
                 "info_type_id",

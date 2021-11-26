@@ -8,7 +8,7 @@ The producer takes a number of environment variables, described below, as config
 
 >- INFO_PRODUCER_HOST  **Required**. The host for the producer.                                   Example: `https://mrproducer`
 >- INFO_PRODUCER_PORT  Optional. The port for the product.                                        Defaults to `8085`.
->- INFO_COORD_ADDR     Optional. The address of the Information Coordinator.                      Defaults to `https://enrichmentservice:8434`.
+>- INFO_COORD_ADDR     Optional. The address of the Information Coordinator.                      Defaults to `https://informationservice:8434`.
 >- DMAAP_MR_ADDR       Optional. The address of the DMaaP Message Router.                         Defaults to `https://message-router.onap:3905`.
 >- PRODUCER_CERT_PATH  Optional. The path to the certificate to use for https.                    Defaults to `security/producer.crt`
 >- PRODUCER_KEY_PATH   Optional. The path to the key to the certificate to use for https.         Defaults to `security/producer.key`

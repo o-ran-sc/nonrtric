@@ -27,7 +27,7 @@ services:
     environment:
       - INFO_PRODUCER_HOST=http://consumer
       - INFO_PRODUCER_PORT=8088
-      - INFO_COORD_ADDR=http://ecs:8083
+      - INFO_COORD_ADDR=http://ics:8083
       - DMAAP_MR_ADDR=http://dmaap-mr:3904
       - PRODUCER_CERT_PATH=security/producer.crt
       - PRODUCER_KEY_PATH=security/producer.key

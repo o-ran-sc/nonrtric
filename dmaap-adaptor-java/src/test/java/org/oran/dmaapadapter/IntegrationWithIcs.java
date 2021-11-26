@@ -59,9 +59,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
         "app.configuration-filepath=./src/test/resources/test_application_configuration.json", //
-        "app.ecs-base-url=https://localhost:8434" //
+        "app.ics-base-url=https://localhost:8434" //
 })
-class IntegrationWithEcs {
+class IntegrationWithIcs {
 
     private static final String DMAAP_JOB_ID = "DMAAP_JOB_ID";
     private static final String DMAAP_TYPE_ID = "DmaapInformationType";
@@ -160,25 +160,25 @@ class IntegrationWithEcs {
         return "https://localhost:" + this.applicationConfig.getLocalServerHttpPort();
     }
 
-    private String ecsBaseUrl() {
+    private String icsBaseUrl() {
         return applicationConfig.getIcsBaseUrl();
     }
 
     private String jobUrl(String jobId) {
-        return ecsBaseUrl() + "/data-consumer/v1/info-jobs/" + jobId + "?typeCheck=true";
+        return icsBaseUrl() + "/data-consumer/v1/info-jobs/" + jobId + "?typeCheck=true";
     }
 
-    private void createInformationJobInEcs(String typeId, String jobId, String filter) {
+    private void createInformationJobInIcs(String typeId, String jobId, String filter) {
         String body = gson.toJson(consumerJobInfo(typeId, filter));
         try {
             // Delete the job if it already exists
-            deleteInformationJobInEcs(jobId);
+            deleteInformationJobInIcs(jobId);
         } catch (Exception e) {
         }
         restClient().putForEntity(jobUrl(jobId), body).block();
     }
 
-    private void deleteInformationJobInEcs(String jobId) {
+    private void deleteInformationJobInIcs(String jobId) {
         restClient().delete(jobUrl(jobId)).block();
     }
 
@@ -227,7 +227,7 @@ class IntegrationWithEcs {
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
 
-        deleteInformationJobInEcs("KAFKA_JOB_ID");
+        deleteInformationJobInIcs("KAFKA_JOB_ID");
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
     }
 
@@ -235,7 +235,7 @@ class IntegrationWithEcs {
     void testWholeChain() throws Exception {
         await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInIcs()).isTrue());
 
-        createInformationJobInEcs(DMAAP_TYPE_ID, DMAAP_JOB_ID, ".*DmaapResponse.*");
+        createInformationJobInIcs(DMAAP_TYPE_ID, DMAAP_JOB_ID, ".*DmaapResponse.*");
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
 
@@ -247,15 +247,10 @@ class IntegrationWithEcs {
         await().untilAsserted(() -> assertThat(results.receivedBodies.size()).isEqualTo(2));
         assertThat(results.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
 
-        deleteInformationJobInEcs(DMAAP_JOB_ID);
+        deleteInformationJobInIcs(DMAAP_JOB_ID);
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
 
-        synchronized (this) {
-            // logger.warn("**************** Keeping server alive! " +
-            // this.applicationConfig.getLocalServerHttpPort());
-            // this.wait();
-        }
     }
 
 }

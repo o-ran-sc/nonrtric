@@ -73,11 +73,11 @@ This is to generate some data into the Dmaap MR, so that PMS reads message from 
 
 ## O-RAN-SC Control Panel
 
-The Non-RT RIC Control Panel is a graphical user interface that enables the user to view and manage the A1 policies in the RAN and also view producers and jobs for the Enrichement coordinator service.
+The Non-RT RIC Control Panel is a graphical user interface that enables the user to view and manage the A1 policies in the RAN and also view producers and jobs for the Information coordinator service.
 
 ### O-RAN-SC Control Panel Gateway:
 
-To view the policy or enrichment information in control panel gui along with Policy Management Service & Enrichment Coordinator Service you should also have nonrtric gateway because all the request from the gui is passed through this API gateway.
+To view the policy or information jobs and types in control panel gui along with Policy Management Service & Information Coordinator Service you should also have nonrtric gateway because all the request from the gui is passed through this API gateway.
 
 #### Prerequisite:
 
