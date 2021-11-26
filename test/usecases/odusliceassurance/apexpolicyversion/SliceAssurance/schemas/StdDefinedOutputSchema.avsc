@@ -1,0 +1,74 @@
+{
+    "type": "record",
+    "name": "Std_Defined_Output",
+    "fields": [
+        {
+            "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_ratio",
+            "type": {
+                "type": "array",
+                "items": {
+                    "name": "RRM_Policy_Ratio",
+                    "type": "record",
+                    "fields": [
+                        {
+                            "name": "id",
+                            "type": "string"
+                        },
+                        {
+                            "name": "administrative_DasH_state",
+                            "type": "string"
+                        },
+                        {
+                            "name": "user_DasH_label",
+                            "type": "string"
+                        },
+                        {
+                            "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_max_DasH_ratio",
+                            "type": "string"
+                        },
+                        {
+                            "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_min_DasH_ratio",
+                            "type": "string"
+                        },
+                        {
+                            "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_dedicated_DasH_ratio",
+                            "type": "string"
+                        },
+                        {
+                            "name": "resource_DasH_type",
+                            "type": "string"
+                        },
+                        {
+                            "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_members",
+                            "type": {
+                                "type": "array",
+                                "items": {
+                                    "name": "RRM_Policy_Members",
+                                    "type": "record",
+                                    "fields": [
+                                        {
+                                            "name": "mobile_DasH_country_DasH_code",
+                                            "type": "string"
+                                        },
+                                        {
+                                            "name": "mobile_DasH_network_DasH_code",
+                                            "type": "string"
+                                        },
+                                        {
+                                            "name": "slice_DasH_differentiator",
+                                            "type": "int"
+                                        },
+                                        {
+                                            "name": "slice_DasH_service_DasH_type",
+                                            "type": "int"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
