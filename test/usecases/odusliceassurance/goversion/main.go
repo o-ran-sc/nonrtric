@@ -36,6 +36,8 @@ func main() {
 	configuration = config.New()
 
 	log.SetLevel(configuration.LogLevel)
+	log.SetFormatter(&log.JSONFormatter{})
+
 	log.Debug("Using configuration: ", configuration)
 
 	dmaapUrl := configuration.MRHost + ":" + configuration.MRPort
