@@ -24,7 +24,7 @@
 # ./sendMsgToMediator.sh [dmaap-mr port] [http/https]
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
-bash ${SHELL_FOLDER}/prepareEcsData.sh
+bash ${SHELL_FOLDER}/prepareIcsData.sh
 
 dmaa_mr_port=${1:-3904}
 httpx=${2:-"http"}
