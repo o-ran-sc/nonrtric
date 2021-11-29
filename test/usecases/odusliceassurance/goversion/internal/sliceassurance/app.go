@@ -21,14 +21,14 @@
 package sliceassurance
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"oransc.org/usecase/oduclosedloop/internal/restclient"
 	"oransc.org/usecase/oduclosedloop/internal/structures"
 	"oransc.org/usecase/oduclosedloop/messages"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -39,113 +39,72 @@ const (
 )
 
 type App struct {
-	Client          restclient.HTTPClient
-	MetricsPolicies *structures.SliceAssuranceMeas
+	client          restclient.HTTPClient
+	metricsPolicies *structures.SliceAssuranceMeas
 }
 
 var dmaapMRUrl string
-var SDNRUrl string
+var sDNRUrl string
 
 func (a *App) Initialize(dmaapUrl string, sdnrUrl string) {
 	dmaapMRUrl = dmaapUrl
-	SDNRUrl = sdnrUrl
+	sDNRUrl = sdnrUrl
 
-	a.Client = restclient.New(&http.Client{})
-	a.MetricsPolicies = structures.NewSliceAssuranceMeas()
+	a.client = restclient.New(&http.Client{})
+	a.metricsPolicies = structures.NewSliceAssuranceMeas()
 }
 
 func (a *App) Run(topic string, pollTime int) {
 	for {
-		fmt.Printf("Polling new messages from DmaapMR\n")
-		var stdMessage messages.StdDefinedMessage
+		a.getMessagesFromDmaap(dmaapMRUrl + topic)
 
-		a.Client.Get(dmaapMRUrl+topic, &stdMessage)
-
-		a.processMessages(stdMessage)
-
-		exceedsThMetrics := a.checkIfThresholdIsExceed()
-		if len(exceedsThMetrics) > 0 {
-			a.updateDedicatedRatio(exceedsThMetrics)
+		for key := range a.metricsPolicies.Metrics {
+			a.getRRMInformation(key.Duid)
 		}
+		a.updateDedicatedRatio()
+
+		//Print structures
+		a.metricsPolicies.PrintStructures()
 
 		time.Sleep(time.Second * time.Duration(pollTime))
 	}
 }
 
-func (a *App) processMessages(stdMessage messages.StdDefinedMessage) {
+func (a *App) getMessagesFromDmaap(url string) {
+	log.Info("Polling new messages from DmaapMR")
+	var stdMessage messages.StdDefinedMessage
 
+	a.client.Get(url, &stdMessage)
 	for _, meas := range stdMessage.GetMeasurements() {
-
-		fmt.Printf("New measurement: %+v\n", meas)
 		//Create sliceMetric and check if metric exist and update existing one or create new one
-		tmpSm := meas.CreateSliceMetric()
-		a.MetricsPolicies.AddOrUpdateMetric(tmpSm)
-
-		//Fetch policy ratio metrics from SDNR
-		var duRRMPolicyRatio messages.ORanDuRestConf
-		a.Client.Get(getUrlForDistributedUnitFunctions(SDNRUrl, tmpSm.DUId), &duRRMPolicyRatio)
-
-		//Get DuId and check if we have metrics for it
-		policyRatioDuId := duRRMPolicyRatio.DistributedUnitFunction.Id
-		policies := duRRMPolicyRatio.DistributedUnitFunction.RRMPolicyRatio
-		for _, policy := range policies {
-		members:
-			for _, member := range policy.RRMPolicyMembers {
-				metric := a.MetricsPolicies.GetSliceMetric(policyRatioDuId, member.SliceDifferentiator, member.SliceServiceType)
-				if metric != nil {
-					a.MetricsPolicies.AddNewPolicy(addOrUpdatePolicyRatio(metric, policy))
-					break members
-				}
-			}
+		if _, err := a.metricsPolicies.AddOrUpdateMetric(meas); err != nil {
+			log.Info("Metric could not be added ", err)
 		}
 	}
 }
 
-func (a *App) checkIfThresholdIsExceed() []*structures.SliceMetric {
-	exceedsThMetrics := make([]*structures.SliceMetric, 0)
-	for _, metric := range a.MetricsPolicies.Metrics {
-		for key, value := range metric.PM {
+func (a *App) getRRMInformation(duid string) {
+	var duRRMPolicyRatio messages.ORanDuRestConf
+	a.client.Get(getUrlForDistributedUnitFunctions(sDNRUrl, duid), &duRRMPolicyRatio)
 
-			if (value) > THRESHOLD_TPUT {
-				fmt.Printf("PM: [%v, %v] exceeds threshold value!\n", key, value)
-				exceedsThMetrics = append(exceedsThMetrics, metric)
-			}
-		}
+	policies := duRRMPolicyRatio.DistributedUnitFunction.RRMPolicyRatio
+	for _, policy := range policies {
+		a.metricsPolicies.AddNewPolicy(duid, policy)
 	}
-	return exceedsThMetrics
 }
 
-func (a *App) updateDedicatedRatio(exceedsThMetrics []*structures.SliceMetric) {
-	for _, m := range exceedsThMetrics {
-		//Check if RRMPolicyDedicatedRatio is higher than default value
-		policy := a.MetricsPolicies.Policies[m.RRMPolicyRatioId]
+func (a *App) updateDedicatedRatio() {
 
-		if policy != nil && policy.PolicyDedicatedRatio <= DEFAULT_DEDICATED_RATIO {
+	for _, metric := range a.metricsPolicies.Metrics {
+		policy, check := a.metricsPolicies.Policies[metric.RRMPolicyRatioId]
+		//TODO What happened if dedicated ratio is already higher that default and threshold is exceed?
+		if check && policy.PolicyDedicatedRatio <= DEFAULT_DEDICATED_RATIO {
 			//Send PostRequest to update DedicatedRatio
-			url := getUrlUpdatePolicyDedicatedRatio(SDNRUrl, m.DUId, policy.PolicyRatioId)
-			a.Client.Post(url, messages.GetDedicatedRatioUpdateMessage(*m, *policy, NEW_DEDICATED_RATIO), nil)
+			log.Info("Send Post Request to update DedicatedRatio")
+			url := getUrlUpdatePolicyDedicatedRatio(sDNRUrl, metric.DUId, policy.PolicyRatioId)
+			a.client.Post(url, policy.GetUpdateDedicatedRatioMessage(metric.SliceDiff, metric.SliceServiceType, NEW_DEDICATED_RATIO), nil)
 		}
 	}
-}
-
-func addOrUpdatePolicyRatio(metric *structures.SliceMetric, policy messages.RRMPolicyRatio) *structures.PolicyRatio {
-	if metric.RRMPolicyRatioId == "" {
-		metric.RRMPolicyRatioId = policy.Id
-	}
-	return &structures.PolicyRatio{
-		PolicyRatioId:        policy.Id,
-		PolicyMaxRatio:       policy.RRMPolicyMaxRatio,
-		PolicyMinRatio:       policy.RRMPolicyMinRatio,
-		PolicyDedicatedRatio: toInt(policy.RRMPolicyDedicatedRatio),
-	}
-}
-
-func toInt(num string) int {
-	res, err := strconv.Atoi(num)
-	if err != nil {
-		return -1
-	}
-	return res
 }
 
 func getUrlForDistributedUnitFunctions(host string, duid string) string {

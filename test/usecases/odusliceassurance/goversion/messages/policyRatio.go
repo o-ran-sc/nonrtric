@@ -20,27 +20,13 @@
 
 package messages
 
-import (
-	"strconv"
-
-	"oransc.org/usecase/oduclosedloop/internal/structures"
-)
-
 type ORanDuRestConf struct {
 	DistributedUnitFunction DistributedUnitFunction `json:"distributed-unit-functions"`
 }
 
 type DistributedUnitFunction struct {
 	Id             string           `json:"id"`
-	Cell           []Cell           `json:"cell"`
 	RRMPolicyRatio []RRMPolicyRatio `json:"radio-resource-management-policy-ratio"`
-}
-
-type Cell struct {
-	Id        string `json:"id"`
-	AdmState  string `json:"administrative-state"`
-	OpState   string `json:"operational-state"`
-	UserLabel string `json:"user-label"`
 }
 
 type RRMPolicyRatio struct {
@@ -48,8 +34,8 @@ type RRMPolicyRatio struct {
 	AdmState                string            `json:"administrative-state"`
 	UserLabel               string            `json:"user-label"`
 	RRMPolicyMaxRatio       int               `json:"radio-resource-management-policy-max-ratio"`
-	RRMPolicyMinRatio       string            `json:"radio-resource-management-policy-min-ratio"`
-	RRMPolicyDedicatedRatio string            `json:"radio-resource-management-policy-dedicated-ratio"`
+	RRMPolicyMinRatio       int               `json:"radio-resource-management-policy-min-ratio"`
+	RRMPolicyDedicatedRatio int               `json:"radio-resource-management-policy-dedicated-ratio"`
 	ResourceType            string            `json:"resource-type"`
 	RRMPolicyMembers        []RRMPolicyMember `json:"radio-resource-management-policy-members"`
 }
@@ -59,24 +45,4 @@ type RRMPolicyMember struct {
 	MobileNetworkCode   string `json:"mobile-network-code"`
 	SliceDifferentiator int    `json:"slice-differentiator"`
 	SliceServiceType    int    `json:"slice-service-type"`
-}
-
-func GetDedicatedRatioUpdateMessage(metric structures.SliceMetric, policy structures.PolicyRatio, dedicatedRatio int) RRMPolicyRatio {
-	return RRMPolicyRatio{
-		Id:                      policy.PolicyRatioId,
-		AdmState:                "Locked",
-		UserLabel:               "Some user label",
-		RRMPolicyMaxRatio:       policy.PolicyMaxRatio,
-		RRMPolicyMinRatio:       policy.PolicyMinRatio,
-		RRMPolicyDedicatedRatio: strconv.Itoa(dedicatedRatio),
-		ResourceType:            "prb",
-		RRMPolicyMembers: []RRMPolicyMember{
-			{
-				MobileCountryCode:   "046",
-				MobileNetworkCode:   "651",
-				SliceDifferentiator: metric.SliceDiff,
-				SliceServiceType:    metric.SliceServiceType,
-			},
-		},
-	}
 }

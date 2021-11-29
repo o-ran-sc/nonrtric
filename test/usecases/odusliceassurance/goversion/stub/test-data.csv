@@ -1,0 +1,10 @@
+O-DU-1211,cell-1,1,1,user-equipment-average-throughput-downlink,300,rrm-pol-1,20,10,15
+O-DU-1211,cell-1,1,1,user-equipment-average-throughput-uplink,500,rrm-pol-1,20,10,15
+O-DU-1211,cell-1,1,2,user-equipment-average-throughput-downlink,700,rrm-pol-2,20,10,15
+O-DU-1211,cell-1,1,2,user-equipment-average-throughput-uplink,400,rrm-pol-2,20,10,15
+O-DU-1211,cell-1,2,1,user-equipment-average-throughput-downlink,800,rrm-pol-3,20,10,15
+O-DU-1211,cell-1,2,1,user-equipment-average-throughput-uplink,100,rrm-pol-3,20,10,15
+O-DU-1211,cell-1,2,2,user-equipment-average-throughput-downlink,900,rrm-pol-4,20,10,15
+O-DU-1211,cell-1,2,2,user-equipment-average-throughput-uplink,500,rrm-pol-4,20,10,15
+O-DU-1211,cell-1,3,1,user-equipment-average-throughput-downlink,800,rrm-pol-5,20,10,15
+O-DU-1211,cell-1,3,1,user-equipment-average-throughput-uplink,100,rrm-pol-5,20,10,15

@@ -26,6 +26,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Client struct {
@@ -57,6 +59,10 @@ func (c *Client) Get(path string, v interface{}) error {
 }
 
 func (c *Client) Post(path string, payload interface{}, v interface{}) error {
+
+	s, _ := json.MarshalIndent(payload, "", "\t")
+	fmt.Println("Post request payload: " + string(s))
+
 	req, err := c.newRequest(http.MethodPost, path, payload)
 	if err != nil {
 		return fmt.Errorf("failed to create POST request: %w", err)
@@ -87,7 +93,7 @@ func (c *Client) newRequest(method, path string, payload interface{}) (*http.Req
 	if reqBody != nil {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	}
-	fmt.Printf("Http Client Request: [%s:%s]\n", req.Method, req.URL)
+	log.Info("Http Client Request: ", req.Method, req.URL)
 	return req, nil
 }
 
@@ -110,7 +116,7 @@ func (c *Client) doRequest(r *http.Request, v interface{}) error {
 	if err := dec.Decode(v); err != nil {
 		return fmt.Errorf("could not parse response body: %w [%s:%s]", err, r.Method, r.URL.String())
 	}
-	fmt.Printf("Http Client Response: %+v\n", v)
+	log.Debug("Http Client Response: %+v\n", v)
 	return nil
 }
 

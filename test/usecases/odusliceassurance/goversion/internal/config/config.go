@@ -45,7 +45,7 @@ func New() *Config {
 		SDNRAddress: getEnv("SDNR_ADDR", "http://localhost:3904"),
 		SDNRUser:    getEnv("SDNR_USER", "admin"),
 		SDNPassword: getEnv("SDNR_PASSWORD", "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"),
-		Polltime:    getEnvAsInt("Polltime", 10),
+		Polltime:    getEnvAsInt("Polltime", 30),
 		LogLevel:    getLogLevel(),
 	}
 }
