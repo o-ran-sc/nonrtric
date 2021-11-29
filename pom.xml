@@ -38,6 +38,7 @@
         <module>r-app-catalogue</module>
         <module>helm-manager</module>
         <module>dmaap-adaptor-java</module>
+        <module>dmaap-mediator-producer</module>
     </modules>
     <build>
         <plugins>
