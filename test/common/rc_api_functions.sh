@@ -116,7 +116,7 @@ use_rapp_catalogue_https() {
 # args: <protocol> <internal-port> <external-port>
 __rapp_catalogue_set_protocoll() {
 	echo -e $BOLD"$RAPP_CAT_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $RAPP_CAT_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $RAPP_CAT_DISPLAY_NAME"
 
 	## Access to Rapp catalogue
 
@@ -234,7 +234,7 @@ rc_equal() {
 		#__var_test RC "$LOCALHOST_HTTP:$RC_EXTERNAL_PORT/" $1 "=" $2 $3
 		__var_test RC "$RC_SERVICE_PATH/" $1 "=" $2 $3
 	else
-		__print_err "Wrong args to ecs_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
+		__print_err "Wrong args to ics_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
 }
 

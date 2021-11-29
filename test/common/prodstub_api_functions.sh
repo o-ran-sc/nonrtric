@@ -139,7 +139,7 @@ use_prod_stub_https() {
 # args: <protocol> <internal-port> <external-port>
 __prod_stub_set_protocoll() {
 	echo -e $BOLD"$PROD_STUB_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $PROD_STUB_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $PROD_STUB_DISPLAY_NAME"
 
 	## Access to Prod stub sim
 
@@ -192,13 +192,13 @@ start_prod_stub() {
 		retcode_p=$?
 
 		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
-			echo -e $RED"The $ECS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
-			echo -e $RED"The $ECS_APP_NAME will not be started"$ERED
+			echo -e $RED"The $ICS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
 			exit
 		fi
 		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
-			echo -e $RED"The $ECS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
-			echo -e $RED"The $ECS_APP_NAME will not be started"$ERED
+			echo -e $RED"The $ICS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
 			exit
 		fi
 
@@ -438,7 +438,7 @@ prodstub_check_jobdata_2() {
     	__log_test_fail_general "Template file "$7" for jobdata, does not exist"
         return 1
     fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		targetJson="{\"info_job_identity\":\"$3\",\"info_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"info_job_data\":$jobfile,\"last_updated\":\"????\"}"
 	else
 		targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"ei_job_data\":$jobfile,\"last_updated\":\"????\"}"

@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: $ECS_DATA_PVC_NAME
+  name: $ICS_DATA_PVC_NAME
   namespace: $KUBE_NONRTRIC_NAMESPACE
   labels:
-    run: $ECS_APP_NAME
-    autotest: ECS
+    run: $ICS_APP_NAME
+    autotest: ICS
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
       storage: 1Mi
-  storageClassName: ecs-standard
+  storageClassName: ics-standard
   volumeMode: Filesystem

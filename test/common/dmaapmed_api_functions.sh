@@ -124,7 +124,7 @@ use_dmaapmed_https() {
 # args: <protocol> <internal-port> <external-port>
 __dmaapmed_set_protocoll() {
 	echo -e $BOLD"$DMAAP_MED_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $DMAAP_MED_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $DMAAP_MED_DISPLAY_NAME"
 
 	## Access to Dmaap mediator
 
@@ -177,7 +177,7 @@ __dmaapmed_export_vars() {
 	fi
 
 	# paths to other components
-	export ECS_SERVICE_PATH
+	export ICS_SERVICE_PATH
 
 	export DMAAP_MED_CONF_SELF_HOST=$(echo $DMAAP_MED_SERVICE_PATH | cut -d: -f1-2)
 	export DMAAP_MED_CONF_SELF_PORT=$(echo $DMAAP_MED_SERVICE_PATH | cut -d: -f3)

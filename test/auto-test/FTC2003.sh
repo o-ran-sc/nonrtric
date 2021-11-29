@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="Testing southbound proxy for Dmaap Adaptor"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CR MR ECS HTTPPROXY KUBEPROXY DMAAPADP"
+DOCKER_INCLUDED_IMAGES="CR MR ICS HTTPPROXY KUBEPROXY DMAAPADP"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" CR MR ECS HTTPPROXY KUBEPROXY DMAAPADP"
+KUBE_INCLUDED_IMAGES=" CR MR ICS HTTPPROXY KUBEPROXY DMAAPADP"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -52,7 +52,7 @@ NUM_JOBS=10
 clean_environment
 
 use_cr_https
-use_ecs_rest_https
+use_ics_rest_https
 use_mr_https
 use_dmaapadp_https
 
@@ -62,9 +62,9 @@ start_http_proxy
 
 start_cr 1
 
-start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE
+start_ics NOPROXY $SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_CONFIG_FILE
 
-set_ecs_trace
+set_ics_trace
 
 start_mr
 
@@ -72,26 +72,26 @@ start_dmaapadp PROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE $S
 
 set_dmaapadp_trace
 
-if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    ecs_equal json:data-producer/v1/info-producers 1 60
+if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    ics_equal json:data-producer/v1/info-producers 1 60
 else
-    ecs_equal json:ei-producer/v1/eiproducers 1 60
+    ics_equal json:ei-producer/v1/eiproducers 1 60
 fi
 
-ecs_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
-ecs_api_idc_get_type_ids 200 ExampleInformationType
+ics_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
+ics_api_idc_get_type_ids 200 ExampleInformationType
 
 
-ecs_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer
+ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_a1_get_job_status 200 joby$i ENABLED 30
+    ics_api_a1_get_job_status 200 joby$i ENABLED 30
 done
 
 

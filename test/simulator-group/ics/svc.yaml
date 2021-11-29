@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $ICS_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $ICS_APP_NAME
+    autotest: ICS
+spec:
+  type: ClusterIP
+  ports:
+  - port: $ICS_EXTERNAL_PORT
+    targetPort: $ICS_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $ICS_EXTERNAL_SECURE_PORT
+    targetPort: $ICS_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $ICS_APP_NAME

@@ -58,7 +58,7 @@ ONAP GUILIN
 
 >```./PM_DEMO.sh remote-remove  kube  release --env-file ../common/test_env-onap-guilin.sh```
 
-Note that ECS was not available before oran cherry so a test script without ECS is used.
+Note that ICS was not available before oran cherry so a test script without ICS is used.
 
 ONAP HONOLULU
 =============
@@ -76,7 +76,7 @@ Note: When istanbul is released, add the 'release' arg to run released images.
 
 ## Test case categories
 
-The test script are number using these basic categories where 0-999 are releated to the policy managment and 1000-1999 are related to enrichment management. 2000-2999 are for southbound http proxy. There are also demo test cases that test more or less all components. These test scripts does not use the numbering scheme below.
+The test script are number using these basic categories where 0-999 are releated to the policy managment and 1000-1999 are related to information management. 2000-2999 are for southbound http proxy. There are also demo test cases that test more or less all components. These test scripts does not use the numbering scheme below.
 
 The numbering in each series corresponds to the following groupings
 1-99 - Basic sanity tests
@@ -89,9 +89,9 @@ The numbering in each series corresponds to the following groupings
 
 900-999 - Misc test
 
-11XX - ECS API Tests
+11XX - ICS API Tests
 
-18XX - ECS Stability and capacity test
+18XX - ICS Stability and capacity test
 
 2000 - Southbound http proxy tests
 

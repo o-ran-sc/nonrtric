@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $ICS_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $ICS_APP_NAME
+    autotest: ICS
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $ICS_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $ICS_APP_NAME
+        autotest: ICS
+    spec:
+      containers:
+      - name: $ICS_APP_NAME
+        image: $ICS_IMAGE
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
+        ports:
+        - name: http
+          containerPort: $ICS_INTERNAL_PORT
+        - name: https
+          containerPort: $ICS_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $ICS_CONFIG_MOUNT_PATH
+          name: ics-conf-name
+        volumeMounts:
+        - mountPath: $ICS_CONTAINER_MNT_DIR
+          name: ics-data-name
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $ICS_CONFIG_CONFIGMAP_NAME
+        name: ics-conf-name
+      - persistentVolumeClaim:
+          claimName: $ICS_DATA_PVC_NAME
+        name: ics-data-name
+# Selector will be set when pod is started first time
+      nodeSelector:
+

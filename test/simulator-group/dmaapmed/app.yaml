@@ -36,7 +36,7 @@ spec:
         - name: INFO_PRODUCER_PORT
           value: "$DMAAP_MED_CONF_SELF_PORT"
         - name: INFO_COORD_ADDR
-          value: "$ECS_SERVICE_PATH"
+          value: "$ICS_SERVICE_PATH"
         - name: DMAAP_MR_ADDR
           value: "$MR_SERVICE_PATH"
         - name: LOG_LEVEL

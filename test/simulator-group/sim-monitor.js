@@ -24,7 +24,7 @@ var LOCALHOST="http://127.0.0.1:"
 var MRSTUB_PORT="3905"
 var AGENT_PORT="8081"
 var CR_PORT="8090"
-var ECS_PORT="8083"
+var ICS_PORT="8083"
 var PRODSTUB_PORT="8092"
 var RC_PORT="8680"
 
@@ -186,14 +186,14 @@ var simvar4=[]
 var simvar5=[]
 var simvar6=[]
 
-//Status variables, for parameters values fetched from ecs
-var ecs1="", ecs2="", ecs3="", ecs4="", ecs_types="-", ecs_producers="-";
-var ecs_producer_arr=new Array(0)
-var ecs_producer_type_arr=new Array(0)
-var ecs_producer_jobs_arr=new Array(0)
-var ecs_producer_status_arr=new Array(0)
-var ecs_jobs=new Array(0)
-var ecs_job_status=new Array(0)
+//Status variables, for parameters values fetched from ics
+var ics1="", ics2="", ics3="", ics4="", ics_types="-", ics_producers="-";
+var ics_producer_arr=new Array(0)
+var ics_producer_type_arr=new Array(0)
+var ics_producer_jobs_arr=new Array(0)
+var ics_producer_status_arr=new Array(0)
+var ics_jobs=new Array(0)
+var ics_job_status=new Array(0)
 
 //Status variables, for parameters values fetched from prodstub
 var ps2="", ps3="", ps4="", ps_types="-", ps_producers="-";
@@ -209,7 +209,7 @@ var getCtr=0
 
 var refreshCount_pol=-1
 
-var refreshCount_ecs=-1
+var refreshCount_ics=-1
 
 var refreshCount_cr=-1
 
@@ -429,84 +429,84 @@ function fetchAllMetrics_pol() {
     }, 500)
 }
 
-function fetchAllMetrics_ecs() {
+function fetchAllMetrics_ics() {
 
-    console.log("Fetching enrichment metrics - timer:" + refreshCount_ecs)
+    console.log("Fetching information metrics - timer:" + refreshCount_ics)
 
-    if (refreshCount_ecs < 0) {
-        refreshCount_ecs = -1
+    if (refreshCount_ics < 0) {
+        refreshCount_ics = -1
         return
     } else {
-        refreshCount_ecs = refreshCount_ecs - 1
+        refreshCount_ics = refreshCount_ics - 1
     }
     setTimeout(() => {
 
-        if (checkFunctionFlag("ecs_stat")) {
-            getSimCtr(LOCALHOST+ECS_PORT+"/status", 0, function(data, index) {
+        if (checkFunctionFlag("ics_stat")) {
+            getSimCtr(LOCALHOST+ICS_PORT+"/status", 0, function(data, index) {
                 try {
                     var jd=JSON.parse(data);
-                    ecs1=jd["status"]
-                    ecs2=""+jd["no_of_producers"]
-                    ecs3=""+jd["no_of_types"]
-                    ecs4=""+jd["no_of_jobs"]
+                    ics1=jd["status"]
+                    ics2=""+jd["no_of_producers"]
+                    ics3=""+jd["no_of_types"]
+                    ics4=""+jd["no_of_jobs"]
                 }
                 catch (err) {
-                    ecs1="error response"
-                    ecs2="error response"
-                    ecs3="error response"
-                    ecs4="error response"
+                    ics1="error response"
+                    ics2="error response"
+                    ics3="error response"
+                    ics4="error response"
                 }
             });
-            clearFlag("ecs_stat")
+            clearFlag("ics_stat")
         }
-        if (checkFunctionFlag("ecs_types")) {
-            getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eitypes", 0, function(data, index) {
-                var tmp_ecs_types="-"
+        if (checkFunctionFlag("ics_types")) {
+            getSimCtr(LOCALHOST+ICS_PORT+"/ei-producer/v1/eitypes", 0, function(data, index) {
+                var tmp_ics_types="-"
                 try {
                     var jd=JSON.parse(data);
                     for(var i=0;i<jd.length;i++) {
-                        if (tmp_ecs_types.length == 1) {
-                            tmp_ecs_types=""
+                        if (tmp_ics_types.length == 1) {
+                            tmp_ics_types=""
                         }
-                        tmp_ecs_types=""+tmp_ecs_types+jd[i]+" "
+                        tmp_ics_types=""+tmp_ics_types+jd[i]+" "
                     }
                 }
                 catch (err) {
-                    tmp_ecs_types="error response"
+                    tmp_ics_types="error response"
                 }
-                ecs_types = tmp_ecs_types
+                ics_types = tmp_ics_types
             });
-            clearFlag("ecs_types")
+            clearFlag("ics_types")
         }
-        if (checkFunctionFlag("ecs_producers")) {
-            getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers", 0, function(data, index) {
-                var tmp_ecs_producers="-"
+        if (checkFunctionFlag("ics_producers")) {
+            getSimCtr(LOCALHOST+ICS_PORT+"/ei-producer/v1/eiproducers", 0, function(data, index) {
+                var tmp_ics_producers="-"
                 try {
                     var jd=JSON.parse(data);
-                    var tmp_ecs_producer_arr=new Array(jd.length)
+                    var tmp_ics_producer_arr=new Array(jd.length)
                     for(var i=0;i<jd.length;i++) {
-                        if (tmp_ecs_producers.length == 1) {
-                            tmp_ecs_producers=""
+                        if (tmp_ics_producers.length == 1) {
+                            tmp_ics_producers=""
                         }
-                        tmp_ecs_producers=""+tmp_ecs_producers+jd[i]+" "
-                        tmp_ecs_producer_arr[i]=jd[i]
+                        tmp_ics_producers=""+tmp_ics_producers+jd[i]+" "
+                        tmp_ics_producer_arr[i]=jd[i]
                     }
-                    ecs_producer_arr = tmp_ecs_producer_arr
-                    ecs_producers = tmp_ecs_producers
+                    ics_producer_arr = tmp_ics_producer_arr
+                    ics_producers = tmp_ics_producers
                 }
                 catch (err) {
-                    ecs_producers="error response"
-                    ecs_producer_arr=new Array(0)
+                    ics_producers="error response"
+                    ics_producer_arr=new Array(0)
                 }
             });
-            clearFlag("ecs_producers")
+            clearFlag("ics_producers")
         }
-        if (checkFunctionFlag("ecs_data")) {
+        if (checkFunctionFlag("ics_data")) {
             try {
-                var tmp_ecs_producer_type_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
-                for(var x=0;x<tmp_ecs_producer_type_arr.length;x++) {
-                    getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ecs_producer_type_arr[x], x, function(data, idx) {
-                        var row=""+tmp_ecs_producer_type_arr[idx]+" : "
+                var tmp_ics_producer_type_arr = JSON.parse(JSON.stringify(ics_producer_arr))
+                for(var x=0;x<tmp_ics_producer_type_arr.length;x++) {
+                    getSimCtr(LOCALHOST+ICS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ics_producer_type_arr[x], x, function(data, idx) {
+                        var row=""+tmp_ics_producer_type_arr[idx]+" : "
                         try {
                             var jd=JSON.parse(data);
                             var jda=jd["supported_ei_types"]
@@ -514,96 +514,96 @@ function fetchAllMetrics_ecs() {
                                 row=""+row+jda[j]+" "
 
                             }
-                            tmp_ecs_producer_type_arr[idx]=row
+                            tmp_ics_producer_type_arr[idx]=row
                         }
                         catch (err) {
-                            tmp_ecs_producer_type_arr=new Array(0)
+                            tmp_ics_producer_type_arr=new Array(0)
                         }
                     });
                 }
-                ecs_producer_type_arr = tmp_ecs_producer_type_arr
+                ics_producer_type_arr = tmp_ics_producer_type_arr
             } catch (err) {
-                ecs_producer_type_arr=new Array(0)
+                ics_producer_type_arr=new Array(0)
             }
             try {
-                var tmp_ecs_producer_jobs_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
-                for(x=0;x<tmp_ecs_producer_jobs_arr.length;x++) {
-                    getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ecs_producer_jobs_arr[x]+"/eijobs", x, function(data, idx) {
-                        var row=""+tmp_ecs_producer_jobs_arr[idx]+" : "
+                var tmp_ics_producer_jobs_arr = JSON.parse(JSON.stringify(ics_producer_arr))
+                for(x=0;x<tmp_ics_producer_jobs_arr.length;x++) {
+                    getSimCtr(LOCALHOST+ICS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ics_producer_jobs_arr[x]+"/eijobs", x, function(data, idx) {
+                        var row=""+tmp_ics_producer_jobs_arr[idx]+" : "
                         try {
                             var jd=JSON.parse(data);
                             for(var j=0;j<jd.length;j++) {
                                 var jda=jd[j]
                                 row=""+row+jda["ei_job_identity"]+"("+jda["ei_type_identity"]+") "
                             }
-                            tmp_ecs_producer_jobs_arr[idx]=row
+                            tmp_ics_producer_jobs_arr[idx]=row
                         }
                         catch (err) {
-                            tmp_ecs_producer_jobs_arr=new Array(0)
+                            tmp_ics_producer_jobs_arr=new Array(0)
                         }
                     });
                 }
-                ecs_producer_jobs_arr = tmp_ecs_producer_jobs_arr
+                ics_producer_jobs_arr = tmp_ics_producer_jobs_arr
             } catch (err) {
-                ecs_producer_jobs_arr=new Array(0)
+                ics_producer_jobs_arr=new Array(0)
             }
 
             try {
-                var tmp_ecs_producer_status_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
-                for(x=0;x<tmp_ecs_producer_status_arr.length;x++) {
-                    getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ecs_producer_status_arr[x]+"/status", x, function(data, idx) {
-                        var row=""+tmp_ecs_producer_status_arr[idx]+" : "
+                var tmp_ics_producer_status_arr = JSON.parse(JSON.stringify(ics_producer_arr))
+                for(x=0;x<tmp_ics_producer_status_arr.length;x++) {
+                    getSimCtr(LOCALHOST+ICS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ics_producer_status_arr[x]+"/status", x, function(data, idx) {
+                        var row=""+tmp_ics_producer_status_arr[idx]+" : "
                         try {
                             var jd=JSON.parse(data);
                             row=""+row+jd["operational_state"]
-                            tmp_ecs_producer_status_arr[idx]=row
+                            tmp_ics_producer_status_arr[idx]=row
                         }
                         catch (err) {
-                            tmp_ecs_producer_status_arr=new Array(0)
+                            tmp_ics_producer_status_arr=new Array(0)
                         }
                     });
                 }
-                ecs_producer_status_arr = tmp_ecs_producer_status_arr
+                ics_producer_status_arr = tmp_ics_producer_status_arr
             } catch (err) {
-                ecs_producer_status_arr=new Array(0)
+                ics_producer_status_arr=new Array(0)
             }
-            clearFlag("ecs_data")
+            clearFlag("ics_data")
         }
-        if (checkFunctionFlag("ecs_jobs")) {
-            getSimCtr(LOCALHOST+ECS_PORT+"/A1-EI/v1/eijobs", 0, function(data, index) {
+        if (checkFunctionFlag("ics_jobs")) {
+            getSimCtr(LOCALHOST+ICS_PORT+"/A1-EI/v1/eijobs", 0, function(data, index) {
                 try {
                     var jd=JSON.parse(data);
                     var tmpArr=new Array(jd.length)
                     for(var i=0;i<jd.length;i++) {
                         tmpArr[i]=jd[i]
                     }
-                    ecs_jobs=tmpArr
+                    ics_jobs=tmpArr
                 }
                 catch (err) {
-                    ecs_jobs=new Array(0)
+                    ics_jobs=new Array(0)
                 }
             });
-            clearFlag("ecs_jobs")
+            clearFlag("ics_jobs")
         }
-        if (checkFunctionFlag("ecs_job_status")) {
+        if (checkFunctionFlag("ics_job_status")) {
             try {
-                var tmp_ecs_job_status= JSON.parse(JSON.stringify(ecs_jobs))
-                for(x=0;x<tmp_ecs_job_status.length;x++) {
-                    getSimCtr(LOCALHOST+ECS_PORT+"/A1-EI/v1/eijobs/"+tmp_ecs_job_status[x]+"/status", x, function(data, idx) {
+                var tmp_ics_job_status= JSON.parse(JSON.stringify(ics_jobs))
+                for(x=0;x<tmp_ics_job_status.length;x++) {
+                    getSimCtr(LOCALHOST+ICS_PORT+"/A1-EI/v1/eijobs/"+tmp_ics_job_status[x]+"/status", x, function(data, idx) {
                         try {
                             var jd=JSON.parse(data);
-                            tmp_ecs_job_status[idx]=""+tmp_ecs_job_status[idx]+":"+jd["eiJobStatus"]
+                            tmp_ics_job_status[idx]=""+tmp_ics_job_status[idx]+":"+jd["eiJobStatus"]
                         }
                         catch (err) {
-                            tmp_ecs_job_status="-"
+                            tmp_ics_job_status="-"
                         }
                     });
                 }
-                ecs_job_status = tmp_ecs_job_status
+                ics_job_status = tmp_ics_job_status
             } catch (err) {
-                ecs_job_status="-"
+                ics_job_status="-"
             }
-            clearFlag("ecs_job_status")
+            clearFlag("ics_job_status")
         }
         if (checkFunctionFlag("prodstub_stat")) {
             getSimCtr(LOCALHOST+PRODSTUB_PORT+"/status", x, function(data, idx) {
@@ -687,14 +687,14 @@ function fetchAllMetrics_ecs() {
             clearFlag("prodstub_stat")
         }
 
-        fetchAllMetrics_ecs();
+        fetchAllMetrics_ics();
 
     }, 500)
 }
 
 function fetchAllMetrics_cr() {
 
-    console.log("Fetching CR DB - timer:" + refreshCount_ecs)
+    console.log("Fetching CR DB - timer:" + refreshCount_ics)
 
     if (refreshCount_cr < 0) {
         refreshCount_cr = -1
@@ -721,7 +721,7 @@ function fetchAllMetrics_cr() {
 
 function fetchAllMetrics_rc() {
 
-    console.log("Fetching RC services - timer:" + refreshCount_ecs)
+    console.log("Fetching RC services - timer:" + refreshCount_ics)
 
     if (refreshCount_rc < 0) {
         refreshCount_rc = -1
@@ -758,7 +758,7 @@ function fetchAllMetrics_rc() {
 // Monitor for CR db
 app.get("/mon3",function(req, res){
 
-    console.log("Creating CR DB page - timer: " + refreshCount_ecs)
+    console.log("Creating CR DB page - timer: " + refreshCount_ics)
 
     if (refreshCount_cr < 0) {
         refreshCount_cr=5
@@ -779,16 +779,16 @@ app.get("/mon3",function(req, res){
     res.send(htmlStr);
 })
 
-// Monitor for ECS
+// Monitor for ICS
 app.get("/mon2",function(req, res){
 
-    console.log("Creating enrichment metrics - timer: " + refreshCount_ecs)
+    console.log("Creating information metrics - timer: " + refreshCount_ics)
 
-    if (refreshCount_ecs < 0) {
-        refreshCount_ecs=5
-        fetchAllMetrics_ecs()
+    if (refreshCount_ics < 0) {
+        refreshCount_ics=5
+        fetchAllMetrics_ics()
     }
-    refreshCount_ecs=5
+    refreshCount_ics=5
 
     var summary=req.query.summary
 
@@ -801,7 +801,7 @@ app.get("/mon2",function(req, res){
           "<html>" +
           "<head>" +
             "<meta http-equiv=\"refresh\" content=\"2\">"+  //2 sec auto refresh
-            "<title>Enrichment coordinator service and producer stub</title>"+
+            "<title>information coordinator service and producer stub</title>"+
             "</head>" +
             "<body>" +
             "<font size=\"-3\" face=\"summary\">"
@@ -810,50 +810,50 @@ app.get("/mon2",function(req, res){
             } else {
                 htmlStr=htmlStr+"<p>Set query param '?summary' to false to only show full statistics</p>"
             }
-            if (ecs_job_status.length > 10) {
+            if (ics_job_status.length > 10) {
                 htmlStr=htmlStr+"<div style=\"color:red\"> Avoid running the server for large number of producers and/or jobs</div>"
             }
             htmlStr=htmlStr+"</font>" +
-            "<h3>Enrichment Coordinator Service</h3>" +
+            "<h3>Information Coordinator Service</h3>" +
             "<font face=\"monospace\">" +
-            "Status:..........." + formatDataRow(ecs1) + "<br>" +
-            "Producers:........" + formatDataRow(ecs2) + "<br>" +
-            "Types:............" + formatDataRow(ecs3) + "<br>" +
-            "Jobs:............." + formatDataRow(ecs4) + "<br>" +
+            "Status:..........." + formatDataRow(ics1) + "<br>" +
+            "Producers:........" + formatDataRow(ics2) + "<br>" +
+            "Types:............" + formatDataRow(ics3) + "<br>" +
+            "Jobs:............." + formatDataRow(ics4) + "<br>" +
             "</font>"
             if (summary == "false") {
                 htmlStr=htmlStr+
                 "<h4>Details</h4>" +
                 "<font face=\"monospace\">" +
-                "Producer ids:....." + formatDataRow(ecs_producers) + "<br>" +
-                "Type ids:........." + formatDataRow(ecs_types) + "<br>" +
+                "Producer ids:....." + formatDataRow(ics_producers) + "<br>" +
+                "Type ids:........." + formatDataRow(ics_types) + "<br>" +
                 "<br>";
-                for(var i=0;i<ecs_producer_type_arr.length;i++) {
-                    var tmp=ecs_producer_type_arr[i]
+                for(var i=0;i<ics_producer_type_arr.length;i++) {
+                    var tmp=ics_producer_type_arr[i]
                     if (tmp != undefined) {
-                        var s = "Producer types...." + formatDataRow(ecs_producer_type_arr[i]) + "<br>"
+                        var s = "Producer types...." + formatDataRow(ics_producer_type_arr[i]) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(i=0;i<ecs_producer_jobs_arr.length;i++) {
-                    tmp=ecs_producer_jobs_arr[i]
+                for(i=0;i<ics_producer_jobs_arr.length;i++) {
+                    tmp=ics_producer_jobs_arr[i]
                     if (tmp != undefined) {
-                        s = "Producer jobs....." + formatDataRow(ecs_producer_jobs_arr[i]) + "<br>"
+                        s = "Producer jobs....." + formatDataRow(ics_producer_jobs_arr[i]) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(i=0;i<ecs_producer_status_arr.length;i++) {
-                    tmp=ecs_producer_status_arr[i]
+                for(i=0;i<ics_producer_status_arr.length;i++) {
+                    tmp=ics_producer_status_arr[i]
                     if (tmp != undefined) {
                         s = "Producer status..." + formatDataRow(tmp) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(i=0;i<ecs_job_status.length;i++) {
-                    tmp=ecs_job_status[i]
+                for(i=0;i<ics_job_status.length;i++) {
+                    tmp=ics_job_status[i]
                     if (tmp != undefined) {
                         s = padding("Job", 18, ".") + formatDataRow(tmp) + "<br>"
                         htmlStr=htmlStr+s
@@ -1025,5 +1025,5 @@ var httpPort=9999;
 httpServer.listen(httpPort);
 console.log("Simulator monitor listening (http) at "+httpPort);
 console.log("Open the web page on localhost:9999/mon to view the policy statistics page.")
-console.log("Open the web page on localhost:9999/mon2 to view the enrichment statistics page.")
+console.log("Open the web page on localhost:9999/mon2 to view the information statistics page.")
 console.log("Open the web page on localhost:9999/mon3 to view CR DB in json.")
