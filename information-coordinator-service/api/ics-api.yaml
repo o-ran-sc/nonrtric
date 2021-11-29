@@ -1258,7 +1258,7 @@ components:
         status_notification_uri:
           type: string
           description: The target of Information subscription job status notifications
-      description: Information for an Enrichment Information Job
+      description: Information for an Information Job
     producer_status:
       required:
       - operational_state

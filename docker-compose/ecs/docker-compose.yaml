@@ -21,13 +21,13 @@ networks:
     name: nonrtric-docker-net
 
 services:
-  ecs:
-    image: "${ECS_IMAGE_BASE}:${ECS_IMAGE_TAG}"
-    container_name: ecs
+  ics:
+    image: "${ICS_IMAGE_BASE}:${ICS_IMAGE_TAG}"
+    container_name: ics
     networks:
       default:
         aliases:
-          - enrichment-service-container
+          - information-service-container
     ports:
       - 8083:8083
       - 8434:8434

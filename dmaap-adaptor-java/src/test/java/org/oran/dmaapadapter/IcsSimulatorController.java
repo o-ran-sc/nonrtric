@@ -104,13 +104,13 @@ public class IcsSimulatorController {
         ProducerJobInfo request =
                 new ProducerJobInfo(job.jobDefinition, jobId, job.infoTypeId, job.jobResultUri, job.owner, "TIMESTAMP");
         String body = gson.toJson(request);
-        logger.info("ECS Simulator PUT job: {}", body);
+        logger.info("ICS Simulator PUT job: {}", body);
         restClient.post(url, body, MediaType.APPLICATION_JSON).block();
     }
 
     public void deleteJob(String jobId, AsyncRestClient restClient) {
         String url = this.testResults.registrationInfo.jobCallbackUrl + "/" + jobId;
-        logger.info("ECS Simulator DELETE job: {}", url);
+        logger.info("ICS Simulator DELETE job: {}", url);
         restClient.delete(url).block();
 
     }

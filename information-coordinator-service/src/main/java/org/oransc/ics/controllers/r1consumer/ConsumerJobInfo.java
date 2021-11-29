@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@Schema(name = "consumer_job", description = "Information for an Enrichment Information Job")
+@Schema(name = "consumer_job", description = "Information for an Information Job")
 public class ConsumerJobInfo {
 
     @Schema(
