@@ -65,13 +65,13 @@ POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.0-SNAPSHOT"
 POLICY_AGENT_IMAGE_TAG_REMOTE="2.3.0"
 POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
 
-# ECS image and tags
-ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
-ECS_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
-ECS_IMAGE_TAG_REMOTE="1.2.0"
-ECS_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
-#Note: Update var ECS_FEATURE_LEVEL if image version is changed
+# ICS image and tags
+ICS_IMAGE_BASE="o-ran-sc/nonrtric-information-coordinator-service"
+ICS_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE="1.2.0"
+ICS_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
+#Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 #Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
@@ -203,7 +203,7 @@ PVC_CLEANER_IMAGE_TAG_REMOTE_PROXY="20.10"
 #No local image for pvc cleaner, remote image always used
 
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="PA ECS CP RC RICSIM NGW DMAAPADP DMAAPMED"  # Add SDNC here if oran image is used
+PROJECT_IMAGES_APP_NAMES="PA ICS CP RC RICSIM NGW DMAAPADP DMAAPMED"  # Add SDNC here if oran image is used
 
 # List of app short names which images pulled from ORAN
 ORAN_IMAGES_APP_NAMES=""  # Not used
@@ -261,25 +261,25 @@ POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 
-ECS_APP_NAME="enrichmentservice"                         # Name for ECS container
-ECS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ECS container
-ECS_EXTERNAL_PORT=8083                                   # ECS container external port (host -> container)
-ECS_INTERNAL_PORT=8083                                   # ECS container internal port (container -> container)
-ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container external secure port (host -> container)
-ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
+ICS_APP_NAME="informationservice"                        # Name for ICS container
+ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
+ICS_EXTERNAL_PORT=8083                                   # ICS container external port (host -> container)
+ICS_INTERNAL_PORT=8083                                   # ICS container internal port (container -> container)
+ICS_EXTERNAL_SECURE_PORT=8434                            # ICS container external secure port (host -> container)
+ICS_INTERNAL_SECURE_PORT=8434                            # ICS container internal secure port (container -> container)
 
-ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
-ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
-ECS_HOST_MNT_DIR="./mnt"                                 # Mounted db dir, relative to compose file, on the host
-ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
-ECS_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
-ECS_CERT_MOUNT_DIR="./cert"
-ECS_ALIVE_URL="/status"                                  # Base path for alive check
-ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
-ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
-ECS_CONFIG_FILE=application.yaml                         # Config file name
-ECS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
-ECS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS INFO-TYPE-INFO"  # Space separated list of features
+ICS_LOGPATH="/var/log/information-coordinator-service/application.log" # Path the application log in the ICS container
+ICS_APP_NAME_ALIAS="information-service-container"       # Alias name, name used by the control panel
+ICS_HOST_MNT_DIR="./mnt"                                 # Mounted db dir, relative to compose file, on the host
+ICS_CONTAINER_MNT_DIR="/var/information-coordinator-service" # Mounted dir in the container
+ICS_ACTUATOR="/actuator/loggers/org.oransc.information"  # Url for trace/debug
+ICS_CERT_MOUNT_DIR="./cert"
+ICS_ALIVE_URL="/status"                                  # Base path for alive check
+ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
+ICS_CONFIG_MOUNT_PATH=/opt/app/information-coordinator-service/config # Internal container path for configuration
+ICS_CONFIG_FILE=application.yaml                         # Config file name
+ICS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
+ICS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS INFO-TYPE-INFO RESP_CODE_CHANGE_1"  # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -429,8 +429,8 @@ CONTROL_PANEL_CONFIG_MOUNT_PATH=/etc/nginx               # Container internal pa
 CONTROL_PANEL_NGINX_KUBE_RESOLVER="kube-dns.kube-system.svc.cluster.local valid=5s"  #nginx resolver for kube
 CONTROL_PANEL_NGINX_DOCKER_RESOLVER="127.0.0.11"         # nginx resolver for docker
 CONTROL_PANEL_PATH_POLICY_PREFIX="/a1-policy/"           # Path prefix for forwarding policy calls to NGW
-CONTROL_PANEL_PATH_ECS_PREFIX="/data-producer/"          # Path prefix for forwarding ecs calls to NGW
-CONTROL_PANEL_PATH_ECS_PREFIX2="/data-consumer/"         # Path prefix for forwarding ecs calls to NGW
+CONTROL_PANEL_PATH_ICS_PREFIX="/data-producer/"          # Path prefix for forwarding ics calls to NGW
+CONTROL_PANEL_PATH_ICS_PREFIX2="/data-consumer/"         # Path prefix for forwarding ics calls to NGW
 
 NRT_GATEWAY_APP_NAME="nonrtricgateway"                   # Name of the Gateway container
 NRT_GATEWAY_DISPLAY_NAME="NonRT-RIC Gateway"
@@ -516,7 +516,7 @@ DMAAP_MED_INTERNAL_SECURE_PORT=8185                      # Dmaap Mediator contai
 DMAAP_MED_LOGPATH="/var/log/dmaap-adaptor-service/application.log" # Path the application log in the Dmaap Mediator container
 DMAAP_MED_HOST_MNT_DIR="./mnt"                          # Mounted db dir, relative to compose file, on the host
 #MAAP_ADP_CONTAINER_MNT_DIR="/var/dmaap-adaptor-service" # Mounted dir in the container
-#DMAAP_MED_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
+#DMAAP_MED_ACTUATOR="/actuator/loggers/org.oransc.information"   # Url for trace/debug
 #DMAAP_MED_CERT_MOUNT_DIR="./cert"
 DMAAP_MED_ALIVE_URL="/status"                            # Base path for alive check
 DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose

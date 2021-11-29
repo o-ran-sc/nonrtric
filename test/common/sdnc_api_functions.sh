@@ -140,7 +140,7 @@ use_sdnc_https() {
 # args: <protocol> <internal-port> <external-port>
 __sdnc_set_protocoll() {
 	echo -e $BOLD"$SDNC_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $SDNC_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $SDNC_DISPLAY_NAME"
 
 	## Access to SDNC
 

@@ -18,13 +18,13 @@
 #
 
 
-TC_ONELINE_DESCR="ECS Create 10000 jobs (ei and info) restart, test job persistency"
+TC_ONELINE_DESCR="ICS Create 10000 jobs (ei and info) restart, test job persistency"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR CP NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="ICS PRODSTUB CR CP NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="ECS PRODSTUB CP CR KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="ICS PRODSTUB CP CR KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -50,15 +50,15 @@ clean_environment
 
 start_kube_proxy
 
-use_ecs_rest_http
+use_ics_rest_http
 
 use_prod_stub_http
 
-start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE
+start_ics NOPROXY $SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_CONFIG_FILE
 
 start_prod_stub
 
-set_ecs_trace
+set_ics_trace
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -74,23 +74,23 @@ TARGET="http://localhost:80/target"  # Dummy target
 
 NUM_JOBS=10000
 use_info_jobs=false  #Set flag if interface supporting info-types is used
-if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
     use_info_jobs=true
     NUM_JOBS=5000 # 5K ei jobs and 5K info jobs
 fi
 
-if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     #Type registration status callbacks
     TYPESTATUS1="$CR_SERVICE_APP_PATH_0/type-status1"
     TYPESTATUS2="$CR_SERVICE_APP_PATH_0/type-status2"
 
-    ecs_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
+    ics_api_idc_put_subscription 201 subscription-id-1 owner1 $TYPESTATUS1
 
-    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+    ics_api_idc_get_subscription_ids 200 owner1 subscription-id-1
 
-    ecs_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
+    ics_api_idc_put_subscription 201 subscription-id-2 owner2 $TYPESTATUS2
 
-    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+    ics_api_idc_get_subscription_ids 200 owner2 subscription-id-2
 
 fi
 
@@ -176,179 +176,179 @@ if [ $use_info_jobs ]; then
 fi
 
 
-if [ $ECS_VERSION == "V1-1" ]; then
+if [ $ICS_VERSION == "V1-1" ]; then
 
-    ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+    ics_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
 
-    ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json
+    ics_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ics/ei-type-1.json type2 testdata/ics/ei-type-2.json
 
-    ecs_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json type3 testdata/ecs/ei-type-3.json
+    ics_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ics/ei-type-1.json type2 testdata/ics/ei-type-2.json type3 testdata/ics/ei-type-3.json
 
-    ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json type5 testdata/ecs/ei-type-5.json
+    ics_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ics/ei-type-4.json type5 testdata/ics/ei-type-5.json
 
 else
 
-    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
-    ecs_api_edp_put_type_2 201 type2 testdata/ecs/ei-type-2.json
-    ecs_api_edp_put_type_2 201 type3 testdata/ecs/ei-type-3.json
-    ecs_api_edp_put_type_2 201 type4 testdata/ecs/ei-type-4.json
-    ecs_api_edp_put_type_2 201 type5 testdata/ecs/ei-type-5.json
+    ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
+    ics_api_edp_put_type_2 201 type2 testdata/ics/ei-type-2.json
+    ics_api_edp_put_type_2 201 type3 testdata/ics/ei-type-3.json
+    ics_api_edp_put_type_2 201 type4 testdata/ics/ei-type-4.json
+    ics_api_edp_put_type_2 201 type5 testdata/ics/ei-type-5.json
 
-    ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+    ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 
-    ecs_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2
+    ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2
 
-    ecs_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3
+    ics_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3
 
-    ecs_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5
+    ics_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5
 
     if [ $use_info_jobs ]; then
-        ecs_api_edp_put_type_2 201 type101 testdata/ecs/info-type-1.json
-        ecs_api_edp_put_type_2 201 type102 testdata/ecs/info-type-2.json
-        ecs_api_edp_put_type_2 201 type103 testdata/ecs/info-type-3.json
-        ecs_api_edp_put_type_2 201 type104 testdata/ecs/info-type-4.json
-        ecs_api_edp_put_type_2 201 type105 testdata/ecs/info-type-5.json
+        ics_api_edp_put_type_2 201 type101 testdata/ics/info-type-1.json
+        ics_api_edp_put_type_2 201 type102 testdata/ics/info-type-2.json
+        ics_api_edp_put_type_2 201 type103 testdata/ics/info-type-3.json
+        ics_api_edp_put_type_2 201 type104 testdata/ics/info-type-4.json
+        ics_api_edp_put_type_2 201 type105 testdata/ics/info-type-5.json
 
 
 
-        if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+        if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
             cr_equal 0 received_callbacks 20 30
             cr_equal 0 received_callbacks?id=type-status1 10
             cr_equal 0 received_callbacks?id=type-status2 10
 
-            cr_api_check_all_ecs_subscription_events 200 0 type-status1 \
-                type1 testdata/ecs/ei-type-1.json REGISTERED \
-                type2 testdata/ecs/ei-type-2.json REGISTERED \
-                type3 testdata/ecs/ei-type-3.json REGISTERED \
-                type4 testdata/ecs/ei-type-4.json REGISTERED \
-                type5 testdata/ecs/ei-type-5.json REGISTERED \
-                type101 testdata/ecs/info-type-1.json REGISTERED \
-                type102 testdata/ecs/info-type-2.json REGISTERED \
-                type103 testdata/ecs/info-type-3.json REGISTERED \
-                type104 testdata/ecs/info-type-4.json REGISTERED \
-                type105 testdata/ecs/info-type-5.json REGISTERED
+            cr_api_check_all_ics_subscription_events 200 0 type-status1 \
+                type1 testdata/ics/ei-type-1.json REGISTERED \
+                type2 testdata/ics/ei-type-2.json REGISTERED \
+                type3 testdata/ics/ei-type-3.json REGISTERED \
+                type4 testdata/ics/ei-type-4.json REGISTERED \
+                type5 testdata/ics/ei-type-5.json REGISTERED \
+                type101 testdata/ics/info-type-1.json REGISTERED \
+                type102 testdata/ics/info-type-2.json REGISTERED \
+                type103 testdata/ics/info-type-3.json REGISTERED \
+                type104 testdata/ics/info-type-4.json REGISTERED \
+                type105 testdata/ics/info-type-5.json REGISTERED
 
-            cr_api_check_all_ecs_subscription_events 200 0 type-status2 \
-                type1 testdata/ecs/ei-type-1.json REGISTERED \
-                type2 testdata/ecs/ei-type-2.json REGISTERED \
-                type3 testdata/ecs/ei-type-3.json REGISTERED \
-                type4 testdata/ecs/ei-type-4.json REGISTERED \
-                type5 testdata/ecs/ei-type-5.json REGISTERED \
-                type101 testdata/ecs/info-type-1.json REGISTERED \
-                type102 testdata/ecs/info-type-2.json REGISTERED \
-                type103 testdata/ecs/info-type-3.json REGISTERED \
-                type104 testdata/ecs/info-type-4.json REGISTERED \
-                type105 testdata/ecs/info-type-5.json REGISTERED
+            cr_api_check_all_ics_subscription_events 200 0 type-status2 \
+                type1 testdata/ics/ei-type-1.json REGISTERED \
+                type2 testdata/ics/ei-type-2.json REGISTERED \
+                type3 testdata/ics/ei-type-3.json REGISTERED \
+                type4 testdata/ics/ei-type-4.json REGISTERED \
+                type5 testdata/ics/ei-type-5.json REGISTERED \
+                type101 testdata/ics/info-type-1.json REGISTERED \
+                type102 testdata/ics/info-type-2.json REGISTERED \
+                type103 testdata/ics/info-type-3.json REGISTERED \
+                type104 testdata/ics/info-type-4.json REGISTERED \
+                type105 testdata/ics/info-type-5.json REGISTERED
 
         fi
 
-        ecs_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 type101
+        ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 type101
 
-        ecs_api_edp_put_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2 type101 type102
+        ics_api_edp_put_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2 type101 type102
 
-        ecs_api_edp_put_producer_2 200 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3 type101 type102 type103
+        ics_api_edp_put_producer_2 200 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3 type101 type102 type103
 
-        ecs_api_edp_put_producer_2 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5 type104 type105
+        ics_api_edp_put_producer_2 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5 type104 type105
     fi
 fi
 
 if [ $use_info_jobs ]; then
-    ecs_equal json:data-producer/v1/info-producers 4
+    ics_equal json:data-producer/v1/info-producers 4
 else
-    ecs_equal json:ei-producer/v1/eiproducers 4
+    ics_equal json:ei-producer/v1/eiproducers 4
 fi
 
-ecs_api_edp_get_producer_status 200 prod-a ENABLED
-ecs_api_edp_get_producer_status 200 prod-b ENABLED
-ecs_api_edp_get_producer_status 200 prod-c ENABLED
-ecs_api_edp_get_producer_status 200 prod-d ENABLED
+ics_api_edp_get_producer_status 200 prod-a ENABLED
+ics_api_edp_get_producer_status 200 prod-b ENABLED
+ics_api_edp_get_producer_status 200 prod-c ENABLED
+ics_api_edp_get_producer_status 200 prod-d ENABLED
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        ecs_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
+        ics_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type1 job$i ENABLED
+            ics_api_a1_get_job_status 200 type1 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        ecs_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
+        ics_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type2 job$i ENABLED
+            ics_api_a1_get_job_status 200 type2 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        ecs_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
+        ics_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type3 job$i ENABLED
+            ics_api_a1_get_job_status 200 type3 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        ecs_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
+        ics_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type4 job$i ENABLED
+            ics_api_a1_get_job_status 200 type4 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        ecs_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ecs/job-template.json
+        ics_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type5 job$i ENABLED
+            ics_api_a1_get_job_status 200 type5 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ecs/job-template.json VALIDATE
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
 done
 
 if [  -z "$FLAT_A1_EI" ]; then
-    ecs_equal json:A1-EI/v1/eitypes/type1/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type2/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type3/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type4/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type5/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type1/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type2/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type3/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type4/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type5/eijobs $(($NUM_JOBS/5))
 else
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type1 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type2 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type3 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type4 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type5 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type1 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type2 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type3 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type4 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type5 $(($NUM_JOBS/5))
 fi
 if [ $use_info_jobs ]; then
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type101 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type102 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type101 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type102 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 $(($NUM_JOBS/5))
 fi
 
-if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 20 30
 
 else
@@ -357,40 +357,40 @@ else
 fi
 
 
-if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
 
-    ecs_equal json:/data-consumer/v1/info-type-subscription 2 200
+    ics_equal json:/data-consumer/v1/info-type-subscription 2 200
 
-    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
-    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+    ics_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+    ics_api_idc_get_subscription_ids 200 owner2 subscription-id-2
 
     if [ $use_info_jobs ]; then
-        ecs_equal json:data-producer/v1/info-types 10 1000
+        ics_equal json:data-producer/v1/info-types 10 1000
     else
-        ecs_equal json:ei-producer/v1/eitypes 5 1000
+        ics_equal json:ei-producer/v1/eitypes 5 1000
     fi
 
 fi
 
-stop_ecs
+stop_ics
 
 cr_api_reset 0
 
-start_stopped_ecs
+start_stopped_ics
 
-set_ecs_trace
+set_ics_trace
 
-if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
 
-    ecs_equal json:/data-consumer/v1/info-type-subscription 2 200
+    ics_equal json:/data-consumer/v1/info-type-subscription 2 200
 
-    ecs_api_idc_get_subscription_ids 200 owner1 subscription-id-1
-    ecs_api_idc_get_subscription_ids 200 owner2 subscription-id-2
+    ics_api_idc_get_subscription_ids 200 owner1 subscription-id-1
+    ics_api_idc_get_subscription_ids 200 owner2 subscription-id-2
 
     if [ $use_info_jobs ]; then
-        ecs_equal json:data-producer/v1/info-types 10 1000
+        ics_equal json:data-producer/v1/info-types 10 1000
     else
-        ecs_equal json:ei-producer/v1/eitypes 5 1000
+        ics_equal json:ei-producer/v1/eitypes 5 1000
     fi
 fi
 
@@ -436,267 +436,267 @@ do
     fi
 done
 
-ecs_api_edp_get_producer_status 404 prod-a
-ecs_api_edp_get_producer_status 404 prod-b
-ecs_api_edp_get_producer_status 404 prod-c
-ecs_api_edp_get_producer_status 404 prod-d
+ics_api_edp_get_producer_status 404 prod-a
+ics_api_edp_get_producer_status 404 prod-b
+ics_api_edp_get_producer_status 404 prod-c
+ics_api_edp_get_producer_status 404 prod-d
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type1 job$i DISABLED
+            ics_api_a1_get_job_status 200 type1 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED 120
+            ics_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type2 job$i DISABLED
+            ics_api_a1_get_job_status 200 type2 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED 120
+            ics_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type3 job$i DISABLED
+            ics_api_a1_get_job_status 200 type3 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED 120
+            ics_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type4 job$i DISABLED
+            ics_api_a1_get_job_status 200 type4 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED 120
+            ics_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type5 job$i DISABLED
+            ics_api_a1_get_job_status 200 type5 job$i DISABLED
         else
-            ecs_api_a1_get_job_status 200 job$i DISABLED 120
+            ics_api_a1_get_job_status 200 job$i DISABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) DISABLED EMPTYPROD 120
         fi
     fi
 done
 
-if [ $ECS_VERSION == "V1-1" ]; then
+if [ $ICS_VERSION == "V1-1" ]; then
 
-    ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+    ics_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
 
-    ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json
+    ics_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 testdata/ics/ei-type-1.json type2 testdata/ics/ei-type-2.json
 
-    ecs_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ecs/ei-type-1.json type2 testdata/ecs/ei-type-2.json type3 testdata/ecs/ei-type-3.json
+    ics_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 testdata/ics/ei-type-1.json type2 testdata/ics/ei-type-2.json type3 testdata/ics/ei-type-3.json
 
-    ecs_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ecs/ei-type-4.json type5 testdata/ecs/ei-type-5.json
+    ics_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ics/ei-type-4.json type5 testdata/ics/ei-type-5.json
 
 else
     if [ $use_info_jobs ]; then
-        ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1  type101
+        ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1  type101
 
-        ecs_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2  type101 type102
+        ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2  type101 type102
 
-        ecs_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3  type101 type102 type103
+        ics_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3  type101 type102 type103
 
-        ecs_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5  type104 type105
+        ics_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5  type104 type105
     else
-        ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+        ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 
-        ecs_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2
+        ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type1 type2
 
-        ecs_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3
+        ics_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c type1 type2 type3
 
-        ecs_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5
+        ics_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 type5
     fi
 
 fi
 
 if [ $use_info_jobs ]; then
-    ecs_equal json:data-producer/v1/info-producers 4
+    ics_equal json:data-producer/v1/info-producers 4
 else
-    ecs_equal json:ei-producer/v1/eiproducers 4
+    ics_equal json:ei-producer/v1/eiproducers 4
 fi
 
-ecs_api_edp_get_producer_status 200 prod-a ENABLED
-ecs_api_edp_get_producer_status 200 prod-b ENABLED
-ecs_api_edp_get_producer_status 200 prod-c ENABLED
-ecs_api_edp_get_producer_status 200 prod-d ENABLED
+ics_api_edp_get_producer_status 200 prod-a ENABLED
+ics_api_edp_get_producer_status 200 prod-b ENABLED
+ics_api_edp_get_producer_status 200 prod-c ENABLED
+ics_api_edp_get_producer_status 200 prod-d ENABLED
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type1 job$i ENABLED
+            ics_api_a1_get_job_status 200 type1 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type2 job$i ENABLED
+            ics_api_a1_get_job_status 200 type2 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type3 job$i ENABLED
+            ics_api_a1_get_job_status 200 type3 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type4 job$i ENABLED
+            ics_api_a1_get_job_status 200 type4 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
         if [  -z "$FLAT_A1_EI" ]; then
-            ecs_api_a1_get_job_status 200 type5 job$i ENABLED
+            ics_api_a1_get_job_status 200 type5 job$i ENABLED
         else
-            ecs_api_a1_get_job_status 200 job$i ENABLED 120
+            ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ecs_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
+            ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
 done
 
 
 if [  -z "$FLAT_A1_EI" ]; then
-    ecs_equal json:A1-EI/v1/eitypes/type1/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type2/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type3/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type4/eijobs $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eitypes/type5/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type1/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type2/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type3/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type4/eijobs $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eitypes/type5/eijobs $(($NUM_JOBS/5))
 else
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type1 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type2 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type3 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type4 $(($NUM_JOBS/5))
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type5 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type1 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type2 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type3 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type4 $(($NUM_JOBS/5))
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type5 $(($NUM_JOBS/5))
 fi
 
 if [ $use_info_jobs ]; then
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type101 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type102 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 $(($NUM_JOBS/5))
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type101 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type102 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 $(($NUM_JOBS/5))
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 $(($NUM_JOBS/5))
 fi
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        if [ $ECS_VERSION == "V1-1" ]; then
-            prodstub_check_jobdata 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-            prodstub_check_jobdata 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-            prodstub_check_jobdata 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ICS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-a job$i type1 $TARGET ric1 testdata/ics/job-template.json
+            prodstub_check_jobdata 200 prod-b job$i type1 $TARGET ric1 testdata/ics/job-template.json
+            prodstub_check_jobdata 200 prod-c job$i type1 $TARGET ric1 testdata/ics/job-template.json
         else
             if [ $use_info_jobs ]; then
-                prodstub_check_jobdata_3 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-                prodstub_check_jobdata_3 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-                prodstub_check_jobdata_3 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-a job$i type1 $TARGET ric1 testdata/ics/job-template.json
+                prodstub_check_jobdata_3 200 prod-b job$i type1 $TARGET ric1 testdata/ics/job-template.json
+                prodstub_check_jobdata_3 200 prod-c job$i type1 $TARGET ric1 testdata/ics/job-template.json
             else
-                prodstub_check_jobdata_2 200 prod-a job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-                prodstub_check_jobdata_2 200 prod-b job$i type1 $TARGET ric1 testdata/ecs/job-template.json
-                prodstub_check_jobdata_2 200 prod-c job$i type1 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-a job$i type1 $TARGET ric1 testdata/ics/job-template.json
+                prodstub_check_jobdata_2 200 prod-b job$i type1 $TARGET ric1 testdata/ics/job-template.json
+                prodstub_check_jobdata_2 200 prod-c job$i type1 $TARGET ric1 testdata/ics/job-template.json
             fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_3 200 prod-a job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
-            prodstub_check_jobdata_3 200 prod-b job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
-            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-a job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ics/job-template.json
+            prodstub_check_jobdata_3 200 prod-b job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ics/job-template.json
+            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type101 $TARGET info-owner testdata/ics/job-template.json
         fi
 
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        if [ $ECS_VERSION == "V1-1" ]; then
-            prodstub_check_jobdata 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
-            prodstub_check_jobdata 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ICS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-b job$i type2 $TARGET ric1 testdata/ics/job-template.json
+            prodstub_check_jobdata 200 prod-c job$i type2 $TARGET ric1 testdata/ics/job-template.json
         else
             if [ $use_info_jobs ]; then
-                prodstub_check_jobdata_3 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
-                prodstub_check_jobdata_3 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-b job$i type2 $TARGET ric1 testdata/ics/job-template.json
+                prodstub_check_jobdata_3 200 prod-c job$i type2 $TARGET ric1 testdata/ics/job-template.json
             else
-                prodstub_check_jobdata_2 200 prod-b job$i type2 $TARGET ric1 testdata/ecs/job-template.json
-                prodstub_check_jobdata_2 200 prod-c job$i type2 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-b job$i type2 $TARGET ric1 testdata/ics/job-template.json
+                prodstub_check_jobdata_2 200 prod-c job$i type2 $TARGET ric1 testdata/ics/job-template.json
             fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_3 200 prod-b job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ecs/job-template.json
-            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-b job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ics/job-template.json
+            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type102 $TARGET info-owner testdata/ics/job-template.json
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        if [ $ECS_VERSION == "V1-1" ]; then
-            prodstub_check_jobdata 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ICS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-c job$i type3 $TARGET ric1 testdata/ics/job-template.json
         else
             if [ $use_info_jobs ]; then
-                prodstub_check_jobdata_3 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-c job$i type3 $TARGET ric1 testdata/ics/job-template.json
             else
-                prodstub_check_jobdata_2 200 prod-c job$i type3 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-c job$i type3 $TARGET ric1 testdata/ics/job-template.json
             fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type103 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-c job$(($i+$NUM_JOBS)) type103 $TARGET info-owner testdata/ics/job-template.json
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        if [ $ECS_VERSION == "V1-1" ]; then
-            prodstub_check_jobdata 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ICS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-d job$i type4 $TARGET ric1 testdata/ics/job-template.json
         else
             if [ $use_info_jobs ]; then
-                prodstub_check_jobdata_3 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-d job$i type4 $TARGET ric1 testdata/ics/job-template.json
             else
-                prodstub_check_jobdata_2 200 prod-d job$i type4 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-d job$i type4 $TARGET ric1 testdata/ics/job-template.json
             fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_3 200 prod-d job$(($i+$NUM_JOBS)) type104 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-d job$(($i+$NUM_JOBS)) type104 $TARGET info-owner testdata/ics/job-template.json
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        if [ $ECS_VERSION == "V1-1" ]; then
-            prodstub_check_jobdata 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+        if [ $ICS_VERSION == "V1-1" ]; then
+            prodstub_check_jobdata 200 prod-d job$i type5 $TARGET ric1 testdata/ics/job-template.json
         else
             if [ $use_info_jobs ]; then
-                prodstub_check_jobdata_3 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_3 200 prod-d job$i type5 $TARGET ric1 testdata/ics/job-template.json
             else
-                prodstub_check_jobdata_2 200 prod-d job$i type5 $TARGET ric1 testdata/ecs/job-template.json
+                prodstub_check_jobdata_2 200 prod-d job$i type5 $TARGET ric1 testdata/ics/job-template.json
             fi
         fi
         if [ $use_info_jobs ]; then
-            prodstub_check_jobdata_3 200 prod-d job$(($i+$NUM_JOBS)) type105 $TARGET info-owner testdata/ecs/job-template.json
+            prodstub_check_jobdata_3 200 prod-d job$(($i+$NUM_JOBS)) type105 $TARGET info-owner testdata/ics/job-template.json
         fi
     fi
 done
@@ -705,104 +705,104 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        ecs_api_a1_delete_job 204 job$i
+        ics_api_a1_delete_job 204 job$i
         if [ $use_info_jobs ]; then
-            ecs_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
+            ics_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        ecs_api_a1_delete_job 204 job$i
+        ics_api_a1_delete_job 204 job$i
         if [ $use_info_jobs ]; then
-            ecs_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
+            ics_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        ecs_api_a1_delete_job 204 job$i
+        ics_api_a1_delete_job 204 job$i
         if [ $use_info_jobs ]; then
-            ecs_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
+            ics_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        ecs_api_a1_delete_job 204 job$i
+        ics_api_a1_delete_job 204 job$i
         if [ $use_info_jobs ]; then
-            ecs_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
+            ics_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        ecs_api_a1_delete_job 204 job$i
+        ics_api_a1_delete_job 204 job$i
         if [ $use_info_jobs ]; then
-            ecs_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
+            ics_api_idc_delete_job 204 job$(($i+$NUM_JOBS))
         fi
     fi
 done
 
 if [ $use_info_jobs ]; then
-    ecs_equal json:data-producer/v1/info-producers 4
+    ics_equal json:data-producer/v1/info-producers 4
 else
-    ecs_equal json:ei-producer/v1/eiproducers 4
+    ics_equal json:ei-producer/v1/eiproducers 4
 fi
 
-ecs_api_edp_get_producer_status 200 prod-a ENABLED
-ecs_api_edp_get_producer_status 200 prod-b ENABLED
-ecs_api_edp_get_producer_status 200 prod-c ENABLED
-ecs_api_edp_get_producer_status 200 prod-d ENABLED
+ics_api_edp_get_producer_status 200 prod-a ENABLED
+ics_api_edp_get_producer_status 200 prod-b ENABLED
+ics_api_edp_get_producer_status 200 prod-c ENABLED
+ics_api_edp_get_producer_status 200 prod-d ENABLED
 
 if [  -z "$FLAT_A1_EI" ]; then
-    ecs_equal json:A1-EI/v1/eitypes/type1/eijobs 0
-    ecs_equal json:A1-EI/v1/eitypes/type2/eijobs 0
-    ecs_equal json:A1-EI/v1/eitypes/type3/eijobs 0
-    ecs_equal json:A1-EI/v1/eitypes/type4/eijobs 0
-    ecs_equal json:A1-EI/v1/eitypes/type5/eijobs 0
+    ics_equal json:A1-EI/v1/eitypes/type1/eijobs 0
+    ics_equal json:A1-EI/v1/eitypes/type2/eijobs 0
+    ics_equal json:A1-EI/v1/eitypes/type3/eijobs 0
+    ics_equal json:A1-EI/v1/eitypes/type4/eijobs 0
+    ics_equal json:A1-EI/v1/eitypes/type5/eijobs 0
 else
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type1 0
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type2 0
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type3 0
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type4 0
-    ecs_equal json:A1-EI/v1/eijobs?eiTypeId=type5 0
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type1 0
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type2 0
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type3 0
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type4 0
+    ics_equal json:A1-EI/v1/eijobs?eiTypeId=type5 0
 fi
 
 if [ $use_info_jobs ]; then
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type101 0
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type102 0
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 0
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 0
-    ecs_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 0
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type101 0
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type102 0
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type103 0
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type104 0
+    ics_equal json:data-consumer/v1/info-jobs?infoTypeId=type105 0
 fi
 
 if [ $use_info_jobs ]; then
-    if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-        ecs_api_edp_put_type_2 200 type101 testdata/ecs/info-type-1.json
-        ecs_api_edp_put_type_2 200 type102 testdata/ecs/info-type-2.json
-        ecs_api_edp_put_type_2 200 type103 testdata/ecs/info-type-3.json
-        ecs_api_edp_put_type_2 200 type104 testdata/ecs/info-type-4.json
-        ecs_api_edp_put_type_2 200 type105 testdata/ecs/info-type-5.json
+    if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+        ics_api_edp_put_type_2 200 type101 testdata/ics/info-type-1.json
+        ics_api_edp_put_type_2 200 type102 testdata/ics/info-type-2.json
+        ics_api_edp_put_type_2 200 type103 testdata/ics/info-type-3.json
+        ics_api_edp_put_type_2 200 type104 testdata/ics/info-type-4.json
+        ics_api_edp_put_type_2 200 type105 testdata/ics/info-type-5.json
     fi
 fi
 
-if [[ "$ECS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 10 30
     cr_equal 0 received_callbacks?id=type-status1 5
     cr_equal 0 received_callbacks?id=type-status2 5
 
-    cr_api_check_all_ecs_subscription_events 200 0 type-status1 \
-        type101 testdata/ecs/info-type-1.json REGISTERED \
-        type102 testdata/ecs/info-type-2.json REGISTERED \
-        type103 testdata/ecs/info-type-3.json REGISTERED \
-        type104 testdata/ecs/info-type-4.json REGISTERED \
-        type105 testdata/ecs/info-type-5.json REGISTERED
+    cr_api_check_all_ics_subscription_events 200 0 type-status1 \
+        type101 testdata/ics/info-type-1.json REGISTERED \
+        type102 testdata/ics/info-type-2.json REGISTERED \
+        type103 testdata/ics/info-type-3.json REGISTERED \
+        type104 testdata/ics/info-type-4.json REGISTERED \
+        type105 testdata/ics/info-type-5.json REGISTERED
 
-    cr_api_check_all_ecs_subscription_events 200 0 type-status2 \
-        type101 testdata/ecs/info-type-1.json REGISTERED \
-        type102 testdata/ecs/info-type-2.json REGISTERED \
-        type103 testdata/ecs/info-type-3.json REGISTERED \
-        type104 testdata/ecs/info-type-4.json REGISTERED \
-        type105 testdata/ecs/info-type-5.json REGISTERED
+    cr_api_check_all_ics_subscription_events 200 0 type-status2 \
+        type101 testdata/ics/info-type-1.json REGISTERED \
+        type102 testdata/ics/info-type-2.json REGISTERED \
+        type103 testdata/ics/info-type-3.json REGISTERED \
+        type104 testdata/ics/info-type-4.json REGISTERED \
+        type105 testdata/ics/info-type-5.json REGISTERED
 
 else
     cr_equal 0 received_callbacks 0 30
 fi
 
-check_ecs_logs
+check_ics_logs
 
 store_logs END
 

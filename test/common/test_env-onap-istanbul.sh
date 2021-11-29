@@ -86,10 +86,10 @@ SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.1"
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-# ECS image and tag - uses d release
-ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.1.0"
-#Note: Update var ECS_FEATURE_LEVEL if image version is changed
+# ICS image and tag - uses d release
+ICS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
+ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.1.0"
+#Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 # Control Panel image and tag - uses d release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
@@ -173,7 +173,7 @@ PVC_CLEANER_IMAGE_TAG_REMOTE_PROXY="20.10"
 PROJECT_IMAGES_APP_NAMES="PA SDNC"
 
 # List of app short names which images pulled from ORAN
-ORAN_IMAGES_APP_NAMES="CP ECS RICSIM RC NGW"
+ORAN_IMAGES_APP_NAMES="CP ICS RICSIM RC NGW"
 
 # List of app short names which images pulled from ONAP
 ONAP_IMAGES_APP_NAMES=""   # Not used
@@ -216,25 +216,25 @@ POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
 
-ECS_APP_NAME="enrichmentservice"                         # Name for ECS container
-ECS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ECS container
-ECS_EXTERNAL_PORT=8083                                   # ECS container external port (host -> container)
-ECS_INTERNAL_PORT=8083                                   # ECS container internal port (container -> container)
-ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container external secure port (host -> container)
-ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
+ICS_APP_NAME="informationservice"                        # Name for ICS container
+ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container
+ICS_EXTERNAL_PORT=8083                                   # ICS container external port (host -> container)
+ICS_INTERNAL_PORT=8083                                   # ICS container internal port (container -> container)
+ICS_EXTERNAL_SECURE_PORT=8434                            # ICS container external secure port (host -> container)
+ICS_INTERNAL_SECURE_PORT=8434                            # ICS container internal secure port (container -> container)
 
-ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
-ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
-ECS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
-ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
-ECS_ACTUATOR="/actuator/loggers/org.oransc.enrichment"   # Url for trace/debug
-ECS_CERT_MOUNT_DIR="./cert"
-ECS_ALIVE_URL="/status"                                  # Base path for alive check
-ECS_COMPOSE_DIR="ecs"                                    # Dir in simulator_group for docker-compose
-ECS_CONFIG_MOUNT_PATH=/opt/app/enrichment-coordinator-service/config # Internal container path for configuration
-ECS_CONFIG_FILE=application.yaml                         # Config file name
-ECS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
-ECS_FEATURE_LEVEL="INFO-TYPES"                           # Space separated list of features
+ICS_LOGPATH="/var/log/information-coordinator-service/application.log" # Path the application log in the ICS container
+ICS_APP_NAME_ALIAS="information-service-container"       # Alias name, name used by the control panel
+ICS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
+ICS_CONTAINER_MNT_DIR="/var/information-coordinator-service" # Mounted dir in the container
+ICS_ACTUATOR="/actuator/loggers/org.oransc.information"  # Url for trace/debug
+ICS_CERT_MOUNT_DIR="./cert"
+ICS_ALIVE_URL="/status"                                  # Base path for alive check
+ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
+ICS_CONFIG_MOUNT_PATH=/opt/app/information-coordinator-service/config # Internal container path for configuration
+ICS_CONFIG_FILE=application.yaml                         # Config file name
+ICS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
+ICS_FEATURE_LEVEL="INFO-TYPES"                           # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub

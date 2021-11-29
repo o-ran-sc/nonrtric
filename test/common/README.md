@@ -9,7 +9,7 @@ Some of the scripts can also be used for other kinds of tests, for example basic
 Contains functions for adapting towards the Policy Management Service (PMS) API, also via dmaap (using a message-router stub interface)
 
 `api_curl.sh` \
-A common curl based function for the agent and ecs apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
+A common curl based function for the agent and ics apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
 
 `clean-kube.sh` \
 Cleans all services, deployments, pods, replica set etc started by the test environment in kubernetes.
@@ -44,8 +44,8 @@ A python script to delete a batch of policies. The script is intended to run in 
 `do_curl_function.sh`
 A script for executing a curl call with a specific url and optional payload. It also compare the response with an expected result in terms of response code and optional returned payload. Intended to be used by test script (for example basic test scripts of other components)
 
-`ecs_api_functions.sh` \
-Contains functions for adapting towards the ECS API
+`ics_api_functions.sh` \
+Contains functions for adapting towards the ICS API
 
 `extract_sdnc_reply.py` \
 A python script to extract the information from an sdnc (A1 Controller) reply json. Helper for the test environment.
@@ -1030,9 +1030,9 @@ Check the contents of all ric events received for a callback id.
 | `EMPTY` | Indicator for an empty list  |
 | `<ric-id>` | Id of the ric  |
 
-## Function: cr_api_check_all_ecs_events() ##
+## Function: cr_api_check_all_ics_events() ##
 
-Check the contents of all current status events for one id from ECS
+Check the contents of all current status events for one id from ICS
 
 | arg list |
 |--|
@@ -1045,9 +1045,9 @@ Check the contents of all current status events for one id from ECS
 | `EMPTY` | Indicator for an empty list  |
 | `<status>` | Status string  |
 
-## Function: cr_api_check_all_ecs_subscription_events() ##
+## Function: cr_api_check_all_ics_subscription_events() ##
 
-Check the contents of all current subscription events for one id from ECS
+Check the contents of all current subscription events for one id from ICS
 
 | arg list |
 |--|
@@ -1072,81 +1072,81 @@ Reset the callback receiver
 | - |
 
 
-# Description of functions in ecs_api_functions.sh #
+# Description of functions in ics_api_functions.sh #
 
-## Function: use_ecs_rest_http ##
+## Function: use_ics_rest_http ##
 
-Use http for all API calls to the ECS. This is the default protocol.
+Use http for all API calls to the ICS. This is the default protocol.
 | arg list |
 |--|
 | None |
 
-## Function: use_ecs_rest_https ##
+## Function: use_ics_rest_https ##
 
-Use https for all API calls to the ECS.
+Use https for all API calls to the ICS.
 | arg list |
 |--|
 | None |
 
-## Function: use_ecs_dmaap_http ##
+## Function: use_ics_dmaap_http ##
 
-Send and recieve all API calls to the ECS over Dmaap via the MR using http.
+Send and recieve all API calls to the ICS over Dmaap via the MR using http.
 | arg list |
 |--|
 | None |
 
-## Function: use_ecs_dmaap_https ##
+## Function: use_ics_dmaap_https ##
 
-Send and recieve all API calls to the ECS over Dmaap via the MR using https.
+Send and recieve all API calls to the ICS over Dmaap via the MR using https.
 | arg list |
 |--|
 | None |
 
-## Function: start_ecs ##
+## Function: start_ics ##
 
-Start the ECS container in docker or kube depending on running mode.
+Start the ICS container in docker or kube depending on running mode.
 | arg list |
 |--|
 | None |
 
-## Function: stop_ecs ##
+## Function: stop_ics ##
 
-Stop the ECS container.
+Stop the ICS container.
 | arg list |
 |--|
 | None |
 
-## Function: start_stopped_ecs ##
+## Function: start_stopped_ics ##
 
-Start a previously stopped ecs.
+Start a previously stopped ics.
 | arg list |
 |--|
 | None |
 
-## Function: set_ecs_debug ##
+## Function: set_ics_debug ##
 
-Configure the ECS log on debug level. The ECS must be running.
+Configure the ICS log on debug level. The ICS must be running.
 | arg list |
 |--|
 | None |
 
-## Function: set_ecs_trace ##
+## Function: set_ics_trace ##
 
-Configure the ECS log on trace level. The ECS must be running.
+Configure the ICS log on trace level. The ICS must be running.
 | arg list |
 |--|
 | None |
 
-## Function: check_ecs_logs ##
+## Function: check_ics_logs ##
 
-Check the ECS log for any warnings and errors and print the count of each.
+Check the ICS log for any warnings and errors and print the count of each.
 | arg list |
 |--|
 | None |
 
-## Function: ecs_equal ##
+## Function: ics_equal ##
 
-Tests if a variable value in the ECS is equal to a target value.
+Tests if a variable value in the ICS is equal to a target value.
 Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
 With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
 See the 'a1-interface' repo for more details.
@@ -1157,11 +1157,11 @@ See the 'a1-interface' repo for more details.
 
 | parameter | description |
 | --------- | ----------- |
-| `<variable-name>` | Variable name in ecs  |
+| `<variable-name>` | Variable name in ics  |
 | `<target-value>` | Target value for the variable  |
 | `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
 
-## Function: ecs_api_a1_get_job_ids() ##
+## Function: ics_api_a1_get_job_ids() ##
 
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs' and optional check of the array of returned job ids.
 To test the response code only, provide the response code parameter as well as a type id and an owner id.
@@ -1180,7 +1180,7 @@ To also test the response payload add the 'EMPTY' for an expected empty array or
 | `<job-id>` | Id of the expected job  |
 | `EMPTY` | The expected list of job id shall be empty  |
 
-## Function: ecs_api_a1_get_type() ##
+## Function: ics_api_a1_get_type() ##
 
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}' and optional check of the returned schema.
 To test the response code only, provide the response code parameter as well as the type-id.
@@ -1196,7 +1196,7 @@ To also test the response payload add a path to the expected schema file.
 | `<type-id>` | Id of the EI type  |
 | `<schema-file>` | Path to a schema file to compare with the returned schema  |
 
-## Function: ecs_api_a1_get_type_ids() ##
+## Function: ics_api_a1_get_type_ids() ##
 
 Test of GET '/A1-EI​/v1​/eitypes' and optional check of returned list of type ids.
 To test the response code only, provide the response only.
@@ -1212,7 +1212,7 @@ To also test the response payload add the list of expected type ids (or EMPTY if
 | `EMPTY` | The expected list of type ids shall be empty  |
 | `<type-id>` | Id of the EI type  |
 
-## Function: ecs_api_a1_get_job_status() ##
+## Function: ics_api_a1_get_job_status() ##
 
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}​/status' and optional check of the returned status.
 To test the response code only, provide the response code, type id and job id.
@@ -1229,7 +1229,7 @@ To also test the response payload add the expected status.
 | `<job-id>` | Id of the job  |
 | `<status>` | Expected status  |
 
-## Function: ecs_api_a1_get_job() ##
+## Function: ics_api_a1_get_job() ##
 
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}' and optional check of the returned job.
 To test the response code only, provide the response code, type id and job id.
@@ -1248,7 +1248,7 @@ To also test the response payload add the remaining parameters.
 | `<owner-id>` | Expected owner for the job  |
 | `<template-job-file>` | Path to a job template for job parameters of the job  |
 
-## Function: ecs_api_a1_delete_job() ##
+## Function: ics_api_a1_delete_job() ##
 
 Test of DELETE '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}'.
 To test, provide all the specified parameters.
@@ -1263,7 +1263,7 @@ To test, provide all the specified parameters.
 | `<type-id>` | Id of the EI type  |
 | `<job-id>` | Id of the job  |
 
-## Function: ecs_api_a1_put_job() ##
+## Function: ics_api_a1_put_job() ##
 
 Test of PUT '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}'.
 To test, provide all the specified parameters.
@@ -1281,9 +1281,9 @@ To test, provide all the specified parameters.
 | `<owner-id>` | Owner of the job  |
 | `<template-job-file>` | Path to a job template for job parameters of the job  |
 
-## Function: ecs_api_edp_get_type_ids() ##
+## Function: ics_api_edp_get_type_ids() ##
 
-Test of GET '/ei-producer/v1/eitypes' or '/data-producer/v1/info-types' depending on ecs version and an optional check of the returned list of type ids.
+Test of GET '/ei-producer/v1/eitypes' or '/data-producer/v1/info-types' depending on ics version and an optional check of the returned list of type ids.
 To test the response code only, provide the response code.
 To also test the response payload add list of expected type ids (or EMPTY if the list is expected to be empty).
 
@@ -1297,9 +1297,9 @@ To also test the response payload add list of expected type ids (or EMPTY if the
 | `<type-id>` | Id of the type  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_edp_get_producer_status() ##
+## Function: ics_api_edp_get_producer_status() ##
 
-Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/status' or '/data-producer/v1/info-producers/{infoProducerId}/status' depending on ecs version and optional check of the returned status.
+Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/status' or '/data-producer/v1/info-producers/{infoProducerId}/status' depending on ics version and optional check of the returned status.
 To test the response code only, provide the response code and producer id.
 To also test the response payload add the expected status.
 
@@ -1313,7 +1313,7 @@ To also test the response payload add the expected status.
 | `<producer-id>` | Id of the producer  |
 | `<status>` | The expected status string  |
 
-## Function: ecs_api_edp_get_producer_ids() ##
+## Function: ics_api_edp_get_producer_ids() ##
 
 Test of GET '/ei-producer/v1/eiproducers' and optional check of the returned producer ids.
 To test the response code only, provide the response.
@@ -1329,9 +1329,9 @@ To also test the response payload add the list of expected producer-ids (or EMPT
 | `<producer-id>` | Id of the producer  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_edp_get_producer_ids_2() ##
+## Function: ics_api_edp_get_producer_ids_2() ##
 
-Test of GET '/ei-producer/v1/eiproducers' or '/data-producer/v1/info-producers' depending on ecs version and optional check of the returned producer ids.
+Test of GET '/ei-producer/v1/eiproducers' or '/data-producer/v1/info-producers' depending on ics version and optional check of the returned producer ids.
 To test the response code only, provide the response.
 To also test the response payload add the type (if any) and a list of expected producer-ids (or EMPTY if the list of ids is expected to be empty).
 
@@ -1347,7 +1347,7 @@ To also test the response payload add the type (if any) and a list of expected p
 | `<producer-id>` | Id of the producer  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_edp_get_type() ##
+## Function: ics_api_edp_get_type() ##
 
 Test of GET '/ei-producer/v1/eitypes/{eiTypeId}' and optional check of the returned type.
 To test the response code only, provide the response and the type-id.
@@ -1365,9 +1365,9 @@ To also test the response payload add a path to a job schema file and a list exp
 | `<producer-id>` | Id of the producer  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_edp_get_type_2() ##
+## Function: ics_api_edp_get_type_2() ##
 
-Test of GET '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ecs version and optional check of the returned type.
+Test of GET '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ics version and optional check of the returned type.
 To test the response code only, provide the response and the type-id.
 To also test the response payload add a path to a job schema file.
 
@@ -1382,9 +1382,9 @@ To also test the response payload add a path to a job schema file.
 | `<job-schema-file>` | Path to a job schema file  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_edp_put_type_2() ##
+## Function: ics_api_edp_put_type_2() ##
 
-Test of PUT '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ecs version and optional check of the returned type.
+Test of PUT '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ics version and optional check of the returned type.
 
 | arg list |
 |--|
@@ -1397,9 +1397,9 @@ Test of PUT '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-type
 | `<job-schema-file>` | Path to a job schema file  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_edp_delete_type_2() ##
+## Function: ics_api_edp_delete_type_2() ##
 
-Test of DELETE '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ecs version and optional check of the returned type.
+Test of DELETE '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-types/{infoTypeId}' depending on ics version and optional check of the returned type.
 
 | arg list |
 |--|
@@ -1410,7 +1410,7 @@ Test of DELETE '/ei-producer/v1/eitypes/{eiTypeId}' or '/data-producer/v1/info-t
 | `<response-code>` | Expected http response code |
 | `<type-id>` | Id of the type  |
 
-## Function: ecs_api_edp_get_producer() ##
+## Function: ics_api_edp_get_producer() ##
 
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}' and optional check of the returned producer.
 To test the response code only, provide the response and the producer-id.
@@ -1431,9 +1431,9 @@ To also test the response payload add the remaining parameters defining thee pro
 | `<schema-file>` | Path to a schema file  |
 | `EMPTY` | The expected list of type schema pairs shall be empty  |
 
-## Function: ecs_api_edp_get_producer_2() ##
+## Function: ics_api_edp_get_producer_2() ##
 
-Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ecs version and optional check of the returned producer.
+Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ics version and optional check of the returned producer.
 To test the response code only, provide the response and the producer-id.
 To also test the response payload add the remaining parameters defining thee producer.
 
@@ -1450,9 +1450,9 @@ To also test the response payload add the remaining parameters defining thee pro
 | `<type-id>` | Id of the type  |
 | `EMPTY` | The expected list of types shall be empty  |
 
-## Function: ecs_api_edp_delete_producer() ##
+## Function: ics_api_edp_delete_producer() ##
 
-Test of DELETE '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ecs version.
+Test of DELETE '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ics version.
 To test, provide all parameters.
 
 | arg list |
@@ -1464,7 +1464,7 @@ To test, provide all parameters.
 | `<response-code>` | Expected http response code |
 | `<producer-id>` | Id of the producer  |
 
-## Function: ecs_api_edp_put_producer() ##
+## Function: ics_api_edp_put_producer() ##
 
 Test of PUT '/ei-producer/v1/eiproducers/{eiProducerId}'.
 To test, provide all parameters. The list of type/schema pair may be empty.
@@ -1483,9 +1483,9 @@ To test, provide all parameters. The list of type/schema pair may be empty.
 | `<schema-file>` | Path to a schema file  |
 | `EMPTY` | The list of type/schema pairs is empty  |
 
-## Function: ecs_api_edp_put_producer_2() ##
+## Function: ics_api_edp_put_producer_2() ##
 
-Test of PUT '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ecs version.
+Test of PUT '/ei-producer/v1/eiproducers/{eiProducerId}' or '/data-producer/v1/info-producers/{infoProducerId}' depending on ics version.
 To test, provide all parameters. The list of type/schema pair may be empty.
 
 | arg list |
@@ -1501,7 +1501,7 @@ To test, provide all parameters. The list of type/schema pair may be empty.
 | `<type-id>` | Id of the type  |
 | `NOTYPE` | The list of types is empty  |
 
-## Function: ecs_api_edp_get_producer_jobs() ##
+## Function: ics_api_edp_get_producer_jobs() ##
 
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs' and optional check of the returned producer job.
 To test the response code only, provide the response and the producer-id.
@@ -1522,9 +1522,9 @@ To also test the response payload add the remaining parameters.
 | `<template-job-file>` | Path to a job template file  |
 | `EMPTY` | The list of job/type/target/job-file tuples is empty  |
 
-## Function: ecs_api_edp_get_producer_jobs_2() ##
+## Function: ics_api_edp_get_producer_jobs_2() ##
 
-Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs' or '/data-producer/v1/info-producers/{infoProducerId}/info-jobs' depending on ecs version and optional check of the returned producer job.
+Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs' or '/data-producer/v1/info-producers/{infoProducerId}/info-jobs' depending on ics version and optional check of the returned producer job.
 To test the response code only, provide the response and the producer-id.
 To also test the response payload add the remaining parameters.
 
@@ -1543,7 +1543,7 @@ To also test the response payload add the remaining parameters.
 | `<template-job-file>` | Path to a job template file  |
 | `EMPTY` | The list of job/type/target/job-file tuples is empty  |
 
-## Function: ecs_api_service_status() ##
+## Function: ics_api_service_status() ##
 
 Test of GET '/status'.
 
@@ -1555,7 +1555,7 @@ Test of GET '/status'.
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 
-## Function: ecs_api_idc_get_type_ids() ##
+## Function: ics_api_idc_get_type_ids() ##
 
 Test of GET '/data-consumer/v1/info-types' and an optional check of the returned list of type ids.
 To test the response code only, provide the response code.
@@ -1571,7 +1571,7 @@ To also test the response payload add list of expected type ids (or EMPTY if the
 | `<type-id>` | Id of the Info type  |
 | `EMPTY` | The expected list of type ids shall be empty  |
 
-## Function: ecs_api_idc_get_job_ids() ##
+## Function: ics_api_idc_get_job_ids() ##
 
 Test of GET '/data-consumer/v1/info-jobs' and optional check of the array of returned job ids.
 To test the response code only, provide the response code parameter as well as a type id and an owner id.
@@ -1590,7 +1590,7 @@ To also test the response payload add the 'EMPTY' for an expected empty array or
 | `<job-id>` | Id of the expected job  |
 | `EMPTY` | The expected list of job id shall be empty  |
 
-## Function: ecs_api_idc_get_job() ##
+## Function: ics_api_idc_get_job() ##
 
 Test of GET '/data-consumer/v1/info-jobs/{infoJobId}' and optional check of the returned job.
 To test the response code only, provide the response code, type id and job id.
@@ -1609,7 +1609,7 @@ To also test the response payload add the remaining parameters.
 | `<owner-id>` | Expected owner for the job  |
 | `<template-job-file>` | Path to a job template for job parameters of the job  |
 
-## Function: ecs_api_idc_put_job() ##
+## Function: ics_api_idc_put_job() ##
 
 Test of PUT '​/data-consumer/v1/info-jobs/{infoJobId}'.
 To test, provide all the specified parameters.
@@ -1628,7 +1628,7 @@ To test, provide all the specified parameters.
 | `<template-job-file>` | Path to a job template for job parameters of the job  |
 | `VALIIDATE` | Indicator to preform type validation at creation  |
 
-## Function: ecs_api_idc_delete_job() ##
+## Function: ics_api_idc_delete_job() ##
 
 Test of DELETE '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}'.
 To test, provide all the specified parameters.
@@ -1643,7 +1643,7 @@ To test, provide all the specified parameters.
 | `<type-id>` | Id of the type  |
 | `<job-id>` | Id of the job  |
 
-## Function: ecs_api_idc_get_type() ##
+## Function: ics_api_idc_get_type() ##
 
 Test of GET '/data-consumer/v1/info-types/{infoTypeId} and optional check of the returned schema.
 To test the response code only, provide the response code parameter as well as the type-id.
@@ -1659,7 +1659,7 @@ To also test the response payload add a path to the expected schema file.
 | `<type-id>` | Id of the Info type  |
 | `<schema-file>` | Path to a schema file to compare with the returned schema  |
 
-## Function: ecs_api_idc_get_job_status() ##
+## Function: ics_api_idc_get_job_status() ##
 
 Test of GET '/data-consumer/v1/info-jobs/{infoJobId}/status' and optional check of the returned status and timeout.
 To test the response code only, provide the response code and job id.
@@ -1676,7 +1676,7 @@ To also test the response payload add the expected status.
 | `<status>` | Expected status  |
 | `<timeout>` | Timeout |
 
-## Function: ecs_api_idc_get_job_status2() ##
+## Function: ics_api_idc_get_job_status2() ##
 
 Test of GET '/data-consumer/v1/info-jobs/{infoJobId}/status' with returned producers and optional check of the returned status and timeout.
 To test the response code only, provide the response code and job id.
@@ -1697,7 +1697,7 @@ To also test the response payload add the expected status.
 | `<timeout>` | Timeout |
 
 
-## Function: ecs_api_idc_get_subscription_ids() ##
+## Function: ics_api_idc_get_subscription_ids() ##
 Test of GET '/data-consumer/v1/info-type-subscription' with the returned list of subscription ids
 
 | arg list |
@@ -1712,7 +1712,7 @@ Test of GET '/data-consumer/v1/info-type-subscription' with the returned list of
 | `<EMPTY>` | Indicated for empty list of subscription ids  |
 | `<subscription-id>` |Id of the subscription  |
 
-## Function: ecs_api_idc_get_subscription() ##
+## Function: ics_api_idc_get_subscription() ##
 Test of GET '/data-consumer/v1/info-type-subscription/{subscriptionId}' with the subscription information
 
 | arg list |
@@ -1727,7 +1727,7 @@ Test of GET '/data-consumer/v1/info-type-subscription/{subscriptionId}' with the
 | `<status-uri>` | Url for status notifications  |
 
 
-## Function: ecs_api_idc_put_subscription() ##
+## Function: ics_api_idc_put_subscription() ##
 Test of PUT '/data-consumer/v1/info-type-subscription/{subscriptionId}' with the subscription information
 
 | arg list |
@@ -1741,7 +1741,7 @@ Test of PUT '/data-consumer/v1/info-type-subscription/{subscriptionId}' with the
 | `<owner-id>` | Id of the owner  |
 | `<status-uri>` | Url for status notifications  |
 
-## Function: ecs_api_idc_delete_subscription() ##
+## Function: ics_api_idc_delete_subscription() ##
 Test of DELETE /data-consumer/v1/info-type-subscription/{subscriptionId}
 
 | arg list |
@@ -1754,7 +1754,7 @@ Test of DELETE /data-consumer/v1/info-type-subscription/{subscriptionId}
 | `<subscription-id>` |Id of the subscription  |
 
 
-## Function: ecs_api_admin_reset() ##
+## Function: ics_api_admin_reset() ##
 
 Test of GET '/status'.
 
@@ -1815,9 +1815,9 @@ Sample test of pms api (status)
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 
-## Function: gateway_ecs_get_types ##
+## Function: gateway_ics_get_types ##
 
-Sample test of ecs api (get types)
+Sample test of ics api (get types)
 Only response code tested - not payload
 | arg list |
 |--|

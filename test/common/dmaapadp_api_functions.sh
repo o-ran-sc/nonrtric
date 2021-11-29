@@ -124,7 +124,7 @@ use_dmaapadp_https() {
 # args: <protocol> <internal-port> <external-port>
 __dmaapadp_set_protocoll() {
 	echo -e $BOLD"$DMAAP_ADP_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $DMAAP_ADP_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $DMAAP_ADP_DISPLAY_NAME"
 
 	## Access to Dmaap adapter
 
@@ -185,7 +185,7 @@ __dmaapadp_export_vars() {
 
 
 	# paths to other components
-	export ECS_SERVICE_PATH
+	export ICS_SERVICE_PATH
 	export DMAAP_ADP_SERVICE_PATH
 	export MR_SERVICE_PATH
 

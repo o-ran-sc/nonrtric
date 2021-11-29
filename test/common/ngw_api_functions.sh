@@ -128,7 +128,7 @@ use_gateway_https() {
 # args: <protocol> <internal-port> <external-port>
 __gateway_set_protocoll() {
 	echo -e $BOLD"$NRT_GATEWAY_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $NRT_GATEWAY_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $NRT_GATEWAY_DISPLAY_NAME"
 
 	## Access to nonrtric gateway
 
@@ -199,12 +199,12 @@ __gateway_export_vars() {
 
 	if [ $RUNMODE == "KUBE" ]; then
 		export POLICY_AGENT_EXTERNAL_SECURE_PORT
-		export ECS_EXTERNAL_SECURE_PORT
+		export ICS_EXTERNAL_SECURE_PORT
 		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
-		export ECS_DOMAIN_NAME=$ECS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
+		export ICS_DOMAIN_NAME=$ICS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
 	else
 		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME
-		export ECS_DOMAIN_NAME=$ECS_APP_NAME
+		export ICS_DOMAIN_NAME=$ICS_APP_NAME
 	fi
 }
 
@@ -319,11 +319,11 @@ gateway_pms_get_status() {
 	return 0
 }
 
-# API Test function: GET /ei-producer/v1/eitypes towards ECS
+# API Test function: GET /ei-producer/v1/eitypes towards ICS
 # Note: This is just to test service response
 # args: <response-code>
 # (Function for test scripts)
-gateway_ecs_get_types() {
+gateway_ics_get_types() {
 	__log_test_start $@
     if [ $# -ne 1 ]; then
 		__print_err "<response-code>" $@

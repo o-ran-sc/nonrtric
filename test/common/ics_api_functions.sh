@@ -17,15 +17,15 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains container/service management functions and test functions for ECS
+# This is a script that contains container/service management functions and test functions for ICS
 
 ################ Test engine functions ################
 
 # Create the image var used during the test
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
-__ECS_imagesetup() {
-	__check_and_create_image_var ECS "ECS_IMAGE" "ECS_IMAGE_BASE" "ECS_IMAGE_TAG" $1 "$ECS_DISPLAY_NAME"
+__ICS_imagesetup() {
+	__check_and_create_image_var ICS "ICS_IMAGE" "ICS_IMAGE_BASE" "ICS_IMAGE_TAG" $1 "$ICS_DISPLAY_NAME"
 }
 
 # Pull image from remote repo or use locally built image
@@ -33,276 +33,276 @@ __ECS_imagesetup() {
 # <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
-__ECS_imagepull() {
-	__check_and_pull_image $1 "$ECS_DISPLAY_NAME" $ECS_APP_NAME ECS_IMAGE
+__ICS_imagepull() {
+	__check_and_pull_image $1 "$ICS_DISPLAY_NAME" $ICS_APP_NAME ICS_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
-__ECS_imagebuild() {
-	echo -e $RED" Image for app ECS shall never be built"$ERED
+__ICS_imagebuild() {
+	echo -e $RED" Image for app ICS shall never be built"$ERED
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
 # If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
-__ECS_image_data() {
-	echo -e "$ECS_DISPLAY_NAME\t$(docker images --format $1 $ECS_IMAGE)" >>   $2
-	if [ ! -z "$ECS_IMAGE_SOURCE" ]; then
-		echo -e "-- source image --\t$(docker images --format $1 $ECS_IMAGE_SOURCE)" >>   $2
+__ICS_image_data() {
+	echo -e "$ICS_DISPLAY_NAME\t$(docker images --format $1 $ICS_IMAGE)" >>   $2
+	if [ ! -z "$ICS_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $ICS_IMAGE_SOURCE)" >>   $2
 	fi
 }
 
 # Scale kubernetes resources to zero
 # All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
 # This function is called for apps fully managed by the test script
-__ECS_kube_scale_zero() {
-	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+__ICS_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ICS
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
-__ECS_kube_scale_zero_and_wait() {
-	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-enrichmentservice
+__ICS_kube_scale_zero_and_wait() {
+	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-informationservice
 }
 
 # Delete all kube resouces for the app
 # This function is called for apps managed by the test script.
-__ECS_kube_delete_all() {
-	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+__ICS_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ICS
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
-__ECS_store_docker_logs() {
+__ICS_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=ECS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_ecs.log 2>&1
+		kubectl  logs -l "autotest=ICS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_ics.log 2>&1
 	else
-		docker logs $ECS_APP_NAME > $1$2_ecs.log 2>&1
+		docker logs $ICS_APP_NAME > $1$2_ics.log 2>&1
 	fi
 }
 
 # Initial setup of protocol, host and ports
 # This function is called for apps managed by the test script.
 # args: -
-__ECS_initial_setup() {
-	use_ecs_rest_http
+__ICS_initial_setup() {
+	use_ics_rest_http
 }
 
 # Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
 # For docker, the namespace shall be excluded
 # This function is called for apps managed by the test script as well as for prestarted apps.
 # args: -
-__ECS_statisics_setup() {
+__ICS_statisics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
-		echo "ECS $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
+		echo "ICS $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
 	else
-		echo "ECS $ECS_APP_NAME"
+		echo "ICS $ICS_APP_NAME"
 	fi
 }
 
 #######################################################
 
 
-# Make curl retries towards ECS for http response codes set in this env var, space separated list of codes
-ECS_RETRY_CODES=""
+# Make curl retries towards ICS for http response codes set in this env var, space separated list of codes
+ICS_RETRY_CODES=""
 
 #Save first worker node the pod is started on
-__ECS_WORKER_NODE=""
+__ICS_WORKER_NODE=""
 
 ###########################
-### ECS functions
+### ICS functions
 ###########################
 
-# All calls to ECS will be directed to the ECS REST interface from now on
+# All calls to ICS will be directed to the ICS REST interface from now on
 # args: -
 # (Function for test scripts)
-use_ecs_rest_http() {
-	__ecs_set_protocoll "http" $ECS_INTERNAL_PORT $ECS_EXTERNAL_PORT
+use_ics_rest_http() {
+	__ics_set_protocoll "http" $ICS_INTERNAL_PORT $ICS_EXTERNAL_PORT
 }
 
-# All calls to ECS will be directed to the ECS REST interface from now on
+# All calls to ICS will be directed to the ICS REST interface from now on
 # args: -
 # (Function for test scripts)
-use_ecs_rest_https() {
-	__ecs_set_protocoll "https" $ECS_INTERNAL_SECURE_PORT $ECS_EXTERNAL_SECURE_PORT
+use_ics_rest_https() {
+	__ics_set_protocoll "https" $ICS_INTERNAL_SECURE_PORT $ICS_EXTERNAL_SECURE_PORT
 }
 
-# All calls to ECS will be directed to the ECS dmaap interface over http from now on
+# All calls to ICS will be directed to the ICS dmaap interface over http from now on
 # args: -
 # (Function for test scripts)
-use_ecs_dmaap_http() {
-	echo -e $BOLD"ECS dmaap protocol setting"$EBOLD
+use_ics_dmaap_http() {
+	echo -e $BOLD"ICS dmaap protocol setting"$EBOLD
 	echo -e $RED" - NOT SUPPORTED - "$ERED
-	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ECS"
-	ECS_ADAPTER_TYPE="MR-HTTP"
+	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ICS"
+	ICS_ADAPTER_TYPE="MR-HTTP"
 	echo ""
 }
 
 # Setup paths to svc/container for internal and external access
 # args: <protocol> <internal-port> <external-port>
-__ecs_set_protocoll() {
-	echo -e $BOLD"$ECS_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $ECS_DISPLAY_NAME"
+__ics_set_protocoll() {
+	echo -e $BOLD"$ICS_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD $1 $EBOLD towards $ICS_DISPLAY_NAME"
 
-	## Access to ECS
+	## Access to ICS
 
-	ECS_SERVICE_PATH=$1"://"$ECS_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	ICS_SERVICE_PATH=$1"://"$ICS_APP_NAME":"$2  # docker access, container->container and script->container via proxy
 	if [ $RUNMODE == "KUBE" ]; then
-		ECS_SERVICE_PATH=$1"://"$ECS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		ICS_SERVICE_PATH=$1"://"$ICS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
 	fi
 
-	# ECS_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
-	ECS_ADAPTER_TYPE="REST"
-	ECS_ADAPTER=$ECS_SERVICE_PATH
+	# ICS_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
+	ICS_ADAPTER_TYPE="REST"
+	ICS_ADAPTER=$ICS_SERVICE_PATH
 
 	echo ""
 }
 
 # Export env vars for config files, docker compose and kube resources
 # args: PROXY|NOPROXY
-__ecs_export_vars() {
-		export ECS_APP_NAME
-		export ECS_APP_NAME_ALIAS
+__ics_export_vars() {
+		export ICS_APP_NAME
+		export ICS_APP_NAME_ALIAS
 		export KUBE_NONRTRIC_NAMESPACE
-		export ECS_IMAGE
-		export ECS_INTERNAL_PORT
-		export ECS_INTERNAL_SECURE_PORT
-		export ECS_EXTERNAL_PORT
-		export ECS_EXTERNAL_SECURE_PORT
-		export ECS_CONFIG_MOUNT_PATH
-		export ECS_CONFIG_CONFIGMAP_NAME=$ECS_APP_NAME"-config"
-		export ECS_DATA_CONFIGMAP_NAME=$ECS_APP_NAME"-data"
-		export ECS_CONTAINER_MNT_DIR
-		export ECS_HOST_MNT_DIR
-		export ECS_CONFIG_FILE
+		export ICS_IMAGE
+		export ICS_INTERNAL_PORT
+		export ICS_INTERNAL_SECURE_PORT
+		export ICS_EXTERNAL_PORT
+		export ICS_EXTERNAL_SECURE_PORT
+		export ICS_CONFIG_MOUNT_PATH
+		export ICS_CONFIG_CONFIGMAP_NAME=$ICS_APP_NAME"-config"
+		export ICS_DATA_CONFIGMAP_NAME=$ICS_APP_NAME"-data"
+		export ICS_CONTAINER_MNT_DIR
+		export ICS_HOST_MNT_DIR
+		export ICS_CONFIG_FILE
 		export DOCKER_SIM_NWNAME
-		export ECS_DISPLAY_NAME
+		export ICS_DISPLAY_NAME
 
 
-		export ECS_DATA_PV_NAME=$ECS_APP_NAME"-pv"
-		export ECS_DATA_PVC_NAME=$ECS_APP_NAME"-pvc"
+		export ICS_DATA_PV_NAME=$ICS_APP_NAME"-pv"
+		export ICS_DATA_PVC_NAME=$ICS_APP_NAME"-pvc"
 		#Create a unique path for the pv each time to prevent a previous volume to be reused
-		export ECS_PV_PATH="ecsdata-"$(date +%s)
+		export ICS_PV_PATH="icsdata-"$(date +%s)
 
 		if [ $1 == "PROXY" ]; then
-			export ECS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
-			export ECS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
-			if [ $ECS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ECS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+			export ICS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+			export ICS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+			if [ $ICS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$ICS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
 				echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
 			else
 				echo " Configured with http proxy"
 			fi
 		else
-			export ECS_HTTP_PROXY_CONFIG_PORT=0
-			export ECS_HTTP_PROXY_CONFIG_HOST_NAME=""
+			export ICS_HTTP_PROXY_CONFIG_PORT=0
+			export ICS_HTTP_PROXY_CONFIG_HOST_NAME=""
 			echo " Configured without http proxy"
 		fi
 }
 
 
-# Start the ECS
+# Start the ICS
 # args: PROXY|NOPROXY <config-file>
 # (Function for test scripts)
-start_ecs() {
+start_ics() {
 
-	echo -e $BOLD"Starting $ECS_DISPLAY_NAME"$EBOLD
+	echo -e $BOLD"Starting $ICS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
 
 		# Check if app shall be fully managed by the test script
-		__check_included_image "ECS"
+		__check_included_image "ICS"
 		retcode_i=$?
 
 		# Check if app shall only be used by the testscipt
-		__check_prestarted_image "ECS"
+		__check_prestarted_image "ICS"
 		retcode_p=$?
 
 		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
-			echo -e $RED"The $ECS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
-			echo -e $RED"The $ECS_APP_NAME will not be started"$ERED
+			echo -e $RED"The $ICS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
 			exit
 		fi
 		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
-			echo -e $RED"The $ECS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
-			echo -e $RED"The $ECS_APP_NAME will not be started"$ERED
+			echo -e $RED"The $ICS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
 			exit
 		fi
 
 
 		if [ $retcode_p -eq 0 ]; then
-			echo -e " Using existing $ECS_APP_NAME deployment and service"
-			echo " Setting ECS replicas=1"
-			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			echo -e " Using existing $ICS_APP_NAME deployment and service"
+			echo " Setting ICS replicas=1"
+			res_type=$(__kube_get_resource_type $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 
 		# Check if app shall be fully managed by the test script
 		if [ $retcode_i -eq 0 ]; then
-			echo -e " Creating $ECS_APP_NAME app and expose service"
+			echo -e " Creating $ICS_APP_NAME app and expose service"
 
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
 
-			__ecs_export_vars $1
+			__ics_export_vars $1
 
 			# Create config map for config
-			datafile=$PWD/tmp/$ECS_CONFIG_FILE
+			datafile=$PWD/tmp/$ICS_CONFIG_FILE
 			cp $2 $datafile
-			output_yaml=$PWD/tmp/ecs_cfc.yaml
-			__kube_create_configmap $ECS_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest ECS $datafile $output_yaml
+			output_yaml=$PWD/tmp/ics_cfc.yaml
+			__kube_create_configmap $ICS_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest ICS $datafile $output_yaml
 
 			# Create pv
-			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"pv.yaml
-			output_yaml=$PWD/tmp/ecs_pv.yaml
-			__kube_create_instance pv $ECS_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$ICS_COMPOSE_DIR"/"pv.yaml
+			output_yaml=$PWD/tmp/ics_pv.yaml
+			__kube_create_instance pv $ICS_APP_NAME $input_yaml $output_yaml
 
 			# Create pvc
-			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"pvc.yaml
-			output_yaml=$PWD/tmp/ecs_pvc.yaml
-			__kube_create_instance pvc $ECS_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$ICS_COMPOSE_DIR"/"pvc.yaml
+			output_yaml=$PWD/tmp/ics_pvc.yaml
+			__kube_create_instance pvc $ICS_APP_NAME $input_yaml $output_yaml
 
 			# Create service
-			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"svc.yaml
-			output_yaml=$PWD/tmp/ecs_svc.yaml
-			__kube_create_instance service $ECS_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$ICS_COMPOSE_DIR"/"svc.yaml
+			output_yaml=$PWD/tmp/ics_svc.yaml
+			__kube_create_instance service $ICS_APP_NAME $input_yaml $output_yaml
 
 			# Create app
-			input_yaml=$SIM_GROUP"/"$ECS_COMPOSE_DIR"/"app.yaml
-			output_yaml=$PWD/tmp/ecs_app.yaml
-			__kube_create_instance app $ECS_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$ICS_COMPOSE_DIR"/"app.yaml
+			output_yaml=$PWD/tmp/ics_app.yaml
+			__kube_create_instance app $ICS_APP_NAME $input_yaml $output_yaml
 		fi
 
-		# Tie the ECS to a worker node so that ECS will always be scheduled to the same worker node if the ECS pod is restarted
-		# A PVC of type hostPath is mounted to ECS, for persistent storage, so the ECS must always be on the node which mounted the volume
+		# Tie the ICS to a worker node so that ICS will always be scheduled to the same worker node if the ICS pod is restarted
+		# A PVC of type hostPath is mounted to ICS, for persistent storage, so the ICS must always be on the node which mounted the volume
 
 		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
 		if [ $retcode_i -eq 0 ]; then
-			__ECS_WORKER_NODE=$(kubectl get pod -l "autotest=ECS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
-			if [ -z "$__ECS_WORKER_NODE" ]; then
-				echo -e $YELLOW" Cannot find worker node for pod for $ECS_APP_NAME, persistency may not work"$EYELLOW
+			__ICS_WORKER_NODE=$(kubectl get pod -l "autotest=ICS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+			if [ -z "$__ICS_WORKER_NODE" ]; then
+				echo -e $YELLOW" Cannot find worker node for pod for $ICS_APP_NAME, persistency may not work"$EYELLOW
 			fi
 		else
-			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			echo -e $YELLOW" Persistency may not work for app $ICS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
 		fi
 
 
-		__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
+		__check_service_start $ICS_APP_NAME $ICS_SERVICE_PATH$ICS_ALIVE_URL
 
 	else
-		__check_included_image 'ECS'
+		__check_included_image 'ICS'
 		if [ $? -eq 1 ]; then
-			echo -e $RED"The ECS app is not included in this test script"$ERED
-			echo -e $RED"ECS will not be started"$ERED
+			echo -e $RED"The ICS app is not included in this test script"$ERED
+			echo -e $RED"ICS will not be started"$ERED
 			exit 1
 		fi
 
 		curdir=$PWD
 		cd $SIM_GROUP
-		cd ecs
-		cd $ECS_HOST_MNT_DIR
+		cd ics
+		cd $ICS_HOST_MNT_DIR
 		#cd ..
 		if [ -d db ]; then
 			if [ "$(ls -A $DIR)" ]; then
@@ -319,49 +319,49 @@ start_ecs() {
 
 		cd $curdir
 
-		__ecs_export_vars $1
+		__ics_export_vars $1
 
-		dest_file=$SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_HOST_MNT_DIR/$ECS_CONFIG_FILE
+		dest_file=$SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_HOST_MNT_DIR/$ICS_CONFIG_FILE
 
 		envsubst < $2 > $dest_file
 
-		__start_container $ECS_COMPOSE_DIR "" NODOCKERARGS 1 $ECS_APP_NAME
+		__start_container $ICS_COMPOSE_DIR "" NODOCKERARGS 1 $ICS_APP_NAME
 
-		__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
+		__check_service_start $ICS_APP_NAME $ICS_SERVICE_PATH$ICS_ALIVE_URL
 	fi
 	echo ""
 	return 0
 }
 
-# Stop the ecs
+# Stop the ics
 # args: -
 # args: -
 # (Function for test scripts)
-stop_ecs() {
-	echo -e $BOLD"Stopping $ECS_DISPLAY_NAME"$EBOLD
+stop_ics() {
+	echo -e $BOLD"Stopping $ICS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
 
-		__check_prestarted_image "ECS"
+		__check_prestarted_image "ICS"
 		if [ $? -eq 0 ]; then
-			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
+			echo -e $YELLOW" Persistency may not work for app $ICS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			res_type=$(__kube_get_resource_type $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
 			return 0
 		fi
 
-		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ICS
 		echo "  Deleting the replica set - a new will be started when the app is started"
-		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=ECS")
+		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=ICS")
 		if [ $? -ne 0 ]; then
 			echo -e $RED" Could not delete replica set "$RED
 			((RES_CONF_FAIL++))
 			return 1
 		fi
 	else
-		docker stop $ECS_APP_NAME &> ./tmp/.dockererr
+		docker stop $ICS_APP_NAME &> ./tmp/.dockererr
 		if [ $? -ne 0 ]; then
-			__print_err "Could not stop $ECS_APP_NAME" $@
+			__print_err "Could not stop $ICS_APP_NAME" $@
 			cat ./tmp/.dockererr
 			((RES_CONF_FAIL++))
 			return 1
@@ -372,48 +372,48 @@ stop_ecs() {
 	return 0
 }
 
-# Start a previously stopped ecs
+# Start a previously stopped ics
 # args: -
 # (Function for test scripts)
-start_stopped_ecs() {
-	echo -e $BOLD"Starting (the previously stopped) $ECS_DISPLAY_NAME"$EBOLD
+start_stopped_ics() {
+	echo -e $BOLD"Starting (the previously stopped) $ICS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
 
-		__check_prestarted_image "ECS"
+		__check_prestarted_image "ICS"
 		if [ $? -eq 0 ]; then
-			echo -e $YELLOW" Persistency may not work for app $ECS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			res_type=$(__kube_get_resource_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-			__kube_scale $res_type $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
-			__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
+			echo -e $YELLOW" Persistency may not work for app $ICS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			res_type=$(__kube_get_resource_type $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__check_service_start $ICS_APP_NAME $ICS_SERVICE_PATH$ICS_ALIVE_URL
 			return 0
 		fi
 
 		# Tie the PMS to the same worker node it was initially started on
 		# A PVC of type hostPath is mounted to PMS, for persistent storage, so the PMS must always be on the node which mounted the volume
-		if [ -z "$__ECS_WORKER_NODE" ]; then
+		if [ -z "$__ICS_WORKER_NODE" ]; then
 			echo -e $RED" No initial worker node found for pod "$RED
 			((RES_CONF_FAIL++))
 			return 1
 		else
-			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__ECS_WORKER_NODE to deployment for $ECS_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
+			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__ICS_WORKER_NODE to deployment for $ICS_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
 			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
-			tmp=$(kubectl patch deployment $ECS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__ECS_WORKER_NODE'"}}}}}')
+			tmp=$(kubectl patch deployment $ICS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__ICS_WORKER_NODE'"}}}}}')
 			if [ $? -ne 0 ]; then
-				echo -e $YELLOW" Cannot set nodeSelector to deployment for $ECS_APP_NAME, persistency may not work"$EYELLOW
+				echo -e $YELLOW" Cannot set nodeSelector to deployment for $ICS_APP_NAME, persistency may not work"$EYELLOW
 			fi
-			__kube_scale deployment $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__kube_scale deployment $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 	else
-		docker start $ECS_APP_NAME &> ./tmp/.dockererr
+		docker start $ICS_APP_NAME &> ./tmp/.dockererr
 		if [ $? -ne 0 ]; then
-			__print_err "Could not start (the stopped) $ECS_APP_NAME" $@
+			__print_err "Could not start (the stopped) $ICS_APP_NAME" $@
 			cat ./tmp/.dockererr
 			((RES_CONF_FAIL++))
 			return 1
 		fi
 	fi
-	__check_service_start $ECS_APP_NAME $ECS_SERVICE_PATH$ECS_ALIVE_URL
+	__check_service_start $ICS_APP_NAME $ICS_SERVICE_PATH$ICS_ALIVE_URL
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
@@ -421,12 +421,12 @@ start_stopped_ecs() {
 	return 0
 }
 
-# Turn on debug level tracing in ECS
+# Turn on debug level tracing in ICS
 # args: -
 # (Function for test scripts)
-set_ecs_debug() {
-	echo -e $BOLD"Setting ecs debug logging"$EBOLD
-	curlString="$ECS_SERVICE_PATH$ECS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+set_ics_debug() {
+	echo -e $BOLD"Setting ics debug logging"$EBOLD
+	curlString="$ICS_SERVICE_PATH$ICS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "Could not set debug mode" $@
@@ -437,12 +437,12 @@ set_ecs_debug() {
 	return 0
 }
 
-# Turn on trace level tracing in ECS
+# Turn on trace level tracing in ICS
 # args: -
 # (Function for test scripts)
-set_ecs_trace() {
-	echo -e $BOLD"Setting ecs trace logging"$EBOLD
-	curlString="$ECS_SERVICE_PATH/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+set_ics_trace() {
+	echo -e $BOLD"Setting ics trace logging"$EBOLD
+	curlString="$ICS_SERVICE_PATH/actuator/loggers/org.oransc.information -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "Could not set trace mode" $@
@@ -453,50 +453,50 @@ set_ecs_trace() {
 	return 0
 }
 
-# Perform curl retries when making direct call to ECS for the specified http response codes
+# Perform curl retries when making direct call to ICS for the specified http response codes
 # Speace separated list of http response codes
 # args: [<response-code>]*
-use_ecs_retries() {
-	echo -e $BOLD"Do curl retries to the ECS REST inteface for these response codes:$@"$EBOLD
-	ECS_RETRY_CODES=$@
+use_ics_retries() {
+	echo -e $BOLD"Do curl retries to the ICS REST inteface for these response codes:$@"$EBOLD
+	ICS_RETRY_CODES=$@
 	echo ""
 	return 0
 }
 
-# Check the ecs logs for WARNINGs and ERRORs
+# Check the ics logs for WARNINGs and ERRORs
 # args: -
 # (Function for test scripts)
-check_ecs_logs() {
-	__check_container_logs "ECS" $ECS_APP_NAME $ECS_LOGPATH WARN ERR
+check_ics_logs() {
+	__check_container_logs "ICS" $ICS_APP_NAME $ICS_LOGPATH WARN ERR
 }
 
 
-# Tests if a variable value in the ECS is equal to a target value and and optional timeout.
+# Tests if a variable value in the ICS is equal to a target value and and optional timeout.
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
 # equal to the target or not.
 # Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
 # before setting pass or fail depending on if the variable value becomes equal to the target
 # value or not.
 # (Function for test scripts)
-ecs_equal() {
+ics_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test ECS "$ECS_SERVICE_PATH/" $1 "=" $2 $3
+		__var_test ICS "$ICS_SERVICE_PATH/" $1 "=" $2 $3
 	else
-		__print_err "Wrong args to ecs_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
+		__print_err "Wrong args to ics_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
 }
 
 
 ##########################################
-######### A1-E Enrichment  API ##########
+######### A1-E information  API ##########
 ##########################################
-#Function prefix: ecs_api_a1
+#Function prefix: ics_api_a1
 
 # API Test function: GET /A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs
 # args: <response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
 # args (flat uri structure): <response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
 # (Function for test scripts)
-ecs_api_a1_get_job_ids() {
+ics_api_a1_get_job_ids() {
 	__log_test_start $@
 
 	if [ -z "$FLAT_A1_EI" ]; then
@@ -530,7 +530,7 @@ ecs_api_a1_get_job_ids() {
 		fi
 		query="/A1-EI/v1/eijobs$search"
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -568,7 +568,7 @@ ecs_api_a1_get_job_ids() {
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}
 # args: <response-code> <type-id> [<schema-file>]
 # (Function for test scripts)
-ecs_api_a1_get_type() {
+ics_api_a1_get_type() {
 	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
@@ -577,7 +577,7 @@ ecs_api_a1_get_type() {
 	fi
 
 	query="/A1-EI/v1/eitypes/$2"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -614,7 +614,7 @@ ecs_api_a1_get_type() {
 # API Test function: GET /A1-EI/v1/eitypes
 # args: <response-code> [ (EMPTY | [<type-id>]+) ]
 # (Function for test scripts)
-ecs_api_a1_get_type_ids() {
+ics_api_a1_get_type_ids() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
@@ -623,7 +623,7 @@ ecs_api_a1_get_type_ids() {
 	fi
 
 	query="/A1-EI/v1/eitypes"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -659,7 +659,7 @@ ecs_api_a1_get_type_ids() {
 # args: <response-code> <type-id> <job-id> [<status>]
 # args (flat uri structure): <response-code> <job-id> [<status> [<timeout>]]
 # (Function for test scripts)
-ecs_api_a1_get_job_status() {
+ics_api_a1_get_job_status() {
 	__log_test_start $@
 
 	if [ -z "$FLAT_A1_EI" ]; then
@@ -670,7 +670,7 @@ ecs_api_a1_get_job_status() {
 
 		query="/A1-EI/v1/eitypes/$2/eijobs/$3/status"
 
-		res="$(__do_curl_to_api ECS GET $query)"
+		res="$(__do_curl_to_api ICS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
@@ -699,7 +699,7 @@ ecs_api_a1_get_job_status() {
 
 		start=$SECONDS
 		for (( ; ; )); do
-			res="$(__do_curl_to_api ECS GET $query)"
+			res="$(__do_curl_to_api ICS GET $query)"
 			status=${res:${#res}-3}
 
 			if [ $# -eq 4 ]; then
@@ -754,7 +754,7 @@ ecs_api_a1_get_job_status() {
 # args: <response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]
 # args (flat uri structure): <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
 # (Function for test scripts)
-ecs_api_a1_get_job() {
+ics_api_a1_get_job() {
 	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
@@ -771,7 +771,7 @@ ecs_api_a1_get_job() {
 		fi
 		query="/A1-EI/v1/eijobs/$2"
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -829,7 +829,7 @@ ecs_api_a1_get_job() {
 # args: <response-code> <type-id> <job-id>
 # args (flat uri structure): <response-code> <job-id>
 # (Function for test scripts)
-ecs_api_a1_delete_job() {
+ics_api_a1_delete_job() {
 	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
@@ -847,7 +847,7 @@ ecs_api_a1_delete_job() {
 		fi
 		query="/A1-EI/v1/eijobs/$2"
 	fi
-    res="$(__do_curl_to_api ECS DELETE $query)"
+    res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -863,7 +863,7 @@ ecs_api_a1_delete_job() {
 # args: <response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>
 # args (flat uri structure): <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>
 # (Function for test scripts)
-ecs_api_a1_put_job() {
+ics_api_a1_put_job() {
 	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
@@ -905,7 +905,7 @@ ecs_api_a1_put_job() {
 		query="/A1-EI/v1/eijobs/$2"
 	fi
 
-    res="$(__do_curl_to_api ECS PUT $query $file)"
+    res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -919,27 +919,27 @@ ecs_api_a1_put_job() {
 
 
 ##########################################
-####   Enrichment Data Producer API   ####
+####   information Data Producer API   ####
 ##########################################
-# Function prefix: ecs_api_edp
+# Function prefix: ics_api_edp
 
 # API Test function: GET /ei-producer/v1/eitypes
 # API Test function: GET /data-producer/v1/info-types
 # args: <response-code> [ EMPTY | <type-id>+]
 # (Function for test scripts)
-ecs_api_edp_get_type_ids() {
+ics_api_edp_get_type_ids() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [ EMPTY | <type-id>+]" $@
 		return 1
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-types"
 	else
 		query="/ei-producer/v1/eitypes"
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -976,21 +976,21 @@ ecs_api_edp_get_type_ids() {
 # API Test function: GET /data-producer/v1/info-producers/{infoProducerId}/status
 # args: <response-code> <producer-id> [<status> [<timeout>]]
 # (Function for test scripts)
-ecs_api_edp_get_producer_status() {
+ics_api_edp_get_producer_status() {
 	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 4 ]; then
 		__print_err "<response-code> <producer-id> [<status> [<timeout>]]" $@
 		return 1
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-producers/$2/status"
 	else
 		query="/ei-producer/v1/eiproducers/$2/status"
 	fi
 	start=$SECONDS
 	for (( ; ; )); do
-		res="$(__do_curl_to_api ECS GET $query)"
+		res="$(__do_curl_to_api ICS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $# -eq 4 ]; then
@@ -1041,7 +1041,7 @@ ecs_api_edp_get_producer_status() {
 # API Test function: GET /ei-producer/v1/eiproducers
 # args (v1_1): <response-code> [ EMPTY | <producer-id>+]
 # (Function for test scripts)
-ecs_api_edp_get_producer_ids() {
+ics_api_edp_get_producer_ids() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
@@ -1050,7 +1050,7 @@ ecs_api_edp_get_producer_ids() {
 	fi
 
 	query="/ei-producer/v1/eiproducers"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1089,14 +1089,14 @@ ecs_api_edp_get_producer_ids() {
 # API Test function: GET /data-producer/v1/info-producers
 # args (v1_2): <response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]
 # (Function for test scripts)
-ecs_api_edp_get_producer_ids_2() {
+ics_api_edp_get_producer_ids_2() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]" $@
 		return 1
 	fi
-    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-producers"
 		if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
 			query=$query"?info_type_id=$2"
@@ -1107,7 +1107,7 @@ ecs_api_edp_get_producer_ids_2() {
 			query=$query"?ei_type_id=$2"
 		fi
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1145,7 +1145,7 @@ ecs_api_edp_get_producer_ids_2() {
 # API Test function: GET /ei-producer/v1/eitypes/{eiTypeId}
 # args: (v1_1) <response-code> <type-id> [<job-schema-file> (EMPTY | [<producer-id>]+)]
 # (Function for test scripts)
-ecs_api_edp_get_type() {
+ics_api_edp_get_type() {
 	__log_test_start $@
 
 	paramError=1
@@ -1161,7 +1161,7 @@ ecs_api_edp_get_type() {
 	fi
 
 	query="/ei-producer/v1/eitypes/$2"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1205,7 +1205,7 @@ ecs_api_edp_get_type() {
 # API Test function: GET /data-producer/v1/info-types/{infoTypeId}
 # args: (v1_2) <response-code> <type-id> [<job-schema-file> [ <info-type-info> ]]
 # (Function for test scripts)
-ecs_api_edp_get_type_2() {
+ics_api_edp_get_type_2() {
 	__log_test_start $@
 
 	paramError=1
@@ -1215,7 +1215,7 @@ ecs_api_edp_get_type_2() {
 	if [ $# -eq 3 ]; then
 		paramError=0
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
 		if [ $# -eq 4 ]; then
 			paramError=0
 		fi
@@ -1224,13 +1224,13 @@ ecs_api_edp_get_type_2() {
 		__print_err "<response-code> <type-id> [<job-schema-file> [ <info-type-info> ]]" $@
 		return 1
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-types/$2"
 	else
 		query="/ei-producer/v1/eitypes/$2"
 	fi
 
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1256,7 +1256,7 @@ ecs_api_edp_get_type_2() {
 			fi
 			info_data=",\"info_type_information\":$info_data"
 		fi
-		if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+		if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 			targetJson="{\"info_job_data_schema\":$schema $info_data}"
 		else
 			targetJson="{\"ei_job_data_schema\":$schema}"
@@ -1278,10 +1278,10 @@ ecs_api_edp_get_type_2() {
 # API Test function: PUT /data-producer/v1/info-types/{infoTypeId}
 # args: (v1_2) <response-code> <type-id> <job-schema-file> [ <info-type-info> ]
 # (Function for test scripts)
-ecs_api_edp_put_type_2() {
+ics_api_edp_put_type_2() {
 	__log_test_start $@
 
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
 		if [ $# -lt 3 ] || [ $# -gt 4 ]; then
 			__print_err "<response-code> <type-id> <job-schema-file> [ <info-type-info> ]" $@
 			return 1
@@ -1309,7 +1309,7 @@ ecs_api_edp_put_type_2() {
 		info_data=",\"info_type_information\":$info_data"
 	fi
 
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		schema=$(cat $3)
 		input_json="{\"info_job_data_schema\":$schema $info_data}"
 		file="./tmp/put_type.json"
@@ -1324,7 +1324,7 @@ ecs_api_edp_put_type_2() {
 
 		query="/ei-producer/v1/eitypes/$2"
 	fi
-    res="$(__do_curl_to_api ECS PUT $query $file)"
+    res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1340,7 +1340,7 @@ ecs_api_edp_put_type_2() {
 # API Test function: DELETE /data-producer/v1/info-types/{infoTypeId}
 # args: (v1_2) <response-code> <type-id>
 # (Function for test scripts)
-ecs_api_edp_delete_type_2() {
+ics_api_edp_delete_type_2() {
 	__log_test_start $@
 
     if [ $# -ne 2 ]; then
@@ -1348,12 +1348,12 @@ ecs_api_edp_delete_type_2() {
 		return 1
 	fi
 
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-types/$2"
 	else
 		query="/ei-producer/v1/eitypes/$2"
 	fi
-    res="$(__do_curl_to_api ECS DELETE $query)"
+    res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1368,7 +1368,7 @@ ecs_api_edp_delete_type_2() {
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}
 # args: (v1_1) <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+) ]
 # (Function for test scripts)
-ecs_api_edp_get_producer() {
+ics_api_edp_get_producer() {
 	__log_test_start $@
 
 	#Possible arg count: 2, 5 6, 8, 10 etc
@@ -1390,7 +1390,7 @@ ecs_api_edp_get_producer() {
 	fi
 
 	query="/ei-producer/v1/eiproducers/$2"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1438,7 +1438,7 @@ ecs_api_edp_get_producer() {
 # API Test function: GET /data-producer/v1/info-producers/{infoProducerId}
 # args (v1_2): <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]
 # (Function for test scripts)
-ecs_api_edp_get_producer_2() {
+ics_api_edp_get_producer_2() {
 	__log_test_start $@
 
 	#Possible arg count: 2, 5, 6, 7, 8 etc
@@ -1457,12 +1457,12 @@ ecs_api_edp_get_producer_2() {
 		__print_err "<response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]" $@
 		return 1
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-producers/$2"
 	else
 		query="/ei-producer/v1/eiproducers/$2"
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1484,7 +1484,7 @@ ecs_api_edp_get_producer_2() {
 		fi
 		targetJson=$targetJson"]"
 		if [ $# -gt 4 ]; then
-			if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+			if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 				targetJson="{\"supported_info_types\":$targetJson,\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\"}"
 			else
 				targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\"}"
@@ -1507,19 +1507,19 @@ ecs_api_edp_get_producer_2() {
 # API Test function: DELETE /data-producer/v1/info-producers/{infoProducerId}
 # args: <response-code> <producer-id>
 # (Function for test scripts)
-ecs_api_edp_delete_producer() {
+ics_api_edp_delete_producer() {
 	__log_test_start $@
 
     if [ $# -lt 2 ]; then
 		__print_err "<response-code> <producer-id>" $@
 		return 1
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-producers/$2"
 	else
 		query="/ei-producer/v1/eiproducers/$2"
 	fi
-    res="$(__do_curl_to_api ECS DELETE $query)"
+    res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1534,7 +1534,7 @@ ecs_api_edp_delete_producer() {
 # API Test function: PUT /ei-producer/v1/eiproducers/{eiProducerId}
 # args: (v1_1) <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id> <schema-file>]+
 # (Function for test scripts)
-ecs_api_edp_put_producer() {
+ics_api_edp_put_producer() {
 	__log_test_start $@
 
 	#Valid number of parametrer 5,6,8,10,
@@ -1574,7 +1574,7 @@ ecs_api_edp_put_producer() {
 	file="./tmp/.p.json"
 	echo "$inputJson" > $file
 	query="/ei-producer/v1/eiproducers/$2"
-    res="$(__do_curl_to_api ECS PUT $query $file)"
+    res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1590,7 +1590,7 @@ ecs_api_edp_put_producer() {
 # API Test function: PUT /data-producer/v1/info-producers/{infoProducerId}
 # args: (v1_2) <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id>+]
 # (Function for test scripts)
-ecs_api_edp_put_producer_2() {
+ics_api_edp_put_producer_2() {
 	__log_test_start $@
 
 	#Valid number of parametrer 5,6,8,10,
@@ -1615,7 +1615,7 @@ ecs_api_edp_put_producer_2() {
 			inputJson=$inputJson"\""${arr[$i]}"\""
 		done
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		inputJson="\"supported_info_types\":"$inputJson"]"
 
 		inputJson=$inputJson",\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\""
@@ -1636,7 +1636,7 @@ ecs_api_edp_put_producer_2() {
 		echo "$inputJson" > $file
 		query="/ei-producer/v1/eiproducers/$2"
 	fi
-    res="$(__do_curl_to_api ECS PUT $query $file)"
+    res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1651,7 +1651,7 @@ ecs_api_edp_put_producer_2() {
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/eijobs
 # args: (V1-1) <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
 # (Function for test scripts)
-ecs_api_edp_get_producer_jobs() {
+ics_api_edp_get_producer_jobs() {
 	__log_test_start $@
 
 	#Valid number of parameter 2,3,7,11
@@ -1672,7 +1672,7 @@ ecs_api_edp_get_producer_jobs() {
 	fi
 
 	query="/ei-producer/v1/eiproducers/$2/eijobs"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 	if [ $status -ne $1 ]; then
 		__log_test_fail_status_code $1 $status
@@ -1716,7 +1716,7 @@ ecs_api_edp_get_producer_jobs() {
 # API Test function: GET /data-producer/v1/info-producers/{infoProducerId}/info-jobs
 # args: (V1-2) <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
 # (Function for test scripts)
-ecs_api_edp_get_producer_jobs_2() {
+ics_api_edp_get_producer_jobs_2() {
 	__log_test_start $@
 
 	#Valid number of parameter 2,3,7,11
@@ -1735,12 +1735,12 @@ ecs_api_edp_get_producer_jobs_2() {
 		__print_err "<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)" $@
 		return 1
 	fi
-	if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-producers/$2/info-jobs"
 	else
 		query="/ei-producer/v1/eiproducers/$2/eijobs"
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 	if [ $status -ne $1 ]; then
 		__log_test_fail_status_code $1 $status
@@ -1762,7 +1762,7 @@ ecs_api_edp_get_producer_jobs_2() {
 					__log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
 					return 1
 				fi
-				if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+				if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 					targetJson=$targetJson"{\"info_job_identity\":\"${arr[$i]}\",\"info_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"info_job_data\":$jobfile, \"last_updated\":\"????\"}"
 				else
 					targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile, \"last_updated\":\"????\"}"
@@ -1787,19 +1787,19 @@ ecs_api_edp_get_producer_jobs_2() {
 ##########################################
 ####          Service status          ####
 ##########################################
-# Function prefix: ecs_api_service
+# Function prefix: ics_api_service
 
 # API Test function: GET ​/status
 # args: <response-code>
 # (Function for test scripts)
-ecs_api_service_status() {
+ics_api_service_status() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code>" $@
 		return 1
 	fi
-	res="$(__do_curl_to_api ECS GET /status)"
+	res="$(__do_curl_to_api ICS GET /status)"
     status=${res:${#res}-3}
 	if [ $status -ne $1 ]; then
 		__log_test_fail_status_code $1 $status
@@ -1812,13 +1812,13 @@ ecs_api_service_status() {
 ###########################################
 ######### Info data consumer API ##########
 ###########################################
-#Function prefix: ecs_api_idc
+#Function prefix: ics_api_idc
 
 
 # API Test function: GET /data-consumer/v1/info-types
 # args: <response-code> [ (EMPTY | [<type-id>]+) ]
 # (Function for test scripts)
-ecs_api_idc_get_type_ids() {
+ics_api_idc_get_type_ids() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
@@ -1827,7 +1827,7 @@ ecs_api_idc_get_type_ids() {
 	fi
 
 	query="/data-consumer/v1/info-types"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1862,7 +1862,7 @@ ecs_api_idc_get_type_ids() {
 # API Test function: GET /data-consumer/v1/info-jobs
 # args: <response-code> <type-id>|NOTYPE <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
 # (Function for test scripts)
-ecs_api_idc_get_job_ids() {
+ics_api_idc_get_job_ids() {
 	__log_test_start $@
 
 	# Valid number of parameters 4,5,6 etc
@@ -1884,7 +1884,7 @@ ecs_api_idc_get_job_ids() {
 	fi
 	query="/data-consumer/v1/info-jobs$search"
 
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1922,7 +1922,7 @@ ecs_api_idc_get_job_ids() {
 # API Test function: GET /data-consumer/v1/info-jobs/{infoJobId}
 # args: <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
 # (Function for test scripts)
-ecs_api_idc_get_job() {
+ics_api_idc_get_job() {
 	__log_test_start $@
 
 	if [ $# -ne 2 ] && [ $# -ne 7 ]; then
@@ -1930,7 +1930,7 @@ ecs_api_idc_get_job() {
 		return 1
 	fi
 	query="/data-consumer/v1/info-jobs/$2"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1966,7 +1966,7 @@ ecs_api_idc_get_job() {
 # API Test function: PUT ​/data-consumer/v1/info-jobs/{infoJobId}
 # args: <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file> [ VALIDATE ]
 # (Function for test scripts)
-ecs_api_idc_put_job() {
+ics_api_idc_put_job() {
 	__log_test_start $@
 
 	if [ $# -lt 7 ] || [ $# -gt 8 ]; then
@@ -1993,7 +1993,7 @@ ecs_api_idc_put_job() {
 		fi
 	fi
 
-    res="$(__do_curl_to_api ECS PUT $query $file)"
+    res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2008,7 +2008,7 @@ ecs_api_idc_put_job() {
 # API Test function: DELETE ​/data-consumer/v1/info-jobs/{infoJobId}
 # args: <response-code> <job-id>
 # (Function for test scripts)
-ecs_api_idc_delete_job() {
+ics_api_idc_delete_job() {
 	__log_test_start $@
 
 	if [ $# -ne 2 ]; then
@@ -2016,7 +2016,7 @@ ecs_api_idc_delete_job() {
 		return 1
 	fi
 	query="/data-consumer/v1/info-jobs/$2"
-    res="$(__do_curl_to_api ECS DELETE $query)"
+    res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2031,7 +2031,7 @@ ecs_api_idc_delete_job() {
 # API Test function: GET ​/data-consumer/v1/info-types/{infoTypeId}
 # args: <response-code> <type-id> [<schema-file> [<type-status> <producers-count]]
 # (Function for test scripts)
-ecs_api_idc_get_type() {
+ics_api_idc_get_type() {
 	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 5 ]; then
@@ -2040,7 +2040,7 @@ ecs_api_idc_get_type() {
 	fi
 
 	query="/data-consumer/v1/info-types/$2"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2078,7 +2078,7 @@ ecs_api_idc_get_type() {
 # This test only status during an optional timeout. No test of the list of producers
 # args: <response-code> <job-id> [<status> [<timeout>]]
 # (Function for test scripts)
-ecs_api_idc_get_job_status() {
+ics_api_idc_get_job_status() {
 	__log_test_start $@
 
 	if [ $# -lt 2 ] && [ $# -gt 4 ]; then
@@ -2090,7 +2090,7 @@ ecs_api_idc_get_job_status() {
 
 	start=$SECONDS
 	for (( ; ; )); do
-		res="$(__do_curl_to_api ECS GET $query)"
+		res="$(__do_curl_to_api ICS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $# -eq 4 ]; then
@@ -2144,7 +2144,7 @@ ecs_api_idc_get_job_status() {
 # This function test status and the list of producers with and optional timeout
 # args: <response-code> <job-id> [<status> EMPTYPROD|( <prod-count> <producer-id>+ ) [<timeout>]]
 # (Function for test scripts)
-ecs_api_idc_get_job_status2() {
+ics_api_idc_get_job_status2() {
 
 	__log_test_start $@
 	param_error=0
@@ -2169,9 +2169,9 @@ ecs_api_idc_get_job_status2() {
 				idx=$(($4+4))
 				timeout=${args[$idx]}
 			fi
-			for ((ecs_i = 0 ; ecs_i < $4 ; ecs_i++)); do
-				idx=$(($ecs_i+4))
-				if [ $ecs_i -gt 0 ]; then
+			for ((ics_i = 0 ; ics_i < $4 ; ics_i++)); do
+				idx=$(($ics_i+4))
+				if [ $ics_i -gt 0 ]; then
 					targetJson=$targetJson","
 				fi
 				targetJson=$targetJson"\""${args[$idx]}"\""
@@ -2189,7 +2189,7 @@ ecs_api_idc_get_job_status2() {
 
 	start=$SECONDS
 	for (( ; ; )); do
-		res="$(__do_curl_to_api ECS GET $query)"
+		res="$(__do_curl_to_api ICS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $# -gt 2 ]; then
@@ -2245,7 +2245,7 @@ ecs_api_idc_get_job_status2() {
 # API Test function: GET /data-consumer/v1/info-type-subscription
 # args: <response-code>  <owner-id>|NOOWNER [ EMPTY | <subscription-id>+]
 # (Function for test scripts)
-ecs_api_idc_get_subscription_ids() {
+ics_api_idc_get_subscription_ids() {
 	__log_test_start $@
 
     if [ $# -lt 3 ]; then
@@ -2259,7 +2259,7 @@ ecs_api_idc_get_subscription_ids() {
 		search="?owner="$2
 	fi
 
-    res="$(__do_curl_to_api ECS GET $query$search)"
+    res="$(__do_curl_to_api ICS GET $query$search)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2295,7 +2295,7 @@ ecs_api_idc_get_subscription_ids() {
 # API Test function: GET /data-consumer/v1/info-type-subscription/{subscriptionId}
 # args: <response-code>  <subscription-id> [ <owner-id> <status-uri> ]
 # (Function for test scripts)
-ecs_api_idc_get_subscription() {
+ics_api_idc_get_subscription() {
 	__log_test_start $@
 
     if [ $# -ne 2 ] && [ $# -ne 4 ]; then
@@ -2304,7 +2304,7 @@ ecs_api_idc_get_subscription() {
 	fi
 
 	query="/data-consumer/v1/info-type-subscription/$2"
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2331,7 +2331,7 @@ ecs_api_idc_get_subscription() {
 # API Test function: PUT /data-consumer/v1/info-type-subscription/{subscriptionId}
 # args: <response-code>  <subscription-id> <owner-id> <status-uri>
 # (Function for test scripts)
-ecs_api_idc_put_subscription() {
+ics_api_idc_put_subscription() {
 	__log_test_start $@
 
     if [ $# -ne 4 ]; then
@@ -2344,7 +2344,7 @@ ecs_api_idc_put_subscription() {
 	echo "$inputJson" > $file
 
 	query="/data-consumer/v1/info-type-subscription/$2"
-    res="$(__do_curl_to_api ECS PUT $query $file)"
+    res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2359,7 +2359,7 @@ ecs_api_idc_put_subscription() {
 # API Test function: DELETE /data-consumer/v1/info-type-subscription/{subscriptionId}
 # args: <response-code>  <subscription-id>
 # (Function for test scripts)
-ecs_api_idc_delete_subscription() {
+ics_api_idc_delete_subscription() {
 	__log_test_start $@
 
 	if [ $# -ne 2 ]; then
@@ -2368,7 +2368,7 @@ ecs_api_idc_delete_subscription() {
 	fi
 
 	query="/data-consumer/v1/info-type-subscription/$2"
-    res="$(__do_curl_to_api ECS DELETE $query)"
+    res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2383,13 +2383,13 @@ ecs_api_idc_delete_subscription() {
 ##########################################
 ####          Reset jobs              ####
 ##########################################
-# Function prefix: ecs_api_admin
+# Function prefix: ics_api_admin
 
 # Admin to remove all jobs
 # args: <response-code> [ <type> ]
 # (Function for test scripts)
 
-ecs_api_admin_reset() {
+ics_api_admin_reset() {
 	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
@@ -2397,7 +2397,7 @@ ecs_api_admin_reset() {
 	else
 		query="/A1-EI/v1/eijobs"
 	fi
-    res="$(__do_curl_to_api ECS GET $query)"
+    res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne 200 ]; then
@@ -2417,7 +2417,7 @@ ecs_api_admin_reset() {
 			echo "Not supported for non-flat EI api"
 		else
 			query="/A1-EI/v1/eijobs/$job"
-			res="$(__do_curl_to_api ECS DELETE $query)"
+			res="$(__do_curl_to_api ICS DELETE $query)"
 			status=${res:${#res}-3}
 			if [ $status -ne 204 ]; then
 				__log_test_fail_status_code $1 $status
@@ -2436,21 +2436,21 @@ ecs_api_admin_reset() {
 ##########################################
 
 
-# Admin reset to remove all data in ecs; jobs, producers etc
+# Admin reset to remove all data in ics; jobs, producers etc
 # NOTE - only works in kubernetes and the pod should not be running
 # args: -
 # (Function for test scripts)
 
-ecs_kube_pvc_reset() {
+ics_kube_pvc_reset() {
 	__log_test_start $@
 
-	pvc_name=$(kubectl get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep enrichment)
+	pvc_name=$(kubectl get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep information)
 	if [ -z "$pvc_name" ]; then
-		pvc_name=enrichmentservice-pvc
+		pvc_name=informationservice-pvc
 	fi
 	echo " Trying to reset pvc: "$pvc_name
 
-	__kube_clean_pvc $ECS_APP_NAME $KUBE_NONRTRIC_NAMESPACE $pvc_name $ECS_CONTAINER_MNT_DIR
+	__kube_clean_pvc $ICS_APP_NAME $KUBE_NONRTRIC_NAMESPACE $pvc_name $ICS_CONTAINER_MNT_DIR
 
 	__log_test_pass
 	return 0
