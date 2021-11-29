@@ -273,7 +273,7 @@ use_mr_https() {
 # args: <protocol> <internal-port> <external-port> <internal-secure-port> <external-secure-port>
 __mr_set_protocoll() {
 	echo -e $BOLD"$MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $MR_STUB_DISPLAY_NAME and $MR_DMAAP_DISPLAY_NAME"
 
 	## Access to Dmaap mediator
 

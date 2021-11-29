@@ -62,7 +62,7 @@ app:
     # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
     http.proxy-host: $DMAAP_ADP_HTTP_PROXY_CONFIG_HOST_NAME
     http.proxy-port: $DMAAP_ADP_HTTP_PROXY_CONFIG_PORT
-  ecs-base-url: $ECS_SERVICE_PATH
+  ics-base-url: $ICS_SERVICE_PATH
   # Location of the component configuration file. The file will only be used if the Consul database is not used;
   # configuration from the Consul will override the file.
   configuration-filepath: /opt/app/dmaap-adaptor-service/data/application_configuration.json

@@ -27,7 +27,7 @@ DOCKER_INCLUDED_IMAGES="" # Not used -  KUBE only test script
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR CR  PRODSTUB KUBEPROXY"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
-KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ECS RC SDNC DMAAPMED DMAAPADP"
+KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ICS RC SDNC DMAAPMED DMAAPADP"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ORAN-E-RELEASE"
@@ -45,10 +45,10 @@ use_cr_https
 use_agent_rest_https
 use_sdnc_https
 use_simulator_https
-use_ecs_rest_https
+use_ics_rest_https
 use_prod_stub_https
 
-if [ $ECS_VERSION == "V1-1" ]; then
+if [ $ICS_VERSION == "V1-1" ]; then
     use_rapp_catalogue_http # https not yet supported
 else
     ########################################use_rapp_catalogue_https
@@ -69,7 +69,7 @@ clean_environment
 
 pms_kube_pvc_reset
 
-ecs_kube_pvc_reset
+ics_kube_pvc_reset
 
 start_kube_proxy
 
@@ -100,9 +100,9 @@ start_cr 1
 
 start_prod_stub
 
-start_ecs NOPROXY
+start_ics NOPROXY
 
-set_ecs_trace
+set_ics_trace
 
 start_rapp_catalogue
 
@@ -319,7 +319,7 @@ echo "ADD MR CHECK"
 
 FLAT_A1_EI="1"
 
-ecs_api_admin_reset
+ics_api_admin_reset
 
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
 CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
@@ -335,61 +335,61 @@ prodstub_arm_job_create 200 prod-a job1
 prodstub_arm_job_create 200 prod-a job2
 
 
-### ecs status
-ecs_api_service_status 200
+### ics status
+ics_api_service_status 200
 
 ## Setup prod-a
-if [ $ECS_VERSION == "V1-1" ]; then
-    ecs_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+if [ $ICS_VERSION == "V1-1" ]; then
+    ics_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
 
-    ecs_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ecs/ei-type-1.json
+    ics_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
 else
-    ecs_api_edp_put_type_2 201 type1 testdata/ecs/ei-type-1.json
-    ecs_api_edp_get_type_2 200 type1
-    ecs_api_edp_get_type_ids 200 type1
+    ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
+    ics_api_edp_get_type_2 200 type1
+    ics_api_edp_get_type_ids 200 type1
 
-    ecs_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-    ecs_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+    ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+    ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 fi
 
-ecs_api_edp_get_producer_status 200 prod-a ENABLED
+ics_api_edp_get_producer_status 200 prod-a ENABLED
 
 
 ## Create a job for prod-a
 ## job1 - prod-a
 if [  -z "$FLAT_A1_EI" ]; then
-    ecs_api_a1_put_job 201 type1 job1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    ics_api_a1_put_job 201 type1 job1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
 else
-    ecs_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ecs/job-template.json
+    ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
 fi
 
 # Check the job data in the producer
-if [ $ECS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+if [ $ICS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
 else
-    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
     else
-        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
+        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
     fi
 fi
 
 ## Create a second job for prod-a
 ## job2 - prod-a
 if [  -z "$FLAT_A1_EI" ]; then
-    ecs_api_a1_put_job 201 type1 job2 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    ics_api_a1_put_job 201 type1 job2 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
 else
-    ecs_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ecs/job-template.json
+    ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
 fi
 
 # Check the job data in the producer
-if [ $ECS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+if [ $ICS_VERSION == "V1-1" ]; then
+    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
 else
-    if [[ "$ECS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
     else
-        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
     fi
 fi
 
@@ -398,27 +398,27 @@ start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE 
 
 start_dmaapmed NOPROXY $SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_DATA_FILE
 
-ecs_equal json:ei-producer/v1/eiproducers 2 60
+ics_equal json:ei-producer/v1/eiproducers 2 60
 
-ecs_api_idc_get_type_ids 200 ExampleInformationType STD_Fault_Messages
+ics_api_idc_get_type_ids 200 ExampleInformationType STD_Fault_Messages
 
-ecs_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
+ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
 
 NUM_JOBS=5
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 jobx$i STD_Fault_Messages $CR_SERVICE_MR_PATH_0/jobx-data$i info-ownerx$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerx$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 jobx$i STD_Fault_Messages $CR_SERVICE_MR_PATH_0/jobx-data$i info-ownerx$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerx$i testdata/dmaap-adapter/job-template.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_a1_get_job_status 200 jobx$i ENABLED 30
+    ics_api_a1_get_job_status 200 jobx$i ENABLED 30
 done
 
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-0"}'
@@ -442,22 +442,22 @@ do
 done
 
 
-stop_ecs
+stop_ics
 
-start_stopped_ecs
+start_stopped_ics
 
-# Check ECS status after restart
+# Check ICS status after restart
 
 if [  -z "$FLAT_A1_EI" ]; then
-    ecs_api_a1_get_job_status 200 type1 job1 DISABLED
-    ecs_api_a1_get_job_status 200 type1 job2 DISABLED
+    ics_api_a1_get_job_status 200 type1 job1 DISABLED
+    ics_api_a1_get_job_status 200 type1 job2 DISABLED
 else
-    ecs_api_a1_get_job_status 200 job1 DISABLED
-    ecs_api_a1_get_job_status 200 job2 DISABLED
+    ics_api_a1_get_job_status 200 job1 DISABLED
+    ics_api_a1_get_job_status 200 job2 DISABLED
 fi
 
 check_policy_agent_logs
-check_ecs_logs
+check_ics_logs
 check_sdnc_logs
 
 #### TEST COMPLETE ####

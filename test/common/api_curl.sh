@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-# Generic function to query the agent/ECS via the REST or DMAAP interface.
-# Used by all other agent/ECS api test functions
+# Generic function to query the agent/ICS via the REST or DMAAP interface.
+# Used by all other agent/ICS api test functions
 # If operation sufffix is '_BATCH' the the send and get response is split in two sequences,
 # one for sending the requests and one for receiving the response
 # but only when using the DMAAP interface
 # REST or DMAAP is controlled of the base url of $XX_ADAPTER
-# arg: (PA|ECS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file> [mime-type]]) | (PA|ECS RESPONSE <correlation-id>)
+# arg: (PA|ICS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file> [mime-type]]) | (PA|ICS RESPONSE <correlation-id>)
 # Default mime type for file is application/json unless specified in parameter mime-type
 # (Not for test scripts)
 __do_curl_to_api() {
@@ -49,10 +49,10 @@ __do_curl_to_api() {
 			if [ $PMS_VERSION != "V1" ]; then
 				input_url=$PMS_API_PREFIX$3
 			fi
-        elif [ $1 == "ECS" ]; then
-			__ADAPTER=$ECS_ADAPTER
-			__ADAPTER_TYPE=$ECS_ADAPTER_TYPE
-            __RETRY_CODES=$ECS_RETRY_CODES
+        elif [ $1 == "ICS" ]; then
+			__ADAPTER=$ICS_ADAPTER
+			__ADAPTER_TYPE=$ICS_ADAPTER_TYPE
+            __RETRY_CODES=$ICS_RETRY_CODES
 		elif [ $1 == "CR" ]; then
 			__ADAPTER=$CR_ADAPTER
 			__ADAPTER_TYPE=$CR_ADAPTER_TYPE
@@ -151,7 +151,7 @@ __do_curl_to_api() {
     if [ $paramError -eq 1 ]; then
 		((RES_CONF_FAIL++))
         echo "-Incorrect number of parameters to __do_curl_to_api " $@ >> $HTTPLOG
-        echo "-Expected: (PA|ECS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ECS RESPONSE <correlation-id>)" >> $HTTPLOG
+        echo "-Expected: (PA|ICS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ICS RESPONSE <correlation-id>)" >> $HTTPLOG
         echo "-Returning response 000" >> $HTTPLOG
         echo "-000"
         return 1
@@ -248,7 +248,7 @@ __do_curl_to_api() {
 			echo " RESP: "$res >> $HTTPLOG
 			status=${res:${#res}-3}
 			TS=$SECONDS
-			# wait of the reply from the agent/ECS...
+			# wait of the reply from the agent/ICS...
 			while [ $status -eq 204 ]; do
 				if [ $(($SECONDS - $TS)) -gt 90 ]; then
 					echo " RETCODE: (timeout after 90s)" >> $HTTPLOG

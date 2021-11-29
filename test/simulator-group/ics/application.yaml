@@ -33,24 +33,24 @@ logging:
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
-    org.oransc.enrichment: INFO
+    org.oransc.information: INFO
   file:
-    name: /var/log/enrichment-coordinator-service/application.log
+    name: /var/log/information-coordinator-service/application.log
 server:
    port : 8434
    http-port: 8083
    ssl:
       key-store-type: JKS
       key-store-password: policy_agent
-      key-store: /opt/app/enrichment-coordinator-service/etc/cert/keystore.jks
+      key-store: /opt/app/information-coordinator-service/etc/cert/keystore.jks
       key-password: policy_agent
       key-alias: policy_agent
 app:
-  filepath: /opt/app/enrichment-coordinator-service/data/application_configuration.json
+  filepath: /opt/app/information-coordinator-service/data/application_configuration.json
   webclient:
     trust-store-used: false
     trust-store-password: policy_agent
-    trust-store: /opt/app/enrichment-coordinator-service/etc/cert/truststore.jks
-    http.proxy-host: $ECS_HTTP_PROXY_CONFIG_HOST_NAME
-    http.proxy-port: $ECS_HTTP_PROXY_CONFIG_PORT
-  vardata-directory: /var/enrichment-coordinator-service
+    trust-store: /opt/app/information-coordinator-service/etc/cert/truststore.jks
+    http.proxy-host: $ICS_HTTP_PROXY_CONFIG_HOST_NAME
+    http.proxy-port: $ICS_HTTP_PROXY_CONFIG_PORT
+  vardata-directory: /var/information-coordinator-service

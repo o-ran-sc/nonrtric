@@ -666,7 +666,7 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 	if [ $paramerror -eq 0 ]; then
 		if [ "$1" == "--print-stats" ]; then
 			PRINT_CURRENT_STATS=1
-			echo "Option set - Print stats"
+			echo "Option set - Print stats after every test-case and config"
 			shift;
 			foundparm=0
 		fi
@@ -1270,10 +1270,10 @@ setup_testenvironment() {
 				IMAGE_SUFFIX="none"
 			fi
 			# A function name is created from the app short name
-			# for example app short name 'ECS' -> produce the function
-			# name __ECS_imagesetup
+			# for example app short name 'ICS' -> produce the function
+			# name __ICS_imagesetup
 			# This function is called and is expected to exist in the imported
-			# file for the ecs test functions
+			# file for the ics test functions
 			# The resulting function impl will call '__check_and_create_image_var' function
 			# with appropriate parameters
 			# If the image suffix is none, then the component decides the suffix

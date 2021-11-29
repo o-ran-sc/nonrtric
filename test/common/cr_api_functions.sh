@@ -160,7 +160,7 @@ use_cr_https() {
 __cr_set_protocoll() {
 
 	echo -e $BOLD"$CR_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $CR_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $CR_DISPLAY_NAME"
 	## Access to Dmaap adapter
 	for ((CR_INSTANCE=0; CR_INSTANCE<$MAX_CR_APP_COUNT; CR_INSTANCE++ )); do
 		CR_DOCKER_INSTANCE=$(($CR_INSTANCE+1))
@@ -489,10 +489,10 @@ cr_api_check_all_sync_events() {
 	return 0
 }
 
-# CR API: Check the contents of all current status events for one id from ECS
+# CR API: Check the contents of all current status events for one id from ICS
 # <response-code> <cr-path-id> <id> [ EMPTY | ( <status> )+ ]
 # (Function for test scripts)
-cr_api_check_all_ecs_events() {
+cr_api_check_all_ics_events() {
 	__log_test_start $@
 
     if [ $# -lt 3 ]; then
@@ -546,10 +546,10 @@ cr_api_check_all_ecs_events() {
 	return 0
 }
 
-# CR API: Check the contents of all current type subscription events for one id from ECS
+# CR API: Check the contents of all current type subscription events for one id from ICS
 # <response-code> <cr-path-id> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]
 # (Function for test scripts)
-cr_api_check_all_ecs_subscription_events() {
+cr_api_check_all_ics_subscription_events() {
 	__log_test_start $@
 
 	#Valid number of parameter 3,4,8,12
@@ -625,7 +625,7 @@ cr_api_check_all_ecs_subscription_events() {
 cr_api_reset() {
 	__log_conf_start $@
 
-	if [ $# -ne 0 ]; then
+	if [ $# -ne 1 ]; then
 		__print_err "<cr-path-id>" $@
 		return 1
 	fi

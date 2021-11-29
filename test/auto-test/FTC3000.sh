@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="App test DMAAP Meditor and DMAAP Adapter"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ECS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR"
+DOCKER_INCLUDED_IMAGES="ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" ECS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR"
+KUBE_INCLUDED_IMAGES=" ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR"
 
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
@@ -59,7 +59,7 @@ clean_environment
 
 #use_cr_https
 use_cr_http
-use_ecs_rest_https
+use_ics_rest_https
 use_mr_https
 use_dmaapadp_https
 use_dmaapmed_https
@@ -68,9 +68,9 @@ start_kube_proxy
 
 start_cr $NUM_CR
 
-start_ecs NOPROXY $SIM_GROUP/$ECS_COMPOSE_DIR/$ECS_CONFIG_FILE
+start_ics NOPROXY $SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_CONFIG_FILE
 
-set_ecs_trace
+set_ics_trace
 
 start_mr    "unauthenticated.dmaapmed.json" "/events" "dmaapmediatorproducer/STD_Fault_Messages" \
             "unauthenticated.dmaapadp.json" "/events" "dmaapadapterproducer/msgs" \
@@ -82,12 +82,12 @@ set_dmaapadp_trace
 
 start_dmaapmed NOPROXY $SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_DATA_FILE
 
-ecs_equal json:data-producer/v1/info-producers 2 60
+ics_equal json:data-producer/v1/info-producers 2 60
 
 # Check producers
-ecs_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
-ecs_api_idc_get_type_ids 200 ExampleInformationType STD_Fault_Messages ExampleInformationTypeKafka
-ecs_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
+ics_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
+ics_api_idc_get_type_ids 200 ExampleInformationType STD_Fault_Messages ExampleInformationTypeKafka
+ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
 
 
 # Create jobs for adapter - CR stores data as MD5 hash
@@ -97,7 +97,7 @@ do
     cr_index=$(($i%$NUM_CR))
     service_mr="CR_SERVICE_MR_PATH_"$cr_index
     service_app="CR_SERVICE_APP_PATH_"$cr_index
-    ecs_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template.json
 
 done
 print_timer
@@ -109,7 +109,7 @@ do
     cr_index=$(($i%$NUM_CR))
     service_text="CR_SERVICE_TEXT_PATH_"$cr_index
     service_app="CR_SERVICE_APP_PATH_"$cr_index
-    ecs_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka ${!service_text}/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i ${!service_app}/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1-kafka.json
+    ics_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka ${!service_text}/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i ${!service_app}/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1-kafka.json
 
 done
 print_timer
@@ -121,16 +121,16 @@ do
     cr_index=$(($i%$NUM_CR))
     service_mr="CR_SERVICE_MR_PATH_"$cr_index
     service_app="CR_SERVICE_APP_PATH_"$cr_index
-    ecs_api_idc_put_job 201 job-med-$i STD_Fault_Messages ${!service_mr}/job-med-data$i"?storeas=md5" info-owner-med-$i ${!service_app}/job_status_info-owner-med-$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 job-med-$i STD_Fault_Messages ${!service_mr}/job-med-data$i"?storeas=md5" info-owner-med-$i ${!service_app}/job_status_info-owner-med-$i testdata/dmaap-adapter/job-template.json
 done
 print_timer
 
 # Check job status
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ecs_api_a1_get_job_status 200 job-med-$i ENABLED 30
-    ecs_api_a1_get_job_status 200 job-adp-$i ENABLED 30
-    ecs_api_a1_get_job_status 200 job-adp-kafka-$i ENABLED 30
+    ics_api_a1_get_job_status 200 job-med-$i ENABLED 30
+    ics_api_a1_get_job_status 200 job-adp-$i ENABLED 30
+    ics_api_a1_get_job_status 200 job-adp-kafka-$i ENABLED 30
 done
 
 

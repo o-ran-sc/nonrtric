@@ -149,7 +149,7 @@ use_agent_dmaap_https() {
 # args: <protocol> <internal-port> <external-port>
 __agent_set_protocoll() {
 	echo -e $BOLD"$POLICY_AGENT_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards $POLICY_AGENT_DISPLAY_NAME"
+	echo -e " Using $BOLD $1 $EBOLD towards $POLICY_AGENT_DISPLAY_NAME"
 
 	## Access to Dmaap adapter
 
