@@ -15,18 +15,14 @@ The consumer takes a number of environment variables, described below, as config
 
 ## Development
 
-To make it easy to test during development of the consumer, two stubs are provided in the `stub` folder.
+To make it easy to test during development of the consumer, there is a stub provided in the `stub` folder.
 
-One, under the `mrstub` folder, called `mrstub` that stubs the VES message received from Dmaap and pushes messages with information about performance measurements for the slices in a determinated DU. To build and start the stub, do the following:
->1. cd stub/producer
+Under the `stub` folder can be found as `simulator`, that stubs the VES message received from Dmaap and pushes messages with information about performance measurements for the slices in a determinated DU. It also simulate the `sdnr` that at startup will listen for REST calls and answer with information regarding Radio Resource Management Policy Ratio. By default, it listens to the port `3904`, but his can be overridden by passing a `-port [PORT]` flag when starting the stub. To build and start the stub, do the following:
+
+To build and start the stub, do the following:
+>1. cd stub
 >2. go build
->3. ./mrstub
-
-One, under the `sdnr` folder, called `sdnr` that at startup will listen for REST calls and print the body of them. By default, it listens to the port `3904`, but his can be overridden by passing a `-port [PORT]` flag when starting the stub. To build and start the stub, do the following:
->1. cd stub/sdnr
->2. go build
->3. ./sdnr
-
+>3. ./stub
 
 ## License
 

@@ -20,6 +20,8 @@
 
 package structures
 
+import "oransc.org/usecase/oduclosedloop/messages"
+
 type SliceMetric struct {
 	DUId             string
 	CellId           string
@@ -43,11 +45,11 @@ func NewSliceMetric(duid string, cellid string, sd int, sst int) *SliceMetric {
 type PolicyRatio struct {
 	PolicyRatioId        string
 	PolicyMaxRatio       int
-	PolicyMinRatio       string
+	PolicyMinRatio       int
 	PolicyDedicatedRatio int
 }
 
-func NewPolicyRatioEntry(id string, max_ratio int, min_ratio string, ded_ratio int) *PolicyRatio {
+func NewPolicyRatio(id string, max_ratio int, min_ratio int, ded_ratio int) *PolicyRatio {
 	pr := PolicyRatio{
 		PolicyRatioId:        id,
 		PolicyMaxRatio:       max_ratio,
@@ -55,4 +57,25 @@ func NewPolicyRatioEntry(id string, max_ratio int, min_ratio string, ded_ratio i
 		PolicyDedicatedRatio: ded_ratio,
 	}
 	return &pr
+}
+
+func (pr *PolicyRatio) GetUpdateDedicatedRatioMessage(sd int, sst int, dedicatedRatio int) []messages.RRMPolicyRatio {
+	message := messages.RRMPolicyRatio{
+		Id:                      pr.PolicyRatioId,
+		AdmState:                "Locked",
+		UserLabel:               "Some user label",
+		RRMPolicyMaxRatio:       pr.PolicyMaxRatio,
+		RRMPolicyMinRatio:       pr.PolicyMinRatio,
+		RRMPolicyDedicatedRatio: dedicatedRatio,
+		ResourceType:            "prb",
+		RRMPolicyMembers: []messages.RRMPolicyMember{
+			{
+				MobileCountryCode:   "046",
+				MobileNetworkCode:   "651",
+				SliceDifferentiator: sd,
+				SliceServiceType:    sst,
+			},
+		},
+	}
+	return []messages.RRMPolicyRatio{message}
 }
