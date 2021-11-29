@@ -28,7 +28,7 @@ command to start the components:
 
          docker-compose -f docker-compose.yaml
            -f policy-service/docker-compose.yaml
-           -f ecs/docker-compose.yaml
+           -f ics/docker-compose.yaml
 
 Install with Helm
 +++++++++++++++++

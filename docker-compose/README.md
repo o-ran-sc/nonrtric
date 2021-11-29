@@ -65,8 +65,8 @@ All the generated data is shown on the web page
 By default, if the containers are started up and running by docker-compose file in the same directory, just run commands:
 ./preparePmsData.sh
 
-prepareEcsData.sh
-This is to generate some data into the ECS microservice
+prepareIcsData.sh
+This is to generate some data into the ICS microservice
 
 prepareDmaapMsg.sh
 This is to generate some data into the Dmaap MR, so that PMS reads message from MR
@@ -85,4 +85,4 @@ Make sure to follow the section regarding sample data so there is data available
 
 To start all the necessary components, run the following command:
 
-docker-compose -f docker-compose.yaml -f control-panel/docker-compose.yaml -f nonrtric-gateway/docker-compose.yaml -f policy-service/docker-compose.yaml -f ecs/docker-compose.yaml -f a1-sim/docker-compose.yaml up
+docker-compose -f docker-compose.yaml -f control-panel/docker-compose.yaml -f nonrtric-gateway/docker-compose.yaml -f policy-service/docker-compose.yaml -f ics/docker-compose.yaml -f a1-sim/docker-compose.yaml up
