@@ -75,6 +75,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e14b29df_d1a22a7e",
+        "filename": "docker-compose/data/prepareIcsData.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-11-30T14:37:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4976bc68_81791bce",
+      "range": {
+        "startLine": 41,
+        "startChar": 9,
+        "endLine": 41,
+        "endChar": 15
+      },
+      "revId": "21040fed39bc1a18546f30e7afc3d7dd0183e29c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8ff0732_b25ed618",
@@ -98,6 +122,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c72657f_60c533d2",
+        "filename": "docker-compose/data/prepareIcsData.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-11-30T14:37:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8ff0732_b25ed618",
+      "range": {
+        "startLine": 56,
+        "startChar": 9,
+        "endLine": 56,
+        "endChar": 19
+      },
+      "revId": "21040fed39bc1a18546f30e7afc3d7dd0183e29c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2fe6b822_565763f6",
@@ -111,6 +159,30 @@
       "writtenOn": "2021-11-30T10:59:53Z",
       "side": 1,
       "message": "could perhaps rename EiJob to InfoJob or something like that ...?",
+      "range": {
+        "startLine": 76,
+        "startChar": 9,
+        "endLine": 76,
+        "endChar": 14
+      },
+      "revId": "21040fed39bc1a18546f30e7afc3d7dd0183e29c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "144735d2_a7c23f6b",
+        "filename": "docker-compose/data/prepareIcsData.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2021-11-30T14:37:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fe6b822_565763f6",
       "range": {
         "startLine": 76,
         "startChar": 9,
