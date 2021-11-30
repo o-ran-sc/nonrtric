@@ -299,6 +299,13 @@
             "description": "Void/empty ",
             "type": "object"
         },
+        "Link": {
+            "type": "object",
+            "properties": {
+                "templated": {"type": "boolean"},
+                "href": {"type": "string"}
+            }
+        },
         "consumer_type_subscription_info": {
             "description": "Information for an information type subscription",
             "type": "object",
@@ -368,6 +375,15 @@
                 "required": true
             }],
             "tags": ["A1-EI (registration)"]
+        }},
+        "/actuator/threaddump": {"get": {
+            "summary": "Actuator web endpoint 'threaddump'",
+            "operationId": "handle_2_1_3",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
         }},
         "/example_dataproducer/info_job": {"post": {
             "summary": "Callback for Information Job creation/modification",
@@ -538,6 +554,234 @@
                 "tags": ["Data consumer"]
             }
         },
+        "/actuator/loggers": {"get": {
+            "summary": "Actuator web endpoint 'loggers'",
+            "operationId": "handle_6",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/actuator/health/**": {"get": {
+            "summary": "Actuator web endpoint 'health-path'",
+            "operationId": "handle_12",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/data-consumer/v1/info-types": {"get": {
+            "summary": "Information type identifiers",
+            "operationId": "getinfoTypeIdentifiers",
+            "responses": {"200": {
+                "description": "Information type identifiers",
+                "content": {"application/json": {"schema": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }}}
+            }},
+            "tags": ["Data consumer"]
+        }},
+        "/actuator/metrics/{requiredMetricName}": {"get": {
+            "summary": "Actuator web endpoint 'metrics-requiredMetricName'",
+            "operationId": "handle_5",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "requiredMetricName",
+                "required": true
+            }],
+            "tags": ["Actuator"]
+        }},
+        "/actuator": {"get": {
+            "summary": "Actuator root web endpoint",
+            "operationId": "links_1",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {
+                    "additionalProperties": {
+                        "additionalProperties": {"$ref": "#/components/schemas/Link"},
+                        "type": "object"
+                    },
+                    "type": "object"
+                }}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/data-consumer/v1/info-jobs": {"get": {
+            "summary": "Information Job identifiers",
+            "description": "query for information job identifiers",
+            "operationId": "getJobIds",
+            "responses": {
+                "200": {
+                    "description": "Information information job identifiers",
+                    "content": {"application/json": {"schema": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }}}
+                },
+                "404": {
+                    "description": "Information type is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [
+                {
+                    "schema": {"type": "string"},
+                    "in": "query",
+                    "name": "infoTypeId",
+                    "description": "selects subscription jobs of matching information type",
+                    "required": false
+                },
+                {
+                    "schema": {"type": "string"},
+                    "in": "query",
+                    "name": "owner",
+                    "description": "selects result for one owner",
+                    "required": false
+                }
+            ],
+            "tags": ["Data consumer"]
+        }},
+        "/actuator/loggers/{name}": {
+            "post": {
+                "summary": "Actuator web endpoint 'loggers-name'",
+                "operationId": "handle_0",
+                "responses": {"200": {
+                    "description": "OK",
+                    "content": {"*/*": {"schema": {"type": "object"}}}
+                }},
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "name",
+                    "required": true
+                }],
+                "tags": ["Actuator"]
+            },
+            "get": {
+                "summary": "Actuator web endpoint 'loggers-name'",
+                "operationId": "handle_7",
+                "responses": {"200": {
+                    "description": "OK",
+                    "content": {"*/*": {"schema": {"type": "object"}}}
+                }},
+                "parameters": [{
+                    "schema": {"type": "string"},
+                    "in": "path",
+                    "name": "name",
+                    "required": true
+                }],
+                "tags": ["Actuator"]
+            }
+        },
+        "/example_dataconsumer/info_jobs/{infoJobId}/status": {"post": {
+            "summary": "Callback for changed Information Job status",
+            "requestBody": {
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EiJobStatusObject"}}},
+                "required": true
+            },
+            "description": "The primitive is implemented by the data consumer and is invoked when a Information Job status has been changed.",
+            "operationId": "jobStatusCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoJobId",
+                "required": true
+            }],
+            "tags": ["A1-EI (callbacks)"]
+        }},
+        "/A1-EI/v1/eijobs/{eiJobId}/status": {"get": {
+            "summary": "EI job status",
+            "operationId": "getEiJobStatus_1",
+            "responses": {
+                "200": {
+                    "description": "EI job status",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EiJobStatusObject"}}}
+                },
+                "404": {
+                    "description": "Enrichment Information job is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "eiJobId",
+                "required": true
+            }],
+            "tags": ["A1-EI (registration)"]
+        }},
+        "/data-producer/v1/info-producers/{infoProducerId}/status": {"get": {
+            "summary": "Information producer status",
+            "operationId": "getInfoProducerStatus",
+            "responses": {
+                "200": {
+                    "description": "Information producer status",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/producer_status"}}}
+                },
+                "404": {
+                    "description": "Information producer is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoProducerId",
+                "required": true
+            }],
+            "tags": ["Data producer (registration)"]
+        }},
+        "/data-consumer/v1/info-jobs/{infoJobId}/status": {"get": {
+            "summary": "Job status",
+            "operationId": "getEiJobStatus",
+            "responses": {
+                "200": {
+                    "description": "Information subscription job status",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_job_status"}}}
+                },
+                "404": {
+                    "description": "Information subscription job is not found",
+                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
+                }
+            },
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoJobId",
+                "required": true
+            }],
+            "tags": ["Data consumer"]
+        }},
+        "/actuator/metrics": {"get": {
+            "summary": "Actuator web endpoint 'metrics'",
+            "operationId": "handle_4",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/actuator/info": {"get": {
+            "summary": "Actuator web endpoint 'info'",
+            "operationId": "handle_9",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
         "/example_dataproducer/health_check": {"get": {
             "summary": "Producer supervision",
             "description": "The endpoint is provided by the Information Producer and is used for supervision of the producer.",
@@ -559,18 +803,6 @@
                 }}}
             }},
             "tags": ["A1-EI (registration)"]
-        }},
-        "/data-consumer/v1/info-types": {"get": {
-            "summary": "Information type identifiers",
-            "operationId": "getinfoTypeIdentifiers",
-            "responses": {"200": {
-                "description": "Information type identifiers",
-                "content": {"application/json": {"schema": {
-                    "type": "array",
-                    "items": {"type": "string"}
-                }}}
-            }},
-            "tags": ["Data consumer"]
         }},
         "/data-producer/v1/info-producers/{infoProducerId}": {
             "get": {
@@ -767,40 +999,14 @@
                 "tags": ["A1-EI (registration)"]
             }
         },
-        "/data-consumer/v1/info-jobs": {"get": {
-            "summary": "Information Job identifiers",
-            "description": "query for information job identifiers",
-            "operationId": "getJobIds",
-            "responses": {
-                "200": {
-                    "description": "Information information job identifiers",
-                    "content": {"application/json": {"schema": {
-                        "type": "array",
-                        "items": {"type": "string"}
-                    }}}
-                },
-                "404": {
-                    "description": "Information type is not found",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
-                }
-            },
-            "parameters": [
-                {
-                    "schema": {"type": "string"},
-                    "in": "query",
-                    "name": "infoTypeId",
-                    "description": "selects subscription jobs of matching information type",
-                    "required": false
-                },
-                {
-                    "schema": {"type": "string"},
-                    "in": "query",
-                    "name": "owner",
-                    "description": "selects result for one owner",
-                    "required": false
-                }
-            ],
-            "tags": ["Data consumer"]
+        "/actuator/logfile": {"get": {
+            "summary": "Actuator web endpoint 'logfile'",
+            "operationId": "handle_8",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
         }},
         "/data-consumer/v1/info-jobs/{infoJobId}": {
             "get": {
@@ -940,25 +1146,14 @@
             }],
             "tags": ["Data consumer"]
         }},
-        "/example_dataconsumer/info_jobs/{infoJobId}/status": {"post": {
-            "summary": "Callback for changed Information Job status",
-            "requestBody": {
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EiJobStatusObject"}}},
-                "required": true
-            },
-            "description": "The primitive is implemented by the data consumer and is invoked when a Information Job status has been changed.",
-            "operationId": "jobStatusCallback",
+        "/actuator/health": {"get": {
+            "summary": "Actuator web endpoint 'health'",
+            "operationId": "handle_11",
             "responses": {"200": {
                 "description": "OK",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+                "content": {"*/*": {"schema": {"type": "object"}}}
             }},
-            "parameters": [{
-                "schema": {"type": "string"},
-                "in": "path",
-                "name": "infoJobId",
-                "required": true
-            }],
-            "tags": ["A1-EI (callbacks)"]
+            "tags": ["Actuator"]
         }},
         "/A1-EI/v1/eijobs": {"get": {
             "summary": "EI job identifiers",
@@ -995,48 +1190,6 @@
             ],
             "tags": ["A1-EI (registration)"]
         }},
-        "/A1-EI/v1/eijobs/{eiJobId}/status": {"get": {
-            "summary": "EI job status",
-            "operationId": "getEiJobStatus_1",
-            "responses": {
-                "200": {
-                    "description": "EI job status",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EiJobStatusObject"}}}
-                },
-                "404": {
-                    "description": "Enrichment Information job is not found",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
-                }
-            },
-            "parameters": [{
-                "schema": {"type": "string"},
-                "in": "path",
-                "name": "eiJobId",
-                "required": true
-            }],
-            "tags": ["A1-EI (registration)"]
-        }},
-        "/data-producer/v1/info-producers/{infoProducerId}/status": {"get": {
-            "summary": "Information producer status",
-            "operationId": "getInfoProducerStatus",
-            "responses": {
-                "200": {
-                    "description": "Information producer status",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/producer_status"}}}
-                },
-                "404": {
-                    "description": "Information producer is not found",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
-                }
-            },
-            "parameters": [{
-                "schema": {"type": "string"},
-                "in": "path",
-                "name": "infoProducerId",
-                "required": true
-            }],
-            "tags": ["Data producer (registration)"]
-        }},
         "/data-producer/v1/info-producers/{infoProducerId}/info-jobs": {"get": {
             "summary": "Information Job definitions",
             "description": "Information Job definitions for one Information Producer",
@@ -1062,27 +1215,6 @@
             }],
             "tags": ["Data producer (registration)"]
         }},
-        "/data-consumer/v1/info-jobs/{infoJobId}/status": {"get": {
-            "summary": "Job status",
-            "operationId": "getEiJobStatus",
-            "responses": {
-                "200": {
-                    "description": "Information subscription job status",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_job_status"}}}
-                },
-                "404": {
-                    "description": "Information subscription job is not found",
-                    "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProblemDetails"}}}
-                }
-            },
-            "parameters": [{
-                "schema": {"type": "string"},
-                "in": "path",
-                "name": "infoJobId",
-                "required": true
-            }],
-            "tags": ["Data consumer"]
-        }},
         "/example_dataconsumer/info_type_status": {"post": {
             "summary": "Callback for changed Information type registration status",
             "requestBody": {
@@ -1096,6 +1228,15 @@
                 "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
             }},
             "tags": ["Data consumer (callbacks)"]
+        }},
+        "/actuator/heapdump": {"get": {
+            "summary": "Actuator web endpoint 'heapdump'",
+            "operationId": "handle_10",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
         }}
     },
     "info": {
@@ -1131,6 +1272,14 @@
         {
             "name": "Data consumer",
             "description": "API for data consumers"
+        },
+        {
+            "name": "Actuator",
+            "description": "Monitor and interact",
+            "externalDocs": {
+                "description": "Spring Boot Actuator Web API Documentation",
+                "url": "https://docs.spring.io/spring-boot/docs/current/actuator-api/html/"
+            }
         }
     ]
 }

@@ -42,6 +42,11 @@ tags:
   description: API for monitoring of the service
 - name: Data consumer
   description: API for data consumers
+- name: Actuator
+  description: Monitor and interact
+  externalDocs:
+    description: Spring Boot Actuator Web API Documentation
+    url: https://docs.spring.io/spring-boot/docs/current/actuator-api/html/
 paths:
   /example_dataproducer/info_job/{infoJobId}:
     delete:
@@ -108,6 +113,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /actuator/threaddump:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'threaddump'
+      operationId: handle_2_1_3
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /example_dataproducer/info_job:
     post:
       tags:
@@ -325,6 +343,301 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /actuator/loggers:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'loggers'
+      operationId: handle_6
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator/health/**:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'health-path'
+      operationId: handle_12
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /data-consumer/v1/info-types:
+    get:
+      tags:
+      - Data consumer
+      summary: Information type identifiers
+      operationId: getinfoTypeIdentifiers
+      responses:
+        200:
+          description: Information type identifiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /actuator/metrics/{requiredMetricName}:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'metrics-requiredMetricName'
+      operationId: handle_5
+      parameters:
+      - name: requiredMetricName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator root web endpoint
+      operationId: links_1
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/Link'
+  /data-consumer/v1/info-jobs:
+    get:
+      tags:
+      - Data consumer
+      summary: Information Job identifiers
+      description: query for information job identifiers
+      operationId: getJobIds
+      parameters:
+      - name: infoTypeId
+        in: query
+        description: selects subscription jobs of matching information type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: owner
+        in: query
+        description: selects result for one owner
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Information information job identifiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        404:
+          description: Information type is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /actuator/loggers/{name}:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'loggers-name'
+      operationId: handle_7
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+    post:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'loggers-name'
+      operationId: handle_0
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /example_dataconsumer/info_jobs/{infoJobId}/status:
+    post:
+      tags:
+      - A1-EI (callbacks)
+      summary: Callback for changed Information Job status
+      description: The primitive is implemented by the data consumer and is invoked
+        when a Information Job status has been changed.
+      operationId: jobStatusCallback
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EiJobStatusObject'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+  /A1-EI/v1/eijobs/{eiJobId}/status:
+    get:
+      tags:
+      - A1-EI (registration)
+      summary: EI job status
+      operationId: getEiJobStatus_1
+      parameters:
+      - name: eiJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: EI job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EiJobStatusObject'
+        404:
+          description: Enrichment Information job is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /data-producer/v1/info-producers/{infoProducerId}/status:
+    get:
+      tags:
+      - Data producer (registration)
+      summary: Information producer status
+      operationId: getInfoProducerStatus
+      parameters:
+      - name: infoProducerId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Information producer status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/producer_status'
+        404:
+          description: Information producer is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /data-consumer/v1/info-jobs/{infoJobId}/status:
+    get:
+      tags:
+      - Data consumer
+      summary: Job status
+      operationId: getEiJobStatus
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Information subscription job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consumer_job_status'
+        404:
+          description: Information subscription job is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /actuator/metrics:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'metrics'
+      operationId: handle_4
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator/info:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'info'
+      operationId: handle_9
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /example_dataproducer/health_check:
     get:
       tags:
@@ -349,21 +662,6 @@ paths:
       responses:
         200:
           description: EI type identifiers
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-  /data-consumer/v1/info-types:
-    get:
-      tags:
-      - Data consumer
-      summary: Information type identifiers
-      operationId: getinfoTypeIdentifiers
-      responses:
-        200:
-          description: Information type identifiers
           content:
             application/json:
               schema:
@@ -620,45 +918,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /data-consumer/v1/info-jobs:
+  /actuator/logfile:
     get:
       tags:
-      - Data consumer
-      summary: Information Job identifiers
-      description: query for information job identifiers
-      operationId: getJobIds
-      parameters:
-      - name: infoTypeId
-        in: query
-        description: selects subscription jobs of matching information type
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: owner
-        in: query
-        description: selects result for one owner
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
+      - Actuator
+      summary: Actuator web endpoint 'logfile'
+      operationId: handle_8
       responses:
         200:
-          description: Information information job identifiers
+          description: OK
           content:
-            application/json:
+            '*/*':
               schema:
-                type: array
-                items:
-                  type: string
-        404:
-          description: Information type is not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                type: object
   /data-consumer/v1/info-jobs/{infoJobId}:
     get:
       tags:
@@ -830,35 +1102,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /example_dataconsumer/info_jobs/{infoJobId}/status:
-    post:
+  /actuator/health:
+    get:
       tags:
-      - A1-EI (callbacks)
-      summary: Callback for changed Information Job status
-      description: The primitive is implemented by the data consumer and is invoked
-        when a Information Job status has been changed.
-      operationId: jobStatusCallback
-      parameters:
-      - name: infoJobId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EiJobStatusObject'
-        required: true
+      - Actuator
+      summary: Actuator web endpoint 'health'
+      operationId: handle_11
       responses:
         200:
           description: OK
           content:
-            application/json:
+            '*/*':
               schema:
-                $ref: '#/components/schemas/Void'
+                type: object
   /A1-EI/v1/eijobs:
     get:
       tags:
@@ -898,60 +1154,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /A1-EI/v1/eijobs/{eiJobId}/status:
-    get:
-      tags:
-      - A1-EI (registration)
-      summary: EI job status
-      operationId: getEiJobStatus_1
-      parameters:
-      - name: eiJobId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        200:
-          description: EI job status
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EiJobStatusObject'
-        404:
-          description: Enrichment Information job is not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-  /data-producer/v1/info-producers/{infoProducerId}/status:
-    get:
-      tags:
-      - Data producer (registration)
-      summary: Information producer status
-      operationId: getInfoProducerStatus
-      parameters:
-      - name: infoProducerId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        200:
-          description: Information producer status
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/producer_status'
-        404:
-          description: Information producer is not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
   /data-producer/v1/info-producers/{infoProducerId}/info-jobs:
     get:
       tags:
@@ -982,33 +1184,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /data-consumer/v1/info-jobs/{infoJobId}/status:
-    get:
-      tags:
-      - Data consumer
-      summary: Job status
-      operationId: getEiJobStatus
-      parameters:
-      - name: infoJobId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        200:
-          description: Information subscription job status
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/consumer_job_status'
-        404:
-          description: Information subscription job is not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
   /example_dataconsumer/info_type_status:
     post:
       tags:
@@ -1031,6 +1206,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Void'
+  /actuator/heapdump:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'heapdump'
+      operationId: handle_10
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
 components:
   schemas:
     consumer_information_type:
@@ -1274,6 +1462,13 @@ components:
     Void:
       type: object
       description: 'Void/empty '
+    Link:
+      type: object
+      properties:
+        templated:
+          type: boolean
+        href:
+          type: string
     consumer_type_subscription_info:
       required:
       - owner

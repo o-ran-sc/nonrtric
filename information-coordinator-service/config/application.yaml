@@ -5,6 +5,8 @@ spring:
     allow-bean-definition-overriding: true
   aop:
     auto: false
+springdoc:
+  show-actuator: true 
 management:
   endpoints:
     web:
