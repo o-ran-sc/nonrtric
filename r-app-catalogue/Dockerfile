@@ -32,7 +32,11 @@ ADD /config/r-app-catalogue-keystore.jks /opt/app/r-app-catalogue/etc/cert/keyst
 ADD target/${JAR} /opt/app/r-app-catalogue/r-app-catalogue.jar
 
 
-RUN chmod -R 777 /opt/app/r-app-catalogue/config/
+RUN chmod -R 644 /opt/app/r-app-catalogue/config/
+
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+USER appuser
 
 CMD ["java", "-jar", "/opt/app/r-app-catalogue/r-app-catalogue.jar"]
 

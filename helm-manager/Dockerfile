@@ -49,4 +49,8 @@ COPY config/application.yaml .
 WORKDIR /opt/app/helm-manager
 COPY target/app.jar app.jar
 
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+USER appuser
+
 CMD [ "java", "-jar", "app.jar" ]

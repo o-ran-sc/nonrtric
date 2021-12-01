@@ -34,8 +34,12 @@ ADD /config/application_configuration.json /opt/app/policy-agent/data/applicatio
 ADD /config/keystore.jks /opt/app/policy-agent/etc/cert/keystore.jks
 ADD /config/truststore.jks /opt/app/policy-agent/etc/cert/truststore.jks
 
-RUN chmod -R 777 /opt/app/policy-agent/config/
-RUN chmod -R 777 /opt/app/policy-agent/data/
+RUN chmod -R 644 /opt/app/policy-agent/config/
+RUN chmod -R 644 /opt/app/policy-agent/data/
+
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+USER appuser
 
 ADD target/${JAR} /opt/app/policy-agent/policy-agent.jar
 CMD ["java", "-jar", "/opt/app/policy-agent/policy-agent.jar"]

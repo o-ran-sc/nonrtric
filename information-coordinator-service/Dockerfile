@@ -25,7 +25,7 @@ WORKDIR /opt/app/information-coordinator-service
 RUN mkdir -p /var/log/information-coordinator-service
 RUN mkdir -p /opt/app/information-coordinator-service/etc/cert/
 RUN mkdir -p /var/information-coordinator-service
-RUN chmod -R 777 /var/information-coordinator-service
+RUN chmod -R 644 /var/information-coordinator-service
 
 EXPOSE 8083 8434
 
@@ -35,7 +35,11 @@ ADD /config/keystore.jks /opt/app/information-coordinator-service/etc/cert/keyst
 ADD /config/truststore.jks /opt/app/information-coordinator-service/etc/cert/truststore.jks
 
 
-RUN chmod -R 777 /opt/app/information-coordinator-service/config/
+RUN chmod -R 644 /opt/app/information-coordinator-service/config/
+
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+USER appuser
 
 CMD ["java", "-jar", "/opt/app/information-coordinator-service/information-coordinator-service.jar"]
 
