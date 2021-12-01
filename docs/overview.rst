@@ -29,6 +29,7 @@ These are the components that make up the Non-RT-RIC:
 * Non-RT-RIC (Kong) Service Exposure Prototyping
 * Initial Non-RT-RIC App Catalogue
 * Near-RT-RIC A1 Simulator
+* DMaap Adaptor
 
 The code base for "D" Release is in the `NONRTRIC <https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric>`_, `NONRTRIC-ControlPanel <https://gerrit.o-ran-sc.org/r/admin/repos/portal/nonrtric-controlpanel>`_, and `Near-RT-RIC A1-Simulator <https://gerrit.o-ran-sc.org/r/admin/repos/sim/a1-interface>`_ , Gerrit source repositories (D Branch).
 
@@ -76,6 +77,10 @@ A1 Controller Service above A1 Controller/Adaptor that provides:
 
 See also: `A1 Policy Management Service in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_  
 
+
+Implementation:
+* Implemented as a Java Spring Boot application
+
 A1/SDNC Controller & A1 Adapter (Controller plugin)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Mediation point for A1 interface termination in SMO/NONRTRIC
@@ -90,8 +95,8 @@ Mediation point for A1 interface termination in SMO/NONRTRIC
 
 See also: `A1 Adapter/Controller Functions in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_  
   
-Information Job Coordination Service
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Information Coordination Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs.
 
@@ -107,6 +112,20 @@ Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs.
 * Monitors all near-RT-RICs and recovers from inconsistencies
 * After EI-type/Producer/Consumer/Job is successfully registered delivery/flow can happen directly between A1-EI Producers (in SMO/NONRTRIC domain) and A1-EI consumers (near-RT-RICs in RAN domain)
 * *Being extended to coordinate non-A1 Information exchange between NONRTRIC Apps*
+
+
+Implementation:
+* Implemented as a Java Spring Boot application
+
+Dmaap Adapter
+~~~~~~~~~~~~~
+
+Is a generic information producer, which registeres itself as an information producer of information types (in Information Coordination Service).
+The information types are defined in a configuration file. 
+Information jobs can retrieve data from DMaap or Kafka topics and push this to data consumers (accessing the ICS API).
+
+Implementation:
+* Implemented as a Java Spring Boot application
 
 Non-RT-RIC (Spring Cloud) Service Gateway
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
