@@ -46,7 +46,7 @@ app:
     http.proxy-host:
     http.proxy-port: 0
   vardata-directory: /var/dmaap-adaptor-service
-  ecs-base-url: http://ecs:8083
+  ics-base-url: http://ics:8083
   # Location of the component configuration file. The file will only be used if the Consul database is not used;
   # configuration from the Consul will override the file.
   configuration-filepath: /opt/app/dmaap-adaptor-service/data/application_configuration.json
