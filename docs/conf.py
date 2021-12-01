@@ -9,7 +9,7 @@ linkcheck_ignore = [
     'http://127.0.0.1.*',
     'https://gerrit.o-ran-sc.org.*',
     './rac-api.html', #Generated file that doesn't exist at link check.
-    './ecs-api.html' #Generated file that doesn't exist at link check.
+    './ics-api.html' #Generated file that doesn't exist at link check.
 ]
 
 extensions = ['sphinxcontrib.redoc', 'sphinx.ext.intersphinx',]
@@ -23,7 +23,7 @@ redoc = [
             },
             {
                 'name': 'ECS API',
-                'page': 'ecs-api',
+                'page': 'ics-api',
                 'spec': '../information-coordinator-service/api/ics-api.json',
                 'embed': True,
             }
