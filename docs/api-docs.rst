@@ -40,7 +40,7 @@ The API is also described in Swagger-JSON and YAML:
    :header: "API name", "|swagger-icon|", "|yaml-icon|"
    :widths: 10,5,5
 
-   "A1 Enrichment Information Coordination Service API", ":download:`link <../information-coordinator-service/api/ics-api.json>`", ":download:`link <../information-coordinator-service/api/ics-api.yaml>`"
+   "A1 Information Coordination Service API", ":download:`link <../information-coordinator-service/api/ics-api.json>`", ":download:`link <../information-coordinator-service/api/ics-api.yaml>`"
 
 Non-RT-RIC App Catalogue (Initial)
 ==================================
