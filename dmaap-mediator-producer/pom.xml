@@ -24,6 +24,10 @@
     <groupId>oransc.org</groupId>
     <artifactId>dmaapmediatorproducer</artifactId>
     <version>1.0.0</version>
+    <properties>
+        <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
+    </properties>
+
      <build>
         <plugins>
             <plugin>
@@ -42,6 +46,67 @@
                   </execution>
               </executions>
           </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker-maven-plugin.version}</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>generate-nonrtric-dmaap-mediator-producer-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+                            <pullRegistry>${env.CONTAINER_PULL_REGISTRY}</pullRegistry>
+                            <images>
+                                <image>
+                                    <name>o-ran-sc/nonrtric-dmaap-mediator-producer:${project.version}</name>
+                                    <build>
+                                        <cleanup>try</cleanup>
+                                        <contextDir>${basedir}</contextDir>
+                                        <dockerFile>Dockerfile</dockerFile>
+                                        <args>
+                                            <JAR>${project.build.finalName}.jar</JAR>
+                                        </args>
+                                        <tags>
+                                            <tag>${project.version}</tag>
+                                        </tags>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>push-nonrtric-dmaap-mediator-producer-image</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                        <configuration>
+                            <pullRegistry>${env.CONTAINER_PULL_REGISTRY}</pullRegistry>
+                            <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
+                            <images>
+                                <image>
+                                    <name>o-ran-sc/nonrtric-dmaap-mediator-producer:${project.version}</name>
+                                    <build>
+                                        <contextDir>${basedir}</contextDir>
+                                        <dockerFile>Dockerfile</dockerFile>
+                                        <args>
+                                            <JAR>${project.build.finalName}.jar</JAR>
+                                        </args>
+                                        <tags>
+                                            <tag>${project.version}</tag>
+                                            <tag>latest</tag>
+                                        </tags>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
       </plugins>
     </build>
 </project>
