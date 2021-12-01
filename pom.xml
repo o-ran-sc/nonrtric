@@ -33,7 +33,7 @@
     <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
     </properties>
     <modules>
-        <module>policy-agent</module>
+        <module>a1-policy-management-service</module>
         <module>information-coordinator-service</module>
         <module>r-app-catalogue</module>
         <module>helm-manager</module>
