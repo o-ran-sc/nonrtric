@@ -779,7 +779,11 @@ echo -e $BOLD"Auto adding included apps"$EBOLD
 	for iapp in $INCLUDED_IMAGES; do
 		file_pointer=$(echo $iapp | tr '[:upper:]' '[:lower:]')
 		file_pointer="../common/"$file_pointer"_api_functions.sh"
-		echo " Auto-adding included app $iapp.  Sourcing $file_pointer"
+		padded_iapp=$iapp
+		while [ ${#padded_iapp} -lt 16 ]; do
+			padded_iapp=$padded_iapp" "
+		done
+		echo " Auto-adding included app $padded_iapp  Sourcing $file_pointer"
 		. $file_pointer
 		if [ ! -f "$file_pointer" ]; then
 			echo " Include file $file_pointer for app $iapp does not exist"

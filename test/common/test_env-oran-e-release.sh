@@ -197,9 +197,14 @@ KUBE_PROXY_IMAGE_BASE="nodejs-kube-proxy"
 KUBE_PROXY_IMAGE_TAG_LOCAL="latest"
 #No remote image for kube proxy, local image always used
 
-#Kube proxy remote image and tag
+#PVC Cleaner remote image and tag
 PVC_CLEANER_IMAGE_BASE="ubuntu"
 PVC_CLEANER_IMAGE_TAG_REMOTE_PROXY="20.10"
+#No local image for pvc cleaner, remote image always used
+
+#Kafka Procon image and tag
+KAFKAPC_IMAGE_BASE="kafka-procon"
+KAFKAPC_IMAGE_TAG_LOCAL="latest"
 #No local image for pvc cleaner, remote image always used
 
 # List of app short names produced by the project
@@ -524,6 +529,15 @@ DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_grou
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
 DMAAP_MED_DATA_FILE="type_config.json"                   # Container data file name
 
+KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
+KAFKAPC_DISPLAY_NAME="Kafaka Producer/Consumer"
+KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)
+KAFKAPC_INTERNAL_PORT=8090                               # Kafka procon container internal port (container -> container)
+KAFKAPC_EXTERNAL_SECURE_PORT=8097                        # Kafka procon container external secure port (host -> container)
+KAFKAPC_INTERNAL_SECURE_PORT=8091                        # Kafka procon container internal secure port (container -> container)
+KAFKAPC_ALIVE_URL="/"                               # Base path for alive check
+KAFKAPC_COMPOSE_DIR="kafka-procon"                       # Dir in simulator_group for docker-compose
+KAFKAPC_BUILD_DIR="kafka-procon"                         # Build dir
 ########################################
 # Setting for common curl-base function
 ########################################

@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="App test DMAAP Meditor and DMAAP Adapter"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR"
+DOCKER_INCLUDED_IMAGES="ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR KAFKAPC"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR"
+KUBE_INCLUDED_IMAGES=" ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR KAFKAPC"
 
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
@@ -73,8 +73,13 @@ start_ics NOPROXY $SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_CONFIG_FILE
 set_ics_trace
 
 start_mr    "unauthenticated.dmaapmed.json" "/events" "dmaapmediatorproducer/STD_Fault_Messages" \
-            "unauthenticated.dmaapadp.json" "/events" "dmaapadapterproducer/msgs" \
-            "unauthenticated.dmaapadp_kafka.text" "/events" "dmaapadapterproducer/msgs"
+            "unauthenticated.dmaapadp.json" "/events" "dmaapadapterproducer/msgs"
+
+start_kafkapc
+
+kafkapc_api_create_topic 201 "unauthenticated.dmaapadp_kafka.text" "text/plain"
+
+kafkapc_api_start_sending 200 "unauthenticated.dmaapadp_kafka.text"
 
 start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_DATA_FILE
 
@@ -138,7 +143,7 @@ EXPECTED_DATA_DELIV=0 #Total delivered msg per CR
 DATA_DELIV_JOBS=0 #Total delivered msg per job per CR
 
 mr_api_generate_json_payload_file 1 ./tmp/data_for_dmaap_test.json
-mr_api_generate_text_payload_file 1 ./tmp/data_for_dmaap_test.txt
+kafkapc_api_generate_text_payload_file 1 ./tmp/data_for_dmaap_test.txt
 
 ## Send json file via message-router to adapter
 DATA_DELIV_JOBS=5 #Each job will eventuall get 2 msgs
@@ -192,35 +197,40 @@ done
 ## Send text file via message-router to adapter kafka
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
-mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
+kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 1 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
-mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
+kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 2 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
-mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
+kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 3 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
-mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
+kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 4 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
-mr_api_send_text_file "/events/unauthenticated.dmaapadp_kafka.text" ./tmp/data_for_dmaap_test.txt
+kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 5 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
@@ -302,8 +312,9 @@ done
 print_timer
 
 # Send small text via message-routere to adapter
-mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------1'
-mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------3'
+kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------1'
+kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------3'
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 7 30
 
 # Wait for data recetption, adapter kafka
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
@@ -370,8 +381,9 @@ print_timer
 
 
 # Send small text via message-router to adapter kafka
-mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------5'
-mr_api_send_text "/events/unauthenticated.dmaapadp_kafka.text" 'Message-------7'
+kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------5'
+kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------7'
+kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 9 30
 
 # Wait for data recetption, adapter kafka
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))

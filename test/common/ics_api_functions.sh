@@ -180,7 +180,7 @@ __ics_export_vars() {
 		export ICS_CONFIG_FILE
 		export DOCKER_SIM_NWNAME
 		export ICS_DISPLAY_NAME
-
+		export ICS_LOGPATH
 
 		export ICS_DATA_PV_NAME=$ICS_APP_NAME"-pv"
 		export ICS_DATA_PVC_NAME=$ICS_APP_NAME"-pvc"
@@ -230,7 +230,6 @@ start_ics() {
 			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
 			exit
 		fi
-
 
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $ICS_APP_NAME deployment and service"

@@ -21,12 +21,12 @@
 
 # Function to execute curl towards a container (or process) and compare + print result
 # Intended use is for basic test scripts where testing is done with curl and the returned response and payload need to be checked.
-# args: GET|PUT|POST|DELETE <url> <target-response-code> [<json-file>]
+# args: GET|PUT|POST|DELETE <url> <target-response-code> [<payload-file>]
 # All calls made to 'localhost:'<port>.
 # Expects env PORT set to intended port number
 # Expects env RESULT to contain the target response body.
 # Optional env HTTPX shall contain protocol 'http' or 'https'. If not set, 'http' is used. For 'https' all cert errors are ignored
-#   RESULT="*" means that returned payload is not checked, may container any text
+#   RESULT="*" means that returned payload is not checked, may contain any text
 #   RESULT="<text>" means that the returned payload has to match the <text> exactly
 #   RESULT="json:<returned-payload>" means that the returned json payload is compared with the expected result (order of json keys and index is irrelevant)
 #   RESULT="json-array-size:<integer-size>" means that the returned json payload shall contain the number of element given by the <integer-size>
@@ -54,14 +54,37 @@ do_curl() {
         PROT=$HTTPX
     fi
 
-    curlstr="curl -X "$1" -skw %{http_code} ${PROT}://localhost:$PORT$2 -H accept:*/*"
+    req_content=""
+    if [ -z "$REQ_CONTENT" ]; then
+        if [ $# -gt 3 ]; then
+            req_content="-H Content-Type:application/json" #Assuming json
+        fi
+    else
+        req_content="-H Content-Type:$REQ_CONTENT"
+    fi
+    resp_content=""
+    if [ -z "$RESP_CONTENT" ]; then
+        if [[ "$RESULT" == "json"* ]]; then
+            resp_content="application/json"
+        elif [[ "$RESULT" == "*" ]]; then
+            resp_content=""
+        else
+            resp_content="text/plain"
+        fi
+    else
+        resp_content=$RESP_CONTENT
+    fi
+    curlstr="curl -X "$1" -skw :%{content_type}:%{http_code} ${PROT}://localhost:$PORT$2 -H accept:*/*"
     if [ $# -gt 3 ]; then
-        curlstr=$curlstr" -H Content-Type:application/json --data-binary @"$4
+        curlstr=$curlstr" $req_content --data-binary @"$4
     fi
     echo "  CMD:"$curlstr
     res=$($curlstr)
     status=${res:${#res}-3}
-    body=${res:0:${#res}-3}
+    reminder=${res:0:${#res}-4}
+    content_type="${reminder##*:}"
+    body="${reminder%:*}"
+
     export body
     if [ $status -ne $3 ]; then
         echo "  Error status:"$status" Expected status: "$3
@@ -70,6 +93,14 @@ do_curl() {
         exit 1
     else
         echo "  OK, code: "$status"     (Expected)"
+        if [[ "$content_type" == *"$resp_content"* ]]; then
+            echo "  Content type: "$content_type"     (Expected)"
+        else
+            echo "  Expected content type: "$resp_content
+            echo "  Got: "$content_type
+            echo "Exiting....."
+            exit 1
+        fi
         echo "  Body: "$body
         if [ "$RESULT" == "*" ]; then
             echo "  Body contents not checked"

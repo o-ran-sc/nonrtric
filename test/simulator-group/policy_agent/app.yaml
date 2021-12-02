@@ -32,10 +32,8 @@ spec:
         volumeMounts:
         - mountPath: $POLICY_AGENT_CONFIG_MOUNT_PATH
           name: pa-conf-name
-#        volumeMounts:
         - mountPath: $POLICY_AGENT_CONTAINER_MNT_DIR
           name: pa-pv-data-name
-#        volumeMounts:
         - mountPath: $POLICY_AGENT_DATA_MOUNT_PATH
           name: pa-data-name
       volumes:

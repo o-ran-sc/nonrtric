@@ -1,5 +1,5 @@
 ################################################################################
-#   Copyright (c) 2020 Nordix Foundation.                                      #
+#   Copyright (c) 2021 Nordix Foundation.                                      #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -13,7 +13,6 @@
 #   See the License for the specific language governing permissions and        #
 #   limitations under the License.                                             #
 ################################################################################
-
 spring:
   profiles:
     active: prod
@@ -21,24 +20,30 @@ spring:
     allow-bean-definition-overriding: true
   aop:
     auto: false
+springdoc:
+  show-actuator: true
 management:
   endpoints:
     web:
       exposure:
+        # Enabling of springboot actuator features. See springboot documentation.
         include: "loggers,logfile,health,info,metrics,threaddump,heapdump"
 
 logging:
+  # Configuration of logging
   level:
     ROOT: ERROR
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
-    org.oransc.information: INFO
+    org.oransc.ics: INFO
   file:
-    name: /var/log/information-coordinator-service/application.log
+    name: $ICS_LOGPATH
 server:
-   port : 8434
-   http-port: 8083
+   # Configuration of the HTTP/REST server. The parameters are defined and handeled by the springboot framework.
+   # See springboot documentation.
+   port : $ICS_INTERNAL_SECURE_PORT
+   http-port: $ICS_INTERNAL_PORT
    ssl:
       key-store-type: JKS
       key-store-password: policy_agent
@@ -46,11 +51,15 @@ server:
       key-password: policy_agent
       key-alias: policy_agent
 app:
-  filepath: /opt/app/information-coordinator-service/data/application_configuration.json
   webclient:
+    # Configuration of the trust store used for the HTTP client (outgoing requests)
+    # The file location and the password for the truststore is only relevant if trust-store-used == true
+    # Note that the same keystore as for the server is used.
     trust-store-used: false
     trust-store-password: policy_agent
     trust-store: /opt/app/information-coordinator-service/etc/cert/truststore.jks
+    # Configuration of usage of HTTP Proxy for the southbound accesses.
+    # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
     http.proxy-host: $ICS_HTTP_PROXY_CONFIG_HOST_NAME
     http.proxy-port: $ICS_HTTP_PROXY_CONFIG_PORT
-  vardata-directory: /var/information-coordinator-service
+  vardata-directory: $ICS_CONTAINER_MNT_DIR
