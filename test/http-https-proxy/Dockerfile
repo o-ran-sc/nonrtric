@@ -13,8 +13,6 @@ COPY cert/pass .
 WORKDIR /usr/src/app
 COPY http_proxy.js .
 
-RUN groupadd -g 999 appuser && \
-    useradd -r -u 999 -g appuser appuser
-USER appuser
+USER node
 
 CMD [ "node", "http_proxy.js" ]
