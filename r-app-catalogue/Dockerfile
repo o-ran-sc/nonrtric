@@ -27,18 +27,15 @@ RUN mkdir -p /opt/app/r-app-catalogue/etc/cert/
 
 EXPOSE 8680 8633
 
-ADD /config/application.yaml /opt/app/r-app-catalogue/config/application.yaml
-ADD /config/r-app-catalogue-keystore.jks /opt/app/r-app-catalogue/etc/cert/keystore.jks
-ADD target/${JAR} /opt/app/r-app-catalogue/r-app-catalogue.jar
-
-
-RUN chmod -R 644 /opt/app/r-app-catalogue/config/
-
 RUN groupadd -g 999 appuser && \
     useradd -r -u 999 -g appuser appuser
 RUN chown -R appuser:appuser /opt/app/r-app-catalogue/
 RUN chown -R appuser:appuser /var/log/r-app-catalogue/
 USER appuser
+
+ADD /config/application.yaml /opt/app/r-app-catalogue/config/application.yaml
+ADD /config/r-app-catalogue-keystore.jks /opt/app/r-app-catalogue/etc/cert/keystore.jks
+ADD target/${JAR} /opt/app/r-app-catalogue/r-app-catalogue.jar
 
 CMD ["java", "-jar", "/opt/app/r-app-catalogue/r-app-catalogue.jar"]
 

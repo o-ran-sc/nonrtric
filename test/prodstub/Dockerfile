@@ -34,6 +34,15 @@ RUN apt-get install -y nginx=1.14.*
 
 RUN groupadd -g 999 appuser && \
     useradd -r -u 999 -g appuser appuser
+
+## add permissions for appuser user
+RUN chown -R appuser:appuser /usr/src/app/ && chmod -R 755 /usr/src/app/ && \
+        chown -R appuser:appuser /var/log/nginx && \
+        chown -R appuser:appuser /var/lib/nginx && \
+        chown -R appuser:appuser /etc/nginx/conf.d
+RUN touch /var/run/nginx.pid && \
+        chown -R appuser:appuser /var/run/nginx.pid
+
 USER appuser
 
 CMD [ "./start.sh" ]
