@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: $KAFKAPC_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $KAFKAPC_APP_NAME
+    autotest: CR
+spec:
+  replicas: 1
+  serviceName: $KAFKAPC_APP_NAME
+  selector:
+    matchLabels:
+      run: $KAFKAPC_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $KAFKAPC_APP_NAME
+        autotest: CR
+    spec:
+      containers:
+      - name: $KAFKAPC_APP_NAME
+        image: $KAFKAPC_IMAGE
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
+        ports:
+        - name: http
+          containerPort: $KAFKAPC_INTERNAL_PORT
+        - name: https
+          containerPort: $KAFKAPC_INTERNAL_SECURE_PORT
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: $MR_KAFKA_SERVICE_PATH
+

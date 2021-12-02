@@ -27,9 +27,9 @@ spec:
         - name: https
           containerPort: $ICS_INTERNAL_SECURE_PORT
         volumeMounts:
-        - mountPath: $ICS_CONFIG_MOUNT_PATH
+        - mountPath: $ICS_CONFIG_MOUNT_PATH/$ICS_CONFIG_FILE
+          subPath: $ICS_CONFIG_FILE
           name: ics-conf-name
-        volumeMounts:
         - mountPath: $ICS_CONTAINER_MNT_DIR
           name: ics-data-name
       volumes:

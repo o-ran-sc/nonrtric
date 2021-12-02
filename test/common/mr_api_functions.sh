@@ -173,7 +173,7 @@ __DMAAPMR_store_docker_logs() {
 			kubectl logs -n $KUBE_ONAP_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
 		done
 	else
-		docker logs $MR_DMAAP_APP_NAME > $1$2mr.log 2>&1
+		docker logs $MR_DMAAP_APP_NAME > $1$2_mr.log 2>&1
 		docker logs $MR_KAFKA_APP_NAME > $1$2_mr_kafka.log 2>&1
 		docker logs $MR_ZOOKEEPER_APP_NAME > $1$2_mr_zookeeper.log 2>&1
 	fi
@@ -629,10 +629,7 @@ start_mr() {
 				fi
 			fi
 
-			echo " Current topics:"
-			curlString="$MR_DMAAP_PATH/topics"
-			result=$(__do_curl "$curlString")
-			echo $result | indent2
+			dmaap_api_print_topics
 		fi
 
 		__mr_export_vars
@@ -717,6 +714,15 @@ __dmaap_pipeclean() {
 	done
 	echo -e "Doing dmaap-mr pipe cleaning on topic: $1 $RED Failed $ERED"
 	return 1
+}
+
+# Helper function to list the current topics in DMAAP MR
+# args: -
+dmaap_api_print_topics() {
+	echo " Current topics:"
+	curlString="$MR_DMAAP_PATH/topics"
+	result=$(__do_curl "$curlString")
+	echo $result | indent2
 }
 
 
@@ -901,7 +907,7 @@ mr_api_generate_json_payload_file() {
 	return 0
 }
 
-# Create tet file for payload
+# Create text file for payload
 # arg: <size-in-kb> <filename>
 mr_api_generate_text_payload_file() {
 	__log_conf_start $@

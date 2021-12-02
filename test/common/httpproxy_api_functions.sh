@@ -79,7 +79,7 @@ __HTTPPROXY_kube_scale_zero() {
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __HTTPPROXY_kube_scale_zero_and_wait() {
-	echo -e $RED" HTTPPROXY replicas kept as is"$ERED
+	echo -e $RED" HTTPPROXY app is not scaled in this state"$ERED
 }
 
 # Delete all kube resouces for the app
@@ -103,7 +103,7 @@ __HTTPPROXY_store_docker_logs() {
 # This function is called for apps managed by the test script.
 # args: -
 __HTTPPROXY_initial_setup() {
-	:
+	use_http_proxy_http
 }
 
 # Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
@@ -120,40 +120,61 @@ __HTTPPROXY_statisics_setup() {
 
 #######################################################
 
-
-## Access to Http Proxy Receiver
-# Host name may be changed if app started by kube
-# Direct access from script
-HTTP_PROXY_HTTPX="http"
-HTTP_PROXY_HOST_NAME=$LOCALHOST_NAME
-HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EXTERNAL_PORT
-
-#########################
-### Http Proxy functions
-#########################
-
-# All calls to httpproxy will be directed to the http interface
+# Set http as the protocol to use for all communication to the http proxy
 # args: -
 # (Function for test scripts)
 use_http_proxy_http() {
+	__http_proxy_set_protocoll "http" $HTTP_PROXY_INTERNAL_PORT $HTTP_PROXY_EXTERNAL_PORT
+}
+
+# Set https as the protocol to use for all communication to the http proxy
+# args: -
+# (Function for test scripts)
+use_http_proxy_https() {
+	__http_proxy_set_protocoll "https" $HTTP_PROXY_INTERNAL_SECURE_PORT $HTTP_PROXY_EXTERNAL_SECURE_PORT
+}
+
+# Setup paths to svc/container for internal and external access
+# args: <protocol> <internal-port> <external-port>
+__http_proxy_set_protocoll() {
 	echo -e $BOLD"$HTTP_PROXY_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD"
-	HTTP_PROXY_HTTPX="http"
-	HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_PORT
+	echo -e " Using $BOLD $1 $EBOLD towards $HTTP_PROXY_DISPLAY_NAME"
+
+	## Access to http proxy
+	## HTTP_PROXY_CONFIG_HOST_NAME and HTTP_PROXY_CONFIG_PORT used by apps as config for proxy host and port
+
+	HTTP_PROXY_SERVICE_PATH=$1"://"$HTTP_PROXY_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME
+	HTTP_PROXY_CONFIG_PORT=$2
+	if [ $RUNMODE == "KUBE" ]; then
+		HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
+		HTTP_PROXY_CONFIG_PORT=$3
+		HTTP_PROXY_SERVICE_PATH=$1"://"$HTTP_PROXY_APP_NAME.$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+	fi
 
 	echo ""
 }
 
-# All calls to httpproxy will be directed to the https interface
-# args: -
-# (Function for test scripts)
-use_http_proxy_https() {
-	echo -e $BOLD"$HTTP_PROXY_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD"
-	HTTP_PROXY_HTTPX="https"
-	HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_EXTERNAL_SECURE_PORT
+# Export env vars for config files, docker compose and kube resources
+# args:
+__http_proxy_export_vars() {
 
-	echo ""
+	export HTTP_PROXY_APP_NAME
+	export HTTP_PROXY_DISPLAY_NAME
+
+	export HTTP_PROXY_WEB_EXTERNAL_PORT
+	export HTTP_PROXY_WEB_INTERNAL_PORT
+	export HTTP_PROXY_EXTERNAL_PORT
+	export HTTP_PROXY_INTERNAL_PORT
+
+	export HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
+	export HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
+	export HTTP_PROXY_EXTERNAL_SECURE_PORT
+	export HTTP_PROXY_INTERNAL_SECURE_PORT
+
+	export KUBE_SIM_NAMESPACE
+	export DOCKER_SIM_NWNAME
+	export HTTP_PROXY_IMAGE
 }
 
 # Start the Http Proxy in the simulator group
@@ -193,22 +214,10 @@ start_http_proxy() {
 
 		if [ $retcode_i -eq 0 ]; then
 			echo -e " Creating $HTTP_PROXY_APP_NAME deployment and service"
-			export HTTP_PROXY_APP_NAME
-
-			export HTTP_PROXY_WEB_EXTERNAL_PORT
-			export HTTP_PROXY_WEB_INTERNAL_PORT
-			export HTTP_PROXY_EXTERNAL_PORT
-			export HTTP_PROXY_INTERNAL_PORT
-
-			export HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
-			export HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
-			export HTTP_PROXY_EXTERNAL_SECURE_PORT
-			export HTTP_PROXY_INTERNAL_SECURE_PORT
-
-			export KUBE_SIM_NAMESPACE
-			export HTTP_PROXY_IMAGE
 
 			__kube_create_namespace $KUBE_SIM_NAMESPACE
+
+			__http_proxy_export_vars
 
 			# Create service
 			input_yaml=$SIM_GROUP"/"$HTTP_PROXY_COMPOSE_DIR"/"svc.yaml
@@ -222,29 +231,7 @@ start_http_proxy() {
 
 		fi
 
-		echo " Retrieving host and ports for service..."
-		HTTP_PROXY_HOST_NAME=$(__kube_get_service_host $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE)
-		HTTP_PROXY_WEB_EXTERNAL_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web")
-		HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "webs")
-
-		HTTP_PROXY_EXTERNAL_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http")
-		HTTP_PROXY_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "https")
-
-		if [ $HTTP_PROXY_HTTPX == "http" ]; then
-			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EXTERNAL_PORT
-			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_EXTERNAL_PORT
-			HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
-
-			echo " Host IP, http port: $HTTP_PROXY_HOST_NAME $HTTP_PROXY_WEB_EXTERNAL_PORT"
-		else
-			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
-			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_EXTERNAL_SECURE_PORT
-			HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
-
-			echo " Host IP, https port: $HTTP_PROXY_HOST_NAME $HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT"
-		fi
-
-		__check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_PATH$HTTP_PROXY_ALIVE_URL
+		__check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_SERVICE_PATH$HTTP_PROXY_ALIVE_URL
 
 	else
 		# Check if docker app shall be fully managed by the test script
@@ -255,36 +242,11 @@ start_http_proxy() {
 			exit
 		fi
 
-		export HTTP_PROXY_APP_NAME
-		export HTTP_PROXY_EXTERNAL_PORT
-		export HTTP_PROXY_INTERNAL_PORT
-		export HTTP_PROXY_EXTERNAL_SECURE_PORT
-		export HTTP_PROXY_INTERNAL_SECURE_PORT
-		export HTTP_PROXY_WEB_EXTERNAL_PORT
-		export HTTP_PROXY_WEB_INTERNAL_PORT
-		export HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
-		export HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
-		export DOCKER_SIM_NWNAME
-
-		export HTTP_PROXY_DISPLAY_NAME
+		__http_proxy_export_vars
 
 		__start_container $HTTP_PROXY_COMPOSE_DIR "" NODOCKERARGS 1 $HTTP_PROXY_APP_NAME
 
-		if [ $HTTP_PROXY_HTTPX == "http" ]; then
-			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_INTERNAL_PORT
-		else
-			HTTP_PROXY_PATH=$HTTP_PROXY_HTTPX"://"$HTTP_PROXY_HOST_NAME":"$HTTP_PROXY_WEB_INTERNAL_SECURE_PORT
-		fi
-        __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_PATH$HTTP_PROXY_ALIVE_URL
-
-		if [ $HTTP_PROXY_HTTPX == "http" ]; then
-			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_INTERNAL_PORT
-		else
-			HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_INTERNAL_SECURE_PORT
-		fi
-		HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME
-
+        __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_SERVICE_PATH$HTTP_PROXY_ALIVE_URL
 	fi
 	echo ""
 }
-

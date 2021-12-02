@@ -81,6 +81,10 @@ __do_curl_to_api() {
 			__ADAPTER=$MR_DMAAP_ADAPTER_HTTP
 			__ADAPTER_TYPE=$MR_DMAAP_ADAPTER_TYPE
             __RETRY_CODES=""
+        elif [ $1 == "KAFKAPC" ]; then
+			__ADAPTER=$KAFKAPC_ADAPTER
+			__ADAPTER_TYPE=$KAFKAPC_ADAPTER_TYPE
+            __RETRY_CODES=""
 		else
             paramError=1
         fi
@@ -139,7 +143,6 @@ __do_curl_to_api() {
 			if [ $# -ne 3 ]; then
 				paramError=1
 			fi
-			#if [ $__ADAPTER == $__RESTBASE ] || [ $__ADAPTER == $__RESTBASE_SECURE ]; then
 			if [ $__ADAPTER_TYPE == "REST" ]; then
 				paramError=1
 			fi
@@ -151,13 +154,12 @@ __do_curl_to_api() {
     if [ $paramError -eq 1 ]; then
 		((RES_CONF_FAIL++))
         echo "-Incorrect number of parameters to __do_curl_to_api " $@ >> $HTTPLOG
-        echo "-Expected: (PA|ICS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ICS RESPONSE <correlation-id>)" >> $HTTPLOG
+        echo "-Expected: (PA|ICS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file> [mime-type]]) | (PA|ICS RESPONSE <correlation-id>)" >> $HTTPLOG
         echo "-Returning response 000" >> $HTTPLOG
         echo "-000"
         return 1
     fi
 
-    #if [ $__ADAPTER == $__RESTBASE ] || [ $__ADAPTER == $__RESTBASE_SECURE ]; then
 	if [ $__ADAPTER_TYPE == "REST" ]; then
         url=" "${__ADAPTER}${input_url}
         oper=" -X "$oper

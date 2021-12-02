@@ -145,10 +145,10 @@ __sdnc_set_protocoll() {
 	## Access to SDNC
 
 	SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME":"$2  # docker access, container->container and script->container via proxy
-	SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME":"$1$SDNC_API_URL
+	SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME":"$2$SDNC_API_URL
 	if [ $RUNMODE == "KUBE" ]; then
 		SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME.$KUBE_SDNC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
-		SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.KUBE_SDNC_NAMESPACE":"$1$SDNC_API_URL
+		SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.$KUBE_SDNC_NAMESPACE":"$3$SDNC_API_URL
 	fi
 	echo ""
 
@@ -380,16 +380,13 @@ __do_curl_to_controller() {
 controller_api_get_A1_policy_ids() {
 	__log_test_start $@
 
-	ric_id=$3
-	if [ $RUNMODE == "KUBE" ]; then
-		ric_id=$(get_kube_sim_host $3)
-	fi
+	ric_id=$(__find_sim_host $3)
     paramError=1
     if [ $# -gt 3 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies"
+        url="$ric_id/a1-p/policytypes/$4/policies"
 		paramError=0
     elif [ $# -gt 2 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies"
+        url="$ric_id/A1-P/v1/policies"
         paramError=0
 	fi
 
@@ -446,13 +443,10 @@ controller_api_get_A1_policy_ids() {
 controller_api_get_A1_policy_type() {
 	__log_test_start $@
 
-	ric_id=$3
-	if [ $RUNMODE == "KUBE" ]; then
-		ric_id=$(get_kube_sim_host $3)
-	fi
+	ric_id=$(__find_sim_host $3)
     paramError=1
     if [ $# -gt 3 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4"
+        url="$ric_id/a1-p/policytypes/$4"
 		paramError=0
 	fi
 
@@ -500,16 +494,13 @@ controller_api_get_A1_policy_type() {
 controller_api_delete_A1_policy() {
 	__log_test_start $@
 
-	ric_id=$3
-	if [ $RUNMODE == "KUBE" ]; then
-		ric_id=$(get_kube_sim_host $3)
-	fi
+	ric_id=$(__find_sim_host $3)
     paramError=1
     if [ $# -eq 5 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5"
+        url="$ric_id/a1-p/policytypes/$4/policies/$UUID$5"
 		paramError=0
     elif [ $# -eq 4 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4"
+        url="$ric_id/A1-P/v1/policies/$UUID$4"
         paramError=0
 	fi
 
@@ -542,18 +533,15 @@ controller_api_delete_A1_policy() {
 controller_api_put_A1_policy() {
 	__log_test_start $@
 
-	ric_id=$3
-	if [ $RUNMODE == "KUBE" ]; then
-		ric_id=$(get_kube_sim_host $3)
-	fi
+	ric_id=$(__find_sim_host $3)
     paramError=1
     if [ $# -eq 6 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5"
+        url="$ric_id/a1-p/policytypes/$4/policies/$UUID$5"
         body=$(sed 's/XXX/'${5}'/g' $6)
 
 		paramError=0
     elif [ $# -eq 5 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4"
+        url="$ric_id/A1-P/v1/policies/$UUID$4"
         body=$(sed 's/XXX/'${4}'/g' $5)
         paramError=0
 	fi
@@ -588,14 +576,11 @@ controller_api_put_A1_policy() {
 controller_api_get_A1_policy_status() {
 	__log_test_start $@
 
-	ric_id=$3
-	if [ $RUNMODE == "KUBE" ]; then
-		ric_id=$(get_kube_sim_host $3)
-	fi
+	ric_id=$(__find_sim_host $3)
     targetJson=""
     paramError=1
     if [ $# -ge 5 ] && [ $2 == "OSC" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/a1-p/policytypes/$4/policies/$UUID$5/status"
+        url="$ric_id/a1-p/policytypes/$4/policies/$UUID$5/status"
         if [ $# -gt 5 ]; then
             targetJson="{\"instance_status\":\"$6\""
             targetJson=$targetJson",\"has_been_deleted\":\"$7\""
@@ -603,7 +588,7 @@ controller_api_get_A1_policy_status() {
         fi
 		paramError=0
     elif [ $# -ge 4 ] && [ $2 == "STD" ]; then
-        url="$RIC_SIM_HTTPX://$ric_id:$RIC_SIM_PORT/A1-P/v1/policies/$UUID$4/status"
+        url="$ric_id/A1-P/v1/policies/$UUID$4/status"
         if [ $# -gt 4 ]; then
             targetJson="{\"enforceStatus\":\"$5\""
             if [ $# -eq 6 ]; then
