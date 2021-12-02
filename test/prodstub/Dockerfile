@@ -32,4 +32,8 @@ RUN chmod +x start.sh
 RUN apt-get update
 RUN apt-get install -y nginx=1.14.*
 
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+USER appuser
+
 CMD [ "./start.sh" ]

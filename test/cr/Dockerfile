@@ -31,4 +31,8 @@ RUN pip install -r requirements.txt
 
 RUN chmod +x start.sh
 
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+USER appuser
+
 CMD [ "./start.sh" ]
