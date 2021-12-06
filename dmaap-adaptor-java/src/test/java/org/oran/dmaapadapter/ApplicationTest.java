@@ -52,6 +52,7 @@ import org.oran.dmaapadapter.repository.Job;
 import org.oran.dmaapadapter.repository.Jobs;
 import org.oran.dmaapadapter.tasks.KafkaJobDataConsumer;
 import org.oran.dmaapadapter.tasks.KafkaTopicConsumers;
+import org.oran.dmaapadapter.tasks.ProducerRegstrationTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -97,6 +98,9 @@ class ApplicationTest {
 
     @Autowired
     KafkaTopicConsumers kafkaTopicConsumers;
+
+    @Autowired
+    ProducerRegstrationTask producerRegistrationTask;
 
     private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
 
@@ -288,6 +292,8 @@ class ApplicationTest {
         // Register producer, Register types
         await().untilAsserted(() -> assertThat(icsSimulatorController.testResults.registrationInfo).isNotNull());
         assertThat(icsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(this.types.size());
+        assertThat(producerRegistrationTask.isRegisteredInIcs()).isTrue();
+        producerRegistrationTask.supervisionTask().block();
 
         // Create a job
         this.icsSimulatorController.addJob(consumerJobInfo(), JOB_ID, restClient());

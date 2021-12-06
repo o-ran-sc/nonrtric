@@ -112,16 +112,6 @@ public class AsyncRestClient {
         return retrieve(traceTag, request);
     }
 
-    public Mono<ResponseEntity<String>> putForEntity(String uri) {
-        Object traceTag = createTraceTag();
-        logger.debug("{} PUT uri = '{}{}''", traceTag, baseUrl, uri);
-        logger.trace("{} PUT body: <empty>", traceTag);
-        RequestHeadersSpec<?> request = getWebClient() //
-                .put() //
-                .uri(uri);
-        return retrieve(traceTag, request);
-    }
-
     public Mono<String> put(String uri, String body) {
         return putForEntity(uri, body) //
                 .map(this::toBody);

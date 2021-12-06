@@ -31,16 +31,6 @@ public class ServiceException extends Exception {
     @Getter
     private final HttpStatus httpStatus;
 
-    public ServiceException(String message) {
-        super(message);
-        httpStatus = null;
-    }
-
-    public ServiceException(String message, Exception originalException) {
-        super(message, originalException);
-        httpStatus = null;
-    }
-
     public ServiceException(String message, HttpStatus httpStatus) {
         super(message);
         this.httpStatus = httpStatus;

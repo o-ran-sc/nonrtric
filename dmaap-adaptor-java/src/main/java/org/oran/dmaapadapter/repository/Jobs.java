@@ -35,6 +35,7 @@ import org.oran.dmaapadapter.repository.Job.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -59,7 +60,7 @@ public class Jobs {
     public synchronized Job getJob(String id) throws ServiceException {
         Job job = allJobs.get(id);
         if (job == null) {
-            throw new ServiceException("Could not find job: " + id);
+            throw new ServiceException("Could not find job: " + id, HttpStatus.NOT_FOUND);
         }
         return job;
     }
