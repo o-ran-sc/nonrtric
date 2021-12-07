@@ -37,7 +37,7 @@ func main() {
 	r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={O-DU-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection={O-RU-ID}", handleData)
 
 	fmt.Println("Starting SDNR on port: ", *port)
-	http.ListenAndServe(fmt.Sprintf(":%v", *port), r)
+	fmt.Println(http.ListenAndServe(fmt.Sprintf(":%v", *port), r))
 
 }
 
