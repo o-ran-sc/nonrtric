@@ -23,6 +23,7 @@ package jobs
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
@@ -172,6 +173,7 @@ func (jh *jobsHandler) pollAndDistributeMessages(mRAddress string) {
 	messagesBody, error := restclient.Get(mRAddress+jh.topicUrl, jh.pollClient)
 	if error != nil {
 		log.Warn("Error getting data from MR. Cause: ", error)
+		time.Sleep(time.Minute) // Must wait before trying to call MR again
 	}
 	log.Debug("Received messages: ", string(messagesBody))
 	jh.distributeMessages(messagesBody)
