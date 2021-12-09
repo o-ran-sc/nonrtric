@@ -13,6 +13,4 @@ COPY cert/pass .
 WORKDIR /usr/src/app
 COPY http_proxy.js .
 
-USER node
-
 CMD [ "node", "http_proxy.js" ]
