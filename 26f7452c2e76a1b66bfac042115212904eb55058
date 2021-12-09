@@ -41,6 +41,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a87a2db5_f08fcaee",
+        "filename": "test/usecases/odusliceassurance/goversion/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-12-09T12:57:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "daa40f48_e09bddec",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 46
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "755487d5_57ef0928",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-12-09T08:45:06Z",
       "side": 1,
       "message": "Shouldn\u0027t this be log call?",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 64,
+        "endChar": 12
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b102fd9a_c4c8fa77",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/restclient/client.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-12-09T12:57:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "755487d5_57ef0928",
       "range": {
         "startLine": 64,
         "startChar": 1,
@@ -87,6 +135,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7097e90_c330e171",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/restclient/client.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-12-09T12:57:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6090fa0_e91fe941",
+      "range": {
+        "startLine": 119,
+        "startChar": 5,
+        "endLine": 119,
+        "endChar": 10
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf9f3b7a_c5c877fc",
@@ -110,6 +182,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "914b23be_92e7b619",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/sliceassurance/app.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-12-09T12:57:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf9f3b7a_c5c877fc",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 66,
+        "endChar": 20
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97dc68b9_fcef29f8",
@@ -123,6 +219,30 @@
       "writtenOn": "2021-12-09T08:45:06Z",
       "side": 1,
       "message": "This comment seems a bit unnecessary",
+      "range": {
+        "startLine": 102,
+        "startChar": 3,
+        "endLine": 102,
+        "endChar": 46
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d750723_2dd6c155",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/sliceassurance/app.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2021-12-09T12:57:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97dc68b9_fcef29f8",
       "range": {
         "startLine": 102,
         "startChar": 3,
