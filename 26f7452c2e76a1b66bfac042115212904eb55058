@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0141ca93_1304958e",
+        "filename": "test/usecases/odusliceassurance/goversion/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-09T08:45:06Z",
+      "side": 1,
+      "message": "Please also mention that the port for the DMaaP MR listener can be changed with a flag",
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daa40f48_e09bddec",
+        "filename": "test/usecases/odusliceassurance/goversion/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-09T08:45:06Z",
+      "side": 1,
+      "message": "Should be removed",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 46
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "755487d5_57ef0928",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/restclient/client.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-09T08:45:06Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be log call?",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 64,
+        "endChar": 12
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6090fa0_e91fe941",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/restclient/client.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-09T08:45:06Z",
+      "side": 1,
+      "message": "Use Debugf to get the formatting.",
+      "range": {
+        "startLine": 119,
+        "startChar": 5,
+        "endLine": 119,
+        "endChar": 10
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf9f3b7a_c5c877fc",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/sliceassurance/app.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-09T08:45:06Z",
+      "side": 1,
+      "message": "This comment seems a bit unnecessary",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 66,
+        "endChar": 20
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97dc68b9_fcef29f8",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/sliceassurance/app.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-09T08:45:06Z",
+      "side": 1,
+      "message": "This comment seems a bit unnecessary",
+      "range": {
+        "startLine": 102,
+        "startChar": 3,
+        "endLine": 102,
+        "endChar": 46
+      },
+      "revId": "26f7452c2e76a1b66bfac042115212904eb55058",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
