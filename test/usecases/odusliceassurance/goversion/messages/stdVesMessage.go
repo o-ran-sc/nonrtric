@@ -20,15 +20,6 @@
 
 package messages
 
-import (
-	"fmt"
-	"regexp"
-	"strconv"
-	"strings"
-
-	"oransc.org/usecase/oduclosedloop/internal/structures"
-)
-
 type StdDefinedMessage struct {
 	Event Event `json:"event"`
 }
@@ -62,63 +53,4 @@ type Measurement struct {
 
 func (message StdDefinedMessage) GetMeasurements() []Measurement {
 	return message.Event.StndDefinedFields.Data.Measurements
-}
-
-func (meas Measurement) CreateSliceMetric() *structures.SliceMetric {
-	var pmName string
-	var duid, cellid string
-	var sd, sst int
-
-	typeParts := strings.Split(meas.MeasurementTypeInstanceReference, "/")
-	for _, part := range typeParts {
-		if strings.Contains(part, "distributed-unit-functions") {
-			duid = getValueInsideQuotes(part)
-
-		} else if strings.Contains(part, "cell[") {
-			cellid = getValueInsideQuotes(part)
-
-		} else if strings.Contains(part, "performance-measurement-type") {
-			pmName = getValueInsideQuotes(part)
-
-		} else if strings.Contains(part, "slice-differentiator") {
-			sd = getPropertyNumber(part)
-
-		} else if strings.Contains(part, "slice-differentiator") {
-			res, err := strconv.Atoi(getValueInsideQuotes(part))
-			if err != nil {
-				sst = -1
-			}
-			sst = res
-		}
-	}
-
-	sm := structures.NewSliceMetric(duid, cellid, sd, sst)
-	sm.PM[pmName] = meas.Value
-	return sm
-}
-
-func getValueInsideQuotes(text string) string {
-	re := regexp.MustCompile(`\'(.*?)\'`)
-
-	match := re.FindAllString(text, -1)
-	var res string
-	if len(match) == 1 {
-		res = strings.Trim(match[0], "'")
-	}
-	return res
-}
-
-func getPropertyNumber(text string) int {
-	re := regexp.MustCompile("[0-9]+")
-	match := re.FindAllString(text, -1)
-	var res int
-	var err error
-	if len(match) == 1 {
-		res, err = strconv.Atoi(match[0])
-		if err != nil {
-			fmt.Println(err)
-			return -1
-		}
-	}
-	return res
 }
