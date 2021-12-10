@@ -41,6 +41,7 @@ URL=""
 HM_PATH=""
 NAMESPACE="ckhm"  #kube namespace for simple-app
 PROXY_TAG=""
+ENV_MODE=""
 
 OK="All tests ok"
 
@@ -49,6 +50,7 @@ print_usage() {
 }
 if [ $# -eq 1 ]; then
     if [ $1 == "docker" ]; then
+        ENV_MODE="docker"
         PORT=8112
         HOST="localhost"
         URL="http://$HOST:$PORT"
@@ -59,6 +61,7 @@ if [ $# -eq 1 ]; then
     fi
 elif [ $# -eq 2 ]; then
     if [ $1 == "kube" ]; then
+        ENV_MODE="kube"
         PORT=$(kubectl get svc helmmanagerservice -n nonrtric -o jsonpath='{...ports[?(@.name=="'http'")].nodePort}')
         HOST=$2
         URL="http://$HOST:$PORT"
@@ -72,9 +75,27 @@ else
     exit 1
 fi
 
-
+helm-update(){
+    echo "Running helm repo update"
+    if [ $ENV_MODE == "docker" ]; then
+        helmcmd="docker exec -it helmmanagerservice helm repo update"
+    fi
+    if [ $ENV_MODE == "kube" ]; then
+        helmcmd="kubectl -n nonrtric exec -it helmmanagerservice -- helm repo update"
+    fi
+    echo $helmcmd
+    helmres=$($helmcmd)
+    echo $helmres
+    helmretcode=$?
+    if [ $helmretcode -ne 0 ]; then
+        echo -e $RED" FAIL -  helm repo update failed"$ERED
+        echo "  helm repo update return code: $helmretcode"
+    fi
+    sleep 2
+}
 
 run-curl() {
+    helm-update
     curl_cmd="curl -sw %{http_code} $PROXY_TAG $HM_PATH$@"
     echo $curl_cmd
     res=$($curl_cmd)
@@ -104,6 +125,7 @@ run-curl() {
         fi
     fi
 }
+
 
 echo "================"
 echo "Get apps - empty"
