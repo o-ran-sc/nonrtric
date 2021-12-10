@@ -164,7 +164,8 @@ def dmaap_generic_uploader():
 
     while True:
         if (len(generic_messages)):
-            for topicname in generic_messages.keys():    #topicname contains the path of the topics, eg. "/event/<topic>"
+            keys_copy = list(generic_messages.keys())
+            for topicname in keys_copy:    #topicname contains the path of the topics, eg. "/event/<topic>"
                 topic_queue=generic_messages[topicname]
                 if (len(topic_queue)>0):
                     if (topicname.endswith(".text")):

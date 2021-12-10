@@ -19,13 +19,13 @@
 
 TC_ONELINE_DESCR="Sanity test of Non-RT RIC Helm chats - all components - E-RELEASE"
 # This script requires the helm charts for nonrtric, a1simulator and a1controller are installed
-# There should be 2 simulator of version started
+# There should be 2 simulator of each A1 interface version started
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="" # Not used -  KUBE only test script
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" MR CR  PRODSTUB KUBEPROXY"
+KUBE_INCLUDED_IMAGES=" MR DMAAPMR CR  PRODSTUB KUBEPROXY KAFKAPC"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ICS RC SDNC DMAAPMED DMAAPADP"
 
@@ -40,13 +40,14 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-use_mr_http       #MR only supports http?
+use_mr_https
 use_cr_https
 use_agent_rest_https
 use_sdnc_https
 use_simulator_https
 use_ics_rest_https
 use_prod_stub_https
+use_dmaapmed_https
 
 if [ $ICS_VERSION == "V1-1" ]; then
     use_rapp_catalogue_http # https not yet supported
@@ -67,9 +68,9 @@ fi
 
 clean_environment
 
-pms_kube_pvc_reset
-
 ics_kube_pvc_reset
+
+pms_kube_pvc_reset
 
 start_kube_proxy
 
@@ -88,7 +89,16 @@ start_ric_simulators a1-sim-std2 $STD_NUM_RICS STD_2.0.0
 echo " RIC MAPPING a1-sim-std2-0 : ric5"
 echo " RIC MAPPING a1-sim-std2-1 : ric6"
 
-start_mr
+start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
+            "$MR_WRITE_TOPIC" "/events" "users/mr-stub" \
+            "unauthenticated.dmaapmed.json" "/events" "dmaapmediatorproducer/STD_Fault_Messages" \
+            "unauthenticated.dmaapadp.json" "/events" "dmaapadapterproducer/msgs"
+
+start_kafkapc
+
+kafkapc_api_create_topic 201 "unauthenticated.dmaapadp_kafka.text" "text/plain"
+
+kafkapc_api_start_sending 200 "unauthenticated.dmaapadp_kafka.text"
 
 start_control_panel
 
@@ -313,6 +323,7 @@ do
     sim_equal "a1-sim-osc-"$i num_instances 2
 done
 
+cr_api_reset 0   # Reset CR to count new events
 
 echo "ADD EVENT/STATUS CHECK"
 echo "ADD MR CHECK"
@@ -346,7 +357,7 @@ if [ $ICS_VERSION == "V1-1" ]; then
 else
     ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
     ics_api_edp_get_type_2 200 type1
-    ics_api_edp_get_type_ids 200 type1
+    ics_api_edp_get_type_ids 200 STD_Fault_Messages ExampleInformationTypeKafka ExampleInformationType type1
 
     ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
     ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
@@ -367,7 +378,7 @@ fi
 if [ $ICS_VERSION == "V1-1" ]; then
     prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
 else
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
+    if [[ "$ICS_FEATURE3LEVEL" == *"INFO-TYPES"* ]]; then
         prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
     else
         prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
@@ -398,13 +409,13 @@ start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE 
 
 start_dmaapmed NOPROXY $SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_DATA_FILE
 
-ics_equal json:ei-producer/v1/eiproducers 2 60
+ics_equal json:data-producer/v1/info-producers 3 120
 
-ics_api_idc_get_type_ids 200 ExampleInformationType STD_Fault_Messages
+ics_api_idc_get_type_ids 200 ExampleInformationType ExampleInformationTypeKafka STD_Fault_Messages type-1
 
-ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a DmaapGenericInfoProducer DMaaP_Mediator_Producer
 
-NUM_JOBS=5
+NUM_JOBS=1
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
@@ -414,23 +425,30 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 jobz$i ExampleInformationTypeKafka $CR_SERVICE_MR_PATH_0/jobz-data$i info-ownerz$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerz$i testdata/dmaap-adapter/job-template-1-kafka.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     ics_api_a1_get_job_status 200 jobx$i ENABLED 30
+    ics_api_a1_get_job_status 200 joby$i ENABLED 30
+    ics_api_a1_get_job_status 200 jobz$i ENABLED 30
 done
 
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-0"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-1"}'
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-2"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
+kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------4'
+kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------6'
 
-cr_equal 0 received_callbacks $(($NUM_JOBS*2*2)) 60
+
+cr_equal 0 received_callbacks $(($NUM_JOBS*2*3)) 200
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_equal 0 received_callbacks?id=jobx-data$i 2
     cr_equal 0 received_callbacks?id=joby-data$i 2
+    cr_equal 0 received_callbacks?id=jobz-data$i 2
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
@@ -439,6 +457,8 @@ do
     cr_api_check_single_genric_json_event 200 0 jobx-data$i '{"msg":"msg-2"}'
     cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
     cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_genric_json_event 200 0 jobz-data$i 'Message-------4'
+    cr_api_check_single_genric_json_event 200 0 jobz-data$i 'Message-------6'
 done
 
 
