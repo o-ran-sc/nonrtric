@@ -75,6 +75,9 @@ fi
 
 
 run-curl() {
+    if [ $1 == "docker" ]; then
+        docker exec -it helmmanagerservice helm repo update
+    fi
     curl_cmd="curl -sw %{http_code} $PROXY_TAG $HM_PATH$@"
     echo $curl_cmd
     res=$($curl_cmd)
