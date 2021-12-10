@@ -23,9 +23,9 @@ The configured public key and cerificate shall be PEM-encoded. A self signed cer
 
     openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 
-T## Functionality
+## Functionality
 
-he creation of the job is not done when the consumer is started. Instead the consumer provides a REST API where it can be started and stopped, described below.
+The creation of the job is not done when the consumer is started. Instead the consumer provides a REST API where it can be started and stopped, described below.
 
 >- /start  Creates the job in ICS.
 >- /stop   Deletes the job in ICS.
@@ -34,14 +34,20 @@ If the consumer is shut down with a SIGTERM, it will also delete the job before 
 
 ## Development
 
-To make it easy to test during development of the consumer, two stubs are provided in the `stub` folder.
+To make it easy to test during development of the consumer, three stubs are provided in the `stub` folder.
 
-One, under the `producer` folder, called `producer` that stubs the producer and pushes an array with one message with `eventSeverity` alternating between `NORMAL` and `CRITICAL`. To build and start the stub, do the following:
+A producer stub, under the `producer` folder, that stubs the producer and pushes an array with one message with `eventSeverity` alternating between `NORMAL` and `CRITICAL`. The stub does not start to send messages until it recieves a create job call from the ICS stub. When a delete job call comes from the ICS stub it stops sending messages. To build and start the stub, do the following:
 >1. cd stub/producer
 >2. go build
 >3. ./producer
 
-One, under the `sdnr` folder, called `sdnr` that at startup will listen for REST calls and print the body of them. By default, it listens to the port `3904`, but his can be overridden by passing a `-port [PORT]` flag when starting the stub. To build and start the stub, do the following:
+An ICS stub, under the `ics` folder, that listens for create and delete job calls from the consumer. When it gets a call it calls the producer stub with the correct create or delete call and the provided job ID. By default, it listens to the port `8083`, but his can be overridden by passing a `-port [PORT]` flag when starting the stub. To build and start the stub, do the following:
+>1. cd stub/ics
+>2. go build
+>3. ./ics
+
+
+An SNDR stub, under the `sdnr` folder, that at startup will listen for REST calls and print the body of them. By default, it listens to the port `3904`, but his can be overridden by passing a `-port [PORT]` flag when starting the stub. To build and start the stub, do the following:
 >1. cd stub/sdnr
 >2. go build
 >3. ./sdnr

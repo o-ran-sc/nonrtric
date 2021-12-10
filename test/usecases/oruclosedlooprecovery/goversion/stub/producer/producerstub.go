@@ -23,13 +23,51 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
 	"oransc.org/usecase/oruclosedloop/internal/ves"
 )
 
+var started bool
+
 func main() {
+	r := mux.NewRouter()
+	r.HandleFunc("/create/{jobId}", createJobHandler).Methods(http.MethodPut)
+	r.HandleFunc("/delete/{jobId}", deleteJobHandler).Methods(http.MethodDelete)
+
+	fmt.Println("Listening on port 8085")
+	fmt.Println(http.ListenAndServe(":8085", r))
+}
+
+func createJobHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, ok := vars["jobId"]
+	if !ok {
+		http.Error(w, "No job ID provided", http.StatusBadRequest)
+		return
+	}
+
+	started = true
+	fmt.Println("Start pushing messages for job: ", id)
+	startPushingMessages()
+}
+
+func deleteJobHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, ok := vars["jobId"]
+	if !ok {
+		http.Error(w, "No job ID provided", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("Stop pushing messages for job: ", id)
+	started = false
+}
+
+func startPushingMessages() {
 	message := ves.FaultMessage{
 		Event: ves.Event{
 			CommonEventHeader: ves.CommonEventHeader{
@@ -41,12 +79,16 @@ func main() {
 			},
 		},
 	}
+
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
 
 	critical := true
 	for range time.Tick(2 * time.Second) {
+		if !started {
+			break
+		}
 		if critical {
 			message.Event.FaultFields.EventSeverity = "CRITICAL"
 			critical = false
@@ -60,7 +102,10 @@ func main() {
 		req, _ := http.NewRequest(http.MethodPost, "http://localhost:40935", bytes.NewBuffer(msgToSend))
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-		client.Do(req)
+		r, err := client.Do(req)
+		if err != nil {
+			fmt.Println("Error sending to consumer: ", err)
+		}
+		fmt.Printf("Sent %v message to consumer. Got response %v\n", message.Event.FaultFields.EventSeverity, r.Status)
 	}
-
 }
