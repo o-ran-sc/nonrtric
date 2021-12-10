@@ -120,6 +120,12 @@ cmd="/helm/charts -X POST -F chart=@$APP_TGZ -F values=@$VALUES_YAML -F info=<$I
 run-curl $cmd
 echo
 
+if [ $1 == "docker" ]; then
+    docker exec -it helmmanagerservice helm repo update
+fi
+if [ $1 == "kube" ]; then
+    kubectl -n nonrtric exec -it helmmanagerservice -- helm repo update
+fi
 
 echo "====================="
 echo "Get apps - simple-app"
