@@ -11,8 +11,10 @@ spec:
   containers:
   - name: pvc-cleaner
     image: $PVC_CLEANER_IMAGE
+    securityContext:
+      runAsUser: 0
     command: ["/bin/sh","-c"]
-    args: ["rm -rf $PVC_CLEANER_RM_PATH/*"]
+    args: ["rm -rf $PVC_CLEANER_RM_PATH/* ; if [ $? -ne 0 ]; then echo 'Delete failure: '$PVC_CLEANER_RM_PATH; else echo 'Delete OK: '$PVC_CLEANER_RM_PATH; fi"]
     volumeMounts:
     - mountPath: $PVC_CLEANER_RM_PATH
       name: pvc-cleaner-m-vol

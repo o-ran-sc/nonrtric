@@ -58,7 +58,7 @@ __RICSIM_kube_scale_zero() {
 # This function is called for prestarted apps not managed by the test script.
 __RICSIM_kube_scale_zero_and_wait() {
 	#__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app $KUBE_A1SIM_NAMESPACE"-"$RIC_SIM_PREFIX
-	__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app # the values of the app label is not known
+	__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app $KUBE_A1SIM_NAMESPACE"-a1simulator"
 }
 
 # Delete all kube resouces for the app
@@ -335,7 +335,11 @@ get_kube_sim_host() {
 __find_sim_host() {
 	if [ $RUNMODE == "KUBE" ]; then
 		ricname=$(echo "$1" | tr '_' '-') # Kube does not accept underscore in names as docker do
-		ric_setname="${ricname%-*}"  #Extract the stateful set name
+		if [ -z "$RIC_SIM_COMMON_SVC_NAME" ]; then
+			ric_setname="${ricname%-*}"  #Extract the stateful set name
+		else
+			ric_setname=$RIC_SIM_COMMON_SVC_NAME # Use the common svc name in the host name of the sims
+		fi
 		echo $RIC_SIM_HTTPX"://"$ricname.$ric_setname.$KUBE_A1SIM_NAMESPACE":"$RIC_SIM_PORT
 	else
 		if [ $DOCKER_COMPOSE_VERION == "V1" ]; then

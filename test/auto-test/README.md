@@ -48,9 +48,12 @@ ORAN D-RELEASE
 
 ORAN E-RELEASE
 =========
->```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-e-release.sh```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-e-release.sh```
 
->```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-e-release.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  release --env-file ../common/test_env-oran-e-release.sh```
+
+ORAN E-RELEASE with nonrtric deployed with helm charts for the "dep" repo
+>```../FTC_HELM_E_RELEASE.sh remote-remove  kube  release --env-file ../common/test_env-oran-e-release.sh --override override_ftc_helm_e_release.sh```
 
 ONAP GUILIN
 ===========
@@ -72,7 +75,6 @@ ONAP ISTANBUL
 
 >```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-istanbul.sh```
 
-Note: When istanbul is released, add the 'release' arg to run released images.
 
 ## Test case categories
 

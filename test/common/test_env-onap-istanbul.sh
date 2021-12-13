@@ -317,6 +317,7 @@ RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator contain
 RIC_SIM_CERT_MOUNT_DIR="./cert"
 RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
 RIC_SIM_ALIVE_URL="/"
+RIC_SIM_COMMON_SVC_NAME=""                               # Name of svc if one common svc is used for all ric sim groups (stateful sets)
 
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
 SDNC_DISPLAY_NAME="SDNC A1 Controller"

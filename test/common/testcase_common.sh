@@ -756,6 +756,7 @@ fi
 
 echo ""
 # auto adding system apps
+__added_apps=""
 echo -e $BOLD"Auto adding system apps"$EBOLD
 if [ $RUNMODE == "KUBE" ]; then
 	INCLUDED_IMAGES=$INCLUDED_IMAGES" "$TESTENV_KUBE_SYSTEM_APPS
@@ -768,26 +769,39 @@ if [ ! -z "$TMP_APPS" ]; then
 	for iapp in "$TMP_APPS"; do
 		file_pointer=$(echo $iapp | tr '[:upper:]' '[:lower:]')
 		file_pointer="../common/"$file_pointer"_api_functions.sh"
-		echo " Auto-adding system app $iapp.  Sourcing $file_pointer"
+	    padded_iapp=$iapp
+		while [ ${#padded_iapp} -lt 16 ]; do
+			padded_iapp=$padded_iapp" "
+		done
+		echo " Auto-adding system app   $padded_iapp  Sourcing $file_pointer"
 		. $file_pointer
+		__added_apps=" $iapp "$__added_apps
 	done
 else
 	echo " None"
 fi
 
+if [ $RUNMODE == "KUBE" ]; then
+	TMP_APPS=$INCLUDED_IMAGES" "$KUBE_PRESTARTED_IMAGES
+else
+	TMP_APPS=$INCLUDED_IMAGES
+fi
+
 echo -e $BOLD"Auto adding included apps"$EBOLD
-	for iapp in $INCLUDED_IMAGES; do
-		file_pointer=$(echo $iapp | tr '[:upper:]' '[:lower:]')
-		file_pointer="../common/"$file_pointer"_api_functions.sh"
-		padded_iapp=$iapp
-		while [ ${#padded_iapp} -lt 16 ]; do
-			padded_iapp=$padded_iapp" "
-		done
-		echo " Auto-adding included app $padded_iapp  Sourcing $file_pointer"
-		. $file_pointer
-		if [ ! -f "$file_pointer" ]; then
-			echo " Include file $file_pointer for app $iapp does not exist"
-			exit 1
+	for iapp in $TMP_APPS; do
+		if [[ "$__added_apps" != *"$iapp"* ]]; then
+			file_pointer=$(echo $iapp | tr '[:upper:]' '[:lower:]')
+			file_pointer="../common/"$file_pointer"_api_functions.sh"
+			padded_iapp=$iapp
+			while [ ${#padded_iapp} -lt 16 ]; do
+				padded_iapp=$padded_iapp" "
+			done
+			echo " Auto-adding included app $padded_iapp  Sourcing $file_pointer"
+			. $file_pointer
+			if [ ! -f "$file_pointer" ]; then
+				echo " Include file $file_pointer for app $iapp does not exist"
+				exit 1
+			fi
 		fi
 	done
 echo ""
@@ -2245,6 +2259,7 @@ __kube_clean_pvc() {
 	export PVC_CLEANER_NAMESPACE=$2
 	export PVC_CLEANER_CLAIMNAME=$3
 	export PVC_CLEANER_RM_PATH=$4
+	export PVC_CLEANER_APP_NAME
 	input_yaml=$SIM_GROUP"/"$PVC_CLEANER_COMPOSE_DIR"/"pvc-cleaner.yaml
 	output_yaml=$PWD/tmp/$2-pvc-cleaner.yaml
 
