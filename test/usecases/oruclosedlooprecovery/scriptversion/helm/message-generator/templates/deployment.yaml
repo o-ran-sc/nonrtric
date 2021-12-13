@@ -47,9 +47,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: MR-HOST
-            value: http://dmaap-mr
+            value: "{{ .Values.messagerouter.host }}"
           - name: MR-PORT
-            value: "3904"
+            value: "{{ .Values.messagerouter.port }}"
           ports:
             - name: http
               containerPort: 80

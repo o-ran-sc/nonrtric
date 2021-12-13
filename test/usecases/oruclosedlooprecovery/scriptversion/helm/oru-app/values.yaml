@@ -25,6 +25,14 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+messagerouter:
+  host: http://dmaap-mr
+  port: 3904
+
+sdnr:
+  host: http://sdnr-simulator
+  port: 9990
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
