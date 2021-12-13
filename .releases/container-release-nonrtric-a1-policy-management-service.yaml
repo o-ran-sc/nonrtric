@@ -1,0 +1,10 @@
+---
+distribution_type: container
+container_release_tag: 2.3.0
+container_pull_registry: nexus3.o-ran-sc.org:10004
+container_push_registry: nexus3.o-ran-sc.org:10002
+project: nonrtric
+ref: 0ade79498db21c8db3ecdd96ec30eb006e593acb
+containers:
+    - name: nonrtric-a1-policy-management-service
+      version: 2.3.0
