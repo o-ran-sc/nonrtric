@@ -1,0 +1,5 @@
+---
+distribution_type: maven
+version: 2.3.0
+project: nonrtric-a1-policy-management-service
+log_dir: nonrtric-a1-policy-management-service-maven-stage-master/8/
