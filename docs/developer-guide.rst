@@ -1,13 +1,13 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
-.. Copyright (C) 2020 Nordix
+.. Copyright (C) 2021 Nordix
 
 Developer Guide
 ===============
 
 This document provides a quickstart for developers of the Non-RT RIC parts.
 
-Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+D>`_
+Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_
 
 A1 Policy Management Service & SDNC/A1 Controller & A1 Adapter
 --------------------------------------------------------------
