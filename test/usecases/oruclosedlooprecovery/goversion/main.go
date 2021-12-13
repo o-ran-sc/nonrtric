@@ -37,20 +37,16 @@ import (
 	"oransc.org/usecase/oruclosedloop/internal/restclient"
 )
 
-type Server interface {
-	ListenAndServe() error
-}
-
 const jobId = "14e7bb84-a44d-44c1-90b7-6995a92ad43c"
 
 var jobRegistrationInfo = struct {
-	InfoTypeId    string      `json:"info_type_id"`
-	JobResultUri  string      `json:"job_result_uri"`
+	InfoTypeID    string      `json:"info_type_id"`
+	JobResultURI  string      `json:"job_result_uri"`
 	JobOwner      string      `json:"job_owner"`
 	JobDefinition interface{} `json:"job_definition"`
 }{
-	InfoTypeId:    "STD_Fault_Messages",
-	JobResultUri:  "",
+	InfoTypeID:    "STD_Fault_Messages",
+	JobResultURI:  "",
 	JobOwner:      "O-RU Closed Loop Usecase",
 	JobDefinition: "{}",
 }
@@ -72,7 +68,7 @@ func doInit() {
 	log.Debug("Using configuration: ", configuration)
 
 	consumerPort = fmt.Sprint(configuration.ConsumerPort)
-	jobRegistrationInfo.JobResultUri = configuration.ConsumerHost + ":" + consumerPort
+	jobRegistrationInfo.JobResultURI = configuration.ConsumerHost + ":" + consumerPort
 
 	linkfailureConfig = linkfailure.Configuration{
 		SDNRAddress:  configuration.SDNRAddress,
@@ -150,7 +146,7 @@ func startServer() {
 	if err != nil {
 		log.Errorf("Server stopped unintentionally due to: %v. Deleteing job.", err)
 		if deleteErr := deleteJob(); deleteErr != nil {
-			log.Error(fmt.Sprintf("Unable to delete consumer job due to: %v. Please remove job %v manually.", deleteErr, jobId))
+			log.Errorf("Unable to delete consumer job due to: %v. Please remove job %v manually.", deleteErr, jobId)
 		}
 	}
 }
@@ -185,7 +181,7 @@ func deleteOnShutdown(s chan os.Signal) {
 	<-s
 	log.Info("Shutting down gracefully.")
 	if err := deleteJob(); err != nil {
-		log.Error(fmt.Sprintf("Unable to delete job on shutdown due to: %v. Please remove job %v manually.", err, jobId))
+		log.Errorf("Unable to delete job on shutdown due to: %v. Please remove job %v manually.", err, jobId)
 	}
 }
 

@@ -68,7 +68,7 @@ func Test_init(t *testing.T) {
 	assertions.Equal(wantedConfiguration, configuration)
 
 	assertions.Equal(fmt.Sprint(wantedConfiguration.ConsumerPort), consumerPort)
-	assertions.Equal(wantedConfiguration.ConsumerHost+":"+fmt.Sprint(wantedConfiguration.ConsumerPort), jobRegistrationInfo.JobResultUri)
+	assertions.Equal(wantedConfiguration.ConsumerHost+":"+fmt.Sprint(wantedConfiguration.ConsumerPort), jobRegistrationInfo.JobResultURI)
 
 	wantedLinkFailureConfig := linkfailure.Configuration{
 		SDNRAddress:  wantedConfiguration.SDNRAddress,
@@ -194,7 +194,7 @@ func Test_getRouter_shouldContainAllPathsWithHandlers(t *testing.T) {
 func Test_startHandler(t *testing.T) {
 	assertions := require.New(t)
 
-	jobRegistrationInfo.JobResultUri = "host:80"
+	jobRegistrationInfo.JobResultURI = "host:80"
 
 	type args struct {
 		mockReturnBody   []byte
@@ -271,7 +271,7 @@ func Test_startHandler(t *testing.T) {
 func Test_stopHandler(t *testing.T) {
 	assertions := require.New(t)
 
-	jobRegistrationInfo.JobResultUri = "host:80"
+	jobRegistrationInfo.JobResultURI = "host:80"
 
 	type args struct {
 		mockReturnBody   []byte
