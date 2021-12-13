@@ -1,6 +1,6 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. Copyright (C) 2020 Nordix
+.. Copyright (C) 2021 Nordix
 
 =============
 Release-Notes
@@ -14,8 +14,8 @@ This document provides the release notes for the release of the different parts 
    :local:
 
 
-Version history A1 Policy Agent
-===============================
+Version history A1 Policy Management Service (A1 Policy Agent) 
+==============================================================
 
 +------------+----------+------------------+--------------------+
 | **Date**   | **Ver.** | **Author**       | **Comment**        |
@@ -38,7 +38,10 @@ Version history A1 Policy Agent
 | 2021-06-23 | 2.2.0    | Henrik Andersson | D Release          |
 |            |          |                  |                    |
 +------------+----------+------------------+--------------------+
-
+| 2021-08-10 | 2.2.1    | Henrik Andersson | D Maintenance      |
+|            |          |                  | Release            |
+|            |          |                  |                    |
++------------+----------+------------------+--------------------+
 
 Version history Enrichment Coordinator Service
 ==============================================
@@ -179,4 +182,22 @@ D
 +-----------------------------+---------------------------------------------------+
 | **Purpose of the delivery** | Improvements                                      |
 |                             | Introduction of initial version of Helm Manager   |
++-----------------------------+---------------------------------------------------+
+
+D Maintenance
+-------------
++-----------------------------+---------------------------------------------------+
+| **Project**                 | Non-RT RIC                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Repo/commit-ID**          | nonrtric/973ae56894fb29a929fba9e344cae42e7607087b |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release designation**     | D                                                 |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release date**            | 2021-08-10                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Purpose of the delivery** | Minor bug fixes                                   |
 +-----------------------------+---------------------------------------------------+
