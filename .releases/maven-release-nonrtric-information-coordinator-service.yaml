@@ -1,0 +1,5 @@
+---
+distribution_type: maven
+version: 1.2.0
+project: information-coordinator-service
+log_dir: nonrtric-information-coordinator-service-maven-stage-master/11/
