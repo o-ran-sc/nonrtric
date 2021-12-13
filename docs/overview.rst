@@ -1,8 +1,8 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
-.. Copyright (C) 2020 Nordix
+.. Copyright (C) 2021 Nordix
 
-.. |archpic| image:: ./images/nonrtric-architecture-D.png
+.. |archpic| image:: ./images/nonrtric-architecture-E.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
 
 Summary
@@ -31,7 +31,7 @@ These are the components that make up the Non-RT-RIC:
 * Near-RT-RIC A1 Simulator
 * DMaap Adaptor
 
-The code base for "D" Release is in the `NONRTRIC <https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric>`_, `NONRTRIC-ControlPanel <https://gerrit.o-ran-sc.org/r/admin/repos/portal/nonrtric-controlpanel>`_, and `Near-RT-RIC A1-Simulator <https://gerrit.o-ran-sc.org/r/admin/repos/sim/a1-interface>`_ , Gerrit source repositories (D Branch).
+The code base for "E" Release is in the `NONRTRIC <https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric>`_, `NONRTRIC-ControlPanel <https://gerrit.o-ran-sc.org/r/admin/repos/portal/nonrtric-controlpanel>`_, and `Near-RT-RIC A1-Simulator <https://gerrit.o-ran-sc.org/r/admin/repos/sim/a1-interface>`_ , Gerrit source repositories (E-Release Branch).
 
 Non-RT-RIC Control Panel / NONRTRIC Dashboard
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,17 +115,20 @@ Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs.
 
 
 Implementation:
+
 * Implemented as a Java Spring Boot application
 
 Dmaap Adapter
 ~~~~~~~~~~~~~
 
-Is a generic information producer, which registeres itself as an information producer of information types (in Information Coordination Service).
+Is a generic information producer, which registers itself as an information producer of information types (in Information Coordination Service).
 The information types are defined in a configuration file. 
-Information jobs can retrieve data from DMaap or Kafka topics and push this to data consumers (accessing the ICS API).
+Information jobs can retrieve data from DMaaP or Kafka topics and push this to data consumers (accessing the ICS API).
 
 Implementation:
-* Implemented as a Java Spring Boot application
+
+1. Implementation as a Java Spring Boot application
+2. Implementation as a Go application 
 
 Non-RT-RIC (Spring Cloud) Service Gateway
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
