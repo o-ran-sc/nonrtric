@@ -13,7 +13,7 @@ This document describes how to install the Non-RT RIC components, their dependen
 Preface
 -------
 
-See the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`" folder for more information.
+See the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`_" folder for more information.
 
 Software Installation and Deployment
 ------------------------------------
@@ -31,15 +31,15 @@ command to start the components:
            -f ics/docker-compose.yaml
 
 The example above is just an example to start some of the components. 
-For more information on running and configuring the functions can be found in the Readme file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`" folder, and on the `wiki page <https://wiki.o-ran-sc.org/display/RICNR/Release+E+-+Run>`
+For more information on running and configuring the functions can be found in the Readme file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`__" folder, and on the `wiki page <https://wiki.o-ran-sc.org/display/RICNR/Release+E+-+Run>`_
 
 Install with Helm
 +++++++++++++++++
 
-Helm charts and an example recipe are provided in the `it/dep repo <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`__,
+Helm charts and an example recipe are provided in the `it/dep repo <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_,
 under "nonrtric". By modifying the variables named "installXXX" in the beginning of the example recipe file, which
 components that will be installed can be controlled. Then the components can be installed and started by running the
-following comand:
+following command:
 
       .. code-block:: bash
 
