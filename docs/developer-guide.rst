@@ -35,6 +35,13 @@ command in the *information-coordinator-service* directory:
     | mvn spring-boot:run         |
     +-----------------------------+
 
+There are a few files that needs to be available to run. These are referred to from the application.yaml file.
+The following properties have to be modified:
+
+* server.ssl.key-store=./config/keystore.jks
+* app.webclient.trust-store=./config/truststore.jks
+* app.vardata-directory=./target
+
 Start in Docker
 +++++++++++++++
 
@@ -56,10 +63,38 @@ Initial Non-RT-RIC App Catalogue
 
 See the README.md file in the *r-app-catalogue* directory in the Gerrit repo for more details how to run the component.
 
+DMaaP Adaptor Service
+---------------------
+This is run in the same way as the Information Coordinator Service
+
+The following properties in the application.yaml file have to be modified:
+* server.ssl.key-store=./config/keystore.jks
+* app.webclient.trust-store=./config/truststore.jks
+* app.configuration-filepath=./src/test/resources/test_application_configuration.json
+
+O-DU & O-RU fronthaul recovery
+------------------------------
+
+See the page in Wiki: `O-RU Fronthaul Recovery usecase <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_
+
+O-DU Slicing use cases
+----------------------
+
+See the page in Wiki: `O-DU Slice Assurance usecase <https://wiki.o-ran-sc.org/display/RICNR/O-DU+Slice+Assurance+usecase>`_
+
+Helm Manager
+------------
+
+See the page in Wiki: `Release E <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_
+
 Kubernetes deployment
 =====================
 
 Non-RT RIC can be also deployed in a Kubernetes cluster, `it/dep repository <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_
 hosts deployment and integration artifacts. Instructions and helm charts to deploy the Non-RT-RIC functions in the
 OSC NONRTRIC integrated test environment can be found in the *./nonrtric* directory.
+
+For more information on installation of NonRT-RIC in Kubernetes, see `Deploy NONRTRIC in Kubernetes <https://wiki.o-ran-sc.org/display/RICNR/Deploy+NONRTRIC+in+Kubernetes>`_
+
 For more information see `Integration and Testing documentation on the O-RAN-SC wiki <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_.
+
