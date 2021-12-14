@@ -125,7 +125,7 @@ Is a generic information producer, which registers itself as an information prod
 The information types are defined in a configuration file. 
 Information jobs can retrieve data from DMaaP or Kafka topics and push this to data consumers (accessing the ICS API).
 
-Implementation:
+Implementation (2 implementations):
 
 1. Implementation as a Java Spring Boot application
 2. Implementation as a Go application 
