@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "a95f6fb505c4b5c39311efa7df41ca2e6fe835a5",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67e72a02_4e314d67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2021-12-14T10:26:55Z",
+      "side": 1,
+      "message": "Verifies in master ...https://gerrit.o-ran-sc.org/r/c/nonrtric/+/7332 ",
+      "revId": "a95f6fb505c4b5c39311efa7df41ca2e6fe835a5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
