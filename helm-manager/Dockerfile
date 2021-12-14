@@ -40,13 +40,10 @@ RUN chmod +x ./kubectl
 
 RUN mv ./kubectl /usr/local/bin/kubectl
 
-# Copy app config and app jar
-WORKDIR /opt/app/helm-manager/src/main/resources/config
-
-COPY config/KubernetesParticipantConfig.json .
+WORKDIR /etc/app/helm-manager
 COPY config/application.yaml .
 
 WORKDIR /opt/app/helm-manager
 COPY target/app.jar app.jar
 
-CMD [ "java", "-jar", "app.jar" ]
+CMD [ "java", "-jar", "app.jar", "--spring.config.location=optional:file:/etc/app/helm-manager/"]

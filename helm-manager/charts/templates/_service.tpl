@@ -23,12 +23,4 @@
   protocol: TCP
 {{- end }}
 {{- end }}
-{{- if .tls }}
-{{if eq .tls.enabled true -}}
-- name: {{ .name }}-tls
-  port: {{ .tls.servicePort }}
-  targetPort: {{ .tls.containerPort }}
-  protocol: TCP
-{{- end }}
-{{- end }}
 {{- end -}}

@@ -28,23 +28,16 @@
 # -----------------------------------------------------------------------------
 # Specify Helm Manager's Docker image and repository details here
 image:
-  registry: nexus3.o-ran-sc.org:10004
+  registry: nexus3.o-ran-sc.org:10002
   name: o-ran-sc/nonrtric-helm-manager
-  tag: "1.0.0"
-  pullPolicy: IfNotPresent
+  tag: "1.1.0"
+  pullPolicy: Always
 service:
   type: NodePort
   http:
-    # Enable plaintext HTTP call to the API
-    # Disabling this and using a TLS listen only is recommended for most configuration
     enabled: true
-    servicePort: 8080
-    containerPort: 8080
-  tls:
-    # Enable HTTPS listen for the API
-    enabled: true
-    servicePort: 8443
-    containerPort: 8443
+    servicePort: 8112
+    containerPort: 8083
 
 # -----------------------------------------------------------------------------
 # Ingress Controller parameters
@@ -73,7 +66,7 @@ replicaCount: 1
 readinessProbe:
   httpGet:
     path: "/helm/charts"
-    port: 8080
+    port: 8083
     scheme: HTTP
   initialDelaySeconds: 60
   timeoutSeconds: 5
@@ -85,7 +78,7 @@ readinessProbe:
 livenessProbe:
   httpGet:
     path: "/helm/charts"
-    port: 8080
+    port: 8083
     scheme: HTTP
   initialDelaySeconds: 60
   timeoutSeconds: 5
