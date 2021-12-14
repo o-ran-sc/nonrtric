@@ -54,4 +54,4 @@ There is a `docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;
 in the nonrtric repo for bringing up the complete standalone version of ONAP Policy Framework.
 
 The detailed instructions for deploying and running this policy are provided in
-the `wiki <https://wiki.o-ran-sc.org/display/RICNR/Run+O-RU+O-DU+Fronthaul++Recovery+usecase>`_.
+the `wiki <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>>`_.
