@@ -43,8 +43,8 @@ Version history A1 Policy Management Service (A1 Policy Agent)
 |            |          |                  |                    |
 +------------+----------+------------------+--------------------+
 
-Version history Enrichment Coordinator Service
-==============================================
+Version history Information Coordinator Service
+===============================================
 
 +------------+----------+------------------+----------------+
 | **Date**   | **Ver.** | **Author**       | **Comment**    |
