@@ -8,9 +8,16 @@
 Summary
 -------
 
-The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automation function described by the O-RAN Alliance for non-real-time intelligent management of RAN (Radio Access Network) functions. The primary goal of the Non-RealTime RIC is to support non-real-time radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of near-RealTime RIC functions in the RAN to achieve higher-level non-real-time objectives. NONRTRIC functions include service and policy management, RAN analytics and model-training for the near-RealTime RICs. The NONRTRIC project provides concepts, specifications, architecture and reference implementations as defined and described by the `O-RAN Alliance <https://www.o-ran.org>`_ architecture.
+The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automation function described by the O-RAN Alliance for non-real-time intelligent management of RAN (Radio Access Network) functions. 
 
-The O-RAN-SC NONRTRIC implementation communicates with near-RealTime RIC elements in the RAN via the A1 interface. Using the A1 interface the NONRTRIC will facilitate the provision of policies for individual UEs or groups of UEs; monitor and provide basic feedback on policy state from near-RealTime RICs; provide enrichment information as required by near-RealTime RICs; and facilitate ML model training, distribution and inference in cooperation with the near-RealTime RICs.
+The primary goal of the Non-RealTime RIC is to support non-real-time radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of near-RealTime RIC functions in the RAN to achieve higher-level non-real-time objectives. 
+
+Non-RealTime RIC functions include service and policy management, RAN analytics and model-training for the near-RealTime RICs. 
+The Non-RealTime RIC platform hosts and coordinates rApps (Non-RT RIC applications) to perform Non-RealTime RIC tasks.
+The Non-RealTime RIC also hosts the new R1 interface (between rApps and SMO/Non-RealTime-RIC services)
+
+The O-RAN-SC (OSC) NONRTRIC project provides concepts, architecture and reference implementations as defined and described by the `O-RAN Alliance <https://www.o-ran.org>`_ architecture.
+The OSC NONRTRIC implementation communicates with near-RealTime RIC elements in the RAN via the A1 interface. Using the A1 interface the NONRTRIC will facilitate the provision of policies for individual UEs or groups of UEs; monitor and provide basic feedback on policy state from near-RealTime RICs; provide enrichment information as required by near-RealTime RICs; and facilitate ML model training, distribution and inference in cooperation with the near-RealTime RICs.
 
 |archpic|
 
@@ -21,17 +28,23 @@ NONRTRIC components
 
 These are the components that make up the Non-RT-RIC:
 
-* Non-RT-RIC Control Panel / Dashboard
-* A1 Policy Management Service (developed in ONAP)
-* A1/SDNC Controller & A1 Adapter (Controller plugin)
+* Non-RT-RIC Control Panel
 * Information Coordinator Service
+* A1 Policy Management Service
+* A1 Policy Controller / Adapter
+* Near-RT RIC A1 Simulator
 * Non-RT-RIC (Spring Cloud) Service Gateway
 * Non-RT-RIC (Kong) Service Exposure Prototyping
+* DMaaP/Kafka Information Producer Adapters
 * Initial Non-RT-RIC App Catalogue
-* Near-RT-RIC A1 Simulator
-* DMaap Adaptor
+* Initial K8S Helm Chart LCM Manager
+* Test Framework
+* Use Cases
 
-The code base for "E" Release is in the `NONRTRIC <https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric>`_, `NONRTRIC-ControlPanel <https://gerrit.o-ran-sc.org/r/admin/repos/portal/nonrtric-controlpanel>`_, and `Near-RT-RIC A1-Simulator <https://gerrit.o-ran-sc.org/r/admin/repos/sim/a1-interface>`_ , Gerrit source repositories (E-Release Branch).
+  + "Helloworld" O-RU Fronthaul Recovery use case
+  + "Helloworld" O-DU Slice Assurance use case
+
+The source code for "E" Release is in the `NONRTRIC <https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric>`_, `NONRTRIC-ControlPanel <https://gerrit.o-ran-sc.org/r/admin/repos/portal/nonrtric-controlpanel>`_, and `Near-RT-RIC A1-Simulator <https://gerrit.o-ran-sc.org/r/admin/repos/sim/a1-interface>`_ Gerrit source repositories (E-Release Branch).
 
 Non-RT-RIC Control Panel / NONRTRIC Dashboard
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,20 +52,42 @@ Non-RT-RIC Control Panel / NONRTRIC Dashboard
 Graphical user interface
 
 * View and Manage A1 policies in the RAN (near-RT-RICs)
-* Interacts with the Policy agent’s NBI (REST API)
-* Graphical A1 policy creation/editing is model-driven, based on policy type’s JSON schema
+* Graphical A1 policy creation/editing is model-driven, based on policy type's JSON schema
 * View and manage producers and jobs for the Information coordinator service
 * Configure A1 Policy Management Service (e.g. add/remove near-rt-rics)
-* Interacts with the A1-PolicyManagementService & A1-EI-Coordinator (REST NBIs) via Service Exposure gateway
-     
+* Interacts with the A1-Policy Management Service & Information Coordination Service (REST NBIs) via Service Exposure gateway
+
 Implementation:
 
 * Frontend: Angular framework
 * Repo: *portal/nonrtric-controlpanel*
 
-Please refer the developer guide and the wiki to set up in your local environment.
+Please refer the developer guide and the `Wiki <https://wiki.o-ran-sc.org/display/RICNR/>`_ to set up in your local environment.
 
 More details available at the `NONRTRIC-Portal documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-portal-nonrtric-controlpanel>`_
+
+Information Coordination Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Coordinate/Register Information Types, Producers, Consumers, and Jobs.
+
+Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs (A1 Enrichment Information Job Coordination).
+
+* Maintains a registry of:
+
+  + Information Types / schemas
+  + Information Producers
+  + Information Consumers
+  + Information Jobs
+
+* Information Query API (e.g. per producer, per consumer, per types)
+* Query status of Information jobs
+* After Information-type/Producer/Consumer/Job is successfully registered delivery/flow can happen directly between Information Producers and Information Consumers
+* The Information Coordinator Service natively supports the O-RAN A1 Enrichment Information (A1-EI) interface, supporting coordination A1-EI Jobs where information (A1-EI)flow from the SMO/Non-RT-RIC/rApps to near-RT-RICs over the A1 interface.
+
+Implementation:
+
+* Implemented as a Java Spring Boot application
 
 A1 Policy Management Service (from ONAP CCSDK)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,20 +100,20 @@ A1 Controller Service above A1 Controller/Adaptor that provides:
   + Create/Query/Update/Delete A1 Policy Instances in near-RT-RICs
   + Query Status for A1 Policy Instances
 
-* Maintains (persistent) cache of RAN’s A1 Policy information
+* Maintains (persistent) cache of RAN's A1 Policy information
 
   * Support RAN-wide view of A1 Policy information
   * Streamline A1 traffic
   * Enable (optional) re-synchronization after inconsistencies / near-RT-RIC restarts
   * Supports a large number of near-RT-RICs (& multi-version support)
-  
+
 * Converged ONAP & O-RAN-SC A1 Adapter/Controller functions in ONAP SDNC/CCSDK (Optionally deploy without A1 Adaptor to connect direct to near-RT-RICs)
 * Support for different Southbound connectors per near-RT-RIC - e.g. different A1 versions, different near-RT-RIC version, different A1 adapter/controllers supports different or proprietary A1 controllers/EMSs
 
-See also: `A1 Policy Management Service in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_  
-
+See also: `A1 Policy Management Service in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ 
 
 Implementation:
+
 * Implemented as a Java Spring Boot application
 
 A1/SDNC Controller & A1 Adapter (Controller plugin)
@@ -91,51 +126,32 @@ Mediation point for A1 interface termination in SMO/NONRTRIC
 * NETCONF YANG > RESTCONF adapter
 * SLI Mapping logic supported
 * Can be included in an any controller based on ONAP CCSDK
-* Continues to support both a dedicated OSC A1-controller persona and an ONAP SDNC persona  
 
-See also: `A1 Adapter/Controller Functions in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_  
-  
-Information Coordination Service
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+See also: `A1 Adapter/Controller Functions in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ 
 
-Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs.
+A1 Interface / Near-RT-RIC Simulator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Maintains a registry of:
+Stateful A1 test stub.
 
-  - A1-EI Data Types / schemas
-  - A1-EI Producers
-  - A1-EI Consumers
-  - A1-EI Jobs
-
-* A1-EI Query API (e.g. per producer, per consumer, per types)
-* Query status of A1-EI jobs
-* Monitors all near-RT-RICs and recovers from inconsistencies
-* After EI-type/Producer/Consumer/Job is successfully registered delivery/flow can happen directly between A1-EI Producers (in SMO/NONRTRIC domain) and A1-EI consumers (near-RT-RICs in RAN domain)
-* *Being extended to coordinate non-A1 Information exchange between NONRTRIC Apps*
-
+* Used to create multiple stateful A1 providers (simulated near-rt-rics)
+* Supports A1-Policy and A1-Enrichment Information
+* Swagger-based northbound interface, so easy to change the A1 profile exposed (e.g. A1 version, A1 Policy Types, A1-E1 consumers, etc)
+* All A1-AP versions supported
 
 Implementation:
 
-* Implemented as a Java Spring Boot application
+* Implemented as a Python application
+* Repo: *sim/a1-interface*
 
-Dmaap Adapter
-~~~~~~~~~~~~~
-
-Is a generic information producer, which registers itself as an information producer of information types (in Information Coordination Service).
-The information types are defined in a configuration file.
-Information jobs can retrieve data from DMaaP or Kafka topics and push this to data consumers (accessing the ICS API).
-
-Implementation (2 implementations):
-
-1. Implementation as a Java Spring Boot application
-2. Implementation as a Go application
+More details available at the `A1 Simulator documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-sim-a1-interface>`_
 
 Non-RT-RIC (Spring Cloud) Service Gateway
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Support Apps to use A1 Services
+Support Apps to use A1 Services 
 
 * `Spring Cloud Gateway <https://cloud.spring.io/spring-cloud-gateway>`_ provides the library to build a basic API gateway
-* Exposes A1 Policy Management Service & Information Coordinator Service.
+* Exposes A1 Policy Management Service & Information Coordinator Service. 
 * Additional predicates can be added in code or preferably in the Gateway yaml configuration.
 
 Implementation:
@@ -155,7 +171,23 @@ A building block for coming releases as the R1 Interface concept matures
 * Initial version based on `Kong API Gateway <https://docs.konghq.com/gateway-oss>`_ function
 * Initial exposure candidates include A1 (NONRTRIC) services & O1 (OAM/SMO) services
 
-NONRTRIC Kubernetes deployment - including Kong configurations can be found in the OSC `it/dep <https://gerrit.o-ran-sc.org/r/gitweb?p=it/dep.git;a=tree;f=nonrtric/helm;hb=refs/heads/master>`_ Gerrit repo. 
+NONRTRIC Kubernetes deployment - including Kong configurations can be found in the OSC `it/dep <https://gerrit.o-ran-sc.org/r/gitweb?p=it/dep.git;a=tree;f=nonrtric/helm/nonrtric>`_ Gerrit repo. 
+
+DMaaP/Kafka Information Producer Adapters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configurable mediators to take information from DMaaP (& Kafka) and present it as a coordinated Information Producer 
+
+These mediators/adapters are generic information producers, which registers themselves as an information producers of defined information types (in Information Coordination Service).
+The information types are defined in a configuration file. 
+Information jobs defined using Information Coordination Service (ICS) then allow information consumers to retrieve data from DMaaP MR or Kafka topics (accessing the ICS API).
+
+Two alternative implementations to allow Information Consumers to consume DMaaP or Kafka events as coordinated Information Jobs.
+
+Implementations:
+
+1. A version implemented in Java (Spring) - Supporting DMaaP and Kafka mediation
+2. A version implemented in Go - Supporting DMaaP mediation 
 
 Initial Non-RT-RIC App Catalogue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,19 +210,20 @@ Onboard, start, stop, and modify Non-RT-RIC App µServices as Helm Charts
 * Initial version co-developed with v. similar functions in ONAP
 * *Limited functionality/integration for now*
 
-A1 Interface / Near-RT-RIC Simulator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Framework
+~~~~~~~~~~~~~~
 
-Stateful A1 test stub.
+A full test environment with extensive test cases/scripts can be found in the ``test`` directory in the *nonrtric* source code
 
-* Used to create multiple stateful A1 providers (simulated near-rt-rics)
-* Supports A1-Policy and A1-Enrichment Information
-* Swagger-based northbound interface, so easy to change the A1 profile exposed (e.g. A1 version, A1 Policy Types, A1-E1 consumers, etc)
-* All A1-AP versions supported
+Use Cases
+~~~~~~~~~
 
-Implementation:
+"Helloworld" O-RU Fronthaul Recovery use case
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Implemented as a Python application
-* Repo: *sim/a1-interface*
+A very simplified closed-loop rApp use case to re-establish front-haul connections between O-DUs and O-RUs if they fail. Not intended to to be 'real-world'
 
-More details available at the `A1 Simulator documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-sim-a1-interface>`_
+"Helloworld" O-DU Slice Assurance use case
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A very simplified closed-loop rApp use case to re-prioritize a RAN slice's radio resource allocation priority if sufficient throughput cannot be maintained. Not intended to to be 'real-world'
