@@ -1,0 +1,10 @@
+---
+distribution_type: container
+container_release_tag: 1.0.0
+container_pull_registry: nexus3.o-ran-sc.org:10004
+container_push_registry: nexus3.o-ran-sc.org:10002
+project: nonrtric
+ref: ecb9ee7a2b8925e838176dd89dd0b2d2f5afdf87
+containers:
+    - name: nonrtric-o-ru-closed-loop-consumer
+      version: 1.0.0
