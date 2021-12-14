@@ -39,8 +39,6 @@ spec:
           ports:
           - containerPort: {{ .Values.service.http.containerPort }}
             protocol: TCP
-          - containerPort: {{ .Values.service.tls.containerPort }}
-            protocol: TCP
           volumeMounts:
             - name: {{ template "helmmanager.name" . }}-pv
               mountPath: /var/helm-manager-service
