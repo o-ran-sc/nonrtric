@@ -10,11 +10,6 @@ Abstract
 
 This document describes how to install the Non-RT RIC components, their dependencies and required system resources.
 
-Preface
--------
-
-See the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`_" folder for more information.
-
 Software Installation and Deployment
 ------------------------------------
 
@@ -31,7 +26,7 @@ command to start the components:
            -f ics/docker-compose.yaml
 
 The example above is just an example to start some of the components. 
-For more information on running and configuring the functions can be found in the Readme file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`__" folder, and on the `wiki page <https://wiki.o-ran-sc.org/display/RICNR/Release+E+-+Run>`_
+For more information on running and configuring the functions can be found in the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`__" folder, and on the `wiki page <https://wiki.o-ran-sc.org/display/RICNR/Release+E+-+Run>`_
 
 Install with Helm
 +++++++++++++++++
