@@ -47,13 +47,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: MR-HOST
-            value: http://dmaap-mr
+            value: "{{ .Values.messagerouter.host }}"
           - name: MR-PORT
-            value: "3904"
+            value: "{{ .Values.messagerouter.port }}"
           - name: SDNR-HOST
-            value: http://sdnr-simulator
+            value: "{{ .Values.sdnr.host }}"
           - name: SDNR-PORT
-            value: "9990"
+            value: "{{ .Values.sdnr.port }}"
           - name: VERBOSE
             value: "on"
           ports:
