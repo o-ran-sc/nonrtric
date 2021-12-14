@@ -122,20 +122,20 @@ Dmaap Adapter
 ~~~~~~~~~~~~~
 
 Is a generic information producer, which registers itself as an information producer of information types (in Information Coordination Service).
-The information types are defined in a configuration file. 
+The information types are defined in a configuration file.
 Information jobs can retrieve data from DMaaP or Kafka topics and push this to data consumers (accessing the ICS API).
 
-Implementation:
+Implementation (2 implementations):
 
 1. Implementation as a Java Spring Boot application
-2. Implementation as a Go application 
+2. Implementation as a Go application
 
 Non-RT-RIC (Spring Cloud) Service Gateway
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Support Apps to use A1 Services 
+Support Apps to use A1 Services
 
 * `Spring Cloud Gateway <https://cloud.spring.io/spring-cloud-gateway>`_ provides the library to build a basic API gateway
-* Exposes A1 Policy Management Service & Information Coordinator Service.  
+* Exposes A1 Policy Management Service & Information Coordinator Service.
 * Additional predicates can be added in code or preferably in the Gateway yaml configuration.
 
 Implementation:
