@@ -1,7 +1,11 @@
 {
-    "releaseName": "simpleapp",
-    "chartName": "simple-app",
-    "version": "0.1.0",
+    "chartId": {
+      "name": "simple-app",
+      "version": "0.1.0"
+    },
     "namespace": "ckhm",
-    "repository": "cm"
-}
+    "repository": {
+      "repoName": "cm"
+    },
+    "releaseName": "simpleapp"
+  }

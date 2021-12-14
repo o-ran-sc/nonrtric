@@ -26,7 +26,7 @@ spec:
   type: NodePort
   ports:
   - port: 8080
-    targetPort: 8080
+    targetPort: 8083
     protocol: TCP
     name: http
   - port: 8443
@@ -49,11 +49,11 @@ spec:
   serviceAccountName: helm-manager-sa
   containers:
   - name: helmmanagerservice
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-helm-manager:1.1.0-SNAPSHOT
+    image: nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-helm-manager:1.1.0
     imagePullPolicy: Always
     ports:
     - name: http
-      containerPort: 8080
+      containerPort: 8083
     - name: https
       containerPort: 8443
     volumeMounts:
