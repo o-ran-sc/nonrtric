@@ -45,16 +45,6 @@
             <name>onap-releases</name>
             <url>https://nexus.onap.org/content/repositories/releases/</url>
         </repository>
-        <repository>
-            <id>onap-snapshots</id>
-            <name>onap-snapshots</name>
-            <url>https://nexus.onap.org/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>nordix</id>
-            <name>39bf7eabe020-releases</name>
-            <url>https://artifactory.nordix.org/artifactory/onap-policy-clamp-participant-maven-local</url>
-        </repository>
     </repositories>
     <properties>
         <!-- Update this when a new version of the dependency jar shall be included -->

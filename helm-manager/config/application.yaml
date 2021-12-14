@@ -18,9 +18,36 @@
 spring:
   profiles:
     active: prod
+  security:
+    user:
+      name: helmadmin
+      password: itisasecret
+security:
+  enable-csrf: false
+
 
 participant:
-  file: src/main/resources/config/KubernetesParticipantConfig.json
+  localChartDirectory: /var/helm-manager-service
+  # This below is not used but need to be here to make the app work
+  infoFileName: CHART_INFO.json
+  intermediaryParameters:
+    reportingTimeIntervalMs: 120000
+    description: Dummy Description
+    participantId:
+      name: noname
+      version: 0.0.1
+    participantType:
+      name: noname
+      version: 0.0.1
+    clampControlLoopTopics:
+      topicSources:
+      topicSinks:
+        -
+          topic: NOTOPIC
+          servers:
+            - localhost
+          topicCommInfrastructure: dmaap
+
 management:
   endpoints:
     web:
@@ -29,7 +56,9 @@ management:
 server:
   # Configuration of the HTTP/REST server. The parameters are defined and handled by the springboot framework.
   # See springboot documentation.
-  http-port : 8083
+  port: 8083
+  servlet:
+    context-path:
 
 logging:
   # Configuration of logging
@@ -38,5 +67,7 @@ logging:
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
+    com.att.nsa.cambria.client.impl: OFF
+    com.att.nsa.apiClient.http: OFF
   file:
-    name: /var/log/helm-manager/application.log
+    name: /var/log/onap/policy/clamp/application.log

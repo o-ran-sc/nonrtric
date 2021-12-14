@@ -34,6 +34,7 @@ APP_TGZ="simple-app-0.1.0.tgz"
 VALUES_YAML="simple-app-values.yaml"
 INFO_JSON="simple-app.json"
 INSTALL_JSON="simple-app-installation.json"
+REPO_JSON="cm-repo.json"
 
 PORT=""
 HOST=""
@@ -43,7 +44,12 @@ NAMESPACE="ckhm"  #kube namespace for simple-app
 PROXY_TAG=""
 
 OK="All tests ok"
-
+USER=helmadmin
+#USER=""
+PWD=itisasecret
+#PWD=""
+PREFIX=/onap/k8sparticipant
+PREFIX=""
 print_usage() {
     echo "usage: ./test.sh docker|(kube <cluster-ip>)"
 }
@@ -51,7 +57,8 @@ if [ $# -eq 1 ]; then
     if [ $1 == "docker" ]; then
         PORT=8112
         HOST="localhost"
-        URL="http://$HOST:$PORT"
+        URL="http://$USER:$PWD@$HOST:$PORT"$PREFIX
+        #URL="http://$HOST:$PORT"$PREFIX
         HM_PATH=$URL
     else
         print_usage
@@ -61,7 +68,8 @@ elif [ $# -eq 2 ]; then
     if [ $1 == "kube" ]; then
         PORT=$(kubectl get svc helmmanagerservice -n nonrtric -o jsonpath='{...ports[?(@.name=="'http'")].nodePort}')
         HOST=$2
-        URL="http://$HOST:$PORT"
+        URL="http://$USER:$PWD@$HOST:$PORT"$PREFIX
+        #URL="http://$HOST:$PORT"$PREFIX
         HM_PATH=$URL
     else
         print_usage
@@ -113,10 +121,18 @@ run-curl $cmd
 echo
 
 
+echo "================"
+echo "Add repo"
+echo "================"
+cmd="/helm/repo -X POST -H Content-Type:application/json -d @$REPO_JSON"
+run-curl $cmd
+echo
+
+
 echo "============"
 echo "Onboard app"
 echo "==========="
-cmd="/helm/charts -X POST -F chart=@$APP_TGZ -F values=@$VALUES_YAML -F info=<$INFO_JSON"
+cmd="/helm/onboard/chart -X POST -F chart=@$APP_TGZ -F values=@$VALUES_YAML -F info=<$INFO_JSON"
 run-curl $cmd
 echo
 
@@ -193,7 +209,7 @@ echo
 echo "============"
 echo "Delete chart"
 echo "==========="
-cmd="/helm/charts/simple-app/0.1.0 -X DELETE"
+cmd="/helm/chart/simple-app/0.1.0 -X DELETE"
 run-curl $cmd
 echo
 
