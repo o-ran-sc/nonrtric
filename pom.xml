@@ -39,6 +39,8 @@
         <module>helm-manager</module>
         <module>dmaap-adaptor-java</module>
         <module>dmaap-mediator-producer</module>
+        <module>test/usecases/oruclosedlooprecovery/goversion</module>
+        <module>test/usecases/odusliceassurance/goversion</module>
     </modules>
     <build>
         <plugins>
