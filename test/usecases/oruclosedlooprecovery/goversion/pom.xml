@@ -23,7 +23,7 @@
 
     <groupId>oransc.org</groupId>
     <artifactId>o-ru-closed-loop-consumer</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <properties>
         <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
     </properties>
