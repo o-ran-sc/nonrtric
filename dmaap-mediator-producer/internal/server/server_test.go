@@ -40,14 +40,14 @@ import (
 func TestNewRouter(t *testing.T) {
 	assertions := require.New(t)
 
-	r := NewRouter(nil)
-	statusRoute := r.Get("status")
+	r := NewRouter(nil, nil)
+	statusRoute := r.Get("health_check")
 	assertions.NotNil(statusRoute)
 	supportedMethods, err := statusRoute.GetMethods()
 	assertions.Equal([]string{http.MethodGet}, supportedMethods)
 	assertions.Nil(err)
 	path, _ := statusRoute.GetPathTemplate()
-	assertions.Equal("/status", path)
+	assertions.Equal("/health_check", path)
 
 	addJobRoute := r.Get("add")
 	assertions.NotNil(addJobRoute)
@@ -55,7 +55,7 @@ func TestNewRouter(t *testing.T) {
 	assertions.Equal([]string{http.MethodPost}, supportedMethods)
 	assertions.Nil(err)
 	path, _ = addJobRoute.GetPathTemplate()
-	assertions.Equal("/jobs", path)
+	assertions.Equal("/info_job", path)
 
 	deleteJobRoute := r.Get("delete")
 	assertions.NotNil(deleteJobRoute)
@@ -63,7 +63,7 @@ func TestNewRouter(t *testing.T) {
 	assertions.Equal([]string{http.MethodDelete}, supportedMethods)
 	assertions.Nil(err)
 	path, _ = deleteJobRoute.GetPathTemplate()
-	assertions.Equal("/jobs/{infoJobId}", path)
+	assertions.Equal("/info_job/{infoJobId}", path)
 
 	notFoundHandler := r.NotFoundHandler
 	handler := http.HandlerFunc(notFoundHandler.ServeHTTP)
@@ -86,19 +86,6 @@ func TestNewRouter(t *testing.T) {
 	assertions.Nil(err)
 	path, _ = setLogLevelRoute.GetPathTemplate()
 	assertions.Equal("/admin/log", path)
-}
-
-func TestStatusHandler(t *testing.T) {
-	assertions := require.New(t)
-
-	handler := http.HandlerFunc(statusHandler)
-	responseRecorder := httptest.NewRecorder()
-	r := newRequest(http.MethodGet, "/status", nil, t)
-
-	handler.ServeHTTP(responseRecorder, r)
-
-	assertions.Equal(http.StatusOK, responseRecorder.Code)
-	assertions.Equal("", responseRecorder.Body.String())
 }
 
 func TestAddInfoJobHandler(t *testing.T) {

@@ -24,47 +24,33 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
 
-var client = &http.Client{
-	Timeout: 5 * time.Second,
-}
-
 func main() {
-	port := flag.Int("port", 8083, "The port this consumer will listen on")
+	port := flag.Int("port", 8434, "The port this stub will listen on")
 	flag.Parse()
 	fmt.Println("Starting ICS stub on port ", *port)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/data-consumer/v1/info-jobs/{jobId}", handleCalls).Methods(http.MethodPut, http.MethodDelete)
+	r.HandleFunc("/data-producer/v1/info-types/{typeId}", handleTypeRegistration).Methods(http.MethodPut, http.MethodPut)
+	r.HandleFunc("/data-producer/v1/info-producers/{producerId}", handleProducerRegistration).Methods(http.MethodPut, http.MethodPut)
 	fmt.Println(http.ListenAndServe(fmt.Sprintf(":%v", *port), r))
 }
 
-func handleCalls(w http.ResponseWriter, r *http.Request) {
+func handleTypeRegistration(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, ok := vars["jobId"]
+	id, ok := vars["typeId"]
 	if ok {
-		fmt.Println(r.Method, " of job ", id)
-		if r.Method == http.MethodPut {
-			req, _ := http.NewRequest(http.MethodPut, "http://localhost:8085/create/"+id, nil)
-			r, err := client.Do(req)
-			if err != nil {
-				fmt.Println("Failed to create job in producer ", err)
-				return
-			}
-			fmt.Println("Created job in producer ", r.Status)
-		} else {
-			req, _ := http.NewRequest(http.MethodDelete, "http://localhost:8085/delete/"+id, nil)
-			r, err := client.Do(req)
-			if err != nil {
-				fmt.Println("Failed to delete job in producer ", err)
-				return
-			}
-			fmt.Println("Deleted job in producer ", r.Status)
-		}
+		fmt.Println("Registered type ", id)
 	}
+}
 
+func handleProducerRegistration(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, ok := vars["producerId"]
+	if ok {
+		fmt.Println("Registered producer ", id)
+	}
 }

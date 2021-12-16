@@ -31,8 +31,8 @@ import (
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 )
 
-const StatusPath = "/status"
-const AddJobPath = "/jobs"
+const HealthCheckPath = "/health_check"
+const AddJobPath = "/info_job"
 const jobIdToken = "infoJobId"
 const deleteJobPath = AddJobPath + "/{" + jobIdToken + "}"
 const logLevelToken = "level"
@@ -48,20 +48,16 @@ func NewProducerCallbackHandler(jm jobs.JobsManager) *ProducerCallbackHandler {
 	}
 }
 
-func NewRouter(jm jobs.JobsManager) *mux.Router {
+func NewRouter(jm jobs.JobsManager, hcf func(http.ResponseWriter, *http.Request)) *mux.Router {
 	callbackHandler := NewProducerCallbackHandler(jm)
 	r := mux.NewRouter()
-	r.HandleFunc(StatusPath, statusHandler).Methods(http.MethodGet).Name("status")
+	r.HandleFunc(HealthCheckPath, hcf).Methods(http.MethodGet).Name("health_check")
 	r.HandleFunc(AddJobPath, callbackHandler.addInfoJobHandler).Methods(http.MethodPost).Name("add")
 	r.HandleFunc(deleteJobPath, callbackHandler.deleteInfoJobHandler).Methods(http.MethodDelete).Name("delete")
 	r.HandleFunc(logAdminPath, callbackHandler.setLogLevel).Methods(http.MethodPut).Name("setLogLevel")
 	r.NotFoundHandler = &notFoundHandler{}
 	r.MethodNotAllowedHandler = &methodNotAllowedHandler{}
 	return r
-}
-
-func statusHandler(w http.ResponseWriter, r *http.Request) {
-	// Just respond OK to show the server is alive for now. Might be extended later.
 }
 
 func (h *ProducerCallbackHandler) addInfoJobHandler(w http.ResponseWriter, r *http.Request) {

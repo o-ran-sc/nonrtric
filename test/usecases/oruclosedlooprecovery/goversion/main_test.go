@@ -189,6 +189,14 @@ func Test_getRouter_shouldContainAllPathsWithHandlers(t *testing.T) {
 	assertions.Nil(err)
 	path, _ = stopHandlerRoute.GetPathTemplate()
 	assertions.Equal("/admin/stop", path)
+
+	statusHandlerRoute := r.Get("status")
+	assertions.NotNil(statusHandlerRoute)
+	supportedMethods, err = statusHandlerRoute.GetMethods()
+	assertions.Equal([]string{http.MethodGet}, supportedMethods)
+	assertions.Nil(err)
+	path, _ = statusHandlerRoute.GetPathTemplate()
+	assertions.Equal("/status", path)
 }
 
 func Test_startHandler(t *testing.T) {
@@ -264,6 +272,16 @@ func Test_startHandler(t *testing.T) {
 			expectedBody := wantedBody
 			assertions.Equal(expectedBody, body)
 			clientMock.AssertNumberOfCalls(t, "Do", 1)
+
+			// Check that the running status is "started"
+			statusHandler := http.HandlerFunc(statusHandler)
+			statusResponseRecorder := httptest.NewRecorder()
+			statusRequest, _ := http.NewRequest(http.MethodGet, "/status", nil)
+
+			statusHandler.ServeHTTP(statusResponseRecorder, statusRequest)
+
+			assertions.Equal(http.StatusOK, statusResponseRecorder.Code)
+			assertions.Equal(`{"status": "started"}`, statusResponseRecorder.Body.String())
 		})
 	}
 }
@@ -324,6 +342,16 @@ func Test_stopHandler(t *testing.T) {
 			assertions.Equal("enrichmentservice:8083", actualRequest.URL.Host)
 			assertions.Equal("/data-consumer/v1/info-jobs/14e7bb84-a44d-44c1-90b7-6995a92ad43c", actualRequest.URL.Path)
 			clientMock.AssertNumberOfCalls(t, "Do", 1)
+
+			// Check that the running status is "stopped"
+			statusHandler := http.HandlerFunc(statusHandler)
+			statusResponseRecorder := httptest.NewRecorder()
+			statusRequest, _ := http.NewRequest(http.MethodGet, "/status", nil)
+
+			statusHandler.ServeHTTP(statusResponseRecorder, statusRequest)
+
+			assertions.Equal(http.StatusOK, statusResponseRecorder.Code)
+			assertions.Equal(`{"status": "stopped"}`, statusResponseRecorder.Body.String())
 		})
 	}
 }

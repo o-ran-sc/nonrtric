@@ -8,3 +8,5 @@ consumer
 !consumer/
 dmaap
 !dmaap/
+ics
+!ics/

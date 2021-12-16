@@ -38,7 +38,7 @@ At start up the producer will register the configured job types in ICS and also 
 
 Once the initial registration is done, the producer will constantly poll MR for all configured job types. When receiving messages for a type, it will distribute these messages to all jobs registered for the type. If no jobs for that type are registered, the messages will be discarded. If a consumer is unavailable for distribution, the messages will be discarded for that consumer until it is available again.
 
-The producer provides a REST API to control the log level. The available levels are the same as the ones used in the configuration above.
+The producer provides a REST API that fulfills the ICS Data producer API, see [Data producer (callbacks)](<https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric/en/latest/ics-api.html#tag/Data-producer-(callbacks)>). The health check method returns the registration status of the producer in ICS as JSON. It also provides a method to control the log level of the producer. The available log levels are the same as the ones used in the configuration above.
 
     PUT https://mrproducer:8085/admin/log?level=<new level>
 

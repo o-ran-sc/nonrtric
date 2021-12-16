@@ -34,6 +34,7 @@ import (
 )
 
 var configuration *config.Config
+var registered bool
 
 func init() {
 	configuration = config.New()
@@ -57,21 +58,15 @@ func main() {
 	retryClient := restclient.CreateRetryClient(cert)
 
 	jobsManager := jobs.NewJobsManagerImpl(retryClient, configuration.DMaaPMRAddress, restclient.CreateClientWithoutRetry(cert, 10*time.Second))
+	go startCallbackServer(jobsManager, callbackAddress)
+
 	if err := registerTypesAndProducer(jobsManager, configuration.InfoCoordinatorAddress, callbackAddress, retryClient); err != nil {
 		log.Fatalf("Stopping producer due to: %v", err)
 	}
+	registered = true
 	jobsManager.StartJobsForAllTypes()
 
 	log.Debug("Starting DMaaP Mediator Producer")
-	go func() {
-		log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
-		r := server.NewRouter(jobsManager)
-		if restclient.IsUrlSecure(callbackAddress) {
-			log.Fatalf("Server stopped: %v", http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.InfoProducerPort), configuration.ProducerCertPath, configuration.ProducerKeyPath, r))
-		} else {
-			log.Fatalf("Server stopped: %v", http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), r))
-		}
-	}()
 
 	keepProducerAlive()
 }
@@ -97,7 +92,7 @@ func registerTypesAndProducer(jobTypesHandler jobs.JobTypesManager, infoCoordina
 	}
 
 	producer := config.ProducerRegistrationInfo{
-		InfoProducerSupervisionCallbackUrl: callbackAddress + server.StatusPath,
+		InfoProducerSupervisionCallbackUrl: callbackAddress + server.HealthCheckPath,
 		SupportedInfoTypes:                 jobTypesHandler.GetSupportedTypes(),
 		InfoJobCallbackUrl:                 callbackAddress + server.AddJobPath,
 	}
@@ -105,6 +100,24 @@ func registerTypesAndProducer(jobTypesHandler jobs.JobTypesManager, infoCoordina
 		return fmt.Errorf("unable to register producer due to: %v", err)
 	}
 	return nil
+}
+
+func startCallbackServer(jobsManager jobs.JobsManager, callbackAddress string) {
+	log.Debugf("Starting callback server at port %v", configuration.InfoProducerPort)
+	r := server.NewRouter(jobsManager, statusHandler)
+	if restclient.IsUrlSecure(callbackAddress) {
+		log.Fatalf("Server stopped: %v", http.ListenAndServeTLS(fmt.Sprintf(":%v", configuration.InfoProducerPort), configuration.ProducerCertPath, configuration.ProducerKeyPath, r))
+	} else {
+		log.Fatalf("Server stopped: %v", http.ListenAndServe(fmt.Sprintf(":%v", configuration.InfoProducerPort), r))
+	}
+}
+
+func statusHandler(w http.ResponseWriter, r *http.Request) {
+	registeredStatus := "not registered"
+	if registered {
+		registeredStatus = "registered"
+	}
+	fmt.Fprintf(w, `{"status": "%v"}`, registeredStatus)
 }
 
 func keepProducerAlive() {
