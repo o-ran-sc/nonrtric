@@ -884,6 +884,8 @@ else
 
 			exit 1
 		fi
+		echo " Node(s) and container container runtime config"
+		kubectl get nodes -o wide | indent2
 	fi
 fi
 
