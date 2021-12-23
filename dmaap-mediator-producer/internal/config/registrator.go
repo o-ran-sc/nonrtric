@@ -32,11 +32,20 @@ import (
 
 const registerTypePath = "/data-producer/v1/info-types/"
 const registerProducerPath = "/data-producer/v1/info-producers/"
-const typeSchema = `{"type": "object","properties": {},"additionalProperties": false}`
 
 type TypeDefinition struct {
-	Id            string `json:"id"`
-	DmaapTopicURL string `json:"dmaapTopicUrl"`
+	Identity        string `json:"id"`
+	DMaaPTopicURL   string `json:"dmaapTopicUrl"`
+	KafkaInputTopic string `json:"kafkaInputTopic"`
+	TypeSchema      interface{}
+}
+
+func (td TypeDefinition) IsKafkaType() bool {
+	return td.KafkaInputTopic != ""
+}
+
+func (td TypeDefinition) IsDMaaPType() bool {
+	return td.DMaaPTopicURL != ""
 }
 
 type ProducerRegistrationInfo struct {
@@ -64,8 +73,8 @@ func NewRegistratorImpl(infoCoordAddr string, client restclient.HTTPClient) *Reg
 
 func (r RegistratorImpl) RegisterTypes(jobTypes []TypeDefinition) error {
 	for _, jobType := range jobTypes {
-		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, typeSchema)
-		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.Id), []byte(body), r.httpClient); error != nil {
+		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, jobType.TypeSchema)
+		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.Identity), []byte(body), r.httpClient); error != nil {
 			return error
 		}
 		log.Debugf("Registered type: %v", jobType)
