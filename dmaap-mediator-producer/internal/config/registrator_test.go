@@ -40,7 +40,7 @@ func TestRegisterTypes(t *testing.T) {
 	}, nil)
 
 	type1 := TypeDefinition{
-		Id: "Type1",
+		ID: "Type1",
 	}
 	types := []TypeDefinition{type1}
 

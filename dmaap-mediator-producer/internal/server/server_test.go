@@ -34,7 +34,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
-	"oransc.org/nonrtric/dmaapmediatorproducer/mocks/jobhandler"
+	"oransc.org/nonrtric/dmaapmediatorproducer/mocks/jobshandler"
 )
 
 func TestNewRouter(t *testing.T) {
@@ -88,7 +88,7 @@ func TestNewRouter(t *testing.T) {
 	assertions.Equal("/admin/log", path)
 }
 
-func TestAddInfoJobHandler(t *testing.T) {
+func TestAddInfoJobToJobsHandler(t *testing.T) {
 	assertions := require.New(t)
 
 	type args struct {
@@ -102,7 +102,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 		wantedBody   string
 	}{
 		{
-			name: "AddInfoJobHandler with correct job, should return OK",
+			name: "AddInfoJobToJobsHandler with correct job, should return OK",
 			args: args{
 				job: jobs.JobInfo{
 					Owner:            "owner",
@@ -116,7 +116,7 @@ func TestAddInfoJobHandler(t *testing.T) {
 			wantedStatus: http.StatusOK,
 		},
 		{
-			name: "AddInfoJobHandler with incorrect job info, should return BadRequest",
+			name: "AddInfoJobToJobsHandler with incorrect job info, should return BadRequest",
 			args: args{
 				job: jobs.JobInfo{
 					Owner: "bad",
@@ -129,10 +129,10 @@ func TestAddInfoJobHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			jobHandlerMock := jobhandler.JobHandler{}
-			jobHandlerMock.On("AddJobFromRESTCall", tt.args.job).Return(tt.args.mockReturn)
+			jobsHandlerMock := jobshandler.JobsHandler{}
+			jobsHandlerMock.On("AddJobFromRESTCall", tt.args.job).Return(tt.args.mockReturn)
 
-			callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
+			callbackHandlerUnderTest := NewProducerCallbackHandler(&jobsHandlerMock)
 
 			handler := http.HandlerFunc(callbackHandlerUnderTest.addInfoJobHandler)
 			responseRecorder := httptest.NewRecorder()
@@ -142,17 +142,17 @@ func TestAddInfoJobHandler(t *testing.T) {
 
 			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
 			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
-			jobHandlerMock.AssertCalled(t, "AddJobFromRESTCall", tt.args.job)
+			jobsHandlerMock.AssertCalled(t, "AddJobFromRESTCall", tt.args.job)
 		})
 	}
 }
 
 func TestDeleteJob(t *testing.T) {
 	assertions := require.New(t)
-	jobHandlerMock := jobhandler.JobHandler{}
-	jobHandlerMock.On("DeleteJobFromRESTCall", mock.Anything).Return(nil)
+	jobsHandlerMock := jobshandler.JobsHandler{}
+	jobsHandlerMock.On("DeleteJobFromRESTCall", mock.Anything).Return(nil)
 
-	callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
+	callbackHandlerUnderTest := NewProducerCallbackHandler(&jobsHandlerMock)
 
 	responseRecorder := httptest.NewRecorder()
 	r := mux.SetURLVars(newRequest(http.MethodDelete, "/jobs/", nil, t), map[string]string{"infoJobId": "job1"})
@@ -162,7 +162,7 @@ func TestDeleteJob(t *testing.T) {
 
 	assertions.Equal("", responseRecorder.Body.String())
 
-	jobHandlerMock.AssertCalled(t, "DeleteJobFromRESTCall", "job1")
+	jobsHandlerMock.AssertCalled(t, "DeleteJobFromRESTCall", "job1")
 }
 
 func TestSetLogLevel(t *testing.T) {

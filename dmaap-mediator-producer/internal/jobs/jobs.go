@@ -25,15 +25,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
+	"oransc.org/nonrtric/dmaapmediatorproducer/internal/kafkaconsumer"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/restclient"
 )
 
 type TypeData struct {
-	TypeId        string `json:"id"`
-	DMaaPTopicURL string `json:"dmaapTopicUrl"`
-	jobsHandler   *jobsHandler
+	TypeId      string `json:"id"`
+	jobsHandler *jobsHandler
 }
 
 type JobInfo struct {
@@ -59,14 +60,16 @@ type JobsManagerImpl struct {
 	allTypes         map[string]TypeData
 	pollClient       restclient.HTTPClient
 	mrAddress        string
+	kafkaFactory     kafkaconsumer.KafkaFactory
 	distributeClient restclient.HTTPClient
 }
 
-func NewJobsManagerImpl(pollClient restclient.HTTPClient, mrAddr string, distributeClient restclient.HTTPClient) *JobsManagerImpl {
+func NewJobsManagerImpl(pollClient restclient.HTTPClient, mrAddr string, kafkaFactory kafkaconsumer.KafkaFactory, distributeClient restclient.HTTPClient) *JobsManagerImpl {
 	return &JobsManagerImpl{
 		allTypes:         make(map[string]TypeData),
 		pollClient:       pollClient,
 		mrAddress:        mrAddr,
+		kafkaFactory:     kafkaFactory,
 		distributeClient: distributeClient,
 	}
 }
@@ -106,10 +109,12 @@ func (jm *JobsManagerImpl) validateJobInfo(ji JobInfo) error {
 
 func (jm *JobsManagerImpl) LoadTypesFromConfiguration(types []config.TypeDefinition) []config.TypeDefinition {
 	for _, typeDef := range types {
-		jm.allTypes[typeDef.Id] = TypeData{
-			TypeId:        typeDef.Id,
-			DMaaPTopicURL: typeDef.DmaapTopicURL,
-			jobsHandler:   newJobsHandler(typeDef.Id, typeDef.DmaapTopicURL, jm.pollClient, jm.distributeClient),
+		if typeDef.DMaaPTopicURL == "" && typeDef.KafkaInputTopic == "" {
+			log.Fatal("DMaaPTopicURL or KafkaInputTopic must be defined for type: ", typeDef.ID)
+		}
+		jm.allTypes[typeDef.ID] = TypeData{
+			TypeId:      typeDef.ID,
+			jobsHandler: newJobsHandler(typeDef, jm.mrAddress, jm.kafkaFactory, jm.pollClient, jm.distributeClient),
 		}
 	}
 	return types
@@ -134,22 +139,21 @@ func (jm *JobsManagerImpl) StartJobsForAllTypes() {
 type jobsHandler struct {
 	mu               sync.Mutex
 	typeId           string
-	topicUrl         string
+	pollingAgent     pollingAgent
 	jobs             map[string]job
 	addJobCh         chan JobInfo
 	deleteJobCh      chan string
-	pollClient       restclient.HTTPClient
 	distributeClient restclient.HTTPClient
 }
 
-func newJobsHandler(typeId string, topicURL string, pollClient restclient.HTTPClient, distributeClient restclient.HTTPClient) *jobsHandler {
+func newJobsHandler(typeDef config.TypeDefinition, mRAddress string, kafkaFactory kafkaconsumer.KafkaFactory, pollClient restclient.HTTPClient, distributeClient restclient.HTTPClient) *jobsHandler {
+	pollingAgent := createPollingAgent(typeDef, mRAddress, pollClient, kafkaFactory, typeDef.KafkaInputTopic)
 	return &jobsHandler{
-		typeId:           typeId,
-		topicUrl:         topicURL,
+		typeId:           typeDef.ID,
+		pollingAgent:     pollingAgent,
 		jobs:             make(map[string]job),
 		addJobCh:         make(chan JobInfo),
 		deleteJobCh:      make(chan string),
-		pollClient:       pollClient,
 		distributeClient: distributeClient,
 	}
 }
@@ -170,10 +174,11 @@ func (jh *jobsHandler) startPollingAndDistribution(mRAddress string) {
 
 func (jh *jobsHandler) pollAndDistributeMessages(mRAddress string) {
 	log.Debugf("Processing jobs for type: %v", jh.typeId)
-	messagesBody, error := restclient.Get(mRAddress+jh.topicUrl, jh.pollClient)
+	messagesBody, error := jh.pollingAgent.pollMessages()
 	if error != nil {
-		log.Warn("Error getting data from MR. Cause: ", error)
+		log.Warn("Error getting data from source. Cause: ", error)
 		time.Sleep(time.Minute) // Must wait before trying to call MR again
+		return
 	}
 	log.Debug("Received messages: ", string(messagesBody))
 	jh.distributeMessages(messagesBody)
@@ -232,6 +237,67 @@ func (jh *jobsHandler) deleteJob(deletedJob string) {
 		delete(jh.jobs, deletedJob)
 	}
 	jh.mu.Unlock()
+}
+
+type pollingAgent interface {
+	pollMessages() ([]byte, error)
+}
+
+func createPollingAgent(typeDef config.TypeDefinition, mRAddress string, pollClient restclient.HTTPClient, kafkaFactory kafkaconsumer.KafkaFactory, topicID string) pollingAgent {
+	if typeDef.DMaaPTopicURL != "" {
+		return dMaaPPollingAgent{
+			mRURL:      mRAddress + typeDef.DMaaPTopicURL,
+			pollClient: pollClient,
+		}
+	} else {
+		return newKafkaPollingAgent(kafkaFactory, typeDef.KafkaInputTopic)
+	}
+}
+
+type dMaaPPollingAgent struct {
+	mRURL      string
+	pollClient restclient.HTTPClient
+}
+
+func (pa dMaaPPollingAgent) pollMessages() ([]byte, error) {
+	return restclient.Get(pa.mRURL, pa.pollClient)
+}
+
+type kafkaPollingAgent struct {
+	kafkaConsumer kafkaconsumer.KafkaConsumer
+}
+
+func newKafkaPollingAgent(kafkaFactory kafkaconsumer.KafkaFactory, topicID string) kafkaPollingAgent {
+	c, err := kafkaFactory.NewKafkaConsumer(topicID)
+	if err != nil {
+		log.Fatalf("Cannot create consumer for topic: %v, error details: %v\n", topicID, err)
+	}
+	c.Commit()
+	err = c.Subscribe(topicID)
+	if err != nil {
+		log.Fatalf("Cannot subscribe to topic: : %v, error details: %v\n", topicID, err)
+	}
+	return kafkaPollingAgent{
+		kafkaConsumer: c,
+	}
+}
+
+func (pa kafkaPollingAgent) pollMessages() ([]byte, error) {
+	maxDur := time.Second
+	msg, err := pa.kafkaConsumer.ReadMessage(maxDur)
+	if err == nil {
+		return msg.Value, nil
+	} else {
+		if isKafkaTimedOutError(err) {
+			return []byte(""), nil
+		}
+		return nil, err
+	}
+}
+
+func isKafkaTimedOutError(err error) bool {
+	kafkaErr, ok := err.(kafka.Error)
+	return ok && kafkaErr.Code() == kafka.ErrTimedOut
 }
 
 type job struct {

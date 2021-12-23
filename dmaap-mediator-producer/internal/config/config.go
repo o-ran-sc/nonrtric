@@ -35,6 +35,7 @@ type Config struct {
 	InfoProducerPort       int
 	InfoCoordinatorAddress string
 	DMaaPMRAddress         string
+	KafkaBootstrapServers  string
 	ProducerCertPath       string
 	ProducerKeyPath        string
 }
@@ -45,6 +46,7 @@ func New() *Config {
 		InfoProducerPort:       getEnvAsInt("INFO_PRODUCER_PORT", 8085),
 		InfoCoordinatorAddress: getEnv("INFO_COORD_ADDR", "https://informationservice:8434"),
 		DMaaPMRAddress:         getEnv("DMAAP_MR_ADDR", "https://message-router.onap:3905"),
+		KafkaBootstrapServers:  getEnv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
 		ProducerCertPath:       getEnv("PRODUCER_CERT_PATH", "security/producer.crt"),
 		ProducerKeyPath:        getEnv("PRODUCER_KEY_PATH", "security/producer.key"),
 		LogLevel:               getLogLevel(),

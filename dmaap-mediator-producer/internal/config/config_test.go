@@ -37,6 +37,7 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("INFO_PRODUCER_PORT", "8095")
 	os.Setenv("INFO_COORD_ADDR", "infoCoordAddr")
 	os.Setenv("DMAAP_MR_ADDR", "mrHost:3908")
+	os.Setenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9093")
 	os.Setenv("PRODUCER_CERT_PATH", "cert")
 	os.Setenv("PRODUCER_KEY_PATH", "key")
 	t.Cleanup(func() {
@@ -48,6 +49,7 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		InfoProducerPort:       8095,
 		InfoCoordinatorAddress: "infoCoordAddr",
 		DMaaPMRAddress:         "mrHost:3908",
+		KafkaBootstrapServers:  "localhost:9093",
 		ProducerCertPath:       "cert",
 		ProducerKeyPath:        "key",
 	}
@@ -72,6 +74,7 @@ func TestNew_faultyIntValueSetConfigContainDefaultValueAndWarnInLog(t *testing.T
 		InfoProducerPort:       8085,
 		InfoCoordinatorAddress: "https://informationservice:8434",
 		DMaaPMRAddress:         "https://message-router.onap:3905",
+		KafkaBootstrapServers:  "localhost:9092",
 		ProducerCertPath:       "security/producer.crt",
 		ProducerKeyPath:        "security/producer.key",
 	}
@@ -98,6 +101,7 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 		InfoProducerPort:       8085,
 		InfoCoordinatorAddress: "https://informationservice:8434",
 		DMaaPMRAddress:         "https://message-router.onap:3905",
+		KafkaBootstrapServers:  "localhost:9092",
 		ProducerCertPath:       "security/producer.crt",
 		ProducerKeyPath:        "security/producer.key",
 	}
@@ -109,7 +113,7 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 	assertions.Contains(logString, "Invalid log level: wrong. Log level will be Info!")
 }
 
-const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}]}`
+const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}, {"id": "type2", "KafkaInputTopic": "TestTopic"}]}`
 
 func TestGetTypesFromConfiguration_fileOkShouldReturnSliceOfTypeDefinitions(t *testing.T) {
 	assertions := require.New(t)
@@ -127,11 +131,15 @@ func TestGetTypesFromConfiguration_fileOkShouldReturnSliceOfTypeDefinitions(t *t
 
 	types, err := GetJobTypesFromConfiguration(fname)
 
-	wantedType := TypeDefinition{
-		Id:            "type1",
-		DmaapTopicURL: "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1",
+	wantedDMaaPType := TypeDefinition{
+		ID:            "type1",
+		DMaaPTopicURL: "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1",
 	}
-	wantedTypes := []TypeDefinition{wantedType}
+	wantedKafkaType := TypeDefinition{
+		ID:              "type2",
+		KafkaInputTopic: "TestTopic",
+	}
+	wantedTypes := []TypeDefinition{wantedDMaaPType, wantedKafkaType}
 	assertions.EqualValues(wantedTypes, types)
 	assertions.Nil(err)
 }
