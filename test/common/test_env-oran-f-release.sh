@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 #Profile for ORAN Cherry
-TEST_ENV_PROFILE="ORAN-E-RELEASE"
+TEST_ENV_PROFILE="ORAN-F-RELEASE"
 FLAVOUR="ORAN"
 
 ########################################
@@ -145,10 +145,10 @@ DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
 
 # Helm Manager
 HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-helm-manager"
-HELM_MANAGER_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-HELM_MANAGER_IMAGE_TAG_REMOTE="1.1.0"
-HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+HELM_MANAGER_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+HELM_MANAGER_IMAGE_TAG_REMOTE="1.2.0"
+HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 #Consul remote image and tag
 CONSUL_IMAGE_BASE="consul"
@@ -547,7 +547,7 @@ KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon containe
 KAFKAPC_INTERNAL_PORT=8090                               # Kafka procon container internal port (container -> container)
 KAFKAPC_EXTERNAL_SECURE_PORT=8097                        # Kafka procon container external secure port (host -> container)
 KAFKAPC_INTERNAL_SECURE_PORT=8091                        # Kafka procon container internal secure port (container -> container)
-KAFKAPC_ALIVE_URL="/"                               # Base path for alive check
+KAFKAPC_ALIVE_URL="/"                                    # Base path for alive check
 KAFKAPC_COMPOSE_DIR="kafka-procon"                       # Dir in simulator_group for docker-compose
 KAFKAPC_BUILD_DIR="kafka-procon"                         # Build dir
 
@@ -571,7 +571,6 @@ HELM_MANAGER_ALIVE_URL="/helm/charts"                    # Base path for alive c
 HELM_MANAGER_COMPOSE_DIR="helmmanager"                   # Dir in simulator_group for docker-compose
 HELM_MANAGER_USER="helmadmin"
 HELM_MANAGER_PWD="itisasecret"
-
 ########################################
 # Setting for common curl-base function
 ########################################

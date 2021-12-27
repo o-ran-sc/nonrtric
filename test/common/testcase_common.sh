@@ -163,18 +163,51 @@ TESTLOGS=$PWD/logs
 # files in the ./tmp is moved to ./tmp/prev when a new test is started
 if [ ! -d "tmp" ]; then
     mkdir tmp
+	if [ $? -ne 0 ]; then
+		echo "Cannot create dir for temp files, $PWD/tmp"
+		echo "Exiting...."
+		exit 1
+	fi
 fi
 curdir=$PWD
 cd tmp
 if [ $? -ne 0 ]; then
 	echo "Cannot cd to $PWD/tmp"
-	echo "Dir cannot be created. Exiting...."
+	echo "Exiting...."
+	exit 1
 fi
+
+TESTENV_TEMP_FILES=$PWD
+
 if [ ! -d "prev" ]; then
     mkdir prev
+	if [ $? -ne 0 ]; then
+		echo "Cannot create dir for previous temp files, $PWD/prev"
+		echo "Exiting...."
+		exit 1
+	fi
 fi
+
+TMPFILES=$(ls -A  | grep -vw prev)
+if [ ! -z "$TMPFILES" ]; then
+	cp -r $TMPFILES prev   #Move all temp files to prev dir
+	if [ $? -ne 0 ]; then
+		echo "Cannot move temp files in $PWD to previous temp files in, $PWD/prev"
+		echo "Exiting...."
+		exit 1
+	fi
+	if [ $(pwd | xargs basename) == "tmp" ]; then    #Check that current dir is tmp...for safety
+
+		rm -rf $TMPFILES # Remove all temp files
+	fi
+fi
+
 cd $curdir
-mv ./tmp/* ./tmp/prev 2> /dev/null
+if [ $? -ne 0 ]; then
+	echo "Cannot cd to $curdir"
+	echo "Exiting...."
+	exit 1
+fi
 
 # Create a http message log for this testcase
 HTTPLOG=$PWD"/.httplog_"$ATC".txt"
@@ -775,6 +808,10 @@ if [ ! -z "$TMP_APPS" ]; then
 		done
 		echo " Auto-adding system app   $padded_iapp  Sourcing $file_pointer"
 		. $file_pointer
+		if [ $? -ne 0 ]; then
+			echo " Include file $file_pointer contain errors. Exiting..."
+			exit 1
+		fi
 		__added_apps=" $iapp "$__added_apps
 	done
 else
@@ -797,9 +834,13 @@ echo -e $BOLD"Auto adding included apps"$EBOLD
 				padded_iapp=$padded_iapp" "
 			done
 			echo " Auto-adding included app $padded_iapp  Sourcing $file_pointer"
-			. $file_pointer
 			if [ ! -f "$file_pointer" ]; then
 				echo " Include file $file_pointer for app $iapp does not exist"
+				exit 1
+			fi
+			. $file_pointer
+			if [ $? -ne 0 ]; then
+				echo " Include file $file_pointer contain errors. Exiting..."
 				exit 1
 			fi
 		fi
@@ -1299,6 +1340,9 @@ setup_testenvironment() {
 			# If the image suffix is none, then the component decides the suffix
 			function_pointer="__"$imagename"_imagesetup"
 			$function_pointer $IMAGE_SUFFIX
+
+			function_pointer="__"$imagename"_test_requirements"
+			$function_pointer
 		fi
 	done
 
@@ -2016,12 +2060,16 @@ __kube_delete_all_resources() {
 	namespace=$1
 	labelname=$2
 	labelid=$3
-	resources="deployments replicaset statefulset services pods configmaps persistentvolumeclaims persistentvolumes"
+	resources="deployments replicaset statefulset services pods configmaps persistentvolumeclaims persistentvolumes serviceaccounts clusterrolebindings"
 	deleted_resourcetypes=""
 	for restype in $resources; do
 		ns_flag="-n $namespace"
 		ns_text="in namespace $namespace"
 		if [ $restype == "persistentvolumes" ]; then
+			ns_flag=""
+			ns_text=""
+		fi
+		if [ $restype == "clusterrolebindings" ]; then
 			ns_flag=""
 			ns_text=""
 		fi
@@ -2101,6 +2149,51 @@ __kube_create_namespace() {
 		echo -e " Creating namespace $1 $GREEN$BOLD Already exists, OK $EBOLD$EGREEN"
 	fi
 	return 0
+}
+
+# Removes a namespace if it exists
+# args: <namespace>
+# (Not for test scripts)
+__kube_delete_namespace() {
+
+	#Check if test namespace exists, if so remove it
+	kubectl get namespace $1 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -eq 0 ]; then
+		echo -ne " Removing namespace "$1 $SAMELINE
+		kubectl delete namespace $1 1> /dev/null 2> ./tmp/kubeerr
+		if [ $? -ne 0 ]; then
+			echo -e " Removing namespace $1 $RED$BOLD FAILED $EBOLD$ERED"
+			((RES_CONF_FAIL++))
+			echo "  Message: $(<./tmp/kubeerr)"
+			return 1
+		else
+			echo -e " Removing namespace $1 $GREEN$BOLD OK $EBOLD$EGREEN"
+		fi
+	else
+		echo -e " Namespace $1 $GREEN$BOLD does not exist, OK $EBOLD$EGREEN"
+	fi
+	return 0
+}
+
+# Removes a namespace
+# args: <namespace>
+# (Not for test scripts)
+clean_and_create_namespace() {
+	__log_conf_start $@
+
+    if [ $# -ne 1 ]; then
+		__print_err "<namespace>" $@
+		return 1
+	fi
+	__kube_delete_namespace $1
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+	__kube_create_namespace $1
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
 }
 
 # Find the host ip of an app (using the service resource)
@@ -2346,14 +2439,14 @@ clean_environment() {
 		__clean_kube
 		if [ $PRE_CLEAN -eq 1 ]; then
 			echo " Cleaning docker resouces to free up resources, may take time..."
-			../common/clean_docker.sh 2&>1 /dev/null
+			../common/clean_docker.sh 2>&1 /dev/null
 			echo ""
 		fi
 	else
 		__clean_containers
 		if [ $PRE_CLEAN -eq 1 ]; then
 			echo " Cleaning kubernetes resouces to free up resources, may take time..."
-			../common/clean_kube.sh 2&>1 /dev/null
+			../common/clean_kube.sh 2>&1 /dev/null
 			echo ""
 		fi
 	fi
@@ -2456,9 +2549,14 @@ __start_container() {
 
 	envsubst < $compose_file > "gen_"$compose_file
 	compose_file="gen_"$compose_file
+	if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+		docker_compose_cmd="docker-compose"
+	else
+		docker_compose_cmd="docker compose"
+	fi
 
 	if [ "$compose_args" == "NODOCKERARGS" ]; then
-		docker-compose -f $compose_file up -d &> .dockererr
+		$docker_compose_cmd -f $compose_file up -d &> .dockererr
 		if [ $? -ne 0 ]; then
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
 			cat .dockererr
@@ -2466,7 +2564,7 @@ __start_container() {
 			exit 1
 		fi
 	else
-		docker-compose -f $compose_file up -d $compose_args &> .dockererr
+		$docker_compose_cmd -f $compose_file up -d $compose_args &> .dockererr
 		if [ $? -ne 0 ]; then
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
 			cat .dockererr

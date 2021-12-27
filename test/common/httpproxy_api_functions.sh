@@ -118,6 +118,12 @@ __HTTPPROXY_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__HTTPPROXY_test_requirements() {
+	:
+}
+
 #######################################################
 
 # Set http as the protocol to use for all communication to the http proxy

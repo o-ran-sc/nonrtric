@@ -56,6 +56,12 @@ ORAN E-RELEASE
 ORAN E-RELEASE with nonrtric deployed with helm charts for the "dep" repo
 >```../FTC_HELM_E_RELEASE.sh remote-remove  kube  release --env-file ../common/test_env-oran-e-release.sh --override override_ftc_helm_e_release.sh```
 
+ORAN F-RELEASE
+=========
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-f-release.sh```
+
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-f-release.sh```
+
 ONAP GUILIN
 ===========
 >```./PM_DEMO.sh remote-remove  docker release   --env-file ../common/test_env-onap-guilin.sh```
@@ -99,6 +105,8 @@ The numbering in each series corresponds to the following groupings
 20XX - Southbound http proxy tests
 
 30XX - rApp tests
+
+40XX - Helm Manager tests
 
 Suites
 

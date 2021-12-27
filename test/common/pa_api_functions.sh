@@ -103,6 +103,12 @@ __PA_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__PA_test_requirements() {
+	:
+}
+
 
 #######################################################
 

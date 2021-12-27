@@ -217,6 +217,18 @@ __DMAAPMR_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__MR_test_requirements() {
+	:
+}
+
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__DMAAPMR_test_requirements() {
+	:
+}
+
 #######################################################
 
 # Description of port mappings when running MR-STUB only or MR-STUB + MESSAGE-ROUTER
