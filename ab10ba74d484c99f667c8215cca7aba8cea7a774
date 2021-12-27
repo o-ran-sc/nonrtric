@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d3f1d64_fdb5a16b",
+        "filename": "dmaap-mediator-producer/internal/config/config_test.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-12-27T11:16:27Z",
+      "side": 1,
+      "message": "Why is the D a capital? \nI think something more expressive (Identity) could be an option.",
+      "range": {
+        "startLine": 135,
+        "startChar": 2,
+        "endLine": 135,
+        "endChar": 25
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ed347f8_d25291de",
+        "filename": "dmaap-mediator-producer/internal/config/registrator.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-12-27T11:16:27Z",
+      "side": 1,
+      "message": "This is a generic comment. I think expressive names should be used to increase readability.\nA variable names like s,r, a etc. is in my opinion to short and does not say much.",
+      "range": {
+        "startLine": 69,
+        "startChar": 29,
+        "endLine": 69,
+        "endChar": 32
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "263570ee_9636261d",
+        "filename": "dmaap-mediator-producer/internal/jobs/jobs.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-12-27T11:16:27Z",
+      "side": 1,
+      "message": "It is probably not easy to understand what mRURL means.",
+      "range": {
+        "startLine": 258,
+        "startChar": 1,
+        "endLine": 258,
+        "endChar": 6
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff4450d5_2b25a268",
+        "filename": "dmaap-mediator-producer/internal/jobs/jobs.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-12-27T11:16:27Z",
+      "side": 1,
+      "message": "I think c is a too short name.",
+      "range": {
+        "startLine": 271,
+        "startChar": 1,
+        "endLine": 271,
+        "endChar": 3
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ae8a7ba_2eeec3db",
+        "filename": "dmaap-mediator-producer/internal/kafkaconsumer/kafkaconsumer.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-12-27T11:16:27Z",
+      "side": 1,
+      "message": "Why does this (BootstrapServer) start with a capital and further down \n\n\ntype KafkaConsumerImpl struct {\n\tconsumer *kafka.Consumer\n}\n\n\"consumer\" does not start with a capital?",
+      "range": {
+        "startLine": 34,
+        "startChar": 1,
+        "endLine": 34,
+        "endChar": 16
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64934942_30aed930",
+        "filename": "dmaap-mediator-producer/mocks/KafkaConsumer.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2021-12-27T11:16:27Z",
+      "side": 1,
+      "message": "Variable names like r0, r1, rf is not very readable.",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 8
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
