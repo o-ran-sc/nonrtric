@@ -116,6 +116,12 @@ __RICSIM_statisics_setup() {
 	done
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__RICSIM_test_requirements() {
+	:
+}
+
 #######################################################
 
 
@@ -257,7 +263,6 @@ start_ric_simulators() {
 			done
 		fi
 	else
-
 		__check_included_image 'RICSIM'
 		if [ $? -eq 1 ]; then
 			echo -e $RED"The Near-RT RIC Simulator app is not included as managed in this test script"$ERED

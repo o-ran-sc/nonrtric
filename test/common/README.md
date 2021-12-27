@@ -11,6 +11,9 @@ A common curl based function for the agent and ics apis. Also partly used for th
 `cbs_api_function.sh` \
 All functions are implemented in `consul_api_function.sh`.
 
+`chartmus_api_functions.sh` \
+Contains functions for managing a Chartmuseum instance.
+
 `clean-docker.sh` \
 Cleans all containers started by the test environment in docker.
 
@@ -62,6 +65,9 @@ A python script to extract the information from an sdnc (A1 Controller) reply js
 `genstat.sh` \
 This script collects container statistics to a file. Works both in docker and kubernetes (only for docker runtime).
 
+`helmmanager_api_functions.sh` \
+Contains functions for managing and testing of the Helm Manager.
+
 `http_proxy_api_functions.sh` \
 Contains functions for managing the Http Proxy.
 
@@ -73,6 +79,9 @@ Contains functions for managing the kafka producer/consumer. Kafka is started by
 
 `kube_proxy_api_functions.sh` \
 Contains functions for managing the Kube Proxy - to gain access to all services pod inside a kube cluster or all containers in a private docker network.
+
+`localhelm_api_functions.sh` \
+Contains functions for helm access on localhost.
 
 `mr_api_functions.sh` \
 Contains functions for managing the MR Stub and the Dmaap Message Router
@@ -134,6 +143,7 @@ This file must implement the following functions used by the test engine. Note t
 | __<app-short_name>_store_docker_logs |
 | __<app-short_name>_initial_setup |
 | __<app-short_name>_statisics_setup |
+| __<app-short_name>_test_requirements |
 
 In addition, all other functions used for testing of the application shall also be added to the file. For example functions to start the application, setting interface parameters as well as functions to send rest call towards the api of the application and validating the result.
 
@@ -282,6 +292,39 @@ Print out the overall result of the executed test cases.
 | arg list |
 |--|
 | None |
+
+# Description of functions in chartmus_api_function.sh #
+
+## Function: start_chart_museum ##
+
+Start the Chart Museum
+| arg list |
+|--|
+| None |
+
+## Function: chartmus_upload_test_chart ##
+
+Upload a package chart to chartmusem
+| arg list |
+|--|
+| `<chart-name>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<chart-name>` | Name of the chart to upload |
+
+## Function: chartmus_delete_test_chart ##
+
+Delete a chart in chartmusem
+| arg list |
+|--|
+| `<chart-name> [<version>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<chart-name>` | Name of the chart to delete |
+| `<version>` | Chart version, default is 0.1.0 |
+
 
 # Description of functions in consul_api_function.sh #
 
@@ -622,6 +665,130 @@ Start the http proxy container in docker or kube depending on running mode.
 | arg list |
 |--|
 | None |
+
+# Description of functions in helmmanager_api_functions.sh #
+
+## Function: use_helm_manager_http ##
+
+Use http for all API calls to the Helm Manager. This is the default protocol.
+| arg list |
+|--|
+| None |
+
+## Function: use_helm_manager_https ##
+
+Use https for all API calls to the Helm Manager.
+| arg list |
+|--|
+| None |
+
+## Function: start_helm_manager ##
+
+Start the Helm Manager container in docker or kube depending on running mode.
+| arg list |
+|--|
+| None |
+
+## Function: helm_manager_api_get_charts ##
+
+Get all charts and compare the expected contents.
+| arg list |
+|--|
+| `<response-code> [ EMPTY | ( <chart> <version> <namespace> <release> <repo> )+ ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `EMPTY` | Indicator for empty list  |
+| `<chart>`| Name of the chart  |
+| `<version>`| Version of the chart  |
+| `<namespace>`| Namespace to of the chart  |
+| `<release>`| Release name of the chart  |
+| `<repo>`| Repository of the chart  |
+
+## Function: helm_manager_api_post_repo ##
+
+Add repo to the helm manager.
+| arg list |
+|--|
+| `<response-code> <repo-name> <repo-protocol> <repo-address> <repo-port>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `<repo-name>` | Name of the repo  |
+| `<repo-protocol>`| Protocol http or https  |
+| `<repo-address>`| Host name of the repo |
+| `<repo-port>`| Host port of the repo  |
+
+## Function: helm_manager_api_post_onboard_chart ##
+
+Onboard a chart to the helm manager.
+| arg list |
+|--|
+| `<response-code> <repo> <chart> <version> <release> <namespace>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `<repo>`| Target repo of the chart  |
+| `<chart>`| Name of the chart  |
+| `<version>`| Version of the chart  |
+| `<namespace>`| Namespace to of the chart  |
+| `<release>`| Release name of the chart  |
+
+## Function: helm_manager_api_post_install_chart ##
+
+Install an onboarded chart.
+| arg list |
+|--|
+| `<response-code> <chart> <version>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `<chart>`| Name of the chart  |
+| `<version>`| Version of the chart  |
+
+## Function: helm_manager_api_uninstall_chart ##
+
+Uninstall a chart.
+| arg list |
+|--|
+| `<response-code> <chart> <version>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `<chart>`| Name of the chart  |
+| `<version>`| Version of the chart  |
+
+## Function: helm_manager_api_delete_chart ##
+
+Delete a chart.
+| arg list |
+|--|
+| `<response-code> <chart> <version>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `<chart>`| Name of the chart  |
+| `<version>`| Version of the chart  |
+
+## Function: helm_manager_api_exec_add_repo ##
+
+Add repo in helm manager by helm using exec.
+| arg list |
+|--|
+| `<repo-name> <repo-url>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected response code |
+| `<repo-name>`| Name of the repo  |
+| `<repo-url>`| Full url to the repo. Url must be accessible by the container  |
+
 
 # Description of functions in ics_api_functions.sh #
 
@@ -1557,6 +1724,44 @@ No proxy is started if the function is called in docker mode.
 | arg list |
 |--|
 | None |
+
+# Description of functions in localhelm_api_functions.sh #
+
+## Function: localhelm_create_test_chart ##
+
+Create a dummy chart using helm
+| arg list |
+|--|
+| `chart-name` |
+
+| parameter | description |
+| --------- | ----------- |
+| `chart-name` | Name of the chart |
+
+## Function: localhelm_package_test_chart ##
+
+Package a dummy chart using helm
+| arg list |
+|--|
+| `chart-name` |
+
+| parameter | description |
+| --------- | ----------- |
+| `chart-name` | Name of the chart |
+
+## Function: localhelm_installed_chart_release ##
+
+Check if a chart is installed or not using helm
+| arg list |
+|--|
+| `INSTALLED|NOTINSTALLED <release-name> <name-space> |
+
+| parameter | description |
+| --------- | ----------- |
+| `INSTALLED` | Expecting installed chart |
+| `NOTINSTALLED` | Expecting a not installed chart |
+| `release-name` | Name of the release |
+| `name-space` | Expected namespace |
 
 # Description of functions in mr_api_functions.sh #
 

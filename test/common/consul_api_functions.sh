@@ -180,6 +180,18 @@ __CONSUL_statisics_setup() {
 __CBS_statisics_setup() {
 	echo ""
 }
+
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__CONSUL_test_requirements() {
+	:
+}
+
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__CBS_test_requirements() {
+	:
+}
 #######################################################
 
 

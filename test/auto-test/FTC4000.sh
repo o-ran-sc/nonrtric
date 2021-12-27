@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Starts DMAAP MR"
+TC_ONELINE_DESCR="Test of Helm Manager"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="MR DMAAPMR KUBEPROXY KAFKAPC"
+DOCKER_INCLUDED_IMAGES="KUBEPROXY CHARTMUS LOCALHELM HELMMANAGER"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="MR DMAAPMR KUBEPROXY KAFKAPC"
+KUBE_INCLUDED_IMAGES="KUBEPROXY CHARTMUS LOCALHELM HELMMANAGER"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -44,28 +44,56 @@ setup_testenvironment
 #### TEST BEGIN ####
 
 clean_environment
+
 start_kube_proxy
-start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
-            "$MR_WRITE_TOPIC" "/events" "users/mr-stub"
-            #\
-            #"unauthenticated.dmaapadp.json" "/events" "dmaapadapterproducer/msgs" \
-            #"unauthenticated.dmaapmed.json" "/events" "maapmediatorproducer/STD_Fault_Messages"
 
-start_kafkapc
+start_chart_museum
 
-kafkapc_api_reset 200
+localhelm_create_test_chart dummy
 
-kafkapc_api_create_topic 201 "unauthenticated.dmaapadp.json" "application/json"
+localhelm_package_test_chart dummy
 
-kafkapc_api_create_topic 201 "unauthenticated.dmaapmed.json" "application/json"
+chartmus_upload_test_chart dummy
 
-dmaap_api_print_topics
+clean_and_create_namespace test-ns
 
-if [ $RUNMODE == "KUBE" ]; then
-    :
-else
-    docker kill $MR_STUB_APP_NAME
-fi
+localhelm_installed_chart_release NOTINSTALLED test-release test-ns
+
+start_helm_manager
+
+helm_manager_api_get_charts 200 EMPTY
+
+helm_manager_api_exec_add_repo cm $CHART_MUS_SERVICE_PATH
+
+helm_manager_api_post_repo 201 cm $CHART_MUS_SERVICE_HTTPX $CHART_MUS_SERVICE_HOST $CHART_MUS_SERVICE_PORT
+
+helm_manager_api_post_onboard_chart 200 cm dummy DEFAULT-VERSION test-release test-ns
+
+helm_manager_api_get_charts 200 cm dummy DEFAULT-VERSION test-release test-ns
+
+helm_manager_api_post_install_chart 201 dummy DEFAULT-VERSION
+
+localhelm_installed_chart_release INSTALLED test-release test-ns
+
+helm_manager_api_get_charts 200 cm dummy DEFAULT-VERSION test-release test-ns
+
+helm_manager_api_uninstall_chart 204 dummy DEFAULT-VERSION
+
+helm_manager_api_get_charts 200 cm dummy DEFAULT-VERSION test-release test-ns
+
+helm_manager_api_delete_chart 204 dummy DEFAULT-VERSION
+
+helm_manager_api_get_charts 200 EMPTY
+
+localhelm_installed_chart_release NOTINSTALLED test-release test-ns
+
+#### TEST COMPLETE ####
+
+store_logs          END
+
+print_result
+
+auto_clean_environment
 
 
 

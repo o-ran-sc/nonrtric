@@ -34,7 +34,7 @@ __RC_imagesetup() {
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both arg var may contain: 'remote', 'remote-remove' or 'local'
 __RC_imagepull() {
-	__check_and_pull_image $1 "$c" $RAPP_CAT_APP_NAME RAPP_CAT_IMAGE
+	__check_and_pull_image $1 "$RAPP_CAT_DISPLAY_NAME" $RAPP_CAT_APP_NAME RAPP_CAT_IMAGE
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
@@ -94,6 +94,12 @@ __RC_statisics_setup() {
 	else
 		echo "RC $RAPP_CAT_APP_NAME"
 	fi
+}
+
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__RC_test_requirements() {
+	:
 }
 
 #######################################################

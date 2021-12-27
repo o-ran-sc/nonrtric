@@ -119,6 +119,12 @@ __PRODSTUB_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__PRODSTUB_test_requirements() {
+	:
+}
+
 #######################################################
 
 # Set http as the protocol to use for all communication to the Prod stub sim
@@ -192,13 +198,13 @@ start_prod_stub() {
 		retcode_p=$?
 
 		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
-			echo -e $RED"The $ICS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
-			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
+			echo -e $RED"The $PROD_STUB_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $PROD_STUB_APP_NAME will not be started"$ERED
 			exit
 		fi
 		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
-			echo -e $RED"The $ICS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
-			echo -e $RED"The $ICS_APP_NAME will not be started"$ERED
+			echo -e $RED"The $PROD_STUB_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $PROD_STUB_APP_NAME will not be started"$ERED
 			exit
 		fi
 
