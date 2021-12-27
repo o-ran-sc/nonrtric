@@ -49,10 +49,8 @@
         <java.version>11</java.version>
         <springfox.version>3.0.0</springfox.version>
         <immutable.version>2.8.2</immutable.version>
-        <sdk.version>1.1.6</sdk.version>
         <swagger.version>2.1.6</swagger.version>
         <json.version>20190722</json.version>
-        <commons-net.version>3.6</commons-net.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.24.3</spotless-maven-plugin.version>
@@ -97,10 +95,6 @@
             <version>${swagger.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
             <version>${immutable.version}</version>
@@ -117,24 +111,9 @@
             <version>${json.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons-net.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.dcaegen2.services.sdk.rest.services</groupId>
-            <artifactId>cbs-client</artifactId>
-            <version>${sdk.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>${javax.ws.rs-api.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.erosb/everit-json-schema -->
         <dependency>
