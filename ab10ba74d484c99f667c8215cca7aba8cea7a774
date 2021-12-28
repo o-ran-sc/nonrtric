@@ -24,6 +24,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e32cebf_66c358cc",
+        "filename": "dmaap-mediator-producer/internal/config/config_test.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-28T10:05:08Z",
+      "side": 1,
+      "message": "The naming convention for Go is to use camel case but keep upper case for abbreviations, hence the upper case D, see \"wantedDMaaPType\" for another example.\nRenamed to \"Identity\" in next patch set.",
+      "parentUuid": "7d3f1d64_fdb5a16b",
+      "range": {
+        "startLine": 135,
+        "startChar": 2,
+        "endLine": 135,
+        "endChar": 25
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ed347f8_d25291de",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-12-27T11:16:27Z",
       "side": 1,
       "message": "This is a generic comment. I think expressive names should be used to increase readability.\nA variable names like s,r, a etc. is in my opinion to short and does not say much.",
+      "range": {
+        "startLine": 69,
+        "startChar": 29,
+        "endLine": 69,
+        "endChar": 32
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3c73334_0bd8243a",
+        "filename": "dmaap-mediator-producer/internal/config/registrator.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-28T10:05:08Z",
+      "side": 1,
+      "message": "I partly agree with you in this. The convention in the Go community is to use as short names as possible, so this is the most used way of naming things. But I, at least mostly, try to use a recommendation from Uncle Bob, that the wider the scope, the more expressive the name. So here it is a very small scope, just inside the struct, so the name does  not have to be so long.",
+      "parentUuid": "6ed347f8_d25291de",
       "range": {
         "startLine": 69,
         "startChar": 29,
@@ -70,6 +118,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37dfa0b6_c00176c8",
+        "filename": "dmaap-mediator-producer/internal/jobs/jobs.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-28T10:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "263570ee_9636261d",
+      "range": {
+        "startLine": 258,
+        "startChar": 1,
+        "endLine": 258,
+        "endChar": 6
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff4450d5_2b25a268",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-12-27T11:16:27Z",
       "side": 1,
       "message": "I think c is a too short name.",
+      "range": {
+        "startLine": 271,
+        "startChar": 1,
+        "endLine": 271,
+        "endChar": 3
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "795ed068_44a0e0d6",
+        "filename": "dmaap-mediator-producer/internal/jobs/jobs.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-28T10:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff4450d5_2b25a268",
       "range": {
         "startLine": 271,
         "startChar": 1,
@@ -116,6 +212,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66c39b31_c36c11b0",
+        "filename": "dmaap-mediator-producer/internal/kafkaconsumer/kafkaconsumer.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-28T10:05:08Z",
+      "side": 1,
+      "message": "A leading capital letter means that the variable or function is public, i.e. visible outside the package. A leading lower case letter means that the variable or function is private to the package.\nBootstrapServer is public so it can be given a value from another package, while the consumer is an implementation detail, not intended to be reached from outside the package.",
+      "parentUuid": "7ae8a7ba_2eeec3db",
+      "range": {
+        "startLine": 34,
+        "startChar": 1,
+        "endLine": 34,
+        "endChar": 16
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64934942_30aed930",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-12-27T11:16:27Z",
       "side": 1,
       "message": "Variable names like r0, r1, rf is not very readable.",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 8
+      },
+      "revId": "ab10ba74d484c99f667c8215cca7aba8cea7a774",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7003790_4cedbd26",
+        "filename": "dmaap-mediator-producer/mocks/KafkaConsumer.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2021-12-28T10:05:08Z",
+      "side": 1,
+      "message": "This is a generated mock implementation, so the naming is given by the generator. Unfortunately there is, yet at least, no good way to generate mocks on the fly so they must be checked in.",
+      "parentUuid": "64934942_30aed930",
       "range": {
         "startLine": 22,
         "startChar": 1,
