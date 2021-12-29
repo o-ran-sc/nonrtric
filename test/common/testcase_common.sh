@@ -248,6 +248,7 @@ PRINT_CURRENT_STATS=0
 
 #Var to control if container/pod runtim statistics shall be collected
 COLLECT_RUNTIME_STATS=0
+COLLECT_RUNTIME_STATS_PID=0
 
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
@@ -264,8 +265,13 @@ trap_fnc() {
 }
 trap trap_fnc ERR
 
-# Trap to kill subprocesses
-trap "kill 0" EXIT
+# Trap to kill subprocess for stats collection (if running)
+trap_fnc2() {
+	if [ $COLLECT_RUNTIME_STATS_PID -ne 0 ]; then
+ 		kill $COLLECT_RUNTIME_STATS_PID
+	fi
+}
+trap trap_fnc2 EXIT
 
 # Counter for tests
 TEST_SEQUENCE_NR=1
@@ -1593,6 +1599,7 @@ setup_testenvironment() {
 
 	if [ $COLLECT_RUNTIME_STATS -eq 1 ]; then
 		../common/genstat.sh $RUNMODE $SECONDS $TESTLOGS/$ATC/stat_data.csv $LOG_STAT_ARGS &
+		COLLECT_RUNTIME_STATS_PID=$!
 	fi
 
 }
