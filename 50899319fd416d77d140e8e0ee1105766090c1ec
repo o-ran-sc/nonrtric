@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf05eb43_97b257c5",
+        "filename": "dmaap-mediator-producer/configs/type_config.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2022-01-03T14:12:01Z",
+      "side": 1,
+      "message": "-\u003e kafkaInputTopic  ?",
+      "range": {
+        "startLine": 10,
+        "startChar": 9,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "50899319fd416d77d140e8e0ee1105766090c1ec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
