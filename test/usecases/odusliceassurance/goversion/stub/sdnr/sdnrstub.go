@@ -55,8 +55,8 @@ func getDistributedUnitFunctions(w http.ResponseWriter, r *http.Request) {
 					AdmState:                "locked",
 					UserLabel:               "rrm-pol-1",
 					RRMPolicyMaxRatio:       100,
-					RRMPolicyMinRatio:       "0",
-					RRMPolicyDedicatedRatio: "0",
+					RRMPolicyMinRatio:       0,
+					RRMPolicyDedicatedRatio: 0,
 					ResourceType:            "prb",
 					RRMPolicyMembers: []messages.RRMPolicyMember{
 						{
@@ -72,8 +72,8 @@ func getDistributedUnitFunctions(w http.ResponseWriter, r *http.Request) {
 					AdmState:                "unlocked",
 					UserLabel:               "rrm-pol-2",
 					RRMPolicyMaxRatio:       20,
-					RRMPolicyMinRatio:       "10",
-					RRMPolicyDedicatedRatio: "15",
+					RRMPolicyMinRatio:       10,
+					RRMPolicyDedicatedRatio: 15,
 					ResourceType:            "prb",
 					RRMPolicyMembers: []messages.RRMPolicyMember{
 						{
@@ -89,8 +89,8 @@ func getDistributedUnitFunctions(w http.ResponseWriter, r *http.Request) {
 					AdmState:                "unlocked",
 					UserLabel:               "rrm-pol-3",
 					RRMPolicyMaxRatio:       30,
-					RRMPolicyMinRatio:       "10",
-					RRMPolicyDedicatedRatio: "5",
+					RRMPolicyMinRatio:       10,
+					RRMPolicyDedicatedRatio: 5,
 					ResourceType:            "prb",
 					RRMPolicyMembers: []messages.RRMPolicyMember{
 						{
