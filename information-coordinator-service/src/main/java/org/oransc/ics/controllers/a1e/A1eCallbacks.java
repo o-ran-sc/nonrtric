@@ -53,26 +53,24 @@ public class A1eCallbacks {
 
     private final AsyncRestClient restClient;
     private final InfoJobs eiJobs;
-    private final InfoProducers eiProducers;
 
     @Autowired
-    public A1eCallbacks(ApplicationConfig config, InfoJobs eiJobs, InfoProducers eiProducers) {
+    public A1eCallbacks(ApplicationConfig config, InfoJobs eiJobs) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientUseHttpProxy("");
         this.eiJobs = eiJobs;
-        this.eiProducers = eiProducers;
     }
 
-    public Flux<String> notifyJobStatus(Collection<InfoType> eiTypes) {
+    public Flux<String> notifyJobStatus(Collection<InfoType> eiTypes, InfoProducers eiProducers) {
         return Flux.fromIterable(eiTypes) //
             .flatMap(eiType -> Flux.fromIterable(this.eiJobs.getJobsForType(eiType))) //
             .filter(eiJob -> !eiJob.getJobStatusUrl().isEmpty()) //
-            .filter(eiJob -> this.eiProducers.isJobEnabled(eiJob) != eiJob.isLastStatusReportedEnabled())
-            .flatMap(this::noifyStatusToJobOwner);
+            .filter(eiJob -> eiProducers.isJobEnabled(eiJob) != eiJob.isLastStatusReportedEnabled())
+            .flatMap(eiJob -> noifyStatusToJobOwner(eiJob, eiProducers));
     }
 
-    private Mono<String> noifyStatusToJobOwner(InfoJob job) {
-        boolean isJobEnabled = this.eiProducers.isJobEnabled(job);
+    private Mono<String> noifyStatusToJobOwner(InfoJob job, InfoProducers eiProducers) {
+        boolean isJobEnabled = eiProducers.isJobEnabled(job);
         A1eEiJobStatus status = isJobEnabled ? new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.ENABLED)
             : new A1eEiJobStatus(A1eEiJobStatus.EiJobStatusValues.DISABLED);
         String body = gson.toJson(status);
