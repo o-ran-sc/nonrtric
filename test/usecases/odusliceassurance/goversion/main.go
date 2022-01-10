@@ -29,7 +29,7 @@ import (
 	"oransc.org/usecase/oduclosedloop/internal/sliceassurance"
 )
 
-const TOPIC string = "/events/unauthenticated.PERFORMANCE_MEASUREMENTS"
+const TOPIC string = "unauthenticated.VES_O_RAN_SC_HELLO_WORLD_PM_STREAMING_OUTPUT"
 
 var configuration *config.Config
 
