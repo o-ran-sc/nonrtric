@@ -23,6 +23,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -43,7 +44,7 @@ func handleTypeRegistration(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["typeId"]
 	if ok {
-		fmt.Println("Registered type ", id)
+		fmt.Printf("Registered type %v with schema: %v\n", id, readBody(r))
 	}
 }
 
@@ -51,6 +52,14 @@ func handleProducerRegistration(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["producerId"]
 	if ok {
-		fmt.Println("Registered producer ", id)
+		fmt.Printf("Registered producer %v with data: %v\n", id, readBody(r))
 	}
+}
+
+func readBody(r *http.Request) string {
+	b, readErr := ioutil.ReadAll(r.Body)
+	if readErr != nil {
+		return fmt.Sprintf("Unable to read body due to: %v", readErr)
+	}
+	return string(b)
 }
