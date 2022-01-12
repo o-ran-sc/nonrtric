@@ -7,12 +7,12 @@ Developer Guide
 
 This document provides a quickstart for developers of the Non-RT RIC parts.
 
-Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_
+Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
 
 A1 Policy Management Service & SDNC/A1 Controller & A1 Adapter
 --------------------------------------------------------------
 
-The A1 Policy Management Service is implemented in ONAP. For documentation see `ONAP CCSDK documentation <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_
+The A1 Policy Management Service is implemented in ONAP. For documentation see `ONAP CCSDK documentation <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_.
 and `wiki <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_.
 
 Information Coordinator Service
@@ -65,36 +65,42 @@ See the README.md file in the *r-app-catalogue* directory in the Gerrit repo for
 
 DMaaP Adaptor Service
 ---------------------
-This is run in the same way as the Information Coordinator Service
+
+This Java implementation is run in the same way as the Information Coordinator Service.
 
 The following properties in the application.yaml file have to be modified:
 * server.ssl.key-store=./config/keystore.jks
 * app.webclient.trust-store=./config/truststore.jks
 * app.configuration-filepath=./src/test/resources/test_application_configuration.json
 
+DMaaP Mediator Producer
+-----------------------
+
+To build and run this Go implementation, see the README.md file under the folder "dmaap-mediator-producer" in the "nonrtric" repo.
+
 O-DU & O-RU fronthaul recovery
 ------------------------------
 
-See the page in Wiki: `O-RU Fronthaul Recovery usecase <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_
+See the page in Wiki: `O-RU Fronthaul Recovery usecase <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_.
 
 O-DU Slicing use cases
 ----------------------
 
-See the page in Wiki: `O-DU Slice Assurance usecase <https://wiki.o-ran-sc.org/display/RICNR/O-DU+Slice+Assurance+usecase>`_
+See the page in Wiki: `O-DU Slice Assurance usecase <https://wiki.o-ran-sc.org/display/RICNR/O-DU+Slice+Assurance+usecase>`_.
 
 Helm Manager
 ------------
 
-See the page in Wiki: `Release E <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_
+See the page in Wiki: `Release E <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
 
 Kubernetes deployment
 =====================
 
-Non-RT RIC can be also deployed in a Kubernetes cluster, `it/dep repository <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_
+Non-RT RIC can be also deployed in a Kubernetes cluster, `it/dep repository <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_.
 hosts deployment and integration artifacts. Instructions and helm charts to deploy the Non-RT-RIC functions in the
 OSC NONRTRIC integrated test environment can be found in the *./nonrtric* directory.
 
-For more information on installation of NonRT-RIC in Kubernetes, see `Deploy NONRTRIC in Kubernetes <https://wiki.o-ran-sc.org/display/RICNR/Deploy+NONRTRIC+in+Kubernetes>`_
+For more information on installation of NonRT-RIC in Kubernetes, see `Deploy NONRTRIC in Kubernetes <https://wiki.o-ran-sc.org/display/RICNR/Deploy+NONRTRIC+in+Kubernetes>`_.
 
 For more information see `Integration and Testing documentation on the O-RAN-SC wiki <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_.
 
