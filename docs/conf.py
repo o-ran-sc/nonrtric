@@ -11,6 +11,7 @@ linkcheck_ignore = [
     './rac-api.html', #Generated file that doesn't exist at link check.
     './ics-api.html', #Generated file that doesn't exist at link check.
     './dmaap-adaptor-api.html' #Generated file that doesn't exist at link check.
+    './dmaap-mediator-producer-api.html' #Generated file that doesn't exist at link check.
 ]
 
 extensions = ['sphinxcontrib.redoc', 'sphinx.ext.intersphinx',]
@@ -32,6 +33,11 @@ redoc = [
                 'name': 'DMaaP Adaptor API',
                 'page': 'dmaap-adaptor-api',
                 'spec': '../dmaap-adaptor-java/api/api.json',
+            },
+            {
+                'name': 'DMaaP Mediator Producer API',
+                'page': 'dmaap-mediator-producer-api',
+                'spec': '../dmaap-mediator-producer/docs/swagger.json',
                 'embed': True,
             }
         ]
