@@ -109,8 +109,6 @@ func getDistributedUnitFunctions(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateRRMPolicyDedicatedRatio(w http.ResponseWriter, r *http.Request) {
-	//vars := mux.Vars(r)
-	fmt.Println("::updateRRMPolicyDedicatedRatio::")
 	var prMessage messages.DistributedUnitFunction
 	decoder := json.NewDecoder(r.Body)
 
@@ -121,7 +119,6 @@ func updateRRMPolicyDedicatedRatio(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	fmt.Println("prMessage: ", prMessage)
-	//prMessage.Id = vars["POLICY-ID"]
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200"})
 }
