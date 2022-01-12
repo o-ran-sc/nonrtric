@@ -1,0 +1,116 @@
+definitions:
+  jobs.BufferTimeout:
+    properties:
+      maxSize:
+        type: integer
+      maxTimeMiliseconds:
+        type: integer
+    type: object
+  jobs.JobInfo:
+    properties:
+      info_job_data:
+        $ref: '#/definitions/jobs.Parameters'
+      info_job_identity:
+        type: string
+      info_type_identity:
+        type: string
+      last_updated:
+        type: string
+      owner:
+        type: string
+      target_uri:
+        type: string
+    type: object
+  jobs.Parameters:
+    properties:
+      bufferTimeout:
+        $ref: '#/definitions/jobs.BufferTimeout'
+    type: object
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: DMaaP Mediator Producer
+  version: 1.1.0
+paths:
+  /admin/log:
+    put:
+      description: Set the log level of the producer.
+      parameters:
+      - description: string enums
+        enum:
+        - Error
+        - Warn
+        - Info
+        - Debug
+        in: query
+        name: level
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Set log level
+      tags:
+      - Admin
+  /health_check:
+    get:
+      description: Get the status of the producer. Will show if the producer has registered
+        in ICS.
+      responses:
+        "200":
+          description: ""
+      summary: Get status
+      tags:
+      - Data producer (callbacks)
+  /info_job:
+    post:
+      consumes:
+      - application/json
+      description: Callback for ICS to add an info job
+      parameters:
+      - description: Info job data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/jobs.JobInfo'
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Add info job
+      tags:
+      - Data producer (callbacks)
+  /info_job/{infoJobId}:
+    delete:
+      description: Callback for ICS to delete an info job
+      parameters:
+      - description: Info job ID
+        in: path
+        name: infoJobId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+      summary: Delete info job
+      tags:
+      - Data producer (callbacks)
+  /swagger:
+    get:
+      description: Get the Swagger API documentation for the producer.
+      responses:
+        "200":
+          description: ""
+      summary: Get Swagger Documentation
+      tags:
+      - Admin
+swagger: "2.0"
