@@ -18,6 +18,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c779825_4200dc8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2022-01-12T16:12:57Z",
+      "side": 1,
+      "message": "Done, did not find any here.",
+      "parentUuid": "cf7a7525_8bf38cb7",
+      "revId": "88ed5157d2d0f293a951d94991f322cf03899ebd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "839a44c4_ca05bc7f",
@@ -43,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cbadfa51_eb28a6ef",
+        "filename": "a1-policy-management-service/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2022-01-12T16:12:57Z",
+      "side": 1,
+      "message": "No, that is the latest version.",
+      "parentUuid": "839a44c4_ca05bc7f",
+      "range": {
+        "startLine": 29,
+        "startChar": 17,
+        "endLine": 29,
+        "endChar": 22
+      },
+      "revId": "88ed5157d2d0f293a951d94991f322cf03899ebd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "219cfe24_086187bb",
         "filename": "a1-policy-management-service/pom.xml",
         "patchSetId": 2
@@ -54,6 +96,30 @@
       "writtenOn": "2022-01-12T15:52:26Z",
       "side": 1,
       "message": "Please also update to v31.0.1-jre",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 29
+      },
+      "revId": "88ed5157d2d0f293a951d94991f322cf03899ebd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b676712_e08b0019",
+        "filename": "a1-policy-management-service/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2022-01-12T16:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "219cfe24_086187bb",
       "range": {
         "startLine": 72,
         "startChar": 21,
