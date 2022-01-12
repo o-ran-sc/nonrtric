@@ -14,7 +14,13 @@ The producer takes a number of environment variables, described below, as config
 >- PRODUCER_KEY_PATH   Optional. The path to the key to the certificate to use for https.         Defaults to `security/producer.key`
 >- LOG_LEVEL           Optional. The log level, which can be `Error`, `Warn`, `Info` or `Debug`.  Defaults to `Info`.
 
-The file `configs/type_config.json` contains the configuration of job types that the producer will support.
+Any of the addresses used by this product can be configured to use https, by specifying it as the scheme of the address URI. Clients configured to use https will not use server certificate verification. The communication towards the consumers will use https if their callback address URI uses that scheme. The producer's own callback will only listen to the scheme configured in the scheme of the info producer host address.
+
+The configured public key and cerificate shall be PEM-encoded. A self signed certificate and key are provided in the `security` folder of the project. These files should be replaced for production. To generate a self signed key and certificate, use the example code below:
+
+    openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
+
+The file `configs/type_config.json` contains the configuration of job types that the producer will support, see example below.
 
     {
        "types":
@@ -22,15 +28,15 @@ The file `configs/type_config.json` contains the configuration of job types that
           {
             "id": The ID of the job type, e.g. "STD_Fault_Messages",
             "dmaapTopicUrl": The topic URL to poll from DMaaP Message Router, e.g. "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/STD_Fault_Messages"
+          },
+          {
+            "id": The ID of the job type, e.g. "Kafka_TestTopic",
+            "kafkaInputTopic": The Kafka topic to poll
           }
       ]
     }
 
-Any of the addresses used by this product can be configured to use https, by specifying it as the scheme of the address URI. Clients configured to use https will not use server certificate verification. The communication towards the consumers will use https if their callback address URI uses that scheme. The producer's own callback will only listen to the scheme configured in the scheme of the info producer host address.
-
-The configured public key and cerificate shall be PEM-encoded. A self signed certificate and key are provided in the `security` folder of the project. These files should be replaced for production. To generate a self signed key and certificate, use the example code below:
-
-    openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
+Either the "dmaapTopicUrl" or the "kafkaInputTopic" must be provided for each type, not both.
 
 ## Functionality
 
@@ -44,14 +50,19 @@ The producer provides a REST API that fulfills the ICS Data producer API, see [D
 
 ## Development
 
-To make it easy to test during development of the producer, two stubs are provided in the `stub` folder.
+To make it easy to test during development of the producer, three stubs are provided in the `stub` folder.
 
 One, under the `dmaap` folder, called `dmaap` that stubs MR and respond with an array with one message with `eventSeverity` alternating between `NORMAL` and `CRITICAL`. The default port is `3905`, but this can be overridden by passing a `-port <PORT>` flag when starting the stub. To build and start the stub, do the following:
 >1. cd stub/dmaap
 >2. go build
 >3. ./dmaap [-port \<PORT>]
 
-One, under the `consumer` folder, called `consumer` that at startup will register a job of type `STD_Fault_Messages` in ICS, and then listen for REST calls and print the body of them. By default, it listens to the port `40935`, but his can be overridden by passing a `-port <PORT>` flag when starting the stub. To build and start the stub, do the following:
+An ICS stub, under the `ics` folder, that listens for registration calls from the producer. When it gets a call it prints out the data of the call. By default, it listens to the port `8434`, but his can be overridden by passing a `-port [PORT]` flag when starting the stub. To build and start the stub, do the following:
+>1. cd stub/ics
+>2. go build
+>3. ./ics
+
+One, under the `consumer` folder, called `consumer` that at startup will register a job of type `STD_Fault_Messages` in ICS, if it is available, and then listen for REST calls and print the body of them. By default, it listens to the port `40935`, but his can be overridden by passing a `-port <PORT>` flag when starting the stub. To build and start the stub, do the following:
 >1. cd stub/consumer
 >2. go build
 >3. ./consumer [-port \<PORT>]
