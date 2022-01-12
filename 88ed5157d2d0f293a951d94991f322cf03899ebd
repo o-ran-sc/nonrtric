@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf7a7525_8bf38cb7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-01-12T15:52:26Z",
+      "side": 1,
+      "message": "Please also double check the documentation / readme\u0027s etc for any knock on effects from removing CBS and A1-PMS API v1",
+      "revId": "88ed5157d2d0f293a951d94991f322cf03899ebd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "839a44c4_ca05bc7f",
+        "filename": "a1-policy-management-service/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-01-12T15:52:26Z",
+      "side": 1,
+      "message": "Does this need an update?",
+      "range": {
+        "startLine": 29,
+        "startChar": 17,
+        "endLine": 29,
+        "endChar": 22
+      },
+      "revId": "88ed5157d2d0f293a951d94991f322cf03899ebd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "219cfe24_086187bb",
+        "filename": "a1-policy-management-service/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-01-12T15:52:26Z",
+      "side": 1,
+      "message": "Please also update to v31.0.1-jre",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 29
+      },
+      "revId": "88ed5157d2d0f293a951d94991f322cf03899ebd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
