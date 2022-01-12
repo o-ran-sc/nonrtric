@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa0555ff_21e06ddb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-01-12T15:18:48Z",
+      "side": 1,
+      "message": "Can you please make sure this info is available int he other documentation (wiki \u0026 RTD) too. \nThanks. ",
+      "revId": "6671c56046fb973965d12efe1fc55c37b8af9be4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
