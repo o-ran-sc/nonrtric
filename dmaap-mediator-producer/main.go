@@ -41,6 +41,12 @@ func init() {
 	configuration = config.New()
 }
 
+// @title DMaaP Mediator Producer
+// @version 1.1.0
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
 func main() {
 	log.SetLevel(configuration.LogLevel)
 	log.Debug("Initializing DMaaP Mediator Producer")
@@ -119,6 +125,11 @@ func startCallbackServer(jobsManager jobs.JobsManager, callbackAddress string) {
 	}
 }
 
+// @Summary Get status
+// @Description Get the status of the producer. Will show if the producer has registered in ICS.
+// @Tags Data producer (callbacks)
+// @Success 200
+// @Router /health_check [get]
 func statusHandler(w http.ResponseWriter, r *http.Request) {
 	registeredStatus := "not registered"
 	if registered {

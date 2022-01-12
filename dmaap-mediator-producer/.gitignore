@@ -10,3 +10,4 @@ dmaap
 !dmaap/
 ics
 !ics/
+docs/docs.go
