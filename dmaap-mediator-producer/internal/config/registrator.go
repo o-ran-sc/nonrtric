@@ -73,7 +73,8 @@ func NewRegistratorImpl(infoCoordAddr string, client restclient.HTTPClient) *Reg
 
 func (r RegistratorImpl) RegisterTypes(jobTypes []TypeDefinition) error {
 	for _, jobType := range jobTypes {
-		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, jobType.TypeSchema)
+		s, _ := json.Marshal(jobType.TypeSchema)
+		body := fmt.Sprintf(`{"info_job_data_schema": %v}`, string(s))
 		if error := restclient.Put(r.infoCoordinatorAddress+registerTypePath+url.PathEscape(jobType.Identity), []byte(body), r.httpClient); error != nil {
 			return error
 		}
