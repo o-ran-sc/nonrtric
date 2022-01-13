@@ -388,7 +388,7 @@ func TestJobWithBufferedParameters_shouldSendMessagesTogether(t *testing.T) {
 	distributeClientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == "http://consumerHost/target" {
 			assertions.Equal(req.Method, "POST")
-			assertions.Equal(`"[{\"data\": 1},{\"data\": 2}]"`, getBodyAsString(req, t))
+			assertions.Equal(`["{\"data\": 1}","{\"data\": 2}","ABCDEFGH"]`, getBodyAsString(req, t))
 			assertions.Equal("application/json", req.Header.Get("Content-Type"))
 			wg.Done()
 			return &http.Response{
@@ -418,6 +418,7 @@ func TestJobWithBufferedParameters_shouldSendMessagesTogether(t *testing.T) {
 	go func() {
 		jobUnderTest.messagesChannel <- []byte(`{"data": 1}`)
 		jobUnderTest.messagesChannel <- []byte(`{"data": 2}`)
+		jobUnderTest.messagesChannel <- []byte("ABCDEFGH")
 	}()
 
 	if waitTimeout(&wg, 2*time.Second) {
@@ -442,7 +443,7 @@ func TestJobReadMoreThanBufferSizeMessages_shouldOnlyReturnMaxSizeNoOfMessages(t
 		MaxTimeMiliseconds: 200,
 	})
 
-	assertions.Equal([]byte("\"[0,1]\""), msgs)
+	assertions.Equal([]byte("[\"0\",\"1\"]"), msgs)
 }
 func TestJobReadBufferedWhenTimeout_shouldOnlyReturnMessagesSentBeforeTimeout(t *testing.T) {
 	assertions := require.New(t)
@@ -461,7 +462,7 @@ func TestJobReadBufferedWhenTimeout_shouldOnlyReturnMessagesSentBeforeTimeout(t 
 		MaxTimeMiliseconds: 30,
 	})
 
-	assertions.Equal([]byte("\"[0,1]\""), msgs)
+	assertions.Equal([]byte("[\"0\",\"1\"]"), msgs)
 }
 
 func fillMessagesBuffer(mc chan []byte) {

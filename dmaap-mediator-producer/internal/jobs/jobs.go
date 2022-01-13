@@ -399,15 +399,18 @@ func (j *job) read(bufferParams BufferTimeout) []byte {
 }
 
 func getAsJSONArray(rawMsgs [][]byte) []byte {
-	json := `"[`
+	if len(rawMsgs) == 0 {
+		return []byte("")
+	}
+	json := "["
 	for i := 0; i < len(rawMsgs); i++ {
 		msg := string(rawMsgs[i])
-		json = json + strings.ReplaceAll(msg, "\"", "\\\"")
+		json = json + `"` + strings.ReplaceAll(msg, "\"", "\\\"") + `"`
 		if i < len(rawMsgs)-1 {
 			json = json + ","
 		}
 	}
-	return []byte(json + `]"`)
+	return []byte(json + "]")
 }
 
 func (j *job) waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
