@@ -16,6 +16,24 @@
       "message": "Can you please make sure this info is available int he other documentation (wiki \u0026 RTD) too. \nThanks. ",
       "revId": "6671c56046fb973965d12efe1fc55c37b8af9be4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9192befc_342d6a8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-01-13T09:32:28Z",
+      "side": 1,
+      "message": "Updated RTD, no need to update the wiki for these changes",
+      "parentUuid": "aa0555ff_21e06ddb",
+      "revId": "6671c56046fb973965d12efe1fc55c37b8af9be4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
