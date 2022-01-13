@@ -399,15 +399,30 @@ func (j *job) read(bufferParams BufferTimeout) []byte {
 }
 
 func getAsJSONArray(rawMsgs [][]byte) []byte {
-	json := `"[`
-	for i := 0; i < len(rawMsgs); i++ {
-		msg := string(rawMsgs[i])
-		json = json + strings.ReplaceAll(msg, "\"", "\\\"")
-		if i < len(rawMsgs)-1 {
-			json = json + ","
-		}
+	if len(rawMsgs) == 0 {
+		return []byte("")
 	}
-	return []byte(json + `]"`)
+	strings := ""
+	for i := 0; i < len(rawMsgs); i++ {
+		strings = strings + makeIntoString(rawMsgs[i])
+		strings = addSeparatorIfNeeded(strings, i, len(rawMsgs))
+	}
+	return []byte(wrapInJSONArray(strings))
+}
+
+func makeIntoString(rawMsg []byte) string {
+	return `"` + strings.ReplaceAll(string(rawMsg), "\"", "\\\"") + `"`
+}
+
+func addSeparatorIfNeeded(strings string, position, length int) string {
+	if position < length-1 {
+		strings = strings + ","
+	}
+	return strings
+}
+
+func wrapInJSONArray(strings string) string {
+	return "[" + strings + "]"
 }
 
 func (j *job) waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
