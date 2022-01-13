@@ -388,7 +388,7 @@ func TestJobWithBufferedParameters_shouldSendMessagesTogether(t *testing.T) {
 	distributeClientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == "http://consumerHost/target" {
 			assertions.Equal(req.Method, "POST")
-			assertions.Equal(`"[{\"data\": 1},{\"data\": 2}]"`, getBodyAsString(req, t))
+			assertions.Equal(`["{\"data\": 1}","{\"data\": 2}","ABCDEFG"]`, getBodyAsString(req, t))
 			assertions.Equal("application/json", req.Header.Get("Content-Type"))
 			wg.Done()
 			return &http.Response{
@@ -418,6 +418,7 @@ func TestJobWithBufferedParameters_shouldSendMessagesTogether(t *testing.T) {
 	go func() {
 		jobUnderTest.messagesChannel <- []byte(`{"data": 1}`)
 		jobUnderTest.messagesChannel <- []byte(`{"data": 2}`)
+		jobUnderTest.messagesChannel <- []byte("ABCDEFG")
 	}()
 
 	if waitTimeout(&wg, 2*time.Second) {
@@ -506,3 +507,4 @@ func getBodyAsString(req *http.Request, t *testing.T) string {
 	}
 	return buf.String()
 }
+
