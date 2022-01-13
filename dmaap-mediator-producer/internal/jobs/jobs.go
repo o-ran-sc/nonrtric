@@ -399,6 +399,9 @@ func (j *job) read(bufferParams BufferTimeout) []byte {
 }
 
 func getAsJSONArray(rawMsgs [][]byte) []byte {
+	if len(rawMsgs) == 0 {
+		return []byte("")
+	}
 	json := `"[`
 	for i := 0; i < len(rawMsgs); i++ {
 		msg := string(rawMsgs[i])
