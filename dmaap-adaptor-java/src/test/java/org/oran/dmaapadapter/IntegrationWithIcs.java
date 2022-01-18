@@ -22,6 +22,7 @@ package org.oran.dmaapadapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,8 +50,14 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @SuppressWarnings("java:S3577") // Rename class
 @ExtendWith(SpringExtension.class)
@@ -212,6 +219,31 @@ class IntegrationWithIcs {
         }
     }
 
+    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {
+        testErrorCode(request, expStatus, responseContains, true);
+    }
+
+    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains,
+            boolean expectApplicationProblemJsonMediaType) {
+        StepVerifier.create(request) //
+                .expectSubscription() //
+                .expectErrorMatches(
+                        t -> checkWebClientError(t, expStatus, responseContains, expectApplicationProblemJsonMediaType)) //
+                .verify();
+    }
+
+    private boolean checkWebClientError(Throwable throwable, HttpStatus expStatus, String responseContains,
+            boolean expectApplicationProblemJsonMediaType) {
+        assertTrue(throwable instanceof WebClientResponseException);
+        WebClientResponseException responseException = (WebClientResponseException) throwable;
+        assertThat(responseException.getStatusCode()).isEqualTo(expStatus);
+        assertThat(responseException.getResponseBodyAsString()).contains(responseContains);
+        if (expectApplicationProblemJsonMediaType) {
+            assertThat(responseException.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        }
+        return true;
+    }
+
     @Test
     void testCreateKafkaJob() {
         await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInIcs()).isTrue());
@@ -232,7 +264,24 @@ class IntegrationWithIcs {
     }
 
     @Test
-    void testWholeChain() throws Exception {
+    void testKafkaJobParameterOutOfRange() {
+
+        await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInIcs()).isTrue());
+        final String TYPE_ID = "KafkaInformationType";
+
+        Job.Parameters param = new Job.Parameters("filter", new Job.BufferTimeout(123, 170 * 1000), 1);
+
+        ConsumerJobInfo jobInfo =
+                new ConsumerJobInfo(TYPE_ID, jsonObject(gson.toJson(param)), "owner", consumerUri(), "");
+        String body = gson.toJson(jobInfo);
+
+        testErrorCode(restClient().put(jobUrl("KAFKA_JOB_ID"), body), HttpStatus.BAD_REQUEST,
+                "Json validation failure");
+
+    }
+
+    @Test
+    void testDmaapMessage() throws Exception {
         await().untilAsserted(() -> assertThat(producerRegstrationTask.isRegisteredInIcs()).isTrue());
 
         createInformationJobInIcs(DMAAP_TYPE_ID, DMAAP_JOB_ID, ".*DmaapResponse.*");
@@ -250,7 +299,6 @@ class IntegrationWithIcs {
         deleteInformationJobInIcs(DMAAP_JOB_ID);
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isZero());
-
     }
 
 }
