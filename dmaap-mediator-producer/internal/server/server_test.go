@@ -96,10 +96,10 @@ func TestAddInfoJobToJobsHandler(t *testing.T) {
 		mockReturn error
 	}
 	tests := []struct {
-		name         string
-		args         args
-		wantedStatus int
-		wantedBody   string
+		name            string
+		args            args
+		wantedStatus    int
+		wantedErrorInfo *ErrorInfo
 	}{
 		{
 			name: "AddInfoJobToJobsHandler with correct job, should return OK",
@@ -124,7 +124,10 @@ func TestAddInfoJobToJobsHandler(t *testing.T) {
 				mockReturn: errors.New("error"),
 			},
 			wantedStatus: http.StatusBadRequest,
-			wantedBody:   "Invalid job info. Cause: error",
+			wantedErrorInfo: &ErrorInfo{
+				Status: http.StatusBadRequest,
+				Detail: "Invalid job info. Cause: error",
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -141,7 +144,16 @@ func TestAddInfoJobToJobsHandler(t *testing.T) {
 			handler.ServeHTTP(responseRecorder, r)
 
 			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
-			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
+			if tt.wantedErrorInfo != nil {
+				var actualErrInfo ErrorInfo
+				err := json.Unmarshal(getBody(responseRecorder, t), &actualErrInfo)
+				if err != nil {
+					t.Error("Unable to unmarshal error body", err)
+					t.Fail()
+				}
+				assertions.Equal(*tt.wantedErrorInfo, actualErrInfo, tt.name)
+				assertions.Equal("application/problem+json", responseRecorder.Result().Header.Get("Content-Type"))
+			}
 			jobsHandlerMock.AssertCalled(t, "AddJobFromRESTCall", tt.args.job)
 		})
 	}
@@ -172,10 +184,10 @@ func TestSetLogLevel(t *testing.T) {
 		logLevel string
 	}
 	tests := []struct {
-		name         string
-		args         args
-		wantedStatus int
-		wantedBody   string
+		name            string
+		args            args
+		wantedStatus    int
+		wantedErrorInfo *ErrorInfo
 	}{
 		{
 			name: "Set to valid log level, should return OK",
@@ -190,7 +202,10 @@ func TestSetLogLevel(t *testing.T) {
 				logLevel: "bad",
 			},
 			wantedStatus: http.StatusBadRequest,
-			wantedBody:   "Invalid log level: bad",
+			wantedErrorInfo: &ErrorInfo{
+				Detail: "Invalid log level: bad. Log level will not be changed!",
+				Status: http.StatusBadRequest,
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -204,7 +219,16 @@ func TestSetLogLevel(t *testing.T) {
 			handler.ServeHTTP(responseRecorder, r)
 
 			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
-			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
+			if tt.wantedErrorInfo != nil {
+				var actualErrInfo ErrorInfo
+				err := json.Unmarshal(getBody(responseRecorder, t), &actualErrInfo)
+				if err != nil {
+					t.Error("Unable to unmarshal error body", err)
+					t.Fail()
+				}
+				assertions.Equal(*tt.wantedErrorInfo, actualErrInfo, tt.name)
+				assertions.Equal("application/problem+json", responseRecorder.Result().Header.Get("Content-Type"))
+			}
 		})
 	}
 }
@@ -221,4 +245,13 @@ func newRequest(method string, url string, jobInfo *jobs.JobInfo, t *testing.T) 
 		t.Fatalf("Could not create request due to: %v", err)
 		return nil
 	}
+}
+
+func getBody(responseRecorder *httptest.ResponseRecorder, t *testing.T) []byte {
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(responseRecorder.Body); err != nil {
+		t.Error("Unable to read error body", err)
+		t.Fail()
+	}
+	return buf.Bytes()
 }

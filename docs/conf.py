@@ -37,7 +37,7 @@ redoc = [
             {
                 'name': 'DMaaP Mediator Producer API',
                 'page': 'dmaap-mediator-producer-api',
-                'spec': '../dmaap-mediator-producer/docs/swagger.json',
+                'spec': '../dmaap-mediator-producer/api/swagger.json',
                 'embed': True,
             }
         ]

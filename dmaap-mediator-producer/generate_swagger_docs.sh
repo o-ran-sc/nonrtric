@@ -17,4 +17,6 @@
 #
 ##############################################################################
 
-swag init
+go get -u github.com/swaggo/swag/cmd/swag
+swag init --output api
+swag fmt
