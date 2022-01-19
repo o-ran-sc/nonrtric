@@ -114,39 +114,13 @@ func TestNew_envFaultyLogLevelConfigContainDefaultValues(t *testing.T) {
 	assertions.Contains(logString, "Invalid log level: wrong. Log level will be Info!")
 }
 
-const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}, {"id": "type2", "kafkaInputTopic": "TestTopic"}]}`
-const typeSchemaFileContent = `{
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"type": "object",
-	"properties": {
-	  "filter": {
-		 "type": "string"
-	   }
-	},
-	"additionalProperties": false
-  }`
-
-func TestGetTypesFromConfiguration_fileOkShouldReturnSliceOfTypeDefinitions(t *testing.T) {
+func TestGetJobTypesFromConfiguration_fileOkShouldReturnSliceOfTypeDefinitions(t *testing.T) {
 	assertions := require.New(t)
-	typesDir, err := os.MkdirTemp("", "configs")
-	if err != nil {
-		t.Errorf("Unable to create temporary directory for types due to: %v", err)
-	}
-	fname := filepath.Join(typesDir, "type_config.json")
+	typesDir := CreateTypeConfigFiles(t)
 	t.Cleanup(func() {
 		os.RemoveAll(typesDir)
 	})
-	if err = os.WriteFile(fname, []byte(typeDefinition), 0666); err != nil {
-		t.Errorf("Unable to create temporary config file for types due to: %v", err)
-	}
-	fname = filepath.Join(typesDir, "typeSchemaDmaap.json")
-	if err = os.WriteFile(fname, []byte(typeSchemaFileContent), 0666); err != nil {
-		t.Errorf("Unable to create temporary schema file for DMaaP type due to: %v", err)
-	}
-	fname = filepath.Join(typesDir, "typeSchemaKafka.json")
-	if err = os.WriteFile(fname, []byte(typeSchemaFileContent), 0666); err != nil {
-		t.Errorf("Unable to create temporary schema file for Kafka type due to: %v", err)
-	}
+
 	var typeSchemaObj interface{}
 	json.Unmarshal([]byte(typeSchemaFileContent), &typeSchemaObj)
 
@@ -165,4 +139,36 @@ func TestGetTypesFromConfiguration_fileOkShouldReturnSliceOfTypeDefinitions(t *t
 	wantedTypes := []TypeDefinition{wantedDMaaPType, wantedKafkaType}
 	assertions.EqualValues(wantedTypes, types)
 	assertions.Nil(err)
+}
+
+const typeDefinition = `{"types": [{"id": "type1", "dmaapTopicUrl": "events/unauthenticated.SEC_FAULT_OUTPUT/dmaapmediatorproducer/type1"}, {"id": "type2", "kafkaInputTopic": "TestTopic"}]}`
+const typeSchemaFileContent = `{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "object",
+	"properties": {
+	  "filter": {
+		 "type": "string"
+	   }
+	},
+	"additionalProperties": false
+  }`
+
+func CreateTypeConfigFiles(t *testing.T) string {
+	typesDir, err := os.MkdirTemp("", "configs")
+	if err != nil {
+		t.Errorf("Unable to create temporary directory for types due to: %v", err)
+	}
+	fname := filepath.Join(typesDir, "type_config.json")
+	if err = os.WriteFile(fname, []byte(typeDefinition), 0666); err != nil {
+		t.Errorf("Unable to create temporary config file for types due to: %v", err)
+	}
+	fname = filepath.Join(typesDir, "typeSchemaDmaap.json")
+	if err = os.WriteFile(fname, []byte(typeSchemaFileContent), 0666); err != nil {
+		t.Errorf("Unable to create temporary schema file for DMaaP type due to: %v", err)
+	}
+	fname = filepath.Join(typesDir, "typeSchemaKafka.json")
+	if err = os.WriteFile(fname, []byte(typeSchemaFileContent), 0666); err != nil {
+		t.Errorf("Unable to create temporary schema file for Kafka type due to: %v", err)
+	}
+	return typesDir
 }

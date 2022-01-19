@@ -60,6 +60,14 @@ func NewRouter(jm jobs.JobsManager, hcf func(http.ResponseWriter, *http.Request)
 	return r
 }
 
+// @Summary      Add info job
+// @Description  Callback for ICS to add an info job
+// @Tags         Data producer (callbacks)
+// @Accept       json
+// @Param        user  body  jobs.JobInfo  true  "Info job data"
+// @Success      200
+// @Failure      400  {string}  Cause  of  error
+// @Router       /info_job [post]
 func (h *ProducerCallbackHandler) addInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	b, readErr := ioutil.ReadAll(r.Body)
 	if readErr != nil {
@@ -76,6 +84,12 @@ func (h *ProducerCallbackHandler) addInfoJobHandler(w http.ResponseWriter, r *ht
 	}
 }
 
+// @Summary      Delete info job
+// @Description  Callback for ICS to delete an info job
+// @Tags         Data producer (callbacks)
+// @Param        infoJobId  path  string  true  "Info job ID"
+// @Success      200
+// @Router       /info_job/{infoJobId} [delete]
 func (h *ProducerCallbackHandler) deleteInfoJobHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars[jobIdToken]
@@ -87,6 +101,13 @@ func (h *ProducerCallbackHandler) deleteInfoJobHandler(w http.ResponseWriter, r 
 	h.jobsManager.DeleteJobFromRESTCall(id)
 }
 
+// @Summary      Set log level
+// @Description  Set the log level of the producer.
+// @Tags         Admin
+// @Param        level  query  string  false  "string enums"  Enums(Error, Warn, Info, Debug)
+// @Success      200
+// @Failure      400  {string}  Cause  of  error
+// @Router       /admin/log [put]
 func (h *ProducerCallbackHandler) setLogLevel(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	logLevelStr := query.Get(logLevelToken)
