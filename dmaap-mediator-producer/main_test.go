@@ -22,6 +22,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
@@ -40,7 +41,10 @@ import (
 func TestGenerateSwaggerDocs(t *testing.T) {
 	cmd := exec.Command("./generate_swagger_docs.sh")
 
-	cmd.Run()
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Error generating Swagger:", err)
+	}
 }
 
 func TestValidateConfiguration(t *testing.T) {

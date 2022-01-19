@@ -22,13 +22,14 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	_ "oransc.org/nonrtric/dmaapmediatorproducer/docs"
+	_ "oransc.org/nonrtric/dmaapmediatorproducer/api"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/config"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/kafkaclient"
@@ -45,8 +46,8 @@ func init() {
 	configuration = config.New()
 }
 
-// @title DMaaP Mediator Producer
-// @version 1.1.0
+// @title    DMaaP Mediator Producer
+// @version  1.1.0
 
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
@@ -130,24 +131,32 @@ func startCallbackServer(jobsManager jobs.JobsManager, callbackAddress string) {
 	}
 }
 
-// @Summary Get status
-// @Description Get the status of the producer. Will show if the producer has registered in ICS.
-// @Tags Data producer (callbacks)
-// @Success 200
-// @Router /health_check [get]
+type ProducerStatus struct {
+	// The registration status of the producer in Information Coordinator Service. Either `registered` or `not registered`
+	RegisteredStatus string `json:"registeredStatus" swaggertype:"string" example:"not registered"`
+} // @name  ProducerStatus
+
+// @Summary      Get status
+// @Description  Get the status of the producer. Will show if the producer has registered in ICS.
+// @Tags         Data producer (callbacks)
+// @Produce      json
+// @Success      200  {object}  ProducerStatus
+// @Router       /health_check [get]
 func statusHandler(w http.ResponseWriter, r *http.Request) {
-	registeredStatus := "not registered"
-	if registered {
-		registeredStatus = "registered"
+	status := ProducerStatus{
+		RegisteredStatus: "not registered",
 	}
-	fmt.Fprintf(w, `{"status": "%v"}`, registeredStatus)
+	if registered {
+		status.RegisteredStatus = "registered"
+	}
+	json.NewEncoder(w).Encode(status)
 }
 
-// @Summary Get Swagger Documentation
-// @Description Get the Swagger API documentation for the producer.
-// @Tags Admin
-// @Success 200
-// @Router /swagger [get]
+// @Summary      Get Swagger Documentation
+// @Description  Get the Swagger API documentation for the producer.
+// @Tags         Admin
+// @Success      200
+// @Router       /swagger [get]
 func addSwaggerHandler(r *mux.Router) {
 	r.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 }

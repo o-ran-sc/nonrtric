@@ -73,7 +73,7 @@ The API is also described in Swagger-JSON and YAML:
    :header: "API name", "|swagger-icon|", "|yaml-icon|"
    :widths: 10,5, 5
 
-   "DMaaP Mediator Producer API", ":download:`link <../dmaap-mediator-producer/docs/swagger.json>`", ":download:`link <../dmaap-mediator-producer/docs/swagger.yaml>`"
+   "DMaaP Mediator Producer API", ":download:`link <../dmaap-mediator-producer/api/swagger.json>`", ":download:`link <../dmaap-mediator-producer/api/swagger.yaml>`"
 
 Non-RT-RIC App Catalogue (Initial)
 ==================================

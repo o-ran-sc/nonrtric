@@ -51,7 +51,7 @@ type JobInfo struct {
 	InfoJobData      Parameters `json:"info_job_data"`
 	InfoTypeIdentity string     `json:"info_type_identity"`
 	sourceType       sourceType
-}
+} // @name JobInfo
 
 type JobTypesManager interface {
 	LoadTypesFromConfiguration(types []config.TypeDefinition) []config.TypeDefinition
@@ -327,12 +327,12 @@ func newJob(j JobInfo, c restclient.HTTPClient) job {
 
 type Parameters struct {
 	BufferTimeout BufferTimeout `json:"bufferTimeout"`
-}
+} // @name Parameters
 
 type BufferTimeout struct {
 	MaxSize            int   `json:"maxSize"`
 	MaxTimeMiliseconds int64 `json:"maxTimeMiliseconds"`
-}
+} // @name BufferTimeout
 
 func (j *job) start() {
 	if j.isJobBuffered() {
