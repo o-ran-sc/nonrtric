@@ -31,8 +31,15 @@ ADD /config/application.yaml /opt/app/r-app-catalogue/config/application.yaml
 ADD /config/r-app-catalogue-keystore.jks /opt/app/r-app-catalogue/etc/cert/keystore.jks
 ADD target/${JAR} /opt/app/r-app-catalogue/r-app-catalogue.jar
 
+ARG user=nonrtric
+ARG group=nonrtric
 
-RUN chmod -R 777 /opt/app/r-app-catalogue/config/
+RUN groupadd $user && \
+    useradd -r -g $group $user
+RUN chown -R $user:$group /opt/app/r-app-catalogue
+RUN chown -R $user:$group /var/log/r-app-catalogue
+
+USER ${user}
 
 CMD ["java", "-jar", "/opt/app/r-app-catalogue/r-app-catalogue.jar"]
 
