@@ -34,7 +34,7 @@ func main() {
 	flag.Parse()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={O-DU-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection={O-RU-ID}", handleData)
+	r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={O-DU-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={O-DU-ID}/radio-resource-management-policy-ratio=rrm-pol-1", handleData)
 
 	fmt.Println("Starting SDNR on port: ", *port)
 	fmt.Println(http.ListenAndServe(fmt.Sprintf(":%v", *port), r))

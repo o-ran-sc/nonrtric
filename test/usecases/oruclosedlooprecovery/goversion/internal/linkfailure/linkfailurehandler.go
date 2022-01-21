@@ -37,8 +37,8 @@ type Configuration struct {
 	SDNRPassword string
 }
 
-const rawSdnrPath = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=[O-RU-ID]"
-const unlockMessage = `{"o-ran-sc-du-hello-world:du-to-ru-connection": [{"name":"[O-RU-ID]","administrative-state":"UNLOCKED"}]}`
+const rawSdnrPath = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions=[O-DU-ID]/radio-resource-management-policy-ratio=rrm-pol-1"
+const unlockMessage = `{"o-ran-sc-du-hello-world:radio-resource-management-policy-ratio":[{"id":"rrm-pol-1","radio-resource-management-policy-max-ratio":25,"radio-resource-management-policy-members":[{"mobile-country-code":"310","mobile-network-code":"150","slice-differentiator":1,"slice-service-type":1}],"radio-resource-management-policy-min-ratio":15,"user-label":"rrm-pol-1","resource-type":"prb","radio-resource-management-policy-dedicated-ratio":20,"administrative-state":"unlocked"}]}`
 
 type LinkFailureHandler struct {
 	lookupService repository.LookupService
@@ -71,7 +71,7 @@ func (lfh LinkFailureHandler) MessagesHandler(w http.ResponseWriter, r *http.Req
 
 func (lfh LinkFailureHandler) sendUnlockMessage(oRuId string) {
 	if oDuId, err := lfh.lookupService.GetODuID(oRuId); err == nil {
-		sdnrPath := getSdnrPath(oRuId, oDuId)
+		sdnrPath := getSdnrPath(oDuId)
 		unlockMessage := lfh.getUnlockMessage(oRuId)
 		if error := restclient.Put(lfh.config.SDNRAddress+sdnrPath, unlockMessage, lfh.client, lfh.config.SDNRUser, lfh.config.SDNRPassword); error == nil {
 			log.Debugf("Sent unlock message for O-RU: %v to O-DU: %v.", oRuId, oDuId)
@@ -84,9 +84,8 @@ func (lfh LinkFailureHandler) sendUnlockMessage(oRuId string) {
 
 }
 
-func getSdnrPath(oRuId string, oDuId string) string {
-	sdnrPath := strings.Replace(rawSdnrPath, "[O-DU-ID]", oDuId, 1)
-	sdnrPath = strings.Replace(sdnrPath, "[O-RU-ID]", oRuId, 1)
+func getSdnrPath(oDuId string) string {
+	sdnrPath := strings.Replace(rawSdnrPath, "[O-DU-ID]", oDuId, -1)
 	return sdnrPath
 }
 
