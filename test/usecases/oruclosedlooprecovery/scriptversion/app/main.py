@@ -24,14 +24,29 @@ import requests
 import time
 
 MR_PATH = "/events/[TOPIC]/users/test/"
-SDNR_PATH = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=[O-RU-ID]"
+SDNR_PATH = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=[O-DU-ID]/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions=[O-DU-ID]/radio-resource-management-policy-ratio=rrm-pol-1"
 FAUILT_ID = "28"
 
 UNLOCK_MESSAGE = {
-    "o-ran-sc-du-hello-world:du-to-ru-connection": [
+    "o-ran-sc-du-hello-world:radio-resource-management-policy-ratio":
+    [
         {
-            "name":"",
-            "administrative-state":"UNLOCKED"
+            "id":"rrm-pol-1",
+            "radio-resource-management-policy-max-ratio":25,
+            "radio-resource-management-policy-members":
+                [
+                    {
+                        "mobile-country-code":"310",
+                        "mobile-network-code":"150",
+                        "slice-differentiator":1,
+                        "slice-service-type":1
+                    }
+                ],
+            "radio-resource-management-policy-min-ratio":15,
+            "user-label":"rrm-pol-1",
+            "resource-type":"prb",
+            "radio-resource-management-policy-dedicated-ratio":20,
+            "administrative-state":"unlocked"
         }
     ]
 }
@@ -71,8 +86,7 @@ def handle_link_failure(message, o_ru_to_o_du_map, sdnr_address, sdnr_user, sdnr
         o_du_id = o_ru_to_o_du_map[o_ru_id]
         verboseprint("O-DU ID: " + o_du_id)
         unlock_msg = json.loads(json.dumps(UNLOCK_MESSAGE))
-        unlock_msg["o-ran-sc-du-hello-world:du-to-ru-connection"][0]["name"] = o_ru_id
-        send_path = SDNR_PATH.replace("[O-DU-ID]", o_du_id).replace("[O-RU-ID]", o_ru_id)
+        send_path = SDNR_PATH.replace("[O-DU-ID]", o_du_id)
         requests.put(sdnr_address + send_path, auth=(sdnr_user, sdnr_pwd), json=unlock_msg)
     else:
         print("ERROR: No mapping for O-RU ID: " + o_ru_id)
