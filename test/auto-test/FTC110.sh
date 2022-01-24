@@ -31,7 +31,7 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
@@ -65,10 +65,6 @@ start_mr
 
 start_cr 1
 
-if [ $RUNMODE == "DOCKER" ]; then
-    start_consul_cbs
-fi
-
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
 if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
@@ -82,7 +78,12 @@ prepare_consul_config      NOSDNC  ".consul_config.json"
 if [ $RUNMODE == "KUBE" ]; then
     agent_load_config                       ".consul_config.json"
 else
-    consul_config_app                      ".consul_config.json"
+    if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+        api_put_configuration 200 ".consul_config.json"
+    else
+        start_consul_cbs
+        consul_config_app                   ".consul_config.json"
+    fi
 fi
 
 set_agent_debug

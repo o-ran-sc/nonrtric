@@ -17,22 +17,5 @@
 
 # Override file for running the e-release helm recipe including all components
 
-KUBE_A1SIM_NAMESPACE="nonrtric"
-KUBE_SDNC_NAMESPACE="nonrtric"
 
-RIC_SIM_PREFIX="a1-sim"
-RIC_SIM_COMMON_SVC_NAME="a1-sim"
-
-ICS_EXTERNAL_PORT=9082
-ICS_EXTERNAL_SECURE_PORT=9083
-
-POLICY_AGENT_EXTERNAL_PORT=9080
-POLICY_AGENT_EXTERNAL_SECURE_PORT=9081
-
-SDNC_EXTERNAL_PORT=8282
-SDNC_EXTERNAL_SECURE_PORT=8383
-
-RAPP_CAT_EXTERNAL_PORT=9085
-RAPP_CAT_EXTERNAL_SECURE_PORT=9086
-
-HELM_MANAGER_APP_NAME="helmmanager"
+POLICY_AGENT_IMAGE_BASE="aegis-onap-docker-local.artifactory.est.tech/onap/ccsdk-oran-a1policymanagementservice"

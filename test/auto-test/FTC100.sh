@@ -31,7 +31,7 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
@@ -109,8 +109,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
+
+        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+        sim_put_policy_type 201 ricsim_g1_1 2 testdata/OSC/sim_2.json
+
         if [ "$PMS_VERSION" == "V2" ]; then
             start_ric_simulators ricsim_g3 1  STD_2.0.0
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
         fi
 
         start_mr
@@ -123,10 +129,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
         fi
 
-        if [ $RUNMODE == "DOCKER" ]; then
-            start_consul_cbs
-        fi
-
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
             prepare_consul_config      SDNC    ".consul_config.json"
@@ -137,16 +139,42 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $RUNMODE == "KUBE" ]; then
             agent_load_config                       ".consul_config.json"
         else
-            consul_config_app                      ".consul_config.json"
+            if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+                #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+                if [ $__httpx == "HTTPS" ]; then
+                    use_agent_rest_https
+                else
+                    use_agent_rest_http
+                fi
+
+                if [[ $interface != *"DMAAP"* ]]; then
+                    echo "{}" > ".consul_config_incorrect.json"
+                    api_put_configuration 400 ".consul_config_incorrect.json"
+                fi
+
+                api_put_configuration 200 ".consul_config.json"
+                api_get_configuration 200 ".consul_config.json"
+                if [ $__httpx == "HTTPS" ]; then
+                    if [[ $interface = *"DMAAP"* ]]; then
+                        use_agent_dmaap_https
+                    else
+                        use_agent_rest_https
+                    fi
+                else
+                    if [[ $interface = *"DMAAP"* ]]; then
+                        use_agent_dmaap_http
+                    else
+                        use_agent_rest_http
+                    fi
+                fi
+
+            else
+                start_consul_cbs
+                consul_config_app                   ".consul_config.json"
+            fi
         fi
 
-        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
-        sim_put_policy_type 201 ricsim_g1_1 2 testdata/OSC/sim_2.json
-
         if [ "$PMS_VERSION" == "V2" ]; then
-            sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
-            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
-
             api_equal json:rics 3 300
 
             api_equal json:policy-types 5 120
@@ -178,6 +206,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         api_get_status 200
+
+        api_get_status_root 200
 
         echo "############################################"
         echo "##### Service registry and supervision #####"
@@ -384,6 +414,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
         else
             notificationurl=""
         fi
+        if [[ $interface != *"DMAAP"* ]]; then
+            # Badly formatted json is not possible to send via dmaap
+            api_put_policy 400 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi_bad_template.json
+        fi
         deviation "TR10 - agent allows policy creation on unregistered service (orig problem) - test combo $interface and $__httpx"
         #Kept until decison
         #api_put_policy 400 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json
@@ -410,6 +444,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 false $notificationurl testdata/STD2/pi_qos2_template.json
         fi
 
+        api_get_policy_status 404 1
+        api_get_policy_status 404 2
         VAL='NOT IN EFFECT'
         api_get_policy_status 200 5000 OSC "$VAL" "false"
         api_get_policy_status 200 5100 STD "UNDEFINED"

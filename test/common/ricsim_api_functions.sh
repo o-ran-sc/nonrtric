@@ -286,7 +286,7 @@ start_ric_simulators() {
 		export DOCKER_SIM_NWNAME
 		export RIC_SIM_DISPLAY_NAME
 
-		docker_args="--no-recreate --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
+		docker_args=" --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
 
 		#Create a list of contsiner names
 		#Will be <ricsim-prefix>_<service-name>_<index>

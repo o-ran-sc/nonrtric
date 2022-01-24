@@ -28,7 +28,8 @@ __print_args() {
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
-	echo "      [--override <override-environment-filename> --pre-clean --gen-stats]"
+	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
+	echo "      [--delete-containers] [--endpoint-stats]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -60,7 +61,9 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--override <file>     -  Override setting from the file supplied by --env-file"
 	echo "--pre-clean           -  Will clean kube resouces when running docker and vice versa"
 	echo "--gen-stats           -  Collect container/pod runtime statistics"
-
+	echo "--delete-namespaces   -  Delete kubernetes namespaces before starting tests - but only those created by the test scripts. Kube mode only. Ignored if running with prestarted apps."
+	echo "--delete-containers   -  Delete docker containers before starting tests - but only those created by the test scripts. Docker mode only."
+	echo "--endpoint-stats      -  Collect endpoint statistics"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -209,6 +212,7 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+
 # Create a http message log for this testcase
 HTTPLOG=$PWD"/.httplog_"$ATC".txt"
 echo "" > $HTTPLOG
@@ -232,6 +236,9 @@ rm $TESTLOGS/$ATC/*.log &> /dev/null
 rm $TESTLOGS/$ATC/*.txt &> /dev/null
 rm $TESTLOGS/$ATC/*.json &> /dev/null
 
+#Create result file in the log dir
+echo "1" > "$TESTLOGS/$ATC/.result$ATC.txt"
+
 # Log all output from the test case to a TC log
 TCLOG=$TESTLOGS/$ATC/TC.log
 exec &>  >(tee ${TCLOG})
@@ -249,6 +256,15 @@ PRINT_CURRENT_STATS=0
 #Var to control if container/pod runtim statistics shall be collected
 COLLECT_RUNTIME_STATS=0
 COLLECT_RUNTIME_STATS_PID=0
+
+#Var to control if endpoint statistics shall be collected
+COLLECT_ENDPOINT_STATS=0
+
+#Var to control if namespaces shall be delete before test setup
+DELETE_KUBE_NAMESPACES=0
+
+#Var to control if containers shall be delete before test setup
+DELETE_CONTAINERS=0
 
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
@@ -386,6 +402,44 @@ __log_conf_ok() {
 	__print_current_stats
 }
 
+# Function to collect stats on endpoints
+# args: <app-id> <end-point-no> <http-operation> <end-point-url> <http-status> [<count>]
+__collect_endpoint_stats() {
+	if [ $COLLECT_ENDPOINT_STATS -eq 0 ]; then
+		return
+	fi
+	ENDPOINT_COUNT=1
+	if [ $# -gt 5 ]; then
+		ENDPOINT_COUNT=$6
+	fi
+	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/endpoint_$ATC_$1_$2".log"
+	ENDPOINT_POS=0
+	ENDPOINT_NEG=0
+	if [ -f $ENDPOINT_STAT_FILE ]; then
+		ENDPOINT_VAL=$(< $ENDPOINT_STAT_FILE)
+		ENDPOINT_POS=$(echo $ENDPOINT_VAL | cut -f4 -d ' ' | cut -f1 -d '/')
+		ENDPOINT_NEG=$(echo $ENDPOINT_VAL | cut -f5 -d ' ' | cut -f1 -d '/')
+	fi
+
+	if [ $5 -ge 200 ] && [ $5 -lt 300 ]; then
+		let ENDPOINT_POS=ENDPOINT_POS+$ENDPOINT_COUNT
+	else
+		let ENDPOINT_NEG=ENDPOINT_NEG+$ENDPOINT_COUNT
+	fi
+
+	printf '%-2s %-10s %-45s %-16s %-16s' "#" "$3" "$4" "$ENDPOINT_POS/$ENDPOINT_POS" "$ENDPOINT_NEG/$ENDPOINT_NEG" > $ENDPOINT_STAT_FILE
+}
+
+# Function to collect stats on endpoints
+# args: <app-id> <image-info>
+__collect_endpoint_stats_image_info() {
+	if [ $COLLECT_ENDPOINT_STATS -eq 0 ]; then
+		return
+	fi
+	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/imageinfo_$ATC_$1".log"
+	echo $POLICY_AGENT_IMAGE > $ENDPOINT_STAT_FILE
+}
+
 #Var for measuring execution time
 TCTEST_START=$SECONDS
 
@@ -400,7 +454,7 @@ TC_TIMER_CURRENT_FAILS="" # Then numer of failed test when timer starts.
 TIMER_MEASUREMENTS=".timer_measurement.txt"
 echo -e "Activity \t Duration \t Info" > $TIMER_MEASUREMENTS
 
-# If this is set, some images (control by the parameter repo-polcy) will be re-tagged and pushed to this repo before any
+# If this is set, some images (controlled by the parameter repo-policy) will be re-tagged and pushed to this repo before any
 IMAGE_REPO_ADR=""
 IMAGE_REPO_POLICY="local"
 CLUSTER_TIME_OUT=0
@@ -718,6 +772,44 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			foundparm=0
 		fi
 	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--delete-namespaces" ]; then
+			if [ $RUNMODE == "DOCKER" ]; then
+				DELETE_KUBE_NAMESPACES=0
+				echo "Option ignored - Delete namespaces (ignored when running docker)"
+			else
+				if [ -z "KUBE_PRESTARTED_IMAGES" ]; then
+					DELETE_KUBE_NAMESPACES=0
+					echo "Option ignored - Delete namespaces (ignored when using prestarted apps)"
+				else
+					DELETE_KUBE_NAMESPACES=1
+					echo "Option set - Delete namespaces"
+				fi
+			fi
+			shift;
+			foundparm=0
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--delete-containers" ]; then
+			if [ $RUNMODE == "DOCKER" ]; then
+				DELETE_CONTAINERS=1
+				echo "Option set - Delete containers started by previous test(s)"
+			else
+				echo "Option ignored - Delete containers (ignored when running kube)"
+			fi
+			shift;
+			foundparm=0
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--endpoint-stats" ]; then
+			COLLECT_ENDPOINT_STATS=1
+			echo "Option set - Collect endpoint statistics"
+			shift;
+			foundparm=0
+		fi
+	fi
 
 done
 echo ""
@@ -931,7 +1023,7 @@ else
 
 			exit 1
 		fi
-		echo " Node(s) and container container runtime config"
+		echo " Node(s) and container runtime config"
 		kubectl get nodes -o wide | indent2
 	fi
 fi
@@ -1386,9 +1478,38 @@ setup_testenvironment() {
 	#Temp var to check for image pull errors
 	IMAGE_ERR=0
 
+	# Delete namespaces
+	echo -e $BOLD"Deleting namespaces"$EBOLD
+
+
+	if [ "$DELETE_KUBE_NAMESPACES" -eq 1 ]; then
+		test_env_namespaces=$(kubectl get ns  --no-headers -o custom-columns=":metadata.name" -l autotest=engine) #Get list of ns created by the test env
+		if [ $? -ne 0 ]; then
+			echo " Cannot get list of namespaces...ignoring delete"
+		else
+			for test_env_ns in $test_env_namespaces; do
+				__kube_delete_namespace $test_env_ns
+			done
+		fi
+	else
+		echo " Namespace delete option not set"
+	fi
+	echo ""
+
+	# Delete containers
+	echo -e $BOLD"Deleting containers"$EBOLD
+
+	if [ "$DELETE_CONTAINERS" -eq 1 ]; then
+		echo " Stopping containers label 'nrttest_app'..."
+		docker stop $(docker ps -qa  --filter "label=nrttest_app") 2> /dev/null
+		echo " Removing stopped containers..."
+		docker rm $(docker ps -qa  --filter "label=nrttest_app") 2> /dev/null
+	else
+		echo " Contatiner delete option not set"
+	fi
+	echo ""
+
 	# The following sequence pull the configured images
-
-
 	echo -e $BOLD"Pulling configured images, if needed"$EBOLD
 	if [ ! -z "$IMAGE_REPO_ADR" ] && [ $IMAGE_REPO_POLICY == "local" ]; then
 		echo -e $YELLOW" Excluding all remote image check/pull when running with image repo: $IMAGE_REPO_ADR and image policy $IMAGE_REPO_POLICY"$EYELLOW
@@ -1681,6 +1802,7 @@ print_result() {
 		fi
 		#Create file with OK exit code
 		echo "0" > "$AUTOTEST_HOME/.result$ATC.txt"
+		echo "0" > "$TESTLOGS/$ATC/.result$ATC.txt"
 	else
 		echo -e "One or more tests with status  \033[31m\033[1mFAIL\033[0m "
 		echo -e "\033[31m\033[1m  ___ _   ___ _    \033[0m"
@@ -1777,6 +1899,16 @@ __check_stop_at_error() {
 	if [ $STOP_AT_ERROR -eq 1 ]; then
 		echo -e $RED"Test script configured to stop at first FAIL, taking all logs and stops"$ERED
 		store_logs "STOP_AT_ERROR"
+
+		# Update test suite counter
+		if [ -f .tmp_tcsuite_fail_ctr ]; then
+			tmpval=$(< .tmp_tcsuite_fail_ctr)
+			((tmpval++))
+			echo $tmpval > .tmp_tcsuite_fail_ctr
+		fi
+		if [ -f .tmp_tcsuite_fail ]; then
+			echo " - "$ATC " -- "$TC_ONELINE_DESCR"  Execution stopped due to error" >> .tmp_tcsuite_fail
+		fi
 		exit 1
 	fi
 	return 0
@@ -2150,6 +2282,7 @@ __kube_create_namespace() {
 			echo "  Message: $(<./tmp/kubeerr)"
 			return 1
 		else
+			kubectl label ns $1 autotest=engine
 			echo -e " Creating namespace $1 $GREEN$BOLD OK $EBOLD$EGREEN"
 		fi
 	else
@@ -2501,6 +2634,7 @@ __print_err() {
 		echo -e $RED" Got: "${FUNCNAME[1]} ${@:2} $ERED
 	fi
 	((RES_CONF_FAIL++))
+	__check_stop_at_error
 }
 
 # Function to create the docker network for the test
@@ -2864,25 +2998,31 @@ __var_test() {
 					__check_stop_at_error
 					return
 				fi
-			elif [ $4 = "=" ] && [ "$result" -eq $5 ]; then
+			elif [ "$4" == "=" ] && [ "$result" -eq $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				__print_current_stats
 				return
-			elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
+			elif [ "$4" == ">" ] && [ "$result" -gt $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				__print_current_stats
 				return
-			elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
+			elif [ "$4" == "<" ] && [ "$result" -lt $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				__print_current_stats
 				return
-			elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
+			elif [ "$4" == ">=" ] && [ "$result" -ge $5 ]; then
+				((RES_PASS++))
+				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
+				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
+				__print_current_stats
+				return
+			elif [ "$4" == "contain_str" ] && [[ $result =~ $5 ]]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
@@ -2924,19 +3064,23 @@ __var_test() {
 			echo -e $RED" FAIL ${ERED}- ${3} ${4} ${5} not reached, result = ${result}"
 			__print_current_stats
 			__check_stop_at_error
-		elif [ $4 = "=" ] && [ "$result" -eq $5 ]; then
+		elif [ "$4" == "=" ] && [ "$result" -eq $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
 			__print_current_stats
-		elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
+		elif [ "$4" == ">" ] && [ "$result" -gt $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
 			__print_current_stats
-		elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
+		elif [ "$4" == "<" ] && [ "$result" -lt $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
 			__print_current_stats
-		elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
+		elif [ "$4" == ">=" ] && [ "$result" -ge $5 ]; then
+			((RES_PASS++))
+			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
+			__print_current_stats
+		elif [ "$4" == "contain_str" ] && [[ $result =~ $5 ]]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
 			__print_current_stats
