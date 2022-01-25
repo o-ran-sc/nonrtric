@@ -1752,7 +1752,7 @@ api_get_policy_status() {
 			return 1
 		fi
 	fi
-	__collect_endpoint_stats "PMS" 08 "GET" $PMS_API_PREFIX"/policies/{policy_id}/status" $status
+	__collect_endpoint_stats "PMS" 08 "GET" $PMS_API_PREFIX"/v2/policies/{policy_id}/status" $status
 	__log_test_pass
 	return 0
 }
