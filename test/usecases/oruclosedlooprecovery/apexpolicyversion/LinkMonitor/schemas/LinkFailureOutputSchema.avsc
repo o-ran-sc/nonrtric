@@ -1,26 +1,74 @@
 {
-    "type": "record",
-    "name": "Link_Failure_Output",
-    "fields": [
-        {
-            "name": "o_DasH_ran_DasH_sc_DasH_du_DasH_hello_DasH_world_ColoN_du_DasH_to_DasH_ru_DasH_connection",
-            "type": {
-        	"type": "array",
-        	"items": {
-		    "name": "Config_Change_Message",
-                    "type": "record",
-                    "fields": [
-                        {
-                            "name": "name",
-                            "type": "string"
-                        },
-			{
-                            "name": "administrative_DasH_state",
-                            "type": "string"
-                        }
-                    ]
+  "name": "Link_Failure_Output",
+  "type": "record",
+  "fields": [
+    {
+      "name": "o_DasH_ran_DasH_sc_DasH_du_DasH_hello_DasH_world_ColoN_radio_DasH_resource_DasH_management_DasH_policy_DasH_ratio",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "o_DasH_ran_DasH_sc_DasH_du_DasH_hello_DasH_world_ColoN_radio_DasH_resource_DasH_management_DasH_policy_DasH_ratio_record",
+          "type": "record",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_max_DasH_ratio",
+              "type": "int"
+            },
+            {
+              "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_members",
+              "type": {
+                "type": "array",
+                "items": {
+                  "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_members_record",
+                  "type": "record",
+                  "fields": [
+                    {
+                      "name": "mobile_DasH_country_DasH_code",
+                      "type": "string"
+                    },
+                    {
+                      "name": "mobile_DasH_network_DasH_code",
+                      "type": "string"
+                    },
+                    {
+                      "name": "slice_DasH_differentiator",
+                      "type": "int"
+                    },
+                    {
+                      "name": "slice_DasH_service_DasH_type",
+                      "type": "int"
+                    }
+                  ]
                 }
-	    }
+              }
+            },
+            {
+              "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_min_DasH_ratio",
+              "type": "int"
+            },
+            {
+              "name": "user_DasH_label",
+              "type": "string"
+            },
+            {
+              "name": "resource_DasH_type",
+              "type": "string"
+            },
+            {
+              "name": "radio_DasH_resource_DasH_management_DasH_policy_DasH_dedicated_DasH_ratio",
+              "type": "int"
+            },
+            {
+              "name": "administrative_DasH_state",
+              "type": "string"
+            }
+          ]
         }
-    ]
+      }
+    }
+  ]
 }
