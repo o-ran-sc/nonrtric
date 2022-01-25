@@ -28,12 +28,26 @@ var oduId = executor.inFields.get("OduId");
 var unlockMessageArray = new java.util.ArrayList();
 for (var i = 0; i < 1; i++) {
     unlockMessageArray.add({
-        "name" : oruId,
-        "administrative_DasH_state" : "UNLOCKED"
-    });
+            "id":"rrm-pol-1",
+            "radio_DasH_resource_DasH_management_DasH_policy_DasH_max_DasH_ratio":25,
+            "radio_DasH_resource_DasH_management_DasH_policy_DasH_members":
+                [
+                    {
+                        "mobile_DasH_country_DasH_code":"310",
+                        "mobile_DasH_network_DasH_code":"150",
+                        "slice_DasH_differentiator":1,
+                        "slice_DasH_service_DasH_type":1
+                    }
+                ],
+            "radio_DasH_resource_DasH_management_DasH_policy_DasH_min_DasH_ratio":15,
+            "user_DasH_label":"rrm-pol-1",
+            "resource_DasH_type":"prb",
+            "radio_DasH_resource_DasH_management_DasH_policy_DasH_dedicated_DasH_ratio":20,
+            "administrative_DasH_state":"unlocked"
+        });
 }
 
-linkFailureOutput.put("o_DasH_ran_DasH_sc_DasH_du_DasH_hello_DasH_world_ColoN_du_DasH_to_DasH_ru_DasH_connection", unlockMessageArray);
+linkFailureOutput.put("o_DasH_ran_DasH_sc_DasH_du_DasH_hello_DasH_world_ColoN_radio_DasH_resource_DasH_management_DasH_policy_DasH_ratio", unlockMessageArray);
 executor.outFields.put("LinkFailureOutput", linkFailureOutput.toString());
 
 executor.getExecutionProperties().setProperty("OduId", oduId);
