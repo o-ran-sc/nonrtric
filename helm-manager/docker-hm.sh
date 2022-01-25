@@ -25,10 +25,10 @@ docker run \
     --name helmmanagerservice \
     --network nonrtric-docker-net \
     -v $(pwd)/mnt/database:/var/helm-manager/database \
-    -v ~/.kube:/root/.kube \
-    -v ~/.helm:/root/.helm \
-    -v ~/.config/helm:/root/.config/helm \
-    -v ~/.cache/helm:/root/.cache/helm \
+    -v ~/.kube:/home/nonrtric/.kube \
+    -v ~/.helm:/home/nonrtric/.helm \
+    -v ~/.config/helm:/home/nonrtric/.config/helm \
+    -v ~/.cache/helm:/home/nonrtric/.cache/helm \
     -v $(pwd)/config/KubernetesParticipantConfig.json:/opt/app/helm-manager/src/main/resources/config/KubernetesParticipantConfig.json \
     -v $(pwd)/config/application.yaml:/opt/app/helm-manager/src/main/resources/config/application.yaml \
     nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-helm-manager:1.1.0-SNAPSHOT
