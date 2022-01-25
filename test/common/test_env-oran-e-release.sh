@@ -277,6 +277,7 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
+PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
@@ -539,10 +540,12 @@ DMAAP_MED_ALIVE_URL="/status"                            # Base path for alive c
 DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose
 #MAAP_MED_CONFIG_MOUNT_PATH="/app"                       # Internal container path for configuration
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
-DMAAP_MED_DATA_FILE="type_config.json"                   # Container data file name
+DMAAP_MED_HOST_DATA_FILE="type_config.json"              # Host data file name
+DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name
+DMAAP_MED_FEATURE_LEVEL=""                               # Space separated list of features
 
 KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
-KAFKAPC_DISPLAY_NAME="Kafaka Producer/Consumer"
+KAFKAPC_DISPLAY_NAME="Kafka Producer/Consumer"
 KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)
 KAFKAPC_INTERNAL_PORT=8090                               # Kafka procon container internal port (container -> container)
 KAFKAPC_EXTERNAL_SECURE_PORT=8097                        # Kafka procon container external secure port (host -> container)

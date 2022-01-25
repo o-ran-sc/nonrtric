@@ -367,6 +367,27 @@ cr_equal() {
 	fi
 }
 
+# Tests if a variable value in the CR is equal to or greater than the target value and and optional timeout.
+# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
+# equal to the target or not.
+# Arg: <cr-path-id> <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# before setting pass or fail depending on if the variable value becomes equal to or greater than the target
+# value or not.
+# (Function for test scripts)
+cr_greater_or_equal() {
+	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
+		CR_SERVICE_PATH=$(__cr_get_service_path $1)
+		CR_ADAPTER=$CR_SERVICE_PATH
+		if [ $? -ne 0 ]; then
+			__print_err "<cr-path-id> missing or incorrect" $@
+			return 1
+		fi
+		__var_test "CR" "$CR_SERVICE_PATH/counter/" $2 ">=" $3 $4
+	else
+		__print_err "Wrong args to cr_equal, needs three or four args: <cr-path-id>  <variable-name> <target-value> [ timeout ]" $@
+	fi
+}
+
 # Tests if a variable value in the CR contains the target string and and optional timeout
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable contains
 # the target or not.
@@ -391,7 +412,7 @@ cr_contains_str() {
 	fi
 }
 
-# Read a variable value from CR sim and send to stdout. Arg: <variable-name>
+# Read a variable value from CR sim and send to stdout. Arg: <cr-path-id> <variable-name>
 cr_read() {
 	CR_SERVICE_PATH=$(__cr_get_service_path $1)
 	CR_ADAPTER=$CR_SERVICE_PATH
@@ -399,7 +420,7 @@ cr_read() {
 		__print_err "<cr-path-id> missing or incorrect" $@
 		return  1
 	fi
-	echo "$(__do_curl $CR_SERVICE_PATH/counter/$1)"
+	echo "$(__do_curl $CR_SERVICE_PATH/counter/$2)"
 }
 
 # Function to configure write delay on callbacks

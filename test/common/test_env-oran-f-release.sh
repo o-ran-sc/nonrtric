@@ -60,10 +60,10 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 # Policy Agent base image and tags
 POLICY_AGENT_IMAGE_BASE="o-ran-sc/nonrtric-a1-policy-management-service"
-POLICY_AGENT_IMAGE_TAG_LOCAL="2.3.0-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.0-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="2.3.0"
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
+POLICY_AGENT_IMAGE_TAG_LOCAL="2.4.0-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.0-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE="2.4.0"
+POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="2.4.0"
 
 # ICS image and tags
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-information-coordinator-service"
@@ -131,17 +131,17 @@ RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.2.0"
 
 # DMAAP Mediator Service
 DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-dmaap-mediator-producer"
-DMAAP_MED_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
-DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
-DMAAP_MED_IMAGE_TAG_REMOTE="1.0.0"
-DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+DMAAP_MED_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
+DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
+DMAAP_MED_IMAGE_TAG_REMOTE="1.1.0"
+DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 # DMAAP Adapter Service
 DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-dmaap-adaptor"
-DMAAP_ADP_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE="1.0.0"
-DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+DMAAP_ADP_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE="1.1.0"
+DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 # Helm Manager
 HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-helm-manager"
@@ -149,18 +149,6 @@ HELM_MANAGER_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE="1.2.0"
 HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
-
-#Consul remote image and tag
-CONSUL_IMAGE_BASE="consul"
-CONSUL_IMAGE_TAG_REMOTE_PROXY="1.7.2"
-#No local image for Consul, remote image always used
-
-
-#CBS remote image and tag
-CBS_IMAGE_BASE="onap/org.onap.dcaegen2.platform.configbinding.app-app"
-CBS_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.3.0"
-#No local image for CBS, remote image always used
-
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
@@ -226,7 +214,7 @@ PROJECT_IMAGES_APP_NAMES="PA ICS CP RC RICSIM NGW DMAAPADP DMAAPMED HELMMANAGER"
 ORAN_IMAGES_APP_NAMES=""  # Not used
 
 # List of app short names which images pulled from ONAP
-ONAP_IMAGES_APP_NAMES="CBS DMAAPMR SDNC"   # SDNC added as ONAP image
+ONAP_IMAGES_APP_NAMES="DMAAPMR SDNC"   # SDNC added as ONAP image
 
 
 ########################################
@@ -277,6 +265,7 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
+PMS_FEATURE_LEVEL="NOCONSUL INITIALCONFIGMAP"            # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
@@ -350,21 +339,6 @@ PROD_STUB_JOB_CALLBACK="/callbacks/job"                  # Callback path for job
 PROD_STUB_SUPERVISION_CALLBACK="/callbacks/supervision"  # Callback path for producre supervision
 PROD_STUB_ALIVE_URL="/"                                  # Base path for alive check
 PROD_STUB_COMPOSE_DIR="prodstub"                         # Dir in simulator_group for docker-compose
-
-CONSUL_HOST="consul-server"                              # Host name of consul
-CONSUL_DISPLAY_NAME="Consul"
-CONSUL_EXTERNAL_PORT=8500                                # Consul container external port (host -> container)
-CONSUL_INTERNAL_PORT=8500                                # Consul container internal port (container -> container)
-CONSUL_APP_NAME="polman-consul"                          # Name for consul container
-CONSUL_ALIVE_URL="/ui/dc1/kv"                            # Base path for alive check
-CONSUL_CBS_COMPOSE_DIR="consul_cbs"                      # Dir in simulator group for docker compose
-
-CBS_APP_NAME="polman-cbs"                                # Name for CBS container
-CBS_DISPLAY_NAME="Config Binding Service"
-CBS_EXTERNAL_PORT=10000                                  # CBS container external port (host -> container)
-CBS_INTERNAL_PORT=10000                                  # CBS container internal port (container -> container)
-CONFIG_BINDING_SERVICE="config-binding-service"          # Host name of CBS
-CBS_ALIVE_URL="/healthcheck"                             # Base path for alive check
 
 RIC_SIM_DISPLAY_NAME="Near-RT RIC A1 Simulator"
 RIC_SIM_BASE="g"                                         # Base name of the RIC Simulator container, shall be the group code
@@ -535,14 +509,16 @@ DMAAP_MED_HOST_MNT_DIR="./mnt"                          # Mounted db dir, relati
 #MAAP_ADP_CONTAINER_MNT_DIR="/var/dmaap-adaptor-service" # Mounted dir in the container
 #DMAAP_MED_ACTUATOR="/actuator/loggers/org.oransc.information"   # Url for trace/debug
 #DMAAP_MED_CERT_MOUNT_DIR="./cert"
-DMAAP_MED_ALIVE_URL="/status"                            # Base path for alive check
+DMAAP_MED_ALIVE_URL="/health_check"                      # Base path for alive check
 DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose
 #MAAP_MED_CONFIG_MOUNT_PATH="/app"                       # Internal container path for configuration
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
-DMAAP_MED_DATA_FILE="type_config.json"                   # Container data file name
+DMAAP_MED_HOST_DATA_FILE="type_config_1.json"            # Host data file name
+DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name
+DMAAP_MED_FEATURE_LEVEL="KAFKATYPES"                     # Space separated list of features
 
 KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
-KAFKAPC_DISPLAY_NAME="Kafaka Producer/Consumer"
+KAFKAPC_DISPLAY_NAME="Kafka Producer/Consumer"
 KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)
 KAFKAPC_INTERNAL_PORT=8090                               # Kafka procon container internal port (container -> container)
 KAFKAPC_EXTERNAL_SECURE_PORT=8097                        # Kafka procon container external secure port (host -> container)

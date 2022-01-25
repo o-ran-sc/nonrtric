@@ -27,8 +27,8 @@ spec:
         - name: https
           containerPort: $DMAAP_MED_INTERNAL_SECURE_PORT
         volumeMounts:
-        - mountPath: $DMAAP_MED_DATA_MOUNT_PATH/$DMAAP_MED_DATA_FILE
-          subPath: $DMAAP_MED_DATA_FILE
+        - mountPath: $DMAAP_MED_DATA_MOUNT_PATH/$DMAAP_MED_CONTR_DATA_FILE
+          subPath: $DMAAP_MED_CONTR_DATA_FILE
           name: dmaapadp-data-name
         env:
         - name: INFO_PRODUCER_HOST
@@ -41,6 +41,8 @@ spec:
           value: "$MR_SERVICE_PATH"
         - name: LOG_LEVEL
           value: Debug
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "$MR_KAFKA_SERVICE_PATH"
       volumes:
       - configMap:
           defaultMode: 420

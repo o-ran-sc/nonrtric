@@ -20,12 +20,17 @@
 TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
@@ -71,7 +76,9 @@ for interface in $TESTED_VARIANTS ; do
     start_mr
 
     if [ $RUNMODE == "DOCKER" ]; then
-        start_consul_cbs
+        if [[ "$PMS_FEATURE_LEVEL" != *"NOCONSUL"* ]]; then
+            start_consul_cbs
+        fi
     fi
 
     # Create first config
@@ -91,7 +98,11 @@ for interface in $TESTED_VARIANTS ; do
         prepare_consul_config      NOSDNC  ".consul_config_all.json"
     fi
 
-    start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+    if [ $RUNMODE == "KUBE" ] && [[ "$PMS_FEATURE_LEVEL" == *"INITIALCONFIGMAP"* ]]; then
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application2.yaml
+    else
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+    fi
 
     set_agent_trace
 
@@ -103,9 +114,19 @@ for interface in $TESTED_VARIANTS ; do
 
     #Load first config
     if [ $RUNMODE == "KUBE" ]; then
-        agent_load_config                      ".consul_config_initial.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"INITIALCONFIGMAP"* ]]; then
+            api_put_configuration 200              ".consul_config_initial.json"
+            api_get_configuration 200              ".consul_config_initial.json"
+        else
+            agent_load_config                      ".consul_config_initial.json"
+        fi
     else
-        consul_config_app                      ".consul_config_initial.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            api_put_configuration 200              ".consul_config_initial.json"
+            api_get_configuration 200              ".consul_config_initial.json"
+        else
+            consul_config_app                      ".consul_config_initial.json"
+        fi
     fi
 
     for ((i=1; i<=${NUM_RICS}; i++))
@@ -202,9 +223,19 @@ for interface in $TESTED_VARIANTS ; do
 
     #Load config with all rics
     if [ $RUNMODE == "KUBE" ]; then
-        agent_load_config                       ".consul_config_all.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"INITIALCONFIGMAP"* ]]; then
+            api_put_configuration 200              ".consul_config_all.json"
+            api_get_configuration 200              ".consul_config_all.json"
+        else
+            agent_load_config                      ".consul_config_all.json"
+        fi
     else
-        consul_config_app                       ".consul_config_all.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            api_put_configuration 200               ".consul_config_all.json"
+            api_get_configuration 200               ".consul_config_all.json"
+        else
+            consul_config_app                       ".consul_config_all.json"
+        fi
     fi
 
     api_equal json:rics 10 120
@@ -284,9 +315,19 @@ for interface in $TESTED_VARIANTS ; do
 
     # Load config with reduced number of rics
     if [ $RUNMODE == "KUBE" ]; then
-        agent_load_config                      ".consul_config_initial.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"INITIALCONFIGMAP"* ]]; then
+            api_put_configuration 200              ".consul_config_initial.json"
+            api_get_configuration 200              ".consul_config_initial.json"
+        else
+            agent_load_config                      ".consul_config_initial.json"
+        fi
     else
-        consul_config_app                      ".consul_config_initial.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            api_put_configuration 200              ".consul_config_initial.json"
+            api_get_configuration 200              ".consul_config_initial.json"
+        else
+            consul_config_app                      ".consul_config_initial.json"
+        fi
     fi
 
     api_equal json:rics 8 120
@@ -345,9 +386,19 @@ for interface in $TESTED_VARIANTS ; do
 
     # Load config with all rics
     if [ $RUNMODE == "KUBE" ]; then
-        agent_load_config                      ".consul_config_all.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"INITIALCONFIGMAP"* ]]; then
+            api_put_configuration 200              ".consul_config_all.json"
+            api_get_configuration 200              ".consul_config_all.json"
+        else
+            agent_load_config                      ".consul_config_all.json"
+        fi
     else
-        consul_config_app                      ".consul_config_all.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            api_put_configuration 200               ".consul_config_all.json"
+            api_get_configuration 200               ".consul_config_all.json"
+        else
+            consul_config_app                      ".consul_config_all.json"
+        fi
     fi
 
     api_equal json:rics 10 120

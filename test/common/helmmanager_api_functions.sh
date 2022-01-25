@@ -57,7 +57,7 @@ __HELMMANAGER_kube_scale_zero() {
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
 __HELMMANAGER_kube_scale_zero_and_wait() {
-	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-helmmanagerservice
+	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-"$HELM_MANAGER_APP_NAME"
 }
 
 # Delete all kube resouces for the app
@@ -196,7 +196,7 @@ start_helm_manager() {
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $HELM_MANAGER_APP_NAME deployment and service"
 			echo " Setting $HELM_MANAGER_APP_NAME replicas=1"
-			__kube_scale deployment $HELM_MANAGER_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__kube_scale sts $HELM_MANAGER_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 
 		if [ $retcode_i -eq 0 ]; then

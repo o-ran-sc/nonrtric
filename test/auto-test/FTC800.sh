@@ -30,7 +30,7 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
@@ -106,6 +106,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         mr_equal requests_submitted 0
 
+        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+        if [ "$PMS_VERSION" == "V2" ]; then
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+        fi
         if [[ $interface == "SDNC" ]]; then
             start_sdnc
             prepare_consul_config      SDNC    ".consul_config.json"
@@ -113,16 +117,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
 
-        if [ $RUNMODE == "DOCKER" ]; then
-            start_consul_cbs
-        fi
-
         if [ $RUNMODE == "KUBE" ]; then
             agent_load_config                       ".consul_config.json"
         else
-            consul_config_app                      ".consul_config.json"
+            if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+                api_put_configuration 200 ".consul_config.json"
+            else
+                start_consul_cbs
+                consul_config_app                   ".consul_config.json"
+            fi
         fi
-
 
         api_get_status 200
 
@@ -132,11 +136,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_print ricsim_g3_1 interface
         fi
 
-        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
-
         if [ "$PMS_VERSION" == "V2" ]; then
-            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
-
             api_equal json:policy-types 3 300  #Wait for the agent to refresh types from the simulators
         else
             api_equal json:policy_types 2 300  #Wait for the agent to refresh types from the simulators

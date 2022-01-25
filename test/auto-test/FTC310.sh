@@ -21,7 +21,12 @@
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config or pushed config"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM KUBEPROXY"
+
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL"
 
 #Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
@@ -36,6 +41,9 @@ setup_testenvironment
 
 if [ "$PMS_VERSION" == "V2" ]; then
     TESTED_VARIANTS="CONSUL NOCONSUL"
+    if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+        TESTED_VARIANTS="NOCONSUL"
+    fi
 else
     TESTED_VARIANTS="CONSUL"
 fi
@@ -140,7 +148,6 @@ for consul_conf in $TESTED_VARIANTS ; do
     fi
 
     check_policy_agent_logs
-    check_sdnc_logs
 
     store_logs          END_$consul_conf
 done

@@ -197,6 +197,9 @@ The script can be started with these arguments
 | `--override <file>` |  Override setting from the file supplied by --env-file |
 | `--pre-clean` |  Clean kube resouces when running docker and vice versa |
 | `--gen-stats`  | Collect container/pod runtime statistics |
+| `--delete-namespaces`  | Delete kubernetes namespaces before starting tests - but only those created by the test scripts. Kube mode only. Ignored if running with prestarted apps. |
+| `--delete-containers`  | Delete docker containers before starting tests - but only those created by the test scripts. Docker mode only. |
+| `--endpoint-stats`  | Collect http endpoint statistics |
 | `help` | Print this info along with the test script description and the list of app short names supported |
 
 ## Function: setup_testenvironment ##
@@ -402,10 +405,27 @@ With the timeout, the test waits up to the timeout seconds before setting pass o
 See the 'cr' dir for more details.
 | arg list |
 |--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+| `<cr-path-id> <variable-name> <target-value> [ <timeout-in-sec> ]` |
 
 | parameter | description |
 | --------- | ----------- |
+| `<cr-path-id>` |  Variable index to CR |
+| `<variable-name>` | Variable name in the CR  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: cr_greater_or_equal ##
+Tests if a variable value in the Callback Receiver (CR) simulator is equal to or greater than a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to or greater than the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'cr' dir for more details.
+| arg list |
+|--|
+| `<cr-path-id>  <variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<cr-path-id>` |  Variable index to CR |
 | `<variable-name>` | Variable name in the CR  |
 | `<target-value>` | Target value for the variable  |
 | `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
@@ -419,11 +439,12 @@ See the 'a1-interface' repo for more details.
 
 | arg list |
 |--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+| `<cr-path-id>  <variable-name> <target-value> [ <timeout-in-sec> ]` |
 
 
 | parameter | description |
 | --------- | ----------- |
+| `<cr-path-id>` |  Variable index to CR |
 | `<variable-name>` | Variable name in the CR  |
 | `<target-value>` | Target substring for the variable  |
 | `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
@@ -434,10 +455,11 @@ Reads the value of a variable in the CR simulator. The value is intended to be p
 See the 'mrstub' dir for more details.
 | arg list |
 |--|
-| `<variable-name>` |
+| `<cr-path-id> <variable-name>` |
 
 | parameter | description |
 | --------- | ----------- |
+| `<cr-path-id>` |  Variable index to CR |
 | `<variable-name>` | Variable name in the CR  |
 
 ## Function: cr_delay_callback ##
@@ -460,11 +482,12 @@ Check the contents of all ric events received for a callback id.
 
 | arg list |
 |--|
-| `<response-code> <id> [ EMPTY \| ( <ric-id> )+ ]` |
+| `<response-code> <cr-path-id>  <id> [ EMPTY \| ( <ric-id> )+ ]` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
+| `<cr-path-id>` | Variable index for CR  |
 | `<id>` | Id of the callback destination  |
 | `EMPTY` | Indicator for an empty list  |
 | `<ric-id>` | Id of the ric  |
@@ -475,11 +498,12 @@ Check the contents of all current status events for one id from ICS
 
 | arg list |
 |--|
-| `<response-code> <id> [ EMPTY \| ( <status> )+ ]` |
+| `<response-code> <cr-path-id> <id> [ EMPTY \| ( <status> )+ ]` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
+| `<cr-path-id>` | Variable index for CR  |
 | `<id>` | Id of the callback destination  |
 | `EMPTY` | Indicator for an empty list  |
 | `<status>` | Status string  |
@@ -490,11 +514,12 @@ Check the contents of all current subscription events for one id from ICS
 
 | arg list |
 |--|
-| `<response-code> <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]` |
+| `<response-code> <cr-path-id>  <id> [ EMPTY | ( <type-id> <schema> <registration-status> )+ ]` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
+| `<cr-path-id>` | Variable index for CR  |
 | `<id>` | Id of the callback destination  |
 | `EMPTY` | Indicator for an empty list  |
 | `<type-id>` | Id of the data type  |
@@ -507,7 +532,11 @@ Reset the callback receiver
 
 | arg list |
 |--|
-| - |
+| `<cr-path-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<cr-path-id>` | Variable index for CR  |
 
 ## Function: cr_api_check_all_genric_json_events ##
 
