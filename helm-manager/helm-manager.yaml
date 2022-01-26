@@ -63,7 +63,14 @@ spec:
   - name: helm-manager-service-pv
     persistentVolumeClaim:
       claimName: helm-manager-service-pvc
-
+  initContainers:
+  - name: change-ownership-container
+    image: busybox:latest
+    command: ["sh","-c","chown -R 999:1000 /var/helm-manager-service"]
+    resources: {}
+    volumeMounts:
+    - mountPath: /var/helm-manager-service
+      name: helm-manager-service-pv
 ---
 
 apiVersion: v1
