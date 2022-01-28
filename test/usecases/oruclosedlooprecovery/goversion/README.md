@@ -25,12 +25,15 @@ The configured public key and cerificate shall be PEM-encoded. A self signed cer
 
 ## Functionality
 
-The creation of the job is not done when the consumer is started. Instead the consumer provides a REST API where it can be started and stopped, described below.
+The creation of the job is not done when the consumer is started. Instead the consumer provides a REST API where it can be started and stopped, described below. The API is available on the host and port configured for the consumer
 
->- /start  Creates the job in ICS.
->- /stop   Deletes the job in ICS.
+>- /admin/start  Creates the job in ICS.
+>- /admin/stop   Deletes the job in ICS.
 
 If the consumer is shut down with a SIGTERM, it will also delete the job before exiting.
+
+There is also a status call provided in the REST API. This will return the running status of the consumer as JSON.
+>- /status  {"status": "started/stopped"}
 
 ## Development
 

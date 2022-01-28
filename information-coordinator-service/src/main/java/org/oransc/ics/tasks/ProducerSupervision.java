@@ -89,7 +89,7 @@ public class ProducerSupervision {
             .filter(infoJob -> !producer.isJobEnabled(infoJob)) //
             .flatMap(infoJob -> producerCallbacks.startInfoJob(producer, infoJob, Retry.max(1)), MAX_CONCURRENCY) //
             .collectList() //
-            .flatMapMany(startedJobs -> consumerCallbacks.notifyJobStatus(producer.getInfoTypes())) //
+            .flatMapMany(startedJobs -> consumerCallbacks.notifyJobStatus(producer.getInfoTypes(), infoProducers)) //
             .collectList();
     }
 

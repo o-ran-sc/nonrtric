@@ -39,7 +39,7 @@ MR_PATH = "/events/unauthenticated.SEC_FAULT_OUTPUT"
 # Server info
 HOST_IP = "::"
 HOST_PORT = 9990
-APP_URL = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=<string:o_du_id>/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=<string:o_ru_id>"
+APP_URL = "/rests/data/network-topology:network-topology/topology=topology-netconf/node=<string:o_du_id>/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions=<string:o_du_id2>/radio-resource-management-policy-ratio=rrm-pol-1"
 
 USERNAME = "admin"
 PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"
@@ -88,17 +88,17 @@ linkFailureMessage = {
 
 class AlarmClearThread (threading.Thread):
 
-    def __init__(self, sleep_time, o_ru_id):
+    def __init__(self, sleep_time, o_du_id):
         threading.Thread.__init__(self)
         self.sleep_time = sleep_time
-        self.o_ru_id = o_ru_id
+        self.o_du_id = o_du_id
 
     def run(self):
-        print(f'Sleeping: {self.sleep_time} before clearing O-DU: {self.o_ru_id}')
+        print(f'Sleeping: {self.sleep_time} before clearing O-DU: {self.o_du_id}')
         time.sleep(self.sleep_time)
         msg_as_json = json.loads(json.dumps(linkFailureMessage))
-        msg_as_json["event"]["commonEventHeader"]["sourceName"] = self.o_ru_id
-        print("Sedning alarm clear for O-RU: " + self.o_ru_id)
+        msg_as_json["event"]["commonEventHeader"]["sourceName"] = self.o_du_id
+        print("Sedning alarm clear for O-DU: " + self.o_du_id)
         requests.post(mr_host + ":" + mr_port + MR_PATH, json=msg_as_json);
 
 
@@ -118,10 +118,10 @@ def verify_password(username, password):
 @app.route(APP_URL,
     methods=['PUT'])
 @auth.login_required
-def sendrequest(o_du_id, o_ru_id):
-    print("Got request with O-DU ID: " + o_du_id + " and O-RU ID: " + o_ru_id)
+def sendrequest(o_du_id, o_du_id2):
+    print("Got request with O-DU ID: " + o_du_id)
     random_time = int(10 * random.random())
-    alarm_clear_thread = AlarmClearThread(random_time, o_ru_id)
+    alarm_clear_thread = AlarmClearThread(random_time, o_du_id)
     alarm_clear_thread.start()
 
     return Response(status=200)

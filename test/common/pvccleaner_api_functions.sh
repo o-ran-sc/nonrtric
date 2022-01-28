@@ -98,6 +98,12 @@ __PVCCLEANER_statisics_setup() {
 	echo ""
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__PVCCLEANER_test_requirements() {
+	:
+}
+
 #######################################################
 
 # This is a system app, all usage in testcase_common.sh

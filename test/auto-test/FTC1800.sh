@@ -26,7 +26,7 @@ DOCKER_INCLUDED_IMAGES="ICS PRODSTUB CR CP NGW KUBEPROXY"
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="ICS PRODSTUB CP CR KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
-KUBE_PRESTARTED_IMAGES=""
+KUBE_PRESTARTED_IMAGES="NGW"
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
@@ -34,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
+SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 

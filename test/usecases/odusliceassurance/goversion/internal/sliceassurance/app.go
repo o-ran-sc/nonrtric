@@ -39,7 +39,7 @@ const (
 )
 
 type App struct {
-	client          restclient.HTTPClient
+	client          *restclient.Client
 	metricsPolicies *structures.SliceAssuranceMeas
 }
 

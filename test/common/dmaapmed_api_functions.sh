@@ -104,6 +104,12 @@ __DMAAPMED_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__DMAAPMED_test_requirements() {
+	:
+}
+
 #######################################################
 
 # Set http as the protocol to use for all communication to the Dmaap mediator
@@ -159,7 +165,7 @@ __dmaapmed_export_vars() {
 
 	export DMAAP_MED_DATA_MOUNT_PATH
 	export DMAAP_MED_HOST_MNT_DIR
-	export DMAAP_MED_DATA_FILE
+	export DMAAP_MED_CONTR_DATA_FILE
 	export DMAAP_MED_DATA_CONFIGMAP_NAME=$DMAAP_MED_APP_NAME"-data"
 
 	if [ $1 == "PROXY" ]; then
@@ -182,6 +188,8 @@ __dmaapmed_export_vars() {
 	export DMAAP_MED_CONF_SELF_HOST=$(echo $DMAAP_MED_SERVICE_PATH | cut -d: -f1-2)
 	export DMAAP_MED_CONF_SELF_PORT=$(echo $DMAAP_MED_SERVICE_PATH | cut -d: -f3)
 	export MR_SERVICE_PATH
+	export MR_KAFKA_SERVICE_PATH
+
 }
 
 # Start the Dmaap mediator
@@ -227,7 +235,7 @@ start_dmaapmed() {
 			__dmaapmed_export_vars $1
 
 			# Create config map for data
-			data_json=$PWD/tmp/$DMAAP_MED_DATA_FILE
+			data_json=$PWD/tmp/$DMAAP_MED_CONTR_DATA_FILE
 			if [ $# -lt 2 ]; then
 				#create empty dummy file
 				echo "{}" > $data_json
@@ -262,7 +270,7 @@ start_dmaapmed() {
 
 		__dmaapmed_export_vars $1
 
-		dest_file=$SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_HOST_MNT_DIR/$DMAAP_MED_DATA_FILE
+		dest_file=$SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_HOST_MNT_DIR/$DMAAP_MED_CONTR_DATA_FILE
 
 		envsubst < $2 > $dest_file
 

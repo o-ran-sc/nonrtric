@@ -34,6 +34,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const ContentTypeJSON = "application/json"
+const ContentTypePlain = "text/plain"
+
 // HTTPClient interface
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
@@ -68,16 +71,16 @@ func Get(url string, client HTTPClient) ([]byte, error) {
 }
 
 func Put(url string, body []byte, client HTTPClient) error {
-	return do(http.MethodPut, url, body, client)
+	return do(http.MethodPut, url, body, ContentTypeJSON, client)
 }
 
-func Post(url string, body []byte, client HTTPClient) error {
-	return do(http.MethodPost, url, body, client)
+func Post(url string, body []byte, contentType string, client HTTPClient) error {
+	return do(http.MethodPost, url, body, contentType, client)
 }
 
-func do(method string, url string, body []byte, client HTTPClient) error {
+func do(method string, url string, body []byte, contentType string, client HTTPClient) error {
 	if req, reqErr := http.NewRequest(method, url, bytes.NewBuffer(body)); reqErr == nil {
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", contentType)
 		if response, respErr := client.Do(req); respErr == nil {
 			if isResponseSuccess(response.StatusCode) {
 				return nil

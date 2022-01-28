@@ -333,11 +333,11 @@ class ApplicationTest {
                 () -> assertThat(icsSimulatorController.testResults.registrationInfo.supportedTypeIds).hasSize(2));
     }
 
-    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {
+    public static void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {
         testErrorCode(request, expStatus, responseContains, true);
     }
 
-    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains,
+    public static void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains,
             boolean expectApplicationProblemJsonMediaType) {
         StepVerifier.create(request) //
                 .expectSubscription() //
@@ -346,7 +346,7 @@ class ApplicationTest {
                 .verify();
     }
 
-    private boolean checkWebClientError(Throwable throwable, HttpStatus expStatus, String responseContains,
+    private static boolean checkWebClientError(Throwable throwable, HttpStatus expStatus, String responseContains,
             boolean expectApplicationProblemJsonMediaType) {
         assertTrue(throwable instanceof WebClientResponseException);
         WebClientResponseException responseException = (WebClientResponseException) throwable;

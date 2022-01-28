@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-ISTANBUL ORAN-D-RELEASE ORAN-E-RELEASE"
+SUPPORTED_PROFILES="ONAP-ISTANBUL ONAP-JAKARTA ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -106,10 +106,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         set_agent_debug
 
-        if [ $RUNMODE == "DOCKER" ]; then
-            start_consul_cbs
-        fi
-
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
             prepare_consul_config      SDNC  ".consul_config.json"
@@ -120,7 +116,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $RUNMODE == "KUBE" ]; then
             agent_load_config                       ".consul_config.json"
         else
-            consul_config_app                      ".consul_config.json"
+            if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+                api_put_configuration 200 ".consul_config.json"
+            else
+                start_consul_cbs
+                consul_config_app                   ".consul_config.json"
+            fi
         fi
 
         start_cr 1

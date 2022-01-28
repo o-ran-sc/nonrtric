@@ -22,7 +22,7 @@ networks:
 
 services:
   db:
-    image: mysql/mysql-server:5.6
+    image: "${DB_IMAGE_BASE}:${DB_IMAGE_TAG}"
     container_name: sdnc-db
     networks:
       - default

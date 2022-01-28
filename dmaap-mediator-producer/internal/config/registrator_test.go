@@ -21,6 +21,7 @@
 package config
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -39,8 +40,17 @@ func TestRegisterTypes(t *testing.T) {
 		StatusCode: http.StatusCreated,
 	}, nil)
 
+	schemaString := `{
+		"type": "object",
+		"properties": {},
+		"additionalProperties": false
+		}`
+	var schemaObj interface{}
+	json.Unmarshal([]byte(schemaString), &schemaObj)
+
 	type1 := TypeDefinition{
-		Id: "Type1",
+		Identity:   "Type1",
+		TypeSchema: schemaObj,
 	}
 	types := []TypeDefinition{type1}
 
@@ -59,7 +69,7 @@ func TestRegisterTypes(t *testing.T) {
 	assertions.Equal("/data-producer/v1/info-types/Type1", actualRequest.URL.Path)
 	assertions.Equal("application/json", actualRequest.Header.Get("Content-Type"))
 	body, _ := ioutil.ReadAll(actualRequest.Body)
-	expectedBody := []byte(`{"info_job_data_schema": {"type": "object","properties": {},"additionalProperties": false}}`)
+	expectedBody := []byte(`{"info_job_data_schema": {"additionalProperties":false,"properties":{},"type":"object"}}`)
 	assertions.Equal(expectedBody, body)
 	clientMock.AssertNumberOfCalls(t, "Do", 1)
 }

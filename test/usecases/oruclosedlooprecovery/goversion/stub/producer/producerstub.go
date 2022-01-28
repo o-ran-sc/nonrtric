@@ -52,7 +52,7 @@ func createJobHandler(w http.ResponseWriter, r *http.Request) {
 
 	started = true
 	fmt.Println("Start pushing messages for job: ", id)
-	startPushingMessages()
+	go startPushingMessages()
 }
 
 func deleteJobHandler(w http.ResponseWriter, r *http.Request) {

@@ -26,13 +26,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.4.RELEASE</version>
+        <version>2.6.2</version>
         <relativePath />
     </parent>
     <groupId>org.o-ran-sc.nonrtric</groupId>
     <artifactId>r-app-catalogue</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-    <licenses>
+    <version>1.0.2-SNAPSHOT</version>
+        <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
@@ -43,8 +43,8 @@
         <swagger-annotations.version>1.5.22</swagger-annotations.version>
         <springfox.version>2.9.2</springfox.version>
         <jackson-databind-nullable.version>0.2.1</jackson-databind-nullable.version>
-        <openapi-generator-maven-plugin.version>4.3.1</openapi-generator-maven-plugin.version>
-        <swagger-codegen-maven-plugin.version>3.0.11</swagger-codegen-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>5.3.1</openapi-generator-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.31</swagger-codegen-maven-plugin.version>
         <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.24.3</spotless-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
