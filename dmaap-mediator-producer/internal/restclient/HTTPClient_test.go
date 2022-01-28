@@ -142,7 +142,7 @@ func TestPostOk(t *testing.T) {
 		StatusCode: http.StatusOK,
 	}, nil)
 
-	if err := Post("http://localhost:9990", []byte("body"), &clientMock); err != nil {
+	if err := Post("http://localhost:9990", []byte("body"), "application/json", &clientMock); err != nil {
 		t.Errorf("Put() error = %v, did not want error", err)
 	}
 	var actualRequest *http.Request
@@ -202,7 +202,7 @@ func Test_doErrorCases(t *testing.T) {
 				StatusCode: tt.args.mockReturnStatus,
 				Body:       ioutil.NopCloser(bytes.NewReader(tt.args.mockReturnBody)),
 			}, tt.args.mockReturnError)
-			err := do("PUT", tt.args.url, nil, &clientMock)
+			err := do("PUT", tt.args.url, nil, "", &clientMock)
 			assertions.Equal(tt.wantErr, err, tt.name)
 		})
 	}

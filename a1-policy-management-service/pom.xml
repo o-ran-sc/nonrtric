@@ -26,12 +26,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.3</version>
+        <version>2.6.2</version>
         <relativePath />
     </parent>
     <groupId>org.o-ran-sc.nonrtric</groupId>
-    <artifactId>policy-agent</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <artifactId>a1-policy-management-service</artifactId>
+    <version>2.3.1-SNAPSHOT</version>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -49,15 +49,12 @@
         <java.version>11</java.version>
         <springfox.version>3.0.0</springfox.version>
         <immutable.version>2.8.2</immutable.version>
-        <sdk.version>1.1.6</sdk.version>
-        <swagger.version>2.1.6</swagger.version>
-        <json.version>20190722</json.version>
-        <commons-net.version>3.6</commons-net.version>
+        <swagger.version>2.1.12</swagger.version>
+        <json.version>20211205</json.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.18.0</spotless-maven-plugin.version>
         <docker-maven-plugin>0.30.0</docker-maven-plugin>
-        <version.dmaap>1.1.11</version.dmaap>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
@@ -65,14 +62,19 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>30.0-jre</version>
+            <version>31.0.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.5.2</version>
+            <version>1.6.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -130,29 +132,14 @@
             <version>${json.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons-net.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.onap.dcaegen2.services.sdk.rest.services</groupId>
-            <artifactId>cbs-client</artifactId>
-            <version>${sdk.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.dmaap.messagerouter.dmaapclient</groupId>
-            <artifactId>dmaapClient</artifactId>
-            <version>${version.dmaap}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -309,7 +296,7 @@
                 <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>generate-policy-agent-image</id>
+                        <id>generate-a1-policy-management-service-image</id>
                         <phase>package</phase>
                         <goals>
                             <goal>build</goal>
@@ -318,7 +305,7 @@
                             <pullRegistry>${env.CONTAINER_PULL_REGISTRY}</pullRegistry>
                             <images>
                                 <image>
-                                    <name>o-ran-sc/nonrtric-policy-agent:${project.version}</name>
+                                    <name>o-ran-sc/nonrtric-a1-policy-management-service:${project.version}</name>
                                     <build>
                                         <cleanup>try</cleanup>
                                         <contextDir>${basedir}</contextDir>
@@ -335,7 +322,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>push-policy-agent-image</id>
+                        <id>push-a1-policy-management-service-image</id>
                         <goals>
                             <goal>build</goal>
                             <goal>push</goal>
@@ -345,7 +332,7 @@
                             <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
                             <images>
                                 <image>
-                                    <name>o-ran-sc/nonrtric-policy-agent:${project.version}</name>
+                                    <name>o-ran-sc/nonrtric-a1-policy-management-service:${project.version}</name>
                                     <build>
                                         <contextDir>${basedir}</contextDir>
                                         <dockerFile>Dockerfile</dockerFile>

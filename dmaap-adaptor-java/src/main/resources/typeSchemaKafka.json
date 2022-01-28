@@ -6,16 +6,20 @@
       "type": "string"
     },
     "maxConcurrency": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 1
     },
     "bufferTimeout": {
       "type": "object",
       "properties": {
         "maxSize": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 1
         },
         "maxTimeMiliseconds": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 160000
         }
       },
       "additionalProperties": false,

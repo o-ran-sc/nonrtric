@@ -69,17 +69,17 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # Policy Agent image and tags
 POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-POLICY_AGENT_IMAGE_TAG_LOCAL="1.2.4-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.4-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="1.2.4-STAGING-latest" #Will use snapshot repo
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.2.3"
+POLICY_AGENT_IMAGE_TAG_LOCAL="1.2.6-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.6-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE="1.2.6-STAGING-latest" #Will use snapshot repo
+POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.2.5"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.2.1-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.1-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.2.1-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.1"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.2.5-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.5-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.2.5-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.4"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
@@ -215,6 +215,7 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
+PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container

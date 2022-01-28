@@ -29,4 +29,13 @@ RUN apt-get install iputils-ping -y
 
 RUN pip install -r requirements.txt
 
+ARG user=nonrtric
+ARG group=nonrtric
+
+RUN groupadd $user && \
+    useradd -r -g $group $user
+RUN chown -R $user:$group /usr/src/app/
+
+USER ${user}
+
 CMD [ "python3", "-u", "main.py" ]

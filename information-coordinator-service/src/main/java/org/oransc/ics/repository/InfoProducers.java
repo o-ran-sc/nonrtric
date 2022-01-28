@@ -91,9 +91,9 @@ public class InfoProducers {
 
         producerCallbacks.startInfoJobs(producer, this.infoJobs) //
             .collectList() //
-            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(producer.getInfoTypes())) //
+            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(producer.getInfoTypes(), this)) //
             .collectList() //
-            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(previousTypes)) //
+            .flatMapMany(list -> consumerCallbacks.notifyJobStatus(previousTypes, this)) //
             .subscribe();
 
         return producer;
@@ -136,7 +136,7 @@ public class InfoProducers {
                 this.logger.error("Bug, no producer found");
             }
         }
-        this.consumerCallbacks.notifyJobStatus(producer.getInfoTypes()) //
+        this.consumerCallbacks.notifyJobStatus(producer.getInfoTypes(), this) //
             .subscribe();
     }
 

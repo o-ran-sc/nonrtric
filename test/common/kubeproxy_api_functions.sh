@@ -119,6 +119,12 @@ __KUBEPROXY_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__KUBEPROXY_test_requirements() {
+	:
+}
+
 #######################################################
 
 ## Access to Kube http proxy

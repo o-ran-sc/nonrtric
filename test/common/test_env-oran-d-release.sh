@@ -234,6 +234,7 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
+PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container

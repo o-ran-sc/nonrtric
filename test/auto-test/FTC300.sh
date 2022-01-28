@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -102,10 +102,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr 1
 
-        if [ $RUNMODE == "DOCKER" ]; then
-            start_consul_cbs
-        fi
-
         start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
         if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
@@ -126,7 +122,31 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $RUNMODE == "KUBE" ]; then
             agent_load_config                       ".consul_config.json"
         else
-            consul_config_app                      ".consul_config.json"
+            if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+                #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+                if [ $__httpx == "HTTPS" ]; then
+                    use_agent_rest_https
+                else
+                    use_agent_rest_http
+                fi
+                api_put_configuration 200 ".consul_config.json"
+                if [ $__httpx == "HTTPS" ]; then
+                    if [[ $interface = *"DMAAP"* ]]; then
+                        use_agent_dmaap_https
+                    else
+                        use_agent_rest_https
+                    fi
+                else
+                    if [[ $interface = *"DMAAP"* ]]; then
+                        use_agent_dmaap_http
+                    else
+                        use_agent_rest_http
+                    fi
+                fi
+            else
+                start_consul_cbs
+                consul_config_app                   ".consul_config.json"
+            fi
         fi
 
         api_get_status 200
@@ -170,7 +190,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g1_1 num_instances 0
 
-        sim_equal ricsim_g1_1 num_instances $NUM_POLICIES 300
+        if [[ $interface = *"SDNC"* ]]; then
+            deviation "Sync over SDNC seem to be slower from Jakarta version..."
+            sim_equal ricsim_g1_1 num_instances $NUM_POLICIES 2000
+        else
+            sim_equal ricsim_g1_1 num_instances $NUM_POLICIES 300
+        fi
 
         START_ID2=$(($START_ID+$NUM_POLICIES))
 
@@ -184,8 +209,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
         sim_post_delete_instances 200 ricsim_g2_1
 
         sim_equal ricsim_g2_1 num_instances 0
-
-        sim_equal ricsim_g2_1 num_instances $NUM_POLICIES 300
+        if [[ $interface = *"SDNC"* ]]; then
+            deviation "Sync over SDNC seem to be slower from Jakarta version..."
+            sim_equal ricsim_g2_1 num_instances $NUM_POLICIES 2000
+        else
+            sim_equal ricsim_g2_1 num_instances $NUM_POLICIES 300
+        fi
 
         api_delete_policy 204 $(($START_ID+47))
 
@@ -193,7 +222,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_post_delete_instances 200 ricsim_g1_1
 
-        sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
+        if [[ $interface = *"SDNC"* ]]; then
+            deviation "Sync over SDNC seem to be slower from Jakarta version..."
+            sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 2000
+        else
+            sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
+        fi
 
         api_delete_policy 204 $(($START_ID2+37))
 
@@ -203,9 +237,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_post_delete_instances 200 ricsim_g2_1
 
-        sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
+        if [[ $interface = *"SDNC"* ]]; then
+            deviation "Sync over SDNC seem to be slower from Jakarta version..."
+            sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 2000
 
-        sim_equal ricsim_g2_1 num_instances $(($NUM_POLICIES-3)) 300
+            sim_equal ricsim_g2_1 num_instances $(($NUM_POLICIES-3)) 2000
+        else
+            sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
+
+            sim_equal ricsim_g2_1 num_instances $(($NUM_POLICIES-3)) 300
+        fi
 
         api_equal json:policies $(($NUM_POLICIES-2+$NUM_POLICIES-3))
 

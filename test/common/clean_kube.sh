@@ -84,7 +84,7 @@ __kube_wait_for_zero_count() {
 __kube_delete_all_resources() {
 	echo " Delete all in namespace $1 ..."
 	namespace=$1
-	resources="deployments replicaset statefulset services pods configmaps pvc "
+	resources="deployments replicaset statefulset services pods configmaps pvc serviceaccounts"
 	for restype in $resources; do
 		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
@@ -97,8 +97,8 @@ __kube_delete_all_resources() {
 }
 
 __kube_delete_all_pv() {
-	echo " Delete pv ..."
-	resources="pv"
+	echo " Delete all non-namespaced resources ..."
+	resources="pv clusterrolebindings"
 	for restype in $resources; do
 		result=$(kubectl get $restype -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
