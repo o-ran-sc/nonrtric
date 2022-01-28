@@ -119,6 +119,12 @@ __KAFKAPC_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__KAFKAPC_test_requirements() {
+	:
+}
+
 #######################################################
 
 #######################################################

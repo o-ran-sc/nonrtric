@@ -45,6 +45,8 @@ fi
 # source function to do curl and check result
 . ../common/do_curl_function.sh
 
+RESP_CONTENT='*' #Dont check resp content type
+
 echo "=== CR hello world ==="
 RESULT="OK"
 do_curl GET / 200
@@ -56,6 +58,10 @@ do_curl POST /reset 200
 echo "=== Get counter - callbacks ==="
 RESULT="0"
 do_curl GET /counter/received_callbacks 200
+
+echo "=== Get counter - callback batches ==="
+RESULT="0"
+do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="
 RESULT="0"
@@ -91,6 +97,10 @@ echo "=== Get counter - callbacks ==="
 RESULT="2"
 do_curl GET /counter/received_callbacks 200
 
+echo "=== Get counter - callback batches ==="
+RESULT="2"
+do_curl GET /counter/received_callback_batches 200
+
 echo "=== Get counter - fetched events ==="
 RESULT="0"
 do_curl GET /counter/fetched_callbacks 200
@@ -104,6 +114,10 @@ echo "=== Get counter - callbacks ==="
 RESULT="2"
 do_curl GET /counter/received_callbacks?id=test 200
 
+echo "=== Get counter - callback batches ==="
+RESULT="2"
+do_curl GET /counter/received_callback_batches?id=test 200
+
 echo "=== Get counter - fetched events ==="
 RESULT="0"
 do_curl GET /counter/fetched_callbacks?id=test 200
@@ -116,6 +130,10 @@ do_curl GET /counter/current_messages?id=test 200
 echo "=== Get counter - callbacks ==="
 RESULT="0"
 do_curl GET /counter/received_callbacks?id=dummy 200
+
+echo "=== Get counter - callback batches ==="
+RESULT="0"
+do_curl GET /counter/received_callback_batches?id=dummy 200
 
 echo "=== Get counter - fetched events ==="
 RESULT="0"
@@ -142,6 +160,10 @@ echo "=== Get counter - callbacks ==="
 RESULT="2"
 do_curl GET /counter/received_callbacks 200
 
+echo "=== Get counter - callback batches ==="
+RESULT="2"
+do_curl GET /counter/received_callback_batches 200
+
 echo "=== Get counter - fetched events ==="
 RESULT="2"
 do_curl GET /counter/fetched_callbacks 200
@@ -154,6 +176,10 @@ do_curl GET /counter/current_messages 200
 echo "=== Get counter - callbacks ==="
 RESULT="2"
 do_curl GET /counter/received_callbacks?id=test 200
+
+echo "=== Get counter - callback batches ==="
+RESULT="2"
+do_curl GET /counter/received_callback_batches?id=test 200
 
 echo "=== Get counter - fetched events ==="
 RESULT="2"
@@ -185,6 +211,10 @@ echo "=== Get counter - callbacks ==="
 RESULT="5"
 do_curl GET /counter/received_callbacks 200
 
+echo "=== Get counter - callback batches ==="
+RESULT="5"
+do_curl GET /counter/received_callback_batches 200
+
 echo "=== Get counter - fetched events ==="
 RESULT="2"
 do_curl GET /counter/fetched_callbacks 200
@@ -197,6 +227,10 @@ do_curl GET /counter/current_messages 200
 echo "=== Get counter - callbacks ==="
 RESULT="1"
 do_curl GET /counter/received_callbacks?id=test1 200
+
+echo "=== Get counter - callback batches ==="
+RESULT="1"
+do_curl GET /counter/received_callback_batches?id=test1 200
 
 echo "=== Get counter - fetched events ==="
 RESULT="0"
@@ -214,6 +248,10 @@ echo "=== Get counter - callbacks ==="
 RESULT="5"
 do_curl GET /counter/received_callbacks 200
 
+echo "=== Get counter - callback batches ==="
+RESULT="5"
+do_curl GET /counter/received_callback_batches 200
+
 echo "=== Get counter - fetched events ==="
 RESULT="4"
 do_curl GET /counter/fetched_callbacks 200
@@ -222,6 +260,29 @@ echo "=== Get counter - current events ==="
 RESULT="1"
 do_curl GET /counter/current_messages 200
 
+echo "=== Send a request ==="
+RESULT="*"
+#create payload
+echo "[{\"DATA-MSG\":\"msg\"},{\"DATA-MSG\":\"msg\"}]" > .tmp.json
+do_curl POST '/callbacks-text/test' 200 .tmp.json
+
+echo "=== Get counter - callbacks ==="
+RESULT="7"
+do_curl GET /counter/received_callbacks 200
+
+echo "=== Get counter - callback batches ==="
+RESULT="6"
+do_curl GET /counter/received_callback_batches 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="4"
+do_curl GET /counter/fetched_callbacks 200
+
+echo "=== Get counter - current events ==="
+RESULT="3"
+do_curl GET /counter/current_messages 200
+
+
 echo "=== CR reset ==="
 RESULT="OK"
 do_curl GET /reset 200
@@ -229,6 +290,10 @@ do_curl GET /reset 200
 echo "=== Get counter - callbacks ==="
 RESULT="0"
 do_curl GET /counter/received_callbacks 200
+
+echo "=== Get counter - callback batches ==="
+RESULT="0"
+do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="
 RESULT="0"

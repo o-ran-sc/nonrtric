@@ -1,0 +1,232 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "DMaaP Mediator Producer",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.1.0"
+    },
+    "paths": {
+        "/admin/log": {
+            "put": {
+                "description": "Set the log level of the producer.",
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Set log level",
+                "parameters": [
+                    {
+                        "enum": [
+                            "Error",
+                            "Warn",
+                            "Info",
+                            "Debug"
+                        ],
+                        "type": "string",
+                        "description": "string enums",
+                        "name": "level",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Problem as defined in https://tools.ietf.org/html/rfc7807",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorInfo"
+                        },
+                        "headers": {
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/problem+json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health_check": {
+            "get": {
+                "description": "Get the status of the producer. Will show if the producer has registered in ICS.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Data producer (callbacks)"
+                ],
+                "summary": "Get status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/"
+                        }
+                    }
+                }
+            }
+        },
+        "/info_job": {
+            "post": {
+                "description": "Callback for ICS to add an info job",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Data producer (callbacks)"
+                ],
+                "summary": "Add info job",
+                "parameters": [
+                    {
+                        "description": "Info job data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/JobInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Problem as defined in https://tools.ietf.org/html/rfc7807",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorInfo"
+                        },
+                        "headers": {
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/problem+json"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/info_job/{infoJobId}": {
+            "delete": {
+                "description": "Callback for ICS to delete an info job",
+                "tags": [
+                    "Data producer (callbacks)"
+                ],
+                "summary": "Delete info job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Info job ID",
+                        "name": "infoJobId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/swagger": {
+            "get": {
+                "description": "Get the Swagger API documentation for the producer.",
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get Swagger Documentation",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "": {
+            "type": "object",
+            "properties": {
+                "registeredStatus": {
+                    "description": "The registration status of the producer in Information Coordinator Service. Either `registered` or `not registered`",
+                    "type": "string",
+                    "example": "registered"
+                }
+            }
+        },
+        "BufferTimeout": {
+            "type": "object",
+            "properties": {
+                "maxSize": {
+                    "type": "integer"
+                },
+                "maxTimeMiliseconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ErrorInfo": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "description": "A human-readable explanation specific to this occurrence of the problem.",
+                    "type": "string",
+                    "example": "Info job type not found"
+                },
+                "instance": {
+                    "description": "A URI reference that identifies the specific occurrence of the problem.",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+                    "type": "integer",
+                    "example": 400
+                },
+                "title": {
+                    "description": "A short, human-readable summary of the problem type.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "A URI reference that identifies the problem type.",
+                    "type": "string"
+                }
+            }
+        },
+        "JobInfo": {
+            "type": "object",
+            "properties": {
+                "info_job_data": {
+                    "$ref": "#/definitions/Parameters"
+                },
+                "info_job_identity": {
+                    "type": "string"
+                },
+                "info_type_identity": {
+                    "type": "string"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "target_uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "Parameters": {
+            "type": "object",
+            "properties": {
+                "bufferTimeout": {
+                    "$ref": "#/definitions/BufferTimeout"
+                }
+            }
+        }
+    }
+}

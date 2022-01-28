@@ -26,8 +26,13 @@ KUBE_INCLUDED_IMAGES=""
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" "
 
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES=""
+
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-ISTANBUL"
+SUPPORTED_PROFILES="ONAP-ISTANBUL ONAP-JAKARTA"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER"
 

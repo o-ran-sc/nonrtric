@@ -30,18 +30,25 @@ info:
 servers:
 - url: /
 tags:
+- name: A1-EI (callbacks)
+- name: Data producer (callbacks)
+  description: API implemented by data producers
+- name: Data consumer
+- name: Data consumer (callbacks)
 - name: A1-EI (registration)
   description: Data consumer EI job registration
 - name: A1-EI (callbacks)
   description: Data consumer EI job status callbacks
+- name: Service status
+- name: A1-EI (registration)
+- name: Data producer (registration)
 - name: Data producer (callbacks)
-  description: API implemented by data producers
 - name: Data producer (registration)
   description: API for data producers
-- name: Service status
-  description: API for monitoring of the service
 - name: Data consumer
   description: API for data consumers
+- name: Service status
+  description: API for monitoring of the service
 - name: Actuator
   description: Monitor and interact
   externalDocs:
@@ -118,7 +125,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'threaddump'
-      operationId: handle_2_1_3
+      operationId: threaddump_4
       responses:
         200:
           description: OK
@@ -348,7 +355,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'loggers'
-      operationId: handle_6
+      operationId: loggers_2
       responses:
         200:
           description: OK
@@ -361,7 +368,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'health-path'
-      operationId: handle_12
+      operationId: health-path_2
       responses:
         200:
           description: OK
@@ -389,7 +396,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'metrics-requiredMetricName'
-      operationId: handle_5
+      operationId: metrics-requiredMetricName_2
       parameters:
       - name: requiredMetricName
         in: path
@@ -466,7 +473,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'loggers-name'
-      operationId: handle_7
+      operationId: loggers-name_4
       parameters:
       - name: name
         in: path
@@ -486,7 +493,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'loggers-name'
-      operationId: handle_0
+      operationId: loggers-name_3
       parameters:
       - name: name
         in: path
@@ -617,7 +624,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'metrics'
-      operationId: handle_4
+      operationId: metrics_2
       responses:
         200:
           description: OK
@@ -630,7 +637,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'info'
-      operationId: handle_9
+      operationId: info_2
       responses:
         200:
           description: OK
@@ -923,7 +930,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'logfile'
-      operationId: handle_8
+      operationId: logfile_2
       responses:
         200:
           description: OK
@@ -1107,7 +1114,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'health'
-      operationId: handle_11
+      operationId: health_2
       responses:
         200:
           description: OK
@@ -1211,7 +1218,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'heapdump'
-      operationId: handle_10
+      operationId: heapdump_2
       responses:
         200:
           description: OK

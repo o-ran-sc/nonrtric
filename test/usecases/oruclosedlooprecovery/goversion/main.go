@@ -56,6 +56,7 @@ var configuration *config.Config
 var linkfailureConfig linkfailure.Configuration
 var lookupService repository.LookupService
 var consumerPort string
+var started bool
 
 func init() {
 	doInit()
@@ -130,6 +131,7 @@ func getRouter() *mux.Router {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", messageHandler.MessagesHandler).Methods(http.MethodPost).Name("messageHandler")
+	r.HandleFunc("/status", statusHandler).Methods(http.MethodGet).Name("status")
 	r.HandleFunc("/admin/start", startHandler).Methods(http.MethodPost).Name("start")
 	r.HandleFunc("/admin/stop", stopHandler).Methods(http.MethodPost).Name("stop")
 
@@ -164,6 +166,7 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Debug("Registered job.")
+	started = true
 }
 
 func stopHandler(w http.ResponseWriter, r *http.Request) {
@@ -173,6 +176,15 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Debug("Deleted job.")
+	started = false
+}
+
+func statusHandler(w http.ResponseWriter, r *http.Request) {
+	runStatus := "started"
+	if !started {
+		runStatus = "stopped"
+	}
+	fmt.Fprintf(w, `{"status": "%v"}`, runStatus)
 }
 
 func deleteOnShutdown(s chan os.Signal) {

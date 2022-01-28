@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="NGW"
+CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL"
+SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -110,14 +110,34 @@ for interface in $TESTED_VARIANTS ; do
 
     set_agent_trace
 
-    if [ $RUNMODE == "DOCKER" ]; then
-        start_consul_cbs
-    fi
-
     if [ $RUNMODE == "KUBE" ]; then
         agent_load_config                       ".consul_config.json"
     else
-        consul_config_app                      ".consul_config.json"
+        if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+            if [ $__httpx == "HTTPS" ]; then
+                use_agent_rest_https
+            else
+                use_agent_rest_http
+            fi
+            api_put_configuration 200 ".consul_config.json"
+            if [ $__httpx == "HTTPS" ]; then
+                if [[ $interface = *"DMAAP"* ]]; then
+                    use_agent_dmaap_https
+                else
+                    use_agent_rest_https
+                fi
+            else
+                if [[ $interface = *"DMAAP"* ]]; then
+                    use_agent_dmaap_http
+                else
+                    use_agent_rest_http
+                fi
+            fi
+        else
+            start_consul_cbs
+            consul_config_app                   ".consul_config.json"
+        fi
     fi
 
     # Check that all rics are synced in

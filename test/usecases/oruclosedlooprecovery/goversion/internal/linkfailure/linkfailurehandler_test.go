@@ -56,7 +56,7 @@ func Test_MessagesHandlerWithLinkFailure(t *testing.T) {
 
 	lookupServiceMock := mocks.LookupService{}
 
-	lookupServiceMock.On("GetODuID", mock.Anything).Return("HCL-O-DU-1122", nil)
+	lookupServiceMock.On("GetODuID", mock.Anything).Return("O-DU-1122", nil)
 
 	handlerUnderTest := NewLinkFailureHandler(&lookupServiceMock, Configuration{
 		SDNRAddress:  "http://localhost:9990",
@@ -78,21 +78,21 @@ func Test_MessagesHandlerWithLinkFailure(t *testing.T) {
 	assertions.Equal(http.MethodPut, actualRequest.Method)
 	assertions.Equal("http", actualRequest.URL.Scheme)
 	assertions.Equal("localhost:9990", actualRequest.URL.Host)
-	expectedSdnrPath := "/rests/data/network-topology:network-topology/topology=topology-netconf/node=HCL-O-DU-1122/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection=ERICSSON-O-RU-11220"
+	expectedSdnrPath := "/rests/data/network-topology:network-topology/topology=topology-netconf/node=O-DU-1122/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions=O-DU-1122/radio-resource-management-policy-ratio=rrm-pol-1"
 	assertions.Equal(expectedSdnrPath, actualRequest.URL.Path)
 	assertions.Equal("application/json; charset=utf-8", actualRequest.Header.Get("Content-Type"))
 	tempRequest, _ := http.NewRequest("", "", nil)
 	tempRequest.SetBasicAuth("admin", "pwd")
 	assertions.Equal(tempRequest.Header.Get("Authorization"), actualRequest.Header.Get("Authorization"))
 	body, _ := ioutil.ReadAll(actualRequest.Body)
-	expectedBody := []byte(`{"o-ran-sc-du-hello-world:du-to-ru-connection": [{"name":"ERICSSON-O-RU-11220","administrative-state":"UNLOCKED"}]}`)
+	expectedBody := []byte(`{"o-ran-sc-du-hello-world:radio-resource-management-policy-ratio":[{"id":"rrm-pol-1","radio-resource-management-policy-max-ratio":25,"radio-resource-management-policy-members":[{"mobile-country-code":"310","mobile-network-code":"150","slice-differentiator":1,"slice-service-type":1}],"radio-resource-management-policy-min-ratio":15,"user-label":"rrm-pol-1","resource-type":"prb","radio-resource-management-policy-dedicated-ratio":20,"administrative-state":"unlocked"}]}`)
 	assertions.Equal(expectedBody, body)
 	clientMock.AssertNumberOfCalls(t, "Do", 1)
 
 	logString := buf.String()
 	assertions.Contains(logString, "Sent unlock message")
 	assertions.Contains(logString, "O-RU: ERICSSON-O-RU-11220")
-	assertions.Contains(logString, "O-DU: HCL-O-DU-1122")
+	assertions.Contains(logString, "O-DU: O-DU-1122")
 }
 
 func newRequest(method string, url string, bodyAsBytes []byte, t *testing.T) *http.Request {
@@ -117,7 +117,7 @@ func Test_MessagesHandlerWithClearLinkFailure(t *testing.T) {
 
 	lookupServiceMock := mocks.LookupService{}
 
-	lookupServiceMock.On("GetODuID", mock.Anything).Return("HCL-O-DU-1122", nil)
+	lookupServiceMock.On("GetODuID", mock.Anything).Return("O-DU-1122", nil)
 
 	handlerUnderTest := NewLinkFailureHandler(&lookupServiceMock, Configuration{}, nil)
 

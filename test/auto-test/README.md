@@ -1,7 +1,7 @@
 # Overview
 
 The bash scripts in this dir are intended for function test of the Non-RT RIC in different configurations, using simulators when needed for the external interfaces.
-A few of the bash scripts are so called 'suites', These suite scripts calls a sequence of the other bash scripts.
+A few of the bash scripts are so called 'suites', These suite scripts calls a sequence of the other bash test scripts.
 
 ## Automated test scripts
 
@@ -9,11 +9,12 @@ There are two types of scripts, filenames in the format FTCXXX.sh test one or mo
 FTC is short for Function Test Case. In addition, there are also other test scripts with other naming format used for demo setup etc (e.g PM_DEMO.sh).
 
 The requirements, in terms of the execution enviroment, to run a script or a suite is to have docker, docker-compose and python3 installed (the scripts warns if not installed). As an option, the scripts can also be executed in a Minikube or Kubernetes installation. The additional requirement is to have a clean minikube/kubernetes installation, perferably with the kube dashboard installed.
-The scripts have been tested to work on both MacOS and Ubuntu using docker. They should work also in git-bash on windows (for docker) but only partly verified. Running using minikube has only been verified on Ubuntu and running on kubernetes has only been verified on MacOS.
+The scripts have been tested to work on both MacOS and Ubuntu using docker. They should work also in git-bash on windows (for docker) but only partly verified. Running using minikube has only been verified on Ubuntu and running on kubernetes has been verified on MacOS and Ubuntu. Successful sample tests has been made on google cloud.
 
 ## Configuration
 
-The test scripts uses configuration from a single file, found in `../common/test_env.sh`, which contains all needed configuration in terms of image names, image tags, ports, file paths, passwords etc. This file can be modified if needed.  See the README.md in  `../common/` for all details of the config file.
+The test scripts uses configuration from a single profile file, found in `../common/test_env-*.sh`, which contains all needed configuration in terms of image names, image tags, ports, file paths, passwords etc. There is one profile file for system (ORAN/ONAP) and release.
+If temporary changes are needed to the settings in a profile file, use an override file containing only the variable to override.
 
 ## How to run
 
@@ -30,7 +31,7 @@ Each test script prints out the overall result of the tests in the end of the ex
 The test scripts produce quite a number of logs; all container logs, a log of all http/htps calls from the test scripts including the payload, some configuration created during test and also a test case log (same as what is printed on the screen during execution). All these logs are stored in `logs/FTCXXX/`. So each test script is using its own log directory.
 
 To test all components on a very basic level, run the demo test script(s) for the desired release.
-Note that oran tests only include components from oran.
+Note that oran tests only include components from oran (exception is the onap sdnc).
 Note that onap test uses components from onap combined with released oran components available at that onap release (e.g. Honolulu contains onap images from honolulu and oran images from cherry)
 
 
@@ -81,23 +82,25 @@ ONAP ISTANBUL
 The test script are number using these basic categories where 0-999 are releated to the policy managment and 1000-1999 are related to information management. 2000-2999 are for southbound http proxy. There are also demo test cases that test more or less all components. These test scripts does not use the numbering scheme below.
 
 The numbering in each series corresponds to the following groupings
-1-99 - Basic sanity tests
+1-99 - Basic sanity tests, PMS
 
-100-199 - API tests
+100-199 - API tests, PMS
 
-300-399 - Config changes and sync
+300-399 - Config changes and sync, PMS
 
-800-899 - Stability and capacity test
+800-899 - Stability and capacity test, PMS
 
-900-999 - Misc test
+900-999 - Misc test, PMS
 
 11XX - ICS API Tests
 
 18XX - ICS Stability and capacity test
 
-2000 - Southbound http proxy tests
+20XX - Southbound http proxy tests
 
 30XX - rApp tests
+
+40XX - Helm Manager tests
 
 Suites
 
@@ -121,7 +124,7 @@ TC_ONELINE_DESCR="<test case description>"
 DOCKER_INCLUDED_IMAGES=<list of used apps in this test case - for docker>
 
 KUBE_INCLUDED_IMAGES=<list of used apps (started by the script) in this test case - for kube>
-KUBE_PRESTARTED_IMAGES=<list of used apps (prestartedd - i.e. not started by the script) in this test case - for kube>
+KUBE_PRESTARTED_IMAGES=<list of used apps (prestarte - i.e. not started by the script) in this test case - for kube>
 
 SUPPORTED_PROFILES=<list of supported profile names>
 
@@ -140,6 +143,8 @@ setup_testenvironment
 
 
 #### TEST COMPLETE ####
+
+print_result
 
 store_logs          END
 
