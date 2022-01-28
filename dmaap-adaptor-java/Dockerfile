@@ -30,14 +30,22 @@ WORKDIR /opt/app/dmaap-adaptor-service
 RUN mkdir -p /var/log/dmaap-adaptor-service
 RUN mkdir -p /opt/app/dmaap-adaptor-service/etc/cert/
 RUN mkdir -p /var/dmaap-adaptor-service
-RUN chmod -R 777 /var/dmaap-adaptor-service
 
 ADD /config/application.yaml /opt/app/dmaap-adaptor-service/config/application.yaml
 ADD /config/application_configuration.json /opt/app/dmaap-adaptor-service/data/application_configuration.json_example
 ADD /config/keystore.jks /opt/app/dmaap-adaptor-service/etc/cert/keystore.jks
 ADD /config/truststore.jks /opt/app/dmaap-adaptor-service/etc/cert/truststore.jks
 
-RUN chmod -R 777 /opt/app/dmaap-adaptor-service/config/
+ARG user=nonrtric
+ARG group=nonrtric
+
+RUN groupadd $user && \
+    useradd -r -g $group $user
+RUN chown -R $user:$group /opt/app/dmaap-adaptor-service
+RUN chown -R $user:$group /var/log/dmaap-adaptor-service
+RUN chown -R $user:$group /var/dmaap-adaptor-service
+
+USER ${user}
 
 ADD target/${JAR} /opt/app/dmaap-adaptor-service/dmaap-adaptor.jar
 CMD ["java", "-jar", "/opt/app/dmaap-adaptor-service/dmaap-adaptor.jar"]

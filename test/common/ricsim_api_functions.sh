@@ -116,6 +116,12 @@ __RICSIM_statisics_setup() {
 	done
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__RICSIM_test_requirements() {
+	:
+}
+
 #######################################################
 
 
@@ -257,7 +263,6 @@ start_ric_simulators() {
 			done
 		fi
 	else
-
 		__check_included_image 'RICSIM'
 		if [ $? -eq 1 ]; then
 			echo -e $RED"The Near-RT RIC Simulator app is not included as managed in this test script"$ERED
@@ -281,7 +286,7 @@ start_ric_simulators() {
 		export DOCKER_SIM_NWNAME
 		export RIC_SIM_DISPLAY_NAME
 
-		docker_args="--no-recreate --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
+		docker_args=" --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
 
 		#Create a list of contsiner names
 		#Will be <ricsim-prefix>_<service-name>_<index>

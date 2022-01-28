@@ -61,7 +61,7 @@ func registerJob(port int) {
 	}
 	fmt.Println("Registering consumer: ", jobInfo)
 	body, _ := json.Marshal(jobInfo)
-	putErr := restclient.Put(fmt.Sprintf("http://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body, &httpClient)
+	putErr := restclient.Put(fmt.Sprintf("https://localhost:8083/data-consumer/v1/info-jobs/job%v", port), body, &httpClient)
 	if putErr != nil {
 		fmt.Println("Unable to register consumer: ", putErr)
 	}

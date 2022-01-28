@@ -48,6 +48,7 @@ HOST_PORT = 2222
 
 # Metrics vars
 cntr_msg_callbacks=0
+cntr_batch_callbacks=0
 cntr_msg_fetched=0
 cntr_callbacks={}
 hosts_set=set()
@@ -59,6 +60,7 @@ CALLBACK_TEXT_URL="/callbacks-text/<string:id>" # Callback for string of text
 APP_READ_URL="/get-event/<string:id>"
 APP_READ_ALL_URL="/get-all-events/<string:id>"
 DUMP_ALL_URL="/db"
+NULL_URL="/callbacks-null"  # Url for ignored callback. Callbacks are not checked, counted or stored
 
 MIME_TEXT="text/plain"
 MIME_JSON="application/json"
@@ -200,9 +202,11 @@ def events_write(id):
 
             if (id in cntr_callbacks.keys()):
                 cntr_callbacks[id][0] += 1
+                cntr_callbacks[id][2] += 1
             else:
                 cntr_callbacks[id]=[]
                 cntr_callbacks[id].append(1)
+                cntr_callbacks[id].append(0)
                 cntr_callbacks[id].append(0)
 
     except Exception as e:
@@ -223,6 +227,7 @@ def events_write(id):
 def events_write_mr(id):
     global msg_callbacks
     global cntr_msg_callbacks
+    global cntr_batch_callbacks
 
     storeas=request.args.get('storeas') #If set, store payload as a md5 hascode and dont log the payload
                                         #Large payloads will otherwise overload the server
@@ -232,6 +237,7 @@ def events_write_mr(id):
         if (storeas is None):
             print("raw data: str(request.data): "+str(request.data))
         do_delay()
+        list_data=False
         try:
             #if (request.content_type == MIME_JSON):
             if (MIME_JSON in request.content_type):
@@ -239,6 +245,7 @@ def events_write_mr(id):
                 msg_list = json.loads(data)
                 if (storeas is None):
                     print("Payload(json): "+str(msg_list))
+                list_data=True
             else:
                 msg_list=[]
                 print("Payload(content-type="+request.content_type+"). Setting empty json as payload")
@@ -249,6 +256,8 @@ def events_write_mr(id):
 
         with lock:
             remote_host_logging(request)
+            if (list_data):
+                cntr_batch_callbacks += 1
             for msg in msg_list:
                 if (storeas is None):
                     msg=json.loads(msg)
@@ -277,6 +286,9 @@ def events_write_mr(id):
                     cntr_callbacks[id]=[]
                     cntr_callbacks[id].append(1)
                     cntr_callbacks[id].append(0)
+                    cntr_callbacks[id].append(0)
+            if (id in msg_callbacks.keys() and list_data):
+                cntr_callbacks[id][2] += 1
 
     except Exception as e:
         print(CAUGHT_EXCEPTION+str(e))
@@ -294,6 +306,7 @@ def events_write_mr(id):
 def events_write_text(id):
     global msg_callbacks
     global cntr_msg_callbacks
+    global cntr_batch_callbacks
 
     storeas=request.args.get('storeas') #If set, store payload as a md5 hascode and dont log the payload
                                         #Large payloads will otherwise overload the server
@@ -306,26 +319,28 @@ def events_write_text(id):
 
         try:
             msg_list=None
+            list_data=False
             if (MIME_JSON in request.content_type):  #Json array of strings
                 msg_list=json.loads(request.data)
+                list_data=True
             else:
                 data=request.data.decode("utf-8")    #Assuming string
                 msg_list=[]
                 msg_list.append(data)
+            with lock:
+                cntr_batch_callbacks += 1
+                for msg in msg_list:
+                    if (storeas == "md5"):
+                        md5msg={}
+                        print("msg: "+str(msg))
+                        print("msg (endcode str): "+str(msg.encode('utf-8')))
+                        md5msg["md5"]=md5(msg.encode('utf-8')).hexdigest()
+                        msg=md5msg
+                        print("msg (data converted to md5 hash): "+str(msg["md5"]))
 
-            for msg in msg_list:
-                if (storeas == "md5"):
-                    md5msg={}
-                    print("msg: "+str(msg))
-                    print("msg (endcode str): "+str(msg.encode('utf-8')))
-                    md5msg["md5"]=md5(msg.encode('utf-8')).hexdigest()
-                    msg=md5msg
-                    print("msg (data converted to md5 hash): "+str(msg["md5"]))
+                    if (isinstance(msg, dict)):
+                        msg[TIME_STAMP]=str(datetime.now())
 
-                if (isinstance(msg, dict)):
-                    msg[TIME_STAMP]=str(datetime.now())
-
-                with lock:
                     cntr_msg_callbacks += 1
                     if (id in msg_callbacks.keys()):
                         msg_callbacks[id].append(msg)
@@ -339,6 +354,9 @@ def events_write_text(id):
                         cntr_callbacks[id]=[]
                         cntr_callbacks[id].append(1)
                         cntr_callbacks[id].append(0)
+                        cntr_callbacks[id].append(0)
+                if (id in cntr_callbacks.keys() and list_data):
+                    cntr_callbacks[id][2] += 1
         except Exception as e:
             print(CAUGHT_EXCEPTION+str(e))
             traceback.print_exc()
@@ -352,7 +370,13 @@ def events_write_text(id):
 
     return 'OK',200
 
-### Functions for test ###
+# Receive a callback message but ignore contents and return 200
+# URI and payload, (PUT or POST): /callbacks-text/<id> <text message>
+# response: OK 200
+@app.route(NULL_URL,
+    methods=['PUT','POST'])
+def null_url(id):
+    return 'OK',200
 
 # Dump the whole db of current callbacks
 # URI and parameter, (GET): /db
@@ -373,6 +397,18 @@ def requests_submitted():
 
     if (req_id in cntr_callbacks.keys()):
         return Response(str(cntr_callbacks[req_id][0]), status=200, mimetype=MIME_TEXT)
+    else:
+        return Response(str("0"), status=200, mimetype=MIME_TEXT)
+
+@app.route('/counter/received_callback_batches',
+    methods=['GET'])
+def batches_submitted():
+    req_id = request.args.get('id')
+    if (req_id is None):
+        return Response(str(cntr_batch_callbacks), status=200, mimetype=MIME_TEXT)
+
+    if (req_id in cntr_callbacks.keys()):
+        return Response(str(cntr_callbacks[req_id][2]), status=200, mimetype=MIME_TEXT)
     else:
         return Response(str("0"), status=200, mimetype=MIME_TEXT)
 
@@ -440,6 +476,7 @@ def reset():
     global msg_callbacks
     global cntr_msg_fetched
     global cntr_msg_callbacks
+    global cntr_batch_callbacks
     global cntr_callbacks
     global forced_settings
 
@@ -447,6 +484,7 @@ def reset():
         msg_callbacks={}
         cntr_msg_fetched=0
         cntr_msg_callbacks=0
+        cntr_batch_callbacks=0
         cntr_callbacks={}
         forced_settings['delay']=None
 

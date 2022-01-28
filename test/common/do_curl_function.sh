@@ -93,7 +93,9 @@ do_curl() {
         exit 1
     else
         echo "  OK, code: "$status"     (Expected)"
-        if [[ "$content_type" == *"$resp_content"* ]]; then
+        if [[ "$resp_content" == '*' ]]; then
+            :
+        elif [[ "$content_type" == *"$resp_content"* ]]; then
             echo "  Content type: "$content_type"     (Expected)"
         else
             echo "  Expected content type: "$resp_content

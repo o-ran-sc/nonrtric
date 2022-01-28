@@ -1,7 +1,7 @@
 #!/bin/bash
 ##############################################################################
 #
-#   Copyright (C) 2021: Nordix Foundation
+#   Copyright (C) 2022: Nordix Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,6 +17,6 @@
 #
 ##############################################################################
 
-go build
-
-go test ./...
+go get -u github.com/swaggo/swag/cmd/swag
+swag init --output api
+swag fmt

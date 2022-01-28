@@ -40,11 +40,6 @@ func New(httpClient *http.Client) *Client {
 	}
 }
 
-type HTTPClient interface {
-	Get(path string, v interface{}) error
-	Post(path string, payload interface{}, v interface{}) error
-}
-
 func (c *Client) Get(path string, v interface{}) error {
 	req, err := c.newRequest(http.MethodGet, path, nil)
 	if err != nil {

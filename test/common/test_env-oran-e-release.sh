@@ -59,7 +59,7 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 
 # Policy Agent base image and tags
-POLICY_AGENT_IMAGE_BASE="o-ran-sc/nonrtric-policy-agent"
+POLICY_AGENT_IMAGE_BASE="o-ran-sc/nonrtric-a1-policy-management-service"
 POLICY_AGENT_IMAGE_TAG_LOCAL="2.3.0-SNAPSHOT"
 POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.0-SNAPSHOT"
 POLICY_AGENT_IMAGE_TAG_REMOTE="2.3.0"
@@ -83,10 +83,10 @@ CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
 
 # Gateway image and tags
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
-NRT_GATEWAY_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE="1.1.0"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+NRT_GATEWAY_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE="1.0.0"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
 
 
 # SDNC A1 Controller image and tags - Note using released honolulu ONAP image
@@ -116,10 +116,10 @@ SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
 # RAPP Catalogue image and tags
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
-RAPP_CAT_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-RAPP_CAT_IMAGE_TAG_REMOTE="1.1.0"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+RAPP_CAT_IMAGE_TAG_LOCAL="1.0.1-SNAPSHOT"
+RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.1-SNAPSHOT"
+RAPP_CAT_IMAGE_TAG_REMOTE="1.0.1"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.0.1"
 
 
 # Near RT RIC Simulator image and tags - same version as cherry
@@ -142,6 +142,13 @@ DMAAP_ADP_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
 DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
 DMAAP_ADP_IMAGE_TAG_REMOTE="1.0.0"
 DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+
+# Helm Manager
+HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-helm-manager"
+HELM_MANAGER_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
+HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
+HELM_MANAGER_IMAGE_TAG_REMOTE="1.1.0"
+HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 #Consul remote image and tag
 CONSUL_IMAGE_BASE="consul"
@@ -207,8 +214,13 @@ KAFKAPC_IMAGE_BASE="kafka-procon"
 KAFKAPC_IMAGE_TAG_LOCAL="latest"
 #No local image for pvc cleaner, remote image always used
 
+#PVC Cleaner remote image and tag
+CHART_MUS_IMAGE_BASE="ghcr.io/helm/chartmuseum"
+CHART_MUS_IMAGE_TAG_REMOTE_OTHER="v0.13.1"
+#No local image for chart museum, remote image always used
+
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="PA ICS CP RC RICSIM NGW DMAAPADP DMAAPMED"  # Add SDNC here if oran image is used
+PROJECT_IMAGES_APP_NAMES="PA ICS CP RC RICSIM NGW DMAAPADP DMAAPMED HELMMANAGER"  # Add SDNC here if oran image is used
 
 # List of app short names which images pulled from ORAN
 ORAN_IMAGES_APP_NAMES=""  # Not used
@@ -265,6 +277,7 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
+PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
@@ -527,10 +540,12 @@ DMAAP_MED_ALIVE_URL="/status"                            # Base path for alive c
 DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose
 #MAAP_MED_CONFIG_MOUNT_PATH="/app"                       # Internal container path for configuration
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
-DMAAP_MED_DATA_FILE="type_config.json"                   # Container data file name
+DMAAP_MED_HOST_DATA_FILE="type_config.json"              # Host data file name
+DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name
+DMAAP_MED_FEATURE_LEVEL=""                               # Space separated list of features
 
 KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
-KAFKAPC_DISPLAY_NAME="Kafaka Producer/Consumer"
+KAFKAPC_DISPLAY_NAME="Kafka Producer/Consumer"
 KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)
 KAFKAPC_INTERNAL_PORT=8090                               # Kafka procon container internal port (container -> container)
 KAFKAPC_EXTERNAL_SECURE_PORT=8097                        # Kafka procon container external secure port (host -> container)
@@ -538,6 +553,28 @@ KAFKAPC_INTERNAL_SECURE_PORT=8091                        # Kafka procon containe
 KAFKAPC_ALIVE_URL="/"                               # Base path for alive check
 KAFKAPC_COMPOSE_DIR="kafka-procon"                       # Dir in simulator_group for docker-compose
 KAFKAPC_BUILD_DIR="kafka-procon"                         # Build dir
+
+CHART_MUS_APP_NAME="chartmuseum"                         # Name for the chart museum app
+CHART_MUS_DISPLAY_NAME="Chart Museum"
+CHART_MUS_EXTERNAL_PORT=8201                             # chart museum container external port (host -> container)
+CHART_MUS_INTERNAL_PORT=8080                             # chart museum container internal port (container -> container)
+CHART_MUS_ALIVE_URL="/health"                            # Base path for alive check
+CHART_MUS_COMPOSE_DIR="chartmuseum"                      # Dir in simulator_group for docker-compose
+CHART_MUS_CHART_CONTR_CHARTS="/tmp/charts"               # Local dir container for charts
+
+HELM_MANAGER_APP_NAME="helmmanagerservice"               # Name for the helm manager app
+HELM_MANAGER_DISPLAY_NAME="Helm Manager"
+HELM_MANAGER_EXTERNAL_PORT=8211                          # helm manager container external port (host -> container)
+HELM_MANAGER_INTERNAL_PORT=8083                          # helm manager container internal port (container -> container)
+HELM_MANAGER_EXTERNAL_SECURE_PORT=8212                   # helm manager container external secure port (host -> container)
+HELM_MANAGER_INTERNAL_SECURE_PORT=8443                   # helm manager container internal secure port (container -> container)
+HELM_MANAGER_CLUSTER_ROLE=cluster-admin                  # Kubernetes cluster role for helm manager
+HELM_MANAGER_SA_NAME=helm-manager-sa                     # Service account name
+HELM_MANAGER_ALIVE_URL="/helm/charts"                    # Base path for alive check
+HELM_MANAGER_COMPOSE_DIR="helmmanager"                   # Dir in simulator_group for docker-compose
+HELM_MANAGER_USER="helmadmin"
+HELM_MANAGER_PWD="itisasecret"
+
 ########################################
 # Setting for common curl-base function
 ########################################

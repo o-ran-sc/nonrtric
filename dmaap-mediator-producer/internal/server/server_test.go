@@ -34,20 +34,20 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"oransc.org/nonrtric/dmaapmediatorproducer/internal/jobs"
-	"oransc.org/nonrtric/dmaapmediatorproducer/mocks/jobhandler"
+	"oransc.org/nonrtric/dmaapmediatorproducer/mocks/jobshandler"
 )
 
 func TestNewRouter(t *testing.T) {
 	assertions := require.New(t)
 
-	r := NewRouter(nil)
-	statusRoute := r.Get("status")
+	r := NewRouter(nil, nil)
+	statusRoute := r.Get("health_check")
 	assertions.NotNil(statusRoute)
 	supportedMethods, err := statusRoute.GetMethods()
 	assertions.Equal([]string{http.MethodGet}, supportedMethods)
 	assertions.Nil(err)
 	path, _ := statusRoute.GetPathTemplate()
-	assertions.Equal("/status", path)
+	assertions.Equal("/health_check", path)
 
 	addJobRoute := r.Get("add")
 	assertions.NotNil(addJobRoute)
@@ -55,7 +55,7 @@ func TestNewRouter(t *testing.T) {
 	assertions.Equal([]string{http.MethodPost}, supportedMethods)
 	assertions.Nil(err)
 	path, _ = addJobRoute.GetPathTemplate()
-	assertions.Equal("/jobs", path)
+	assertions.Equal("/info_job", path)
 
 	deleteJobRoute := r.Get("delete")
 	assertions.NotNil(deleteJobRoute)
@@ -63,7 +63,7 @@ func TestNewRouter(t *testing.T) {
 	assertions.Equal([]string{http.MethodDelete}, supportedMethods)
 	assertions.Nil(err)
 	path, _ = deleteJobRoute.GetPathTemplate()
-	assertions.Equal("/jobs/{infoJobId}", path)
+	assertions.Equal("/info_job/{infoJobId}", path)
 
 	notFoundHandler := r.NotFoundHandler
 	handler := http.HandlerFunc(notFoundHandler.ServeHTTP)
@@ -88,20 +88,7 @@ func TestNewRouter(t *testing.T) {
 	assertions.Equal("/admin/log", path)
 }
 
-func TestStatusHandler(t *testing.T) {
-	assertions := require.New(t)
-
-	handler := http.HandlerFunc(statusHandler)
-	responseRecorder := httptest.NewRecorder()
-	r := newRequest(http.MethodGet, "/status", nil, t)
-
-	handler.ServeHTTP(responseRecorder, r)
-
-	assertions.Equal(http.StatusOK, responseRecorder.Code)
-	assertions.Equal("", responseRecorder.Body.String())
-}
-
-func TestAddInfoJobHandler(t *testing.T) {
+func TestAddInfoJobToJobsHandler(t *testing.T) {
 	assertions := require.New(t)
 
 	type args struct {
@@ -109,27 +96,27 @@ func TestAddInfoJobHandler(t *testing.T) {
 		mockReturn error
 	}
 	tests := []struct {
-		name         string
-		args         args
-		wantedStatus int
-		wantedBody   string
+		name            string
+		args            args
+		wantedStatus    int
+		wantedErrorInfo *ErrorInfo
 	}{
 		{
-			name: "AddInfoJobHandler with correct job, should return OK",
+			name: "AddInfoJobToJobsHandler with correct job, should return OK",
 			args: args{
 				job: jobs.JobInfo{
 					Owner:            "owner",
 					LastUpdated:      "now",
 					InfoJobIdentity:  "jobId",
 					TargetUri:        "target",
-					InfoJobData:      "{}",
+					InfoJobData:      jobs.Parameters{},
 					InfoTypeIdentity: "type",
 				},
 			},
 			wantedStatus: http.StatusOK,
 		},
 		{
-			name: "AddInfoJobHandler with incorrect job info, should return BadRequest",
+			name: "AddInfoJobToJobsHandler with incorrect job info, should return BadRequest",
 			args: args{
 				job: jobs.JobInfo{
 					Owner: "bad",
@@ -137,15 +124,18 @@ func TestAddInfoJobHandler(t *testing.T) {
 				mockReturn: errors.New("error"),
 			},
 			wantedStatus: http.StatusBadRequest,
-			wantedBody:   "Invalid job info. Cause: error",
+			wantedErrorInfo: &ErrorInfo{
+				Status: http.StatusBadRequest,
+				Detail: "Invalid job info. Cause: error",
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			jobHandlerMock := jobhandler.JobHandler{}
-			jobHandlerMock.On("AddJobFromRESTCall", tt.args.job).Return(tt.args.mockReturn)
+			jobsHandlerMock := jobshandler.JobsHandler{}
+			jobsHandlerMock.On("AddJobFromRESTCall", tt.args.job).Return(tt.args.mockReturn)
 
-			callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
+			callbackHandlerUnderTest := NewProducerCallbackHandler(&jobsHandlerMock)
 
 			handler := http.HandlerFunc(callbackHandlerUnderTest.addInfoJobHandler)
 			responseRecorder := httptest.NewRecorder()
@@ -154,18 +144,27 @@ func TestAddInfoJobHandler(t *testing.T) {
 			handler.ServeHTTP(responseRecorder, r)
 
 			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
-			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
-			jobHandlerMock.AssertCalled(t, "AddJobFromRESTCall", tt.args.job)
+			if tt.wantedErrorInfo != nil {
+				var actualErrInfo ErrorInfo
+				err := json.Unmarshal(getBody(responseRecorder, t), &actualErrInfo)
+				if err != nil {
+					t.Error("Unable to unmarshal error body", err)
+					t.Fail()
+				}
+				assertions.Equal(*tt.wantedErrorInfo, actualErrInfo, tt.name)
+				assertions.Equal("application/problem+json", responseRecorder.Result().Header.Get("Content-Type"))
+			}
+			jobsHandlerMock.AssertCalled(t, "AddJobFromRESTCall", tt.args.job)
 		})
 	}
 }
 
 func TestDeleteJob(t *testing.T) {
 	assertions := require.New(t)
-	jobHandlerMock := jobhandler.JobHandler{}
-	jobHandlerMock.On("DeleteJobFromRESTCall", mock.Anything).Return(nil)
+	jobsHandlerMock := jobshandler.JobsHandler{}
+	jobsHandlerMock.On("DeleteJobFromRESTCall", mock.Anything).Return(nil)
 
-	callbackHandlerUnderTest := NewProducerCallbackHandler(&jobHandlerMock)
+	callbackHandlerUnderTest := NewProducerCallbackHandler(&jobsHandlerMock)
 
 	responseRecorder := httptest.NewRecorder()
 	r := mux.SetURLVars(newRequest(http.MethodDelete, "/jobs/", nil, t), map[string]string{"infoJobId": "job1"})
@@ -175,7 +174,7 @@ func TestDeleteJob(t *testing.T) {
 
 	assertions.Equal("", responseRecorder.Body.String())
 
-	jobHandlerMock.AssertCalled(t, "DeleteJobFromRESTCall", "job1")
+	jobsHandlerMock.AssertCalled(t, "DeleteJobFromRESTCall", "job1")
 }
 
 func TestSetLogLevel(t *testing.T) {
@@ -185,10 +184,10 @@ func TestSetLogLevel(t *testing.T) {
 		logLevel string
 	}
 	tests := []struct {
-		name         string
-		args         args
-		wantedStatus int
-		wantedBody   string
+		name            string
+		args            args
+		wantedStatus    int
+		wantedErrorInfo *ErrorInfo
 	}{
 		{
 			name: "Set to valid log level, should return OK",
@@ -203,7 +202,10 @@ func TestSetLogLevel(t *testing.T) {
 				logLevel: "bad",
 			},
 			wantedStatus: http.StatusBadRequest,
-			wantedBody:   "Invalid log level: bad",
+			wantedErrorInfo: &ErrorInfo{
+				Detail: "Invalid log level: bad. Log level will not be changed!",
+				Status: http.StatusBadRequest,
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -217,7 +219,16 @@ func TestSetLogLevel(t *testing.T) {
 			handler.ServeHTTP(responseRecorder, r)
 
 			assertions.Equal(tt.wantedStatus, responseRecorder.Code, tt.name)
-			assertions.Contains(responseRecorder.Body.String(), tt.wantedBody, tt.name)
+			if tt.wantedErrorInfo != nil {
+				var actualErrInfo ErrorInfo
+				err := json.Unmarshal(getBody(responseRecorder, t), &actualErrInfo)
+				if err != nil {
+					t.Error("Unable to unmarshal error body", err)
+					t.Fail()
+				}
+				assertions.Equal(*tt.wantedErrorInfo, actualErrInfo, tt.name)
+				assertions.Equal("application/problem+json", responseRecorder.Result().Header.Get("Content-Type"))
+			}
 		})
 	}
 }
@@ -234,4 +245,13 @@ func newRequest(method string, url string, jobInfo *jobs.JobInfo, t *testing.T) 
 		t.Fatalf("Could not create request due to: %v", err)
 		return nil
 	}
+}
+
+func getBody(responseRecorder *httptest.ResponseRecorder, t *testing.T) []byte {
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(responseRecorder.Body); err != nil {
+		t.Error("Unable to read error body", err)
+		t.Fail()
+	}
+	return buf.Bytes()
 }

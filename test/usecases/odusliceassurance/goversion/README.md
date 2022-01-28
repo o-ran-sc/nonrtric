@@ -1,4 +1,4 @@
-# O-RAN-SC Non-RealTime RIC O-DU Closed Loop Usecase Slice Assurance 
+# O-RAN-SC Non-RealTime RIC O-DU Closed Loop Usecase Slice Assurance
 
 ## Configuration
 
@@ -12,12 +12,16 @@ The consumer takes a number of environment variables, described below, as config
 >- LOG_LEVEL            Optional. The log level, which can be `Error`, `Warn`, `Info` or `Debug`.  Defaults to `Info`.
 >- POLLTIME             Optional. Waiting time between one pull request to Dmaap and another.      Defaults to 10 sec
 
+## Functionality
+
+There is a status call provided in a REST API on port 40936.
+>- /status  OK
 
 ## Development
 
 To make it easy to test during development of the consumer, there is a stub provided in the `stub` folder.
 
-This stub is used to simulate both received VES messages from Dmaap MR with information about performance measurements for the slices in a determinated DU and also SDNR, that sends information about Radio Resource Management Policy Ratio and allows to modify value for RRM Policy Dedicated Ratio from default to higher value. 
+This stub is used to simulate both received VES messages from Dmaap MR with information about performance measurements for the slices in a determinated DU and also SDNR, that sends information about Radio Resource Management Policy Ratio and allows to modify value for RRM Policy Dedicated Ratio from default to higher value.
 
 By default, SDNR stub listens to the port `3904`, but his can be overridden by passing a `--sdnr-port [PORT]` flag when starting the stub. For Dmaap MR stub default port is `3905` but it can be overriden by passing a `--dmaap-port [PORT]` flag when starting the stub.
 

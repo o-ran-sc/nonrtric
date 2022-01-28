@@ -104,6 +104,12 @@ __NGW_statisics_setup() {
 	fi
 }
 
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__NGW_test_requirements() {
+	:
+}
+
 #######################################################
 
 

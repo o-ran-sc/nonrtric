@@ -46,4 +46,20 @@ COPY config/application.yaml .
 WORKDIR /opt/app/helm-manager
 COPY target/app.jar app.jar
 
+ARG user=nonrtric
+ARG group=nonrtric
+
+RUN groupadd $group && \
+    useradd -r -g $group $user
+RUN chown -R $user:$group /opt/app/helm-manager
+RUN chown -R $user:$group /etc/app/helm-manager
+
+RUN mkdir /var/helm-manager-service
+RUN chown -R $user:$group /var/helm-manager-service
+
+RUN mkdir /home/$user
+RUN chown -R $user:$group /home/$user
+
+USER $user
+
 CMD [ "java", "-jar", "app.jar", "--spring.config.location=optional:file:/etc/app/helm-manager/"]
