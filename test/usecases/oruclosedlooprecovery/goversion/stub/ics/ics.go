@@ -36,7 +36,7 @@ var client = &http.Client{
 func main() {
 	port := flag.Int("port", 8083, "The port this consumer will listen on")
 	flag.Parse()
-	fmt.Println("Starting SDNR stub on port ", *port)
+	fmt.Println("Starting ICS stub on port ", *port)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/data-consumer/v1/info-jobs/{jobId}", handleCalls).Methods(http.MethodPut, http.MethodDelete)

@@ -73,19 +73,19 @@ func (sa *SliceAssuranceMeas) AddOrUpdateMetric(meas messages.Measurement) (stri
 	var duid string
 	var sd, sst int
 
-	regex := *regexp.MustCompile(`\/network-function\/distributed-unit-functions\[id=\'(.*)\'\]/cell\[id=\'(.*)\'\]/supported-measurements\/performance-measurement-type\[\.=\'(.*)\'\]\/supported-snssai-subcounter-instances\/slice-differentiator\[\.=(\d)\]\[slice-service-type=(\d+)\]`)
+	regex := *regexp.MustCompile(`\/(.*)network-function\/distributed-unit-functions\[id=\'(.*)\'\]\/cell\[id=\'(.*)\'\]\/supported-measurements\[performance-measurement-type=\'(.*)\'\]\/supported-snssai-subcounter-instances\[slice-differentiator=\'(\d+)\'\]\[slice-service-type=\'(\d+)\'\]`)
 	res := regex.FindAllStringSubmatch(meas.MeasurementTypeInstanceReference, -1)
 
-	if res != nil && len(res[0]) == 6 {
-		duid = res[0][1]
-		sd = toInt(res[0][4])
-		sst = toInt(res[0][5])
+	if res != nil && len(res[0]) == 7 {
+		duid = res[0][2]
+		sd = toInt(res[0][5])
+		sst = toInt(res[0][6])
 
 		key := MapKey{duid, sd, sst}
 		value, check := sa.Metrics[key]
 
 		if check {
-			sa.updateMetric(key, value, res[0][3], meas.Value)
+			sa.updateMetric(key, value, res[0][4], meas.Value)
 		} else {
 			// Only add new one if value exceeds threshold
 			sa.addMetric(res, meas.Value)
@@ -98,9 +98,9 @@ func (sa *SliceAssuranceMeas) AddOrUpdateMetric(meas messages.Measurement) (stri
 
 func (sa *SliceAssuranceMeas) addMetric(res [][]string, metricValue int) {
 	if metricValue > 700 {
-		metric := NewSliceMetric(res[0][1], res[0][2], toInt(res[0][4]), toInt(res[0][5]))
+		metric := NewSliceMetric(res[0][2], res[0][3], toInt(res[0][5]), toInt(res[0][6]))
 		metric.PM[res[0][3]] = metricValue
-		key := MapKey{res[0][1], toInt(res[0][4]), toInt(res[0][5])}
+		key := MapKey{res[0][2], toInt(res[0][5]), toInt(res[0][6])}
 		sa.Metrics[key] = metric
 	}
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -101,6 +101,12 @@ __PA_statisics_setup() {
 	else
 		echo "PA $POLICY_AGENT_APP_NAME"
 	fi
+}
+
+# Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
+# args: -
+__PA_test_requirements() {
+	:
 }
 
 
@@ -352,6 +358,8 @@ start_policy_agent() {
 
 		__check_service_start $POLICY_AGENT_APP_NAME $PA_SERVICE_PATH$POLICY_AGENT_ALIVE_URL
 	fi
+
+	__collect_endpoint_stats_image_info "PMS" $POLICY_AGENT_IMAGE
 	echo ""
 	return 0
 }
@@ -818,7 +826,7 @@ api_get_policies() {
 			fi
 		fi
 	fi
-
+	__collect_endpoint_stats "PMS" 00 "GET" $PMS_API_PREFIX"/v2/policy-instances" $status
 	__log_test_pass
 	return 0
 
@@ -900,6 +908,7 @@ api_get_policy() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 01 "GET" $PMS_API_PREFIX"/v2/policies/{policy_id}" $status
 	__log_test_pass
 	return 0
 }
@@ -988,11 +997,11 @@ api_put_policy() {
 			__log_test_fail_status_code $1 $status
 			return 1
 		fi
-
 		let pid=$pid+1
 		let count=$count+1
 		echo -ne " Executed  "$count"("$max")${SAMELINE}"
 	done
+	__collect_endpoint_stats "PMS" 02 "PUT" $PMS_API_PREFIX"/v2/policies" $status $max
 	echo ""
 
 	__log_test_pass
@@ -1107,6 +1116,7 @@ api_put_policy_batch() {
 		let count=$count+1
 		echo -ne " Accepted(batch)  "$count"("$max")${SAMELINE}"
 	done
+	__collect_endpoint_stats "PMS" 02 "PUT" $PMS_API_PREFIX"/v2/policies" $1 $max
 
 	echo ""
 
@@ -1218,6 +1228,7 @@ api_put_policy_parallel() {
 		fi
 	done
 	if [ -z $msg ]; then
+		__collect_endpoint_stats "PMS" 02 "PUT" $PMS_API_PREFIX"/v2/policies" $resp_code $(($count*$num_rics))
 		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
@@ -1261,10 +1272,12 @@ api_delete_policy() {
 			__log_test_fail_status_code $1 $status
 			return 1
 		fi
+
 		let pid=$pid+1
 		let count=$count+1
 		echo -ne " Executed  "$count"("$max")${SAMELINE}"
 	done
+	__collect_endpoint_stats "PMS" 03 "DELETE" $PMS_API_PREFIX"/v2/policies/{policy_id}" $status $max
 	echo ""
 
 	__log_test_pass
@@ -1331,6 +1344,7 @@ api_delete_policy_batch() {
 		let count=$count+1
 		echo -ne " Deleted(batch)  "$count"("$max")${SAMELINE}"
 	done
+	__collect_endpoint_stats "PMS" 03 "DELETE" $PMS_API_PREFIX"/v2/policies/{policy_id}" $1 $max
 
 	echo ""
 
@@ -1407,6 +1421,7 @@ api_delete_policy_parallel() {
 		fi
 	done
 	if [ -z $msg ]; then
+		__collect_endpoint_stats "PMS" 03 "DELETE" $PMS_API_PREFIX"/v2/policies/{policy_id}" $resp_code $(($count*$num_rics))
 		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
@@ -1506,6 +1521,7 @@ api_get_policy_ids() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 04 "GET" $PMS_API_PREFIX"/v2/policies" $status
 	__log_test_pass
 	return 0
 }
@@ -1550,6 +1566,7 @@ api_get_policy_type() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 05 "GET" $PMS_API_PREFIX"/v2/policy-types/{policyTypeId}" $status
 	__log_test_pass
 	return 0
 }
@@ -1593,6 +1610,7 @@ api_get_policy_schema() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 06 "GET" $PMS_API_PREFIX"/v2/policy_schema" $status
 	__log_test_pass
 	return 0
 }
@@ -1660,30 +1678,32 @@ api_get_policy_schemas() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 07 "GET" $PMS_API_PREFIX"/v2/policy-schemas" $status
 	__log_test_pass
 	return 0
 }
 
 # API Test function: GET /policy_status and V2 GET /policies/{policy_id}/status
-# arg: <response-code> <policy-id> (STD|STD2 <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>)
+# arg: <response-code> <policy-id> [ (STD|STD2 <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>) ]
 # (Function for test scripts)
 api_get_policy_status() {
 	__log_test_start $@
 
-    if [ $# -lt 4 ] || [ $# -gt 5 ]; then
-		__print_err "<response-code> <policy-id> (STD <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>)" $@
+    if [ $# -lt 2 ] || [ $# -gt 5 ]; then
+		__print_err "<response-code> <policy-id> [(STD <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>)]" $@
 		return 1
 	fi
 
 	targetJson=""
-
-	if [ $3 == "STD" ]; then
+	if [ $# -eq 2 ]; then
+		:
+	elif [ "$3" == "STD" ]; then
 		targetJson="{\"enforceStatus\":\"$4\""
 		if [ $# -eq 5 ]; then
 			targetJson=$targetJson",\"reason\":\"$5\""
 		fi
 		targetJson=$targetJson"}"
-	elif [ $3 == "STD2" ]; then
+	elif [ "$3" == "STD2" ]; then
 		if [ $4 == "EMPTY" ]; then
 			targetJson="{\"enforceStatus\":\"\""
 		else
@@ -1697,7 +1717,7 @@ api_get_policy_status() {
 			fi
 		fi
 		targetJson=$targetJson"}"
-	elif [ $3 == "OSC" ]; then
+	elif [ "$3" == "OSC" ]; then
 		targetJson="{\"instance_status\":\"$4\""
 		if [ $# -eq 5 ]; then
 			targetJson=$targetJson",\"has_been_deleted\":\"$5\""
@@ -1722,16 +1742,17 @@ api_get_policy_status() {
 		__log_test_fail_status_code $1 $status
 		return 1
 	fi
+	if [ $# -gt 2 ]; then
+		echo "TARGET JSON: $targetJson" >> $HTTPLOG
+		body=${res:0:${#res}-3}
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
-	echo "TARGET JSON: $targetJson" >> $HTTPLOG
-	body=${res:0:${#res}-3}
-	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-
-	if [ $res -ne 0 ]; then
-		__log_test_fail_body
-		return 1
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
 	fi
-
+	__collect_endpoint_stats "PMS" 08 "GET" $PMS_API_PREFIX"/v2/policies/{policy_id}/status" $status
 	__log_test_pass
 	return 0
 }
@@ -1800,6 +1821,7 @@ api_get_policy_types() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 09 "GET" $PMS_API_PREFIX"/v2/policy-types" $status
 	__log_test_pass
 	return 0
 }
@@ -1830,6 +1852,33 @@ api_get_status() {
 		return 1
 	fi
 
+	__collect_endpoint_stats "PMS" 10 "GET" $PMS_API_PREFIX"/v2/status" $status
+	__log_test_pass
+	return 0
+}
+
+# API Test function: GET /status (root) without api prefix
+# args: <response-code>
+# (Function for test scripts)
+api_get_status_root() {
+	__log_test_start $@
+    if [ $# -ne 1 ]; then
+		__print_err "<response-code>" $@
+		return 1
+	fi
+	query="/status"
+	TMP_PREFIX=$PMS_API_PREFIX
+	PMS_API_PREFIX=""
+    res="$(__do_curl_to_api PA GET $query)"
+	PMS_API_PREFIX=$TMP_PREFIX
+    status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__collect_endpoint_stats "PMS" 19 "GET" "/status" $status
 	__log_test_pass
 	return 0
 }
@@ -1916,6 +1965,8 @@ api_get_ric() {
 			fi
 		fi
 	fi
+
+	__collect_endpoint_stats "PMS" 11 "GET" $PMS_API_PREFIX"/v2/rics/ric" $status
 	__log_test_pass
 	return 0
 }
@@ -1977,6 +2028,7 @@ api_get_rics() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 12 "GET" $PMS_API_PREFIX"/v2/rics" $status
 	__log_test_pass
 	return 0
 }
@@ -2013,6 +2065,7 @@ api_put_service() {
 		return 1
 	fi
 
+	__collect_endpoint_stats "PMS" 13 "PUT" $PMS_API_PREFIX"/v2/service" $status
 	__log_test_pass
 	return 0
 }
@@ -2096,6 +2149,7 @@ api_get_services() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 14 "GET" $PMS_API_PREFIX"/v2/services" $status
 	__log_test_pass
 	return 0
 }
@@ -2149,6 +2203,7 @@ api_get_service_ids() {
 		return 1
 	fi
 
+	__collect_endpoint_stats "PMS" 14 "GET" $PMS_API_PREFIX"/v2/services" $status
 	__log_test_pass
 	return 0
 }
@@ -2176,6 +2231,7 @@ api_delete_services() {
 		return 1
 	fi
 
+	__collect_endpoint_stats "PMS" 15 "DELETE" $PMS_API_PREFIX"/v2/services/{serviceId}" $status
 	__log_test_pass
 	return 0
 }
@@ -2204,6 +2260,7 @@ api_put_services_keepalive() {
 		return 1
 	fi
 
+	__collect_endpoint_stats "PMS" 16 "PUT" $PMS_API_PREFIX"/v2/services/{service_id}/keepalive" $status
 	__log_test_pass
 	return 0
 }
@@ -2232,7 +2289,9 @@ api_put_configuration() {
 		return 1
 	fi
 	inputJson=$(< $2)
-	inputJson="{\"config\":"$inputJson"}"
+	if [ $RUNMODE == "DOCKER" ]; then  #In kube the file already has a header
+		inputJson="{\"config\":"$inputJson"}"
+	fi
 	file="./tmp/.config.json"
 	echo $inputJson > $file
 	query="/v2/configuration"
@@ -2244,6 +2303,7 @@ api_put_configuration() {
 		return 1
 	fi
 
+	__collect_endpoint_stats "PMS" 17 "PUT" $PMS_API_PREFIX"/v2/configuration" $status
 	__log_test_pass
 	return 0
 }
@@ -2292,6 +2352,7 @@ api_get_configuration() {
 		fi
 	fi
 
+	__collect_endpoint_stats "PMS" 18 "GET" $PMS_API_PREFIX"/v2/configuration" $status
 	__log_test_pass
 	return 0
 }

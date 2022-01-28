@@ -57,7 +57,7 @@ func New() *Config {
 }
 
 func (c Config) String() string {
-	return fmt.Sprintf("ConsumerHost: %v, ConsumerPort: %v, InfoCoordinatorAddress: %v, SDNRAddress: %v, SDNRUser: %v, SDNRPassword: %v, ORUToODUMapFile: %v, ConsumerCertPath: %v, ConsumerKeyPath: %v, LogLevel: %v", c.ConsumerHost, c.ConsumerPort, c.InfoCoordinatorAddress, c.SDNRAddress, c.SDNRUser, c.SDNPassword, c.ORUToODUMapFile, c.ConsumerCertPath, c.ConsumerKeyPath, c.LogLevel)
+	return fmt.Sprintf("{ConsumerHost: %v, ConsumerPort: %v, InfoCoordinatorAddress: %v, SDNRAddress: %v, SDNRUser: %v, SDNRPassword: %v, ORUToODUMapFile: %v, ConsumerCertPath: %v, ConsumerKeyPath: %v, LogLevel: %v}", c.ConsumerHost, c.ConsumerPort, c.InfoCoordinatorAddress, c.SDNRAddress, c.SDNRUser, c.SDNPassword, c.ORUToODUMapFile, c.ConsumerCertPath, c.ConsumerKeyPath, c.LogLevel)
 }
 
 func getEnv(key string, defaultVal string) string {

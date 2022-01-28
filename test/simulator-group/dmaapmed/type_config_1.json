@@ -1,0 +1,13 @@
+{
+   "types":
+     [
+       {
+         "id": "STD_Fault_Messages",
+         "dmaapTopicUrl": "/events/unauthenticated.dmaapmed.json/dmaapmediatorproducer/STD_Fault_Messages?timeout=15000&limit=100"
+       },
+       {
+         "id": "Kafka_TestTopic",
+         "kafkaInputTopic": "unauthenticated.dmaapmed_kafka.text"
+       }
+   ]
+ }

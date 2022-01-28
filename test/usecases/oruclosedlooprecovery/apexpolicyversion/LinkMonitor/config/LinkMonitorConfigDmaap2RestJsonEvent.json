@@ -22,16 +22,16 @@
             "taskParameters": [
                 {
                     "key": "ORU-ODU-Map",
-                    "value": "{\"ERICSSON-O-RU-11220\": \"HCL-O-DU-1122\",
-                               \"ERICSSON-O-RU-11221\": \"HCL-O-DU-1122\",
-                               \"ERICSSON-O-RU-11222\": \"HCL-O-DU-1122\",
-                               \"ERICSSON-O-RU-11223\": \"HCL-O-DU-1122\",
-                               \"ERICSSON-O-RU-11224\": \"HCL-O-DU-1123\",
-                               \"ERICSSON-O-RU-11225\": \"HCL-O-DU-1123\",
-                               \"ERICSSON-O-RU-11226\": \"HCL-O-DU-1123\",
-                               \"ERICSSON-O-RU-11227\": \"HCL-O-DU-1124\",
-                               \"ERICSSON-O-RU-11228\": \"HCL-O-DU-1125\",
-                               \"ERICSSON-O-RU-11229\": \"HCL-O-DU-1125\"}"
+                    "value": "{\"ERICSSON-O-RU-11220\": \"O-DU-1122\",
+                               \"ERICSSON-O-RU-11221\": \"O-DU-1122\",
+                               \"ERICSSON-O-RU-11222\": \"O-DU-1122\",
+                               \"ERICSSON-O-RU-11223\": \"O-DU-1122\",
+                               \"ERICSSON-O-RU-11224\": \"O-DU-1123\",
+                               \"ERICSSON-O-RU-11225\": \"O-DU-1123\",
+                               \"ERICSSON-O-RU-11226\": \"O-DU-1123\",
+                               \"ERICSSON-O-RU-11227\": \"O-DU-1124\",
+                               \"ERICSSON-O-RU-11228\": \"O-DU-1125\",
+                               \"ERICSSON-O-RU-11229\": \"O-DU-1125\"}"
                 }
             ]
         }
@@ -42,7 +42,7 @@
                 "carrierTechnology": "RESTCLIENT",
                 "parameterClassName": "org.onap.policy.apex.plugins.event.carrier.restclient.RestClientCarrierTechnologyParameters",
                 "parameters": {
-                    "url": "http://sdnr-sim:9990/rests/data/network-topology:network-topology/topology=topology-netconf/node={OduId}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/du-to-ru-connection={OruId}",
+                    "url": "http://sdnr-sim:9990/rests/data/network-topology:network-topology/topology=topology-netconf/node={OduId}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={OduId}/radio-resource-management-policy-ratio=rrm-pol-1",
                     "httpMethod" : "PUT",
                     "httpHeaders" : [
                         ["Authorization", "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ=="]

@@ -188,6 +188,7 @@ POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container fo
 POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
 POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
 POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
+PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub

@@ -22,13 +22,14 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	log "github.com/sirupsen/logrus"
 	"oransc.org/usecase/oduclosedloop/internal/config"
 	"oransc.org/usecase/oduclosedloop/internal/sliceassurance"
 )
 
-const TOPIC string = "/events/unauthenticated.PERFORMANCE_MEASUREMENTS"
+const TOPIC string = "unauthenticated.VES_O_RAN_SC_HELLO_WORLD_PM_STREAMING_OUTPUT"
 
 var configuration *config.Config
 
@@ -48,8 +49,11 @@ func main() {
 
 	a := sliceassurance.App{}
 	a.Initialize(dmaapUrl, configuration.SDNRAddress)
-	a.Run(TOPIC, configuration.Polltime)
+	go a.Run(TOPIC, configuration.Polltime)
 
+	http.HandleFunc("/status", statusHandler)
+
+	log.Fatal(http.ListenAndServe(":40936", nil))
 }
 
 func validateConfiguration(configuration *config.Config) error {
@@ -57,4 +61,8 @@ func validateConfiguration(configuration *config.Config) error {
 		return fmt.Errorf("message router host and port must be provided")
 	}
 	return nil
+}
+
+func statusHandler(w http.ResponseWriter, r *http.Request) {
+	// Just respond OK to show the service is alive for now. Might be extended later.
 }

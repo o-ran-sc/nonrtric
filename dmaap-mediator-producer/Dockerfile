@@ -30,7 +30,7 @@ RUN go build -o /dmaapmediatorproducer
 ##
 ## Deploy
 ##
-FROM gcr.io/distroless/base-debian10
+FROM gcr.io/distroless/base-debian11
 WORKDIR /
 ## Copy from "build" stage
 COPY --from=build /dmaapmediatorproducer .

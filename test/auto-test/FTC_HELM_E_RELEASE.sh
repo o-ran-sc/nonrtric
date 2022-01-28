@@ -29,6 +29,11 @@ KUBE_INCLUDED_IMAGES=" MR DMAAPMR CR  PRODSTUB KUBEPROXY KAFKAPC"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ICS RC SDNC DMAAPMED DMAAPADP"
 
+#Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
+#the image is not configured in the supplied env_file
+#Used for images not applicable to all supported profile
+CONDITIONALLY_IGNORED_IMAGES=""
+
 #Supported test environment profiles
 SUPPORTED_PROFILES="ORAN-E-RELEASE"
 #Supported run modes
@@ -357,7 +362,8 @@ if [ $ICS_VERSION == "V1-1" ]; then
 else
     ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
     ics_api_edp_get_type_2 200 type1
-    ics_api_edp_get_type_ids 200 STD_Fault_Messages ExampleInformationTypeKafka ExampleInformationType type1
+
+    ics_api_edp_get_type_ids 200 type1
 
     ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
     ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
@@ -407,11 +413,13 @@ fi
 # Dmaap mediator and adapter
 start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_DATA_FILE
 
-start_dmaapmed NOPROXY $SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_DATA_FILE
+start_dmaapmed NOPROXY $SIM_GROUP/$DMAAP_MED_COMPOSE_DIR/$DMAAP_MED_HOST_DATA_FILE
 
 ics_equal json:data-producer/v1/info-producers 3 120
 
-ics_api_idc_get_type_ids 200 ExampleInformationType ExampleInformationTypeKafka STD_Fault_Messages type-1
+ics_equal json:data-producer/v1/info-types 4 30
+
+ics_api_idc_get_type_ids 200 ExampleInformationType ExampleInformationTypeKafka STD_Fault_Messages type1
 
 ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a DmaapGenericInfoProducer DMaaP_Mediator_Producer
 
@@ -434,6 +442,8 @@ do
     ics_api_a1_get_job_status 200 joby$i ENABLED 30
     ics_api_a1_get_job_status 200 jobz$i ENABLED 30
 done
+
+sleep_wait 30 # Wait for mediator to listening to kafka
 
 mr_api_send_json "/events/unauthenticated.dmaapmed.json" '{"msg":"msg-0"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-1"}'

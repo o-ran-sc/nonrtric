@@ -38,7 +38,6 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.net.ssl.KeyManagerFactory;
 
 import org.oransc.ics.configuration.WebClientConfig;
