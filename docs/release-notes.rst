@@ -46,6 +46,11 @@ Version history A1 Policy Management Service (A1 Policy Agent)
 |            |          |                  | Renamed and minor  |
 |            |          |                  | improvements       |
 +------------+----------+------------------+--------------------+
+| 2022-02-07 | 2.3.1    | Henrik Andersson | E Maintenance      |
+|            |          |                  | Release            |
+|            |          |                  | Non root user in   |
+|            |          |                  | Docker             |
++------------+----------+------------------+--------------------+
 
 Version history Information Coordinator Service
 ===============================================
@@ -64,6 +69,11 @@ Version history Information Coordinator Service
 |            |          |                  | Renamed and minor  |
 |            |          |                  | improvements       |
 +------------+----------+------------------+--------------------+
+| 2022-02-07 | 1.2.1    | Henrik Andersson | E Maintenance      |
+|            |          |                  | Release            |
+|            |          |                  | Non root user in   |
+|            |          |                  | Docker             |
++------------+----------+------------------+--------------------+
 
 
 Version history Service Catalogue
@@ -75,6 +85,11 @@ Version history Service Catalogue
 +------------+----------+------------------+----------------+
 | 2020-12-03 | 1.0.0    | Henrik Andersson | Cherry Release |
 |            |          |                  |                |
++------------+----------+------------------+----------------+
+| 2020-12-03 | 1.0.2    | Henrik Andersson | E Maintenance  |
+|            |          |                  | Release        |
+|            |          |                  | Non root user  |
+|            |          |                  | in Docker      |
 +------------+----------+------------------+----------------+
 
 
@@ -91,6 +106,10 @@ Version history Helm Manager
 | 2021-12-14 | 1.1.0    | Henrik Andersson | E Release                   |
 |            |          |                  | Update to match ONAP Policy |
 |            |          |                  | helm participant            |
++------------+----------+------------------+-----------------------------+
+| 2022-02-07 | 1.1.1    | Henrik Andersson | E Maintenance Release       |
+|            |          |                  | Non root user in Docker     |
+|            |          |                  |                             |
 +------------+----------+------------------+-----------------------------+
 
 
@@ -126,6 +145,12 @@ Version history DMaaP Adator
 | 2021-12-13 | 1.0.0    | Henrik Andersson | E Release       |
 |            |          |                  | Initial version |
 +------------+----------+------------------+-----------------+
+| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance   |
+|            |          |                  | Release         |
+|            |          |                  | Non root user   |
+|            |          |                  | in Docker       |
+|            |          |                  | Bugfixes        |
++------------+----------+------------------+-----------------+
 
 
 Version history DMaaP Mediator Producer
@@ -138,30 +163,45 @@ Version history DMaaP Mediator Producer
 | 2021-12-13 | 1.0.0    | Henrik Andersson | E Release       |
 |            |          |                  | Initial version |
 +------------+----------+------------------+-----------------+
+| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance   |
+|            |          |                  | Release         |
+|            |          |                  | Added Kafka as  |
+|            |          |                  | message source  |
++------------+----------+------------------+-----------------+
 
 
 Version history usecase O-RU Front-Haul Recovery Script version
 ===============================================================
 
-+------------+----------+------------------+-----------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**     |
-|            |          |                  |                 |
-+------------+----------+------------------+-----------------+
-| 2021-12-13 | 1.0.0    | Henrik Andersson | E Release       |
-|            |          |                  | Initial version |
-+------------+----------+------------------+-----------------+
++------------+----------+------------------+--------------------+
+| **Date**   | **Ver.** | **Author**       | **Comment**        |
+|            |          |                  |                    |
++------------+----------+------------------+--------------------+
+| 2021-12-13 | 1.0.0    | Henrik Andersson | E Release          |
+|            |          |                  | Initial version    |
++------------+----------+------------------+--------------------+
+| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance      |
+|            |          |                  | Release            |
+|            |          |                  | Adapted to changes |
+|            |          |                  | in usecase         |
++------------+----------+------------------+--------------------+
 
 
 Version history usecase O-RU Front-Haul Recovery Consumer Go version
 ====================================================================
 
-+------------+----------+------------------+-----------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**     |
-|            |          |                  |                 |
-+------------+----------+------------------+-----------------+
-| 2021-12-14 | 1.0.0    | Henrik Andersson | E Release       |
-|            |          |                  | Initial version |
-+------------+----------+------------------+-----------------+
++------------+----------+------------------+--------------------+
+| **Date**   | **Ver.** | **Author**       | **Comment**        |
+|            |          |                  |                    |
++------------+----------+------------------+--------------------+
+| 2021-12-14 | 1.0.0    | Henrik Andersson | E Release          |
+|            |          |                  | Initial version    |
++------------+----------+------------------+--------------------+
+| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance      |
+|            |          |                  | Release            |
+|            |          |                  | Adapted to changes |
+|            |          |                  | in usecase         |
++------------+----------+------------------+--------------------+
 
 
 Version history usecase O-DU Slice Assurance
@@ -173,6 +213,9 @@ Version history usecase O-DU Slice Assurance
 +------------+----------+------------------+-----------------+
 | 2021-12-14 | 1.0.0    | Henrik Andersson | E Release       |
 |            |          |                  | Initial version |
++------------+----------+------------------+-----------------+
+| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance   |
+|            |          |                  | Release         |
 +------------+----------+------------------+-----------------+
 
 
@@ -292,3 +335,23 @@ E Release
 | **Purpose of the delivery** | Improvements and renaming.                        |
 |                             | Introduction of more usecase implementations.     |
 +-----------------------------+---------------------------------------------------+
+
+E Maintenance Release
+---------------------
++-----------------------------+---------------------------------------------------+
+| **Project**                 | Non-RT RIC                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Repo/commit-ID**          | nonrtric/4df1f9ca4cd1ebc21e0c5ea57bcb0b7ef096d067 |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release designation**     | E                                                 |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release date**            | 2022-02-09                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Purpose of the delivery** | Improvements and bug fixes                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+
