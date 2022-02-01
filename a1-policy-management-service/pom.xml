@@ -48,9 +48,9 @@
     <properties>
         <java.version>11</java.version>
         <springfox.version>3.0.0</springfox.version>
-        <immutable.version>2.8.2</immutable.version>      
+        <immutable.version>2.8.2</immutable.version>
         <swagger.version>2.1.12</swagger.version>
-        <json.version>20190722</json.version>
+        <json.version>20211205</json.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.18.0</spotless-maven-plugin.version>
