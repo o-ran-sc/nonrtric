@@ -24,6 +24,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5c8fd72_8e50eca1",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-02T15:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6453470_efe56558",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 48
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e909614_2641213f",
@@ -47,6 +71,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec8cce8b_ac941c65",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-02T15:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e909614_2641213f",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 60
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "329c72db_c4c2f9df",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-02-02T15:01:09Z",
       "side": 1,
       "message": "1.0.1 ?",
+      "range": {
+        "startLine": 34,
+        "startChar": 15,
+        "endLine": 34,
+        "endChar": 21
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dae1b75d_6cab2a98",
+        "filename": "r-app-catalogue/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-02T15:27:36Z",
+      "side": 1,
+      "message": "No, we actually released a 1.0.1 version earlier, so 1.0.2 is correct",
+      "parentUuid": "329c72db_c4c2f9df",
       "range": {
         "startLine": 34,
         "startChar": 15,
@@ -117,6 +189,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdecf522_478fd2f7",
+        "filename": "test/auto-test/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-02T15:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7b233b1_c09cc31c",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 91
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55607edf_83d167b0",
@@ -153,6 +249,30 @@
       "writtenOn": "2022-02-02T15:22:54Z",
       "side": 1,
       "message": "Ok to omit this file.",
+      "parentUuid": "55607edf_83d167b0",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24bd3d15_2799d714",
+        "filename": "test/common/test_env-oran-f-release.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-02T15:27:36Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "55607edf_83d167b0",
       "range": {
         "startLine": 17,
