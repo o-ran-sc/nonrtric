@@ -95,6 +95,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a7b233b1_c09cc31c",
+        "filename": "test/auto-test/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-02-02T15:22:54Z",
+      "side": 1,
+      "message": "Yes, should be removed if we remove the env file as commented in #20",
+      "parentUuid": "2bd9ef86_9699eaab",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 91
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55607edf_83d167b0",
         "filename": "test/common/test_env-oran-f-release.sh",
         "patchSetId": 2
@@ -106,6 +130,30 @@
       "writtenOn": "2022-02-02T15:01:09Z",
       "side": 1,
       "message": "Don\u0027t include this file?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "e66df8aee7b1bcd69ce96a15fec9405bea505486",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04e6428a_9e8a088b",
+        "filename": "test/common/test_env-oran-f-release.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-02-02T15:22:54Z",
+      "side": 1,
+      "message": "Ok to omit this file.",
+      "parentUuid": "55607edf_83d167b0",
       "range": {
         "startLine": 17,
         "startChar": 0,
