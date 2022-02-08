@@ -25,6 +25,7 @@ import (
 	"regexp"
 	"strconv"
 
+	log "github.com/sirupsen/logrus"
 	"oransc.org/usecase/oduclosedloop/messages"
 )
 
@@ -51,8 +52,13 @@ func (sa *SliceAssuranceMeas) AddNewPolicy(duid string, rrmPolicyRatio messages.
 		metric := sa.GetSliceMetric(duid, policyMember.SliceDifferentiator, policyMember.SliceServiceType)
 		if metric != nil {
 			pr := NewPolicyRatio(rrmPolicyRatio.Id, rrmPolicyRatio.RRMPolicyMaxRatio, rrmPolicyRatio.RRMPolicyMinRatio, rrmPolicyRatio.RRMPolicyDedicatedRatio)
+			_, check := sa.Policies[pr.PolicyRatioId]
+			if !check {
+				log.Infof(" new policy has been added %+v", *pr)
+			}
 			sa.Policies[pr.PolicyRatioId] = pr
 			metric.RRMPolicyRatioId = rrmPolicyRatio.Id
+
 		}
 	}
 }
@@ -73,7 +79,7 @@ func (sa *SliceAssuranceMeas) AddOrUpdateMetric(meas messages.Measurement) (stri
 	var duid string
 	var sd, sst int
 
-	regex := *regexp.MustCompile(`\/(.*)network-function\/distributed-unit-functions\[id=\'(.*)\'\]\/cell\[id=\'(.*)\'\]\/supported-measurements\[performance-measurement-type=\'(.*)\'\]\/supported-snssai-subcounter-instances\[slice-differentiator=\'(\d+)\'\]\[slice-service-type=\'(\d+)\'\]`)
+	regex := *regexp.MustCompile(`\/(.*)network-function\/distributed-unit-functions\[id=\'(.*)\'\]\/cell\[id=\'(.*)\'\]\/supported-measurements\/performance-measurement-type=\'(.*)\'\]\/supported-snssai-subcounter-instances\[slice-differentiator=\'(\d+)\'\]\[slice-service-type=\'(\d+)\'\]`)
 	res := regex.FindAllStringSubmatch(meas.MeasurementTypeInstanceReference, -1)
 
 	if res != nil && len(res[0]) == 7 {
@@ -102,14 +108,17 @@ func (sa *SliceAssuranceMeas) addMetric(res [][]string, metricValue int) {
 		metric.PM[res[0][3]] = metricValue
 		key := MapKey{res[0][2], toInt(res[0][5]), toInt(res[0][6])}
 		sa.Metrics[key] = metric
+		log.Infof(" new metric has been added %+v", *metric)
 	}
 }
 
 func (sa *SliceAssuranceMeas) updateMetric(key MapKey, value *SliceMetric, metricName string, metricValue int) {
 	if metricValue < 700 {
 		delete(sa.Metrics, key)
+		log.Infof(" metric with key %+v has been deleted", key)
 	} else {
 		value.PM[metricName] = metricValue
+		log.Infof(" metric value has been updated, new value: %v", metricValue)
 	}
 }
 

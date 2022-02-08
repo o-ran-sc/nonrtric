@@ -69,9 +69,8 @@ func (a *App) Run(topic string, pollTime int) {
 
 func (a *App) getMessagesFromDmaap(url string) {
 	var stdMessage messages.StdDefinedMessage
-
 	a.client.Get(url, &stdMessage)
-	log.Infof("Polling new messages from DmaapMR: %v", stdMessage)
+	log.Infof("Polling new messages from DmaapMR")
 	for _, meas := range stdMessage.GetMeasurements() {
 		//Create sliceMetric and check if metric exist and update existing one or create new one
 		if _, err := a.metricsPolicies.AddOrUpdateMetric(meas); err != nil {
