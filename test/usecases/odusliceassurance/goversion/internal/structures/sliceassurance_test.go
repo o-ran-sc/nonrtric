@@ -41,7 +41,7 @@ func TestAddMetric(t *testing.T) {
 			name: "Test adding new metric",
 			args: args{
 				meas: messages.Measurement{
-					MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+					MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 					Value:                            51232,
 					Unit:                             "kbit/s",
 				},
@@ -51,7 +51,7 @@ func TestAddMetric(t *testing.T) {
 			name: "Test with invalid input",
 			args: args{
 				meas: messages.Measurement{
-					MeasurementTypeInstanceReference: "/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+					MeasurementTypeInstanceReference: "/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 					Value:                            51232,
 					Unit:                             "kbit/s",
 				},
@@ -83,13 +83,13 @@ func TestAddMetric(t *testing.T) {
 func TestUpdateExistingMetric(t *testing.T) {
 	assertions := require.New(t)
 	meas := messages.Measurement{
-		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 		Value:                            51232,
 		Unit:                             "kbit/s",
 	}
 
 	updateMeas := messages.Measurement{
-		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 		Value:                            897,
 		Unit:                             "kbit/s",
 	}
@@ -115,13 +115,13 @@ func TestUpdateExistingMetric(t *testing.T) {
 func TestDeleteMetricWhenValueLessThanThreshold(t *testing.T) {
 
 	meas := messages.Measurement{
-		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 		Value:                            51232,
 		Unit:                             "kbit/s",
 	}
 
 	newMeas := messages.Measurement{
-		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 		Value:                            50,
 		Unit:                             "kbit/s",
 	}
@@ -140,7 +140,7 @@ func TestDeleteMetricWhenValueLessThanThreshold(t *testing.T) {
 func TestAddPolicy(t *testing.T) {
 
 	meas := messages.Measurement{
-		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
+		MeasurementTypeInstanceReference: "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='O-DU-1211']/cell[id='cell-1']/supported-measurements/performance-measurement-type='user-equipment-average-throughput-uplink']/supported-snssai-subcounter-instances[slice-differentiator='1'][slice-service-type='1']",
 		Value:                            51232,
 		Unit:                             "kbit/s",
 	}
