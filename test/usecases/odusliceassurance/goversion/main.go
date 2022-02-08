@@ -29,7 +29,7 @@ import (
 	"oransc.org/usecase/oduclosedloop/internal/sliceassurance"
 )
 
-const TOPIC string = "unauthenticated.VES_O_RAN_SC_HELLO_WORLD_PM_STREAMING_OUTPUT"
+const TOPIC string = "/events/unauthenticated.VES_O_RAN_SC_HELLO_WORLD_PM_STREAMING_OUTPUT/myG/C1"
 
 var configuration *config.Config
 

@@ -118,7 +118,6 @@ func main() {
 		r := mux.NewRouter()
 		r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={NODE-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={O-DU-ID}", getSdnrResponseMessage).Methods(http.MethodGet)
 		r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={NODE-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={O-DU-ID}/radio-resource-management-policy-ratio={POLICY-ID}", updateRRMPolicyDedicatedRatio).Methods(http.MethodPost)
-		r.HandleFunc("/events/unauthenticated.PERFORMANCE_MEASUREMENTS", sendDmaapMRMessages).Methods(http.MethodGet)
 
 		fmt.Println("Starting SDNR stub on port: ", *portSdnr)
 
@@ -129,7 +128,7 @@ func main() {
 	go func() {
 
 		r := mux.NewRouter()
-		r.HandleFunc("/events/unauthenticated.PERFORMANCE_MEASUREMENTS", sendDmaapMRMessages).Methods(http.MethodGet)
+		r.HandleFunc("/events/unauthenticated.VES_O_RAN_SC_HELLO_WORLD_PM_STREAMING_OUTPUT/myG/C1", sendDmaapMRMessages).Methods(http.MethodGet)
 
 		fmt.Println("Starting DmaapMR stub on port: ", *portDmaapMR)
 
@@ -181,7 +180,6 @@ func getPolicyRatioMessage() []messages.RRMPolicyRatio {
 }
 
 func updateRRMPolicyDedicatedRatio(w http.ResponseWriter, r *http.Request) {
-	log.Info("Post request to update RRMPolicyDedicatedRatio")
 
 	var prMessages []messages.RRMPolicyRatio
 	decoder := json.NewDecoder(r.Body)
@@ -192,6 +190,8 @@ func updateRRMPolicyDedicatedRatio(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	log.Infof("Post request to update RRMPolicyDedicatedRatio %+v", prMessages)
+
 	findAndUpdatePolicy(prMessages)
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200"})
 }
@@ -200,8 +200,8 @@ func findAndUpdatePolicy(rRMPolicyRatio []messages.RRMPolicyRatio) {
 	for _, policy := range rRMPolicyRatio {
 		for _, entry := range data {
 			if entry.policyRatioId == policy.Id {
+				log.Infof("update Policy Dedicated Ratio: value for policy %+v\n Old value: %v New value: %v ", policy, entry.policyDedicatedRatio, policy.RRMPolicyDedicatedRatio)
 				entry.policyDedicatedRatio = policy.RRMPolicyDedicatedRatio
-				log.Info("New value for Policy dedicated ratio: ", entry.policyDedicatedRatio)
 				if entry.metricValue > THRESHOLD_TPUT {
 					entry.metricValue = rand.Intn(THRESHOLD_TPUT)
 				}
@@ -239,19 +239,43 @@ func sendDmaapMRMessages(w http.ResponseWriter, r *http.Request) {
 	message := messages.StdDefinedMessage{
 		Event: messages.Event{
 			CommonEventHeader: messages.CommonEventHeader{
-				Domain:               "stndDefined",
-				StndDefinedNamespace: "o-ran-sc-du-hello-world-pm-streaming-oas3",
+				Domain:                  "stndDefined",
+				EventId:                 "pm-1_1644252450",
+				EventName:               "stndDefined_performanceMeasurementStreaming",
+				EventType:               "performanceMeasurementStreaming",
+				Sequence:                825,
+				Priority:                "Low",
+				ReportingEntityId:       "",
+				ReportingEntityName:     "O-DU-1122",
+				SourceId:                "",
+				SourceName:              "O-DU-1122",
+				StartEpochMicrosec:      1644252450000000,
+				LastEpochMicrosec:       1644252480000000,
+				NfNamingCode:            "SIM-O-DU",
+				NfVendorName:            "O-RAN-SC SIM Project",
+				StndDefinedNamespace:    "o-ran-sc-du-hello-world-pm-streaming-oas3",
+				TimeZoneOffset:          "+00:00",
+				Version:                 "4.1",
+				VesEventListenerVersion: "7.2.1",
 			},
 			StndDefinedFields: messages.StndDefinedFields{
 				StndDefinedFieldsVersion: "1.0",
 				SchemaReference:          "https://gerrit.o-ran-sc.org/r/gitweb?p=scp/oam/modeling.git;a=blob_plain;f=data-model/oas3/experimental/o-ran-sc-du-hello-world-oas3.json;hb=refs/heads/master",
 				Data: messages.Data{
-					DataId:       "id",
-					Measurements: messagesToSend,
+					DataId:              "pm-1_1644252450",
+					StartTime:           "2022-02-07T16:47:30.0Z",
+					AdministrativeState: "unlocked",
+					OperationalState:    "enabled",
+					UserLabel:           "pm",
+					JobTag:              "my-job-tag",
+					GranularityPeriod:   30,
+					Measurements:        messagesToSend,
 				},
 			},
 		},
 	}
+
+	fmt.Printf("Send Dmaap messages\n %+v\n", message)
 
 	time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
 	respondWithJSON(w, http.StatusOK, message)
@@ -261,7 +285,7 @@ func sendDmaapMRMessages(w http.ResponseWriter, r *http.Request) {
 
 func generateMeasurementEntry(entry *SliceAssuranceInformation) messages.Measurement {
 
-	measurementTypeInstanceReference := "/network-function/distributed-unit-functions[id='" + entry.duId + "']/cell[id='" + entry.cellId + "']/supported-measurements/performance-measurement-type[.='" + entry.metricName + "']/supported-snssai-subcounter-instances/slice-differentiator[.=" + strconv.Itoa(entry.sd) + "][slice-service-type=" + strconv.Itoa(entry.sst) + "]"
+	measurementTypeInstanceReference := "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='" + entry.duId + "']/cell[id='" + entry.cellId + "']/supported-measurements/performance-measurement-type='(urn:o-ran-sc:yang:o-ran-sc-du-hello-world?revision=2021-11-23)" + entry.metricName + "']/supported-snssai-subcounter-instances[slice-differentiator='" + strconv.Itoa(entry.sd) + "'][slice-service-type='" + strconv.Itoa(entry.sst) + "']"
 	meas := messages.Measurement{
 
 		MeasurementTypeInstanceReference: measurementTypeInstanceReference,

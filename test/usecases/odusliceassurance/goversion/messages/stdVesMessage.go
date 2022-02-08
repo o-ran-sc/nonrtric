@@ -30,8 +30,24 @@ type Event struct {
 }
 
 type CommonEventHeader struct {
-	Domain               string `json:"domain"`
-	StndDefinedNamespace string `json:"stndDefinedNamespace"`
+	Domain                  string `json:"domain"`
+	EventId                 string `json:"eventId"`
+	EventName               string `json:"eventName"`
+	EventType               string `json:"eventType"`
+	Sequence                int    `json:"sequence"`
+	Priority                string `json:"priority"`
+	ReportingEntityId       string `json:"reportingEntityId"`
+	ReportingEntityName     string `json:"reportingEntityName"`
+	SourceId                string `json:"sourceId"`
+	SourceName              string `json:"sourceName"`
+	StartEpochMicrosec      int64  `json:"startEpochMicrosec"`
+	LastEpochMicrosec       int64  `json:"lastEpochMicrosec"`
+	NfNamingCode            string `json:"nfNamingCode"`
+	NfVendorName            string `json:"nfVendorName"`
+	StndDefinedNamespace    string `json:"stndDefinedNamespace"`
+	TimeZoneOffset          string `json:"timeZoneOffset"`
+	Version                 string `json:"version"`
+	VesEventListenerVersion string `json:"vesEventListenerVersion"`
 }
 
 type StndDefinedFields struct {
@@ -41,8 +57,14 @@ type StndDefinedFields struct {
 }
 
 type Data struct {
-	DataId       string        `json:"id"`
-	Measurements []Measurement `json:"measurements"`
+	DataId              string        `json:"id"`
+	StartTime           string        `json:"start-time"`
+	AdministrativeState string        `json:"administrative-state"`
+	OperationalState    string        `json:"operational-state"`
+	UserLabel           string        `json:"user-label"`
+	JobTag              string        `json:"job-tag"`
+	GranularityPeriod   int           `json:"granularity-period"`
+	Measurements        []Measurement `json:"measurements"`
 }
 
 type Measurement struct {
