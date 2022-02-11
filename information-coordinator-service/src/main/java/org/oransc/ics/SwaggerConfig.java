@@ -52,7 +52,7 @@ import org.oransc.ics.controllers.r1producer.ProducerConsts;
         version = "1.0", //
         description = SwaggerConfig.DESCRIPTION, //
         license = @License(
-            name = "Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.",
+            name = "Copyright (C) 2020-2022 Nordix Foundation. Licensed under the Apache License.",
             url = "http://www.apache.org/licenses/LICENSE-2.0")))
 public class SwaggerConfig {
     private SwaggerConfig() {

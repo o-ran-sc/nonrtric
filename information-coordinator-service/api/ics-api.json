@@ -327,22 +327,6 @@
     }},
     "openapi": "3.0.1",
     "paths": {
-        "/example_dataproducer/info_job/{infoJobId}": {"delete": {
-            "summary": "Callback for Information Job deletion",
-            "description": "The call is invoked to terminate a data subscription. The endpoint is provided by the Information Producer.",
-            "operationId": "jobDeletedCallback",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
-            }},
-            "parameters": [{
-                "schema": {"type": "string"},
-                "in": "path",
-                "name": "infoJobId",
-                "required": true
-            }],
-            "tags": ["Data producer (callbacks)"]
-        }},
         "/data-producer/v1/info-types": {"get": {
             "summary": "Info Type identifiers",
             "operationId": "getInfoTypdentifiers",
@@ -353,7 +337,7 @@
                     "items": {"type": "string"}
                 }}}
             }},
-            "tags": ["Data producer (registration)"]
+            "tags": ["producer-controller"]
         }},
         "/A1-EI/v1/eitypes/{eiTypeId}": {"get": {
             "summary": "Individual EI type",
@@ -374,7 +358,7 @@
                 "name": "eiTypeId",
                 "required": true
             }],
-            "tags": ["A1-EI (registration)"]
+            "tags": ["a-1e-controller"]
         }},
         "/actuator/threaddump": {"get": {
             "summary": "Actuator web endpoint 'threaddump'",
@@ -384,20 +368,6 @@
                 "content": {"*/*": {"schema": {"type": "object"}}}
             }},
             "tags": ["Actuator"]
-        }},
-        "/example_dataproducer/info_job": {"post": {
-            "summary": "Callback for Information Job creation/modification",
-            "requestBody": {
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/producer_info_job_request"}}},
-                "required": true
-            },
-            "description": "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the Information Producer.",
-            "operationId": "jobCreatedCallback",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
-            }},
-            "tags": ["Data producer (callbacks)"]
         }},
         "/data-producer/v1/info-types/{infoTypeId}": {
             "get": {
@@ -419,7 +389,7 @@
                     "name": "infoTypeId",
                     "required": true
                 }],
-                "tags": ["Data producer (registration)"]
+                "tags": ["producer-controller"]
             },
             "delete": {
                 "summary": "Individual Information Type",
@@ -448,7 +418,7 @@
                     "name": "infoTypeId",
                     "required": true
                 }],
-                "tags": ["Data producer (registration)"]
+                "tags": ["producer-controller"]
             },
             "put": {
                 "summary": "Individual Information Type",
@@ -477,7 +447,7 @@
                     "name": "infoTypeId",
                     "required": true
                 }],
-                "tags": ["Data producer (registration)"]
+                "tags": ["producer-controller"]
             }
         },
         "/data-consumer/v1/info-type-subscription/{subscriptionId}": {
@@ -500,7 +470,7 @@
                     "name": "subscriptionId",
                     "required": true
                 }],
-                "tags": ["Data consumer"]
+                "tags": ["consumer-controller"]
             },
             "delete": {
                 "summary": "Individual subscription for information types (registration/deregistration)",
@@ -525,7 +495,7 @@
                     "name": "subscriptionId",
                     "required": true
                 }],
-                "tags": ["Data consumer"]
+                "tags": ["consumer-controller"]
             },
             "put": {
                 "summary": "Individual subscription for information types (registration/deregistration)",
@@ -551,9 +521,19 @@
                     "name": "subscriptionId",
                     "required": true
                 }],
-                "tags": ["Data consumer"]
+                "tags": ["consumer-controller"]
             }
         },
+        "/example-dataproducer/health-check": {"get": {
+            "summary": "Producer supervision",
+            "description": "The endpoint is provided by the Information Producer and is used for supervision of the producer.",
+            "operationId": "producerSupervision",
+            "responses": {"200": {
+                "description": "The producer is OK",
+                "content": {"application/json": {"schema": {"type": "string"}}}
+            }},
+            "tags": ["producer-simulator-controller"]
+        }},
         "/actuator/loggers": {"get": {
             "summary": "Actuator web endpoint 'loggers'",
             "operationId": "loggers_2",
@@ -582,7 +562,21 @@
                     "items": {"type": "string"}
                 }}}
             }},
-            "tags": ["Data consumer"]
+            "tags": ["consumer-controller"]
+        }},
+        "/example-dataconsumer/info-type-status": {"post": {
+            "summary": "Callback for changed Information type registration status",
+            "requestBody": {
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_type_registration_info"}}},
+                "required": true
+            },
+            "description": "The primitive is implemented by the data consumer and is invoked when a Information type status has been changed. <br/>Subscription are managed by primitives in 'Data consumer'",
+            "operationId": "typeStatusCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "tags": ["consumer-simulator-controller"]
         }},
         "/actuator/metrics/{requiredMetricName}": {"get": {
             "summary": "Actuator web endpoint 'metrics-requiredMetricName'",
@@ -647,7 +641,7 @@
                     "required": false
                 }
             ],
-            "tags": ["Data consumer"]
+            "tags": ["consumer-controller"]
         }},
         "/actuator/loggers/{name}": {
             "post": {
@@ -681,14 +675,24 @@
                 "tags": ["Actuator"]
             }
         },
-        "/example_dataconsumer/info_jobs/{infoJobId}/status": {"post": {
-            "summary": "Callback for changed Information Job status",
+        "/example-dataproducer/info-job": {"post": {
+            "summary": "Callback for Information Job creation/modification",
             "requestBody": {
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EiJobStatusObject"}}},
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/producer_info_job_request"}}},
                 "required": true
             },
-            "description": "The primitive is implemented by the data consumer and is invoked when a Information Job status has been changed.",
-            "operationId": "jobStatusCallback",
+            "description": "The call is invoked to activate or to modify a data subscription. The endpoint is provided by the Information Producer.",
+            "operationId": "jobCreatedCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "tags": ["producer-simulator-controller"]
+        }},
+        "/example-dataproducer/info-job/{infoJobId}": {"delete": {
+            "summary": "Callback for Information Job deletion",
+            "description": "The call is invoked to terminate a data subscription. The endpoint is provided by the Information Producer.",
+            "operationId": "jobDeletedCallback",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
@@ -699,7 +703,7 @@
                 "name": "infoJobId",
                 "required": true
             }],
-            "tags": ["A1-EI (callbacks)"]
+            "tags": ["producer-simulator-controller"]
         }},
         "/A1-EI/v1/eijobs/{eiJobId}/status": {"get": {
             "summary": "EI job status",
@@ -720,7 +724,7 @@
                 "name": "eiJobId",
                 "required": true
             }],
-            "tags": ["A1-EI (registration)"]
+            "tags": ["a-1e-controller"]
         }},
         "/data-producer/v1/info-producers/{infoProducerId}/status": {"get": {
             "summary": "Information producer status",
@@ -741,7 +745,7 @@
                 "name": "infoProducerId",
                 "required": true
             }],
-            "tags": ["Data producer (registration)"]
+            "tags": ["producer-controller"]
         }},
         "/data-consumer/v1/info-jobs/{infoJobId}/status": {"get": {
             "summary": "Job status",
@@ -762,7 +766,7 @@
                 "name": "infoJobId",
                 "required": true
             }],
-            "tags": ["Data consumer"]
+            "tags": ["consumer-controller"]
         }},
         "/actuator/metrics": {"get": {
             "summary": "Actuator web endpoint 'metrics'",
@@ -773,6 +777,26 @@
             }},
             "tags": ["Actuator"]
         }},
+        "/example-dataconsumer/info-jobs/{infoJobId}/status": {"post": {
+            "summary": "Callback for changed Information Job status",
+            "requestBody": {
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/EiJobStatusObject"}}},
+                "required": true
+            },
+            "description": "The primitive is implemented by the data consumer and is invoked when a Information Job status has been changed.",
+            "operationId": "jobStatusCallback",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
+            }},
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoJobId",
+                "required": true
+            }],
+            "tags": ["a-1e-callbacks-simulator-controller"]
+        }},
         "/actuator/info": {"get": {
             "summary": "Actuator web endpoint 'info'",
             "operationId": "info_2",
@@ -781,16 +805,6 @@
                 "content": {"*/*": {"schema": {"type": "object"}}}
             }},
             "tags": ["Actuator"]
-        }},
-        "/example_dataproducer/health_check": {"get": {
-            "summary": "Producer supervision",
-            "description": "The endpoint is provided by the Information Producer and is used for supervision of the producer.",
-            "operationId": "producerSupervision",
-            "responses": {"200": {
-                "description": "The producer is OK",
-                "content": {"application/json": {"schema": {"type": "string"}}}
-            }},
-            "tags": ["Data producer (callbacks)"]
         }},
         "/A1-EI/v1/eitypes": {"get": {
             "summary": "EI type identifiers",
@@ -802,7 +816,7 @@
                     "items": {"type": "string"}
                 }}}
             }},
-            "tags": ["A1-EI (registration)"]
+            "tags": ["a-1e-controller"]
         }},
         "/data-producer/v1/info-producers/{infoProducerId}": {
             "get": {
@@ -824,7 +838,7 @@
                     "name": "infoProducerId",
                     "required": true
                 }],
-                "tags": ["Data producer (registration)"]
+                "tags": ["producer-controller"]
             },
             "delete": {
                 "summary": "Individual Information Producer",
@@ -849,7 +863,7 @@
                     "name": "infoProducerId",
                     "required": true
                 }],
-                "tags": ["Data producer (registration)"]
+                "tags": ["producer-controller"]
             },
             "put": {
                 "summary": "Individual Information Producer",
@@ -882,7 +896,7 @@
                     "name": "infoProducerId",
                     "required": true
                 }],
-                "tags": ["Data producer (registration)"]
+                "tags": ["producer-controller"]
             }
         },
         "/status": {"get": {
@@ -892,7 +906,7 @@
                 "description": "Service is living",
                 "content": {"application/json": {"schema": {"$ref": "#/components/schemas/service_status_info"}}}
             }},
-            "tags": ["Service status"]
+            "tags": ["status-controller"]
         }},
         "/data-consumer/v1/info-type-subscription": {"get": {
             "summary": "Information type subscription identifiers",
@@ -912,7 +926,7 @@
                 "description": "selects result for one owner",
                 "required": false
             }],
-            "tags": ["Data consumer"]
+            "tags": ["consumer-controller"]
         }},
         "/A1-EI/v1/eijobs/{eiJobId}": {
             "get": {
@@ -934,7 +948,7 @@
                     "name": "eiJobId",
                     "required": true
                 }],
-                "tags": ["A1-EI (registration)"]
+                "tags": ["a-1e-controller"]
             },
             "delete": {
                 "summary": "Individual EI job",
@@ -959,7 +973,7 @@
                     "name": "eiJobId",
                     "required": true
                 }],
-                "tags": ["A1-EI (registration)"]
+                "tags": ["a-1e-controller"]
             },
             "put": {
                 "summary": "Individual EI job",
@@ -996,7 +1010,7 @@
                     "name": "eiJobId",
                     "required": true
                 }],
-                "tags": ["A1-EI (registration)"]
+                "tags": ["a-1e-controller"]
             }
         },
         "/actuator/logfile": {"get": {
@@ -1028,7 +1042,7 @@
                     "name": "infoJobId",
                     "required": true
                 }],
-                "tags": ["Data consumer"]
+                "tags": ["consumer-controller"]
             },
             "delete": {
                 "summary": "Individual data subscription job",
@@ -1053,7 +1067,7 @@
                     "name": "infoJobId",
                     "required": true
                 }],
-                "tags": ["Data consumer"]
+                "tags": ["consumer-controller"]
             },
             "put": {
                 "summary": "Individual data subscription job",
@@ -1103,7 +1117,7 @@
                         "required": false
                     }
                 ],
-                "tags": ["Data consumer"]
+                "tags": ["consumer-controller"]
             }
         },
         "/data-producer/v1/info-producers": {"get": {
@@ -1119,11 +1133,11 @@
             "parameters": [{
                 "schema": {"type": "string"},
                 "in": "query",
-                "name": "info_type_id",
+                "name": "infoTypeId",
                 "description": "If given, only the producers for the EI Data type is returned.",
                 "required": false
             }],
-            "tags": ["Data producer (registration)"]
+            "tags": ["producer-controller"]
         }},
         "/data-consumer/v1/info-types/{infoTypeId}": {"get": {
             "summary": "Individual information type",
@@ -1144,7 +1158,7 @@
                 "name": "infoTypeId",
                 "required": true
             }],
-            "tags": ["Data consumer"]
+            "tags": ["consumer-controller"]
         }},
         "/actuator/health": {"get": {
             "summary": "Actuator web endpoint 'health'",
@@ -1188,7 +1202,7 @@
                     "required": false
                 }
             ],
-            "tags": ["A1-EI (registration)"]
+            "tags": ["a-1e-controller"]
         }},
         "/data-producer/v1/info-producers/{infoProducerId}/info-jobs": {"get": {
             "summary": "Information Job definitions",
@@ -1213,21 +1227,7 @@
                 "name": "infoProducerId",
                 "required": true
             }],
-            "tags": ["Data producer (registration)"]
-        }},
-        "/example_dataconsumer/info_type_status": {"post": {
-            "summary": "Callback for changed Information type registration status",
-            "requestBody": {
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/consumer_type_registration_info"}}},
-                "required": true
-            },
-            "description": "The primitive is implemented by the data consumer and is invoked when a Information type status has been changed. <br/>Subscription are managed by primitives in 'Data consumer'",
-            "operationId": "typeStatusCallback",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Void"}}}
-            }},
-            "tags": ["Data consumer (callbacks)"]
+            "tags": ["producer-controller"]
         }},
         "/actuator/heapdump": {"get": {
             "summary": "Actuator web endpoint 'heapdump'",
@@ -1241,7 +1241,7 @@
     },
     "info": {
         "license": {
-            "name": "Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.",
+            "name": "Copyright (C) 2020-2022 Nordix Foundation. Licensed under the Apache License.",
             "url": "http://www.apache.org/licenses/LICENSE-2.0"
         },
         "description": "<h1>API documentation<\/h1><h2>General<\/h2><p>  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types.<\/p><h2>APIs provided by the service<\/h2><h4>A1-EI<\/h4><p>  This API is between Near-RT RIC and the Non-RT RIC.  The Near-RT RIC is a data consumer, which creates Information Jobs to subscribe for data.  In this context, the information is referred to as 'Enrichment Information', EI.<\/p><h4>Data producer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data producers and provides support for:<ul><li>Registry of supported information types and which parameters needed to setup a subscription.<\/li><li>Registry of existing data producers.<\/li><li>Callback API provided by producers to setup subscriptions.<\/li><\/ul><\/p><h4>Data consumer API<\/h4><p>  This API is provided by the Non-RT RIC platform and is intended to be part of the O-RAN R1 interface.  The API is for use by different kinds of data consumers and provides support for:<ul><li>Querying of available types of data to consume.<\/li><li>Management of data subscription jobs<\/li><li>Optional callback API provided by consumers to get notification on added and removed information types.<\/li><\/ul><\/p><h4>Service status<\/h4><p>  This API provides a means to monitor the health of this service.<\/p>",
@@ -1249,13 +1249,6 @@
         "version": "1.0"
     },
     "tags": [
-        {"name": "A1-EI (callbacks)"},
-        {
-            "name": "Data producer (callbacks)",
-            "description": "API implemented by data producers"
-        },
-        {"name": "Data consumer"},
-        {"name": "Data consumer (callbacks)"},
         {
             "name": "A1-EI (registration)",
             "description": "Data consumer EI job registration"
@@ -1264,21 +1257,21 @@
             "name": "A1-EI (callbacks)",
             "description": "Data consumer EI job status callbacks"
         },
-        {"name": "Service status"},
-        {"name": "A1-EI (registration)"},
-        {"name": "Data producer (registration)"},
-        {"name": "Data producer (callbacks)"},
+        {
+            "name": "Data producer (callbacks)",
+            "description": "API implemented by data producers"
+        },
         {
             "name": "Data producer (registration)",
             "description": "API for data producers"
         },
         {
-            "name": "Data consumer",
-            "description": "API for data consumers"
-        },
-        {
             "name": "Service status",
             "description": "API for monitoring of the service"
+        },
+        {
+            "name": "Data consumer",
+            "description": "API for data consumers"
         },
         {
             "name": "Actuator",

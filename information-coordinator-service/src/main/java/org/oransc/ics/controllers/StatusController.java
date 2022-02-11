@@ -23,12 +23,12 @@ package org.oransc.ics.controllers;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
+import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.immutables.gson.Gson;
 import org.oransc.ics.repository.InfoJobs;
@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController("StatusController")
-@Tag(name = StatusController.API_NAME)
+@Api(tags = StatusController.API_NAME)
 public class StatusController {
 
     public static final String API_NAME = "Service status";

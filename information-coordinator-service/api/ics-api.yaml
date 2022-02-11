@@ -24,64 +24,34 @@ info:
     added and removed information types.</li></ul></p><h4>Service status</h4><p>  This
     API provides a means to monitor the health of this service.</p>
   license:
-    name: Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.
+    name: Copyright (C) 2020-2022 Nordix Foundation. Licensed under the Apache License.
     url: http://www.apache.org/licenses/LICENSE-2.0
   version: "1.0"
 servers:
 - url: /
 tags:
-- name: A1-EI (callbacks)
-- name: Data producer (callbacks)
-  description: API implemented by data producers
-- name: Data consumer
-- name: Data consumer (callbacks)
 - name: A1-EI (registration)
   description: Data consumer EI job registration
 - name: A1-EI (callbacks)
   description: Data consumer EI job status callbacks
-- name: Service status
-- name: A1-EI (registration)
-- name: Data producer (registration)
 - name: Data producer (callbacks)
+  description: API implemented by data producers
 - name: Data producer (registration)
   description: API for data producers
-- name: Data consumer
-  description: API for data consumers
 - name: Service status
   description: API for monitoring of the service
+- name: Data consumer
+  description: API for data consumers
 - name: Actuator
   description: Monitor and interact
   externalDocs:
     description: Spring Boot Actuator Web API Documentation
     url: https://docs.spring.io/spring-boot/docs/current/actuator-api/html/
 paths:
-  /example_dataproducer/info_job/{infoJobId}:
-    delete:
-      tags:
-      - Data producer (callbacks)
-      summary: Callback for Information Job deletion
-      description: The call is invoked to terminate a data subscription. The endpoint
-        is provided by the Information Producer.
-      operationId: jobDeletedCallback
-      parameters:
-      - name: infoJobId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Void'
   /data-producer/v1/info-types:
     get:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Info Type identifiers
       operationId: getInfoTypdentifiers
       responses:
@@ -96,7 +66,7 @@ paths:
   /A1-EI/v1/eitypes/{eiTypeId}:
     get:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: Individual EI type
       operationId: getEiType
       parameters:
@@ -133,31 +103,10 @@ paths:
             '*/*':
               schema:
                 type: object
-  /example_dataproducer/info_job:
-    post:
-      tags:
-      - Data producer (callbacks)
-      summary: Callback for Information Job creation/modification
-      description: The call is invoked to activate or to modify a data subscription.
-        The endpoint is provided by the Information Producer.
-      operationId: jobCreatedCallback
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/producer_info_job_request'
-        required: true
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Void'
   /data-producer/v1/info-types/{infoTypeId}:
     get:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Individual Information Type
       operationId: getInfoType
       parameters:
@@ -183,7 +132,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Individual Information Type
       operationId: putInfoType
       parameters:
@@ -221,7 +170,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Individual Information Type
       operationId: deleteInfoType
       parameters:
@@ -260,7 +209,7 @@ paths:
   /data-consumer/v1/info-type-subscription/{subscriptionId}:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual subscription for information types (registration/deregistration)
       operationId: getIndividualTypeSubscription
       parameters:
@@ -286,7 +235,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual subscription for information types (registration/deregistration)
       description: This service operation is used to subscribe to notifications for
         changes in the availability of data types.
@@ -320,7 +269,7 @@ paths:
                 $ref: '#/components/schemas/Void'
     delete:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual subscription for information types (registration/deregistration)
       operationId: deleteIndividualTypeSubscription
       parameters:
@@ -350,6 +299,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /example-dataproducer/health-check:
+    get:
+      tags:
+      - producer-simulator-controller
+      summary: Producer supervision
+      description: The endpoint is provided by the Information Producer and is used
+        for supervision of the producer.
+      operationId: producerSupervision
+      responses:
+        200:
+          description: The producer is OK
+          content:
+            application/json:
+              schema:
+                type: string
   /actuator/loggers:
     get:
       tags:
@@ -379,7 +343,7 @@ paths:
   /data-consumer/v1/info-types:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Information type identifiers
       operationId: getinfoTypeIdentifiers
       responses:
@@ -391,6 +355,28 @@ paths:
                 type: array
                 items:
                   type: string
+  /example-dataconsumer/info-type-status:
+    post:
+      tags:
+      - consumer-simulator-controller
+      summary: Callback for changed Information type registration status
+      description: The primitive is implemented by the data consumer and is invoked
+        when a Information type status has been changed. <br/>Subscription are managed
+        by primitives in 'Data consumer'
+      operationId: typeStatusCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/consumer_type_registration_info'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
   /actuator/metrics/{requiredMetricName}:
     get:
       tags:
@@ -432,7 +418,7 @@ paths:
   /data-consumer/v1/info-jobs:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Information Job identifiers
       description: query for information job identifiers
       operationId: getJobIds
@@ -509,14 +495,35 @@ paths:
             '*/*':
               schema:
                 type: object
-  /example_dataconsumer/info_jobs/{infoJobId}/status:
+  /example-dataproducer/info-job:
     post:
       tags:
-      - A1-EI (callbacks)
-      summary: Callback for changed Information Job status
-      description: The primitive is implemented by the data consumer and is invoked
-        when a Information Job status has been changed.
-      operationId: jobStatusCallback
+      - producer-simulator-controller
+      summary: Callback for Information Job creation/modification
+      description: The call is invoked to activate or to modify a data subscription.
+        The endpoint is provided by the Information Producer.
+      operationId: jobCreatedCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/producer_info_job_request'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
+  /example-dataproducer/info-job/{infoJobId}:
+    delete:
+      tags:
+      - producer-simulator-controller
+      summary: Callback for Information Job deletion
+      description: The call is invoked to terminate a data subscription. The endpoint
+        is provided by the Information Producer.
+      operationId: jobDeletedCallback
       parameters:
       - name: infoJobId
         in: path
@@ -525,12 +532,6 @@ paths:
         explode: false
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EiJobStatusObject'
-        required: true
       responses:
         200:
           description: OK
@@ -541,7 +542,7 @@ paths:
   /A1-EI/v1/eijobs/{eiJobId}/status:
     get:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: EI job status
       operationId: getEiJobStatus_1
       parameters:
@@ -568,7 +569,7 @@ paths:
   /data-producer/v1/info-producers/{infoProducerId}/status:
     get:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Information producer status
       operationId: getInfoProducerStatus
       parameters:
@@ -595,7 +596,7 @@ paths:
   /data-consumer/v1/info-jobs/{infoJobId}/status:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Job status
       operationId: getEiJobStatus
       parameters:
@@ -632,6 +633,35 @@ paths:
             '*/*':
               schema:
                 type: object
+  /example-dataconsumer/info-jobs/{infoJobId}/status:
+    post:
+      tags:
+      - a-1e-callbacks-simulator-controller
+      summary: Callback for changed Information Job status
+      description: The primitive is implemented by the data consumer and is invoked
+        when a Information Job status has been changed.
+      operationId: jobStatusCallback
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EiJobStatusObject'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Void'
   /actuator/info:
     get:
       tags:
@@ -645,25 +675,10 @@ paths:
             '*/*':
               schema:
                 type: object
-  /example_dataproducer/health_check:
-    get:
-      tags:
-      - Data producer (callbacks)
-      summary: Producer supervision
-      description: The endpoint is provided by the Information Producer and is used
-        for supervision of the producer.
-      operationId: producerSupervision
-      responses:
-        200:
-          description: The producer is OK
-          content:
-            application/json:
-              schema:
-                type: string
   /A1-EI/v1/eitypes:
     get:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: EI type identifiers
       operationId: getEiTypeIdentifiers
       responses:
@@ -678,7 +693,7 @@ paths:
   /data-producer/v1/info-producers/{infoProducerId}:
     get:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Individual Information Producer
       operationId: getInfoProducer
       parameters:
@@ -704,7 +719,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Individual Information Producer
       operationId: putInfoProducer
       parameters:
@@ -748,7 +763,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Individual Information Producer
       operationId: deleteInfoProducer
       parameters:
@@ -781,7 +796,7 @@ paths:
   /status:
     get:
       tags:
-      - Service status
+      - status-controller
       summary: Returns status and statistics of this service
       operationId: getStatus
       responses:
@@ -794,7 +809,7 @@ paths:
   /data-consumer/v1/info-type-subscription:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Information type subscription identifiers
       description: query for information type subscription identifiers
       operationId: getInfoTypeSubscriptions
@@ -819,7 +834,7 @@ paths:
   /A1-EI/v1/eijobs/{eiJobId}:
     get:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: Individual EI job
       operationId: getIndividualEiJob_1
       parameters:
@@ -845,7 +860,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: Individual EI job
       operationId: putIndividualEiJob
       parameters:
@@ -895,7 +910,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: Individual EI job
       operationId: deleteIndividualEiJob_1
       parameters:
@@ -941,7 +956,7 @@ paths:
   /data-consumer/v1/info-jobs/{infoJobId}:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual data subscription job
       operationId: getIndividualEiJob
       parameters:
@@ -967,7 +982,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual data subscription job
       description: The job will be enabled when a producer is available
       operationId: putIndividualInfoJob
@@ -1028,7 +1043,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual data subscription job
       operationId: deleteIndividualEiJob
       parameters:
@@ -1061,11 +1076,11 @@ paths:
   /data-producer/v1/info-producers:
     get:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Information producer identifiers
       operationId: getInfoProducerIdentifiers
       parameters:
-      - name: info_type_id
+      - name: infoTypeId
         in: query
         description: If given, only the producers for the EI Data type is returned.
         required: false
@@ -1085,7 +1100,7 @@ paths:
   /data-consumer/v1/info-types/{infoTypeId}:
     get:
       tags:
-      - Data consumer
+      - consumer-controller
       summary: Individual information type
       operationId: getInfoType_1
       parameters:
@@ -1125,7 +1140,7 @@ paths:
   /A1-EI/v1/eijobs:
     get:
       tags:
-      - A1-EI (registration)
+      - a-1e-controller
       summary: EI job identifiers
       description: query for EI job identifiers
       operationId: getEiJobIds
@@ -1164,7 +1179,7 @@ paths:
   /data-producer/v1/info-producers/{infoProducerId}/info-jobs:
     get:
       tags:
-      - Data producer (registration)
+      - producer-controller
       summary: Information Job definitions
       description: Information Job definitions for one Information Producer
       operationId: getInfoProducerJobs
@@ -1191,28 +1206,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /example_dataconsumer/info_type_status:
-    post:
-      tags:
-      - Data consumer (callbacks)
-      summary: Callback for changed Information type registration status
-      description: The primitive is implemented by the data consumer and is invoked
-        when a Information type status has been changed. <br/>Subscription are managed
-        by primitives in 'Data consumer'
-      operationId: typeStatusCallback
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/consumer_type_registration_info'
-        required: true
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Void'
   /actuator/heapdump:
     get:
       tags:
