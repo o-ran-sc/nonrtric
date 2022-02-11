@@ -35,47 +35,48 @@ import java.util.List;
 import lombok.Getter;
 
 import org.oransc.ics.controllers.VoidResponse;
+import org.oransc.ics.controllers.a1e.A1eConsts;
+import org.oransc.ics.controllers.a1e.A1eEiJobStatus;
 import org.oransc.ics.controllers.r1consumer.ConsumerConsts;
-import org.oransc.ics.controllers.r1consumer.ConsumerTypeRegistrationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("ConsumerSimulatorController")
-@Tag(name = ConsumerConsts.CONSUMER_API_CALLBACKS_NAME, description = ConsumerConsts.CONSUMER_API_DESCRIPTION)
-public class ConsumerSimulatorController {
+@RestController("A1eCallbacksSimulatorController")
+@Tag(name = A1eConsts.CONSUMER_API_CALLBACKS_NAME, description = A1eConsts.CONSUMER_API_CALLBACKS_DESCRIPTION)
+public class A1eCallbacksSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static class TestResults {
 
-        public List<ConsumerTypeRegistrationInfo> typeRegistrationInfoCallbacks =
-            Collections.synchronizedList(new ArrayList<ConsumerTypeRegistrationInfo>());
+        public List<A1eEiJobStatus> eiJobStatusCallbacks =
+            Collections.synchronizedList(new ArrayList<A1eEiJobStatus>());
 
         public void reset() {
-            typeRegistrationInfoCallbacks.clear();
+            eiJobStatusCallbacks.clear();
         }
     }
 
     @Getter
     private TestResults testResults = new TestResults();
 
-    private static final String TYPE_STATUS_CALLBACK_URL = "/example-dataconsumer/info-type-status";
-
-    public static String getTypeStatusCallbackUrl() {
-        return TYPE_STATUS_CALLBACK_URL;
+    public static String getJobStatusUrl(String infoJobId) {
+        return "/example-dataconsumer/info-jobs/" + infoJobId + "/status";
     }
 
-    @PostMapping(path = TYPE_STATUS_CALLBACK_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+        path = "/example-dataconsumer/info-jobs/{infoJobId}/status",
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
-        summary = "Callback for changed Information type registration status",
-        description = "The primitive is implemented by the data consumer and is invoked when a Information type status has been changed. <br/>"
-            + "Subscription are managed by primitives in '" + ConsumerConsts.CONSUMER_API_NAME + "'")
+        summary = "Callback for changed Information Job status",
+        description = "The primitive is implemented by the data consumer and is invoked when a Information Job status has been changed.")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -83,11 +84,11 @@ public class ConsumerSimulatorController {
                 description = "OK", //
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
-    public ResponseEntity<Object> typeStatusCallback( //
-        @RequestBody ConsumerTypeRegistrationInfo status) {
-        logger.info("Job type registration status callback status: {}", status);
-        this.testResults.typeRegistrationInfoCallbacks.add(status);
+    public ResponseEntity<Object> jobStatusCallback( //
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String infoJobId, //
+        @RequestBody A1eEiJobStatus status) {
+        logger.info("Job status callback status: {} infoJobId: {}", status.state, infoJobId);
+        this.testResults.eiJobStatusCallbacks.add(status);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

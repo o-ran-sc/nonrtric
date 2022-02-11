@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController("StatusController")
-@Tag(name = StatusController.API_NAME)
+@Tag(name = StatusController.API_NAME, description = StatusController.API_DESCRIPTION)
 public class StatusController {
 
     public static final String API_NAME = "Service status";

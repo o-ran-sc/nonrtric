@@ -36,6 +36,7 @@ import lombok.Getter;
 
 import org.oransc.ics.controllers.ErrorResponse;
 import org.oransc.ics.controllers.VoidResponse;
+import org.oransc.ics.controllers.r1consumer.ConsumerConsts;
 import org.oransc.ics.controllers.r1producer.ProducerConsts;
 import org.oransc.ics.controllers.r1producer.ProducerJobInfo;
 import org.slf4j.Logger;
@@ -51,16 +52,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ProducerSimulatorController")
-@Tag(name = ProducerConsts.PRODUCER_API_CALLBACKS_NAME)
+@Tag(name = ProducerConsts.PRODUCER_API_CALLBACKS_NAME, description = ProducerConsts.PRODUCER_API_CALLBACKS_DESCRIPTION)
 public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String JOB_URL = "/example_dataproducer/info_job";
-    public static final String JOB_ERROR_URL = "/example_dataproducer/info_job_error";
+    public static final String JOB_URL = "/example-dataproducer/info-job";
+    public static final String JOB_ERROR_URL = "/example-dataproducer/info-job-error";
 
-    public static final String SUPERVISION_URL = "/example_dataproducer/health_check";
-    public static final String SUPERVISION_ERROR_URL = "/example_dataproducer/health_check_error";
+    public static final String SUPERVISION_URL = "/example-dataproducer/health-check";
+    public static final String SUPERVISION_ERROR_URL = "/example-dataproducer/health-check-error";
 
     public static class TestResults {
 
@@ -123,7 +124,7 @@ public class ProducerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobDeletedCallback( //
-        @PathVariable("infoJobId") String infoJobId) {
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String infoJobId) {
         try {
             logger.info("Job deleted callback {}", infoJobId);
             this.testResults.jobsStopped.add(infoJobId);
@@ -159,7 +160,7 @@ public class ProducerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobDeletedCallbackReturnError( //
-        @PathVariable("infoJobId") String infoJobId) {
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String infoJobId) {
         logger.info("Job created (returning error) callback {}", infoJobId);
         this.testResults.noOfRejectedDelete += 1;
         return ErrorResponse.create("Producer returns error on delete job", HttpStatus.NOT_FOUND);

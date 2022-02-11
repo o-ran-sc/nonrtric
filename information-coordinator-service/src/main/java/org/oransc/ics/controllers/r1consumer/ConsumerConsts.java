@@ -38,6 +38,11 @@ public class ConsumerConsts {
     public static final String INFO_TYPE_ID_PARAM = "infoTypeId";
     public static final String INFO_TYPE_ID_PARAM_DESCRIPTION =
         "selects subscription jobs of matching information type";
+    public static final String INFO_TYPE_ID_PATH = "infoTypeId";
+
+    public static final String INFO_JOB_ID_PATH = "infoJobId";
+
+    public static final String SUBSCRIPTION_ID_PATH = "subscriptionId";
 
     public static final String PERFORM_TYPE_CHECK_PARAM = "typeCheck";
     public static final String PERFORM_TYPE_CHECK_PARAM_DESCRIPTION =

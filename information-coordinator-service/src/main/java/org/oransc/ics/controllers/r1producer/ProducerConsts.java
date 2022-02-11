@@ -20,6 +20,8 @@
 
 package org.oransc.ics.controllers.r1producer;
 
+import org.oransc.ics.controllers.r1consumer.ConsumerConsts;
+
 public class ProducerConsts {
     public static final String PRODUCER_API_NAME = "Data producer (registration)";
     public static final String API_ROOT = "/data-producer/v1";
@@ -27,6 +29,11 @@ public class ProducerConsts {
 
     public static final String PRODUCER_API_CALLBACKS_NAME = "Data producer (callbacks)";
     public static final String PRODUCER_API_CALLBACKS_DESCRIPTION = "API implemented by data producers";
+
+    public static final String INFO_TYPE_ID_PARAM = ConsumerConsts.INFO_TYPE_ID_PARAM;
+    public static final String INFO_TYPE_ID_PATH = ConsumerConsts.INFO_TYPE_ID_PATH;
+
+    public static final String INFO_PRODUCER_ID_PATH = "infoProducerId";
 
     private ProducerConsts() {
     }

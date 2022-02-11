@@ -23,12 +23,7 @@ package org.oransc.ics;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.oransc.ics.controllers.StatusController;
-import org.oransc.ics.controllers.a1e.A1eConsts;
-import org.oransc.ics.controllers.r1consumer.ConsumerConsts;
-import org.oransc.ics.controllers.r1producer.ProducerConsts;
 
 /**
  * Swagger configuration class that uses swagger documentation type and scans
@@ -37,22 +32,12 @@ import org.oransc.ics.controllers.r1producer.ProducerConsts;
  */
 
 @OpenAPIDefinition( //
-    tags = { //
-        @Tag(name = A1eConsts.CONSUMER_API_NAME, description = A1eConsts.CONSUMER_API_DESCRIPTION),
-        @Tag(name = A1eConsts.CONSUMER_API_CALLBACKS_NAME, description = A1eConsts.CONSUMER_API_CALLBACKS_DESCRIPTION),
-        @Tag(
-            name = ProducerConsts.PRODUCER_API_CALLBACKS_NAME,
-            description = ProducerConsts.PRODUCER_API_CALLBACKS_DESCRIPTION),
-        @Tag(name = ProducerConsts.PRODUCER_API_NAME, description = ProducerConsts.PRODUCER_API_DESCRIPTION), //
-        @Tag(name = StatusController.API_NAME, description = StatusController.API_DESCRIPTION), //
-        @Tag(name = ConsumerConsts.CONSUMER_API_NAME, description = ConsumerConsts.CONSUMER_API_DESCRIPTION), //
-    }, //
     info = @Info(
         title = SwaggerConfig.API_TITLE, //
         version = "1.0", //
         description = SwaggerConfig.DESCRIPTION, //
         license = @License(
-            name = "Copyright (C) 2020 Nordix Foundation. Licensed under the Apache License.",
+            name = "Copyright (C) 2020-2022 Nordix Foundation. Licensed under the Apache License.",
             url = "http://www.apache.org/licenses/LICENSE-2.0")))
 public class SwaggerConfig {
     private SwaggerConfig() {

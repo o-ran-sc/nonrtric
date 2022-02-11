@@ -68,7 +68,7 @@ import reactor.core.publisher.Mono;
 
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 @RestController("A1-EI")
-@Tag(name = A1eConsts.CONSUMER_API_NAME)
+@Tag(name = A1eConsts.CONSUMER_API_NAME, description = A1eConsts.CONSUMER_API_DESCRIPTION)
 @RequestMapping(path = A1eConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
 public class A1eController {
 
