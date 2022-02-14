@@ -33,6 +33,46 @@
       "message": "wiki page on how to deploy oru-app in docker env\nhttps://wiki.o-ran-sc.org/display/RICNR/Deploy+ORU-App+in+docker+env",
       "revId": "01d9d8b4cd3251e6f6438fa4fb115a3b1abb78b6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d245fb82_0425e76d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-02-14T14:45:01Z",
+      "side": 1,
+      "message": "Just a suggestion on a alternative way to build the images",
+      "revId": "01d9d8b4cd3251e6f6438fa4fb115a3b1abb78b6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "646322c5_edb34b85",
+        "filename": "test/usecases/oruclosedlooprecovery/goversion/docker-compose/start.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-02-14T14:45:01Z",
+      "side": 1,
+      "message": "I wonder if it would be better to do the build in docker-compose",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 13
+      },
+      "revId": "01d9d8b4cd3251e6f6438fa4fb115a3b1abb78b6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
