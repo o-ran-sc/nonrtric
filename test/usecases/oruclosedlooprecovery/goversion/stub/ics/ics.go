@@ -24,6 +24,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -43,13 +44,22 @@ func main() {
 	fmt.Println(http.ListenAndServe(fmt.Sprintf(":%v", *port), r))
 }
 
+func getEnv(key string, defaultVal string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	return defaultVal
+}
+
 func handleCalls(w http.ResponseWriter, r *http.Request) {
+	producer_addr := getEnv("PRODUCER_ADDR", "http://producer-sim:8085/")
 	vars := mux.Vars(r)
 	id, ok := vars["jobId"]
 	if ok {
 		fmt.Println(r.Method, " of job ", id)
 		if r.Method == http.MethodPut {
-			req, _ := http.NewRequest(http.MethodPut, "http://localhost:8085/create/"+id, nil)
+			req, _ := http.NewRequest(http.MethodPut, producer_addr+"create/"+id, nil)
 			r, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Failed to create job in producer ", err)
@@ -57,7 +67,7 @@ func handleCalls(w http.ResponseWriter, r *http.Request) {
 			}
 			fmt.Println("Created job in producer ", r.Status)
 		} else {
-			req, _ := http.NewRequest(http.MethodDelete, "http://localhost:8085/delete/"+id, nil)
+			req, _ := http.NewRequest(http.MethodDelete, producer_addr+"delete/"+id, nil)
 			r, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Failed to delete job in producer ", err)
