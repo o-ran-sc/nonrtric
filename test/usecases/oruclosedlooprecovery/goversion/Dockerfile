@@ -22,7 +22,7 @@ WORKDIR /
 
 ## Copy from "build" stage
 COPY --from=build /docker-oruclosedloop .
-
+COPY --from=build /app/security/ ./security/
 COPY --from=build /app/o-ru-to-o-du-map.csv .
 
 USER nonroot:nonroot

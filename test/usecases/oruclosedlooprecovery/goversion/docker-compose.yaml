@@ -1,0 +1,82 @@
+#  Copyright (C) 2022 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+version: '3.5'
+
+networks:
+  default:
+    driver: bridge
+    name: nonrtric-docker-net
+
+services:
+  ics:
+    build:
+      context: .
+      dockerfile: Dockerfile-ics
+    container_name: ics-sim
+    networks:
+      default:
+        aliases:
+          - ics-sim
+    ports:
+      - 8083:8083
+    environment:
+      - PRODUCER_ADDR=http://producer-sim:8085/
+
+  sdnr-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile-sdnr
+    container_name: sdnr-sim
+    networks:
+      default:
+        aliases:
+          - sdnr-sim
+    ports:
+      - 3904:3904
+
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile-producer
+    container_name: producer-sim
+    networks:
+      default:
+        aliases:
+          - producer-sim
+    ports:
+      - 8085:8085
+    environment:
+      - ORU_ADDR=http://oru-app:8086
+
+  oru-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oru-app
+    networks:
+      default:
+        aliases:
+          - oru-app
+    ports:
+      - 8086:8086
+    environment:
+      - CONSUMER_HOST=http://producer-sim
+      - CONSUMER_PORT=8086
+      - INFO_COORD_ADDR=http://ics-sim:8083
+      - SDNR_ADDR=http://sdnr-sim:3904
+      - CONSUMER_CERT_PATH=security/consumer.crt
+      - CONSUMER_KEY_PATH=security/consumer.key
+      - LOG_LEVEL=Debug
