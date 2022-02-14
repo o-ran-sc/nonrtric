@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -67,6 +68,14 @@ func deleteJobHandler(w http.ResponseWriter, r *http.Request) {
 	started = false
 }
 
+func getEnv(key string, defaultVal string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	return defaultVal
+}
+
 func startPushingMessages() {
 	message := ves.FaultMessage{
 		Event: ves.Event{
@@ -99,7 +108,8 @@ func startPushingMessages() {
 		m, _ := json.Marshal(message)
 		msgToSend, _ := json.Marshal([]string{string(m)})
 
-		req, _ := http.NewRequest(http.MethodPost, "http://localhost:40935", bytes.NewBuffer(msgToSend))
+		oru_addr := getEnv("ORU_ADDR", "http://oru-app:8086")
+		req, _ := http.NewRequest(http.MethodPost, oru_addr, bytes.NewBuffer(msgToSend))
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 		r, err := client.Do(req)
