@@ -62,7 +62,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 @RestController("Producer registry")
-@Tag(name = ProducerConsts.PRODUCER_API_NAME)
+@Tag(name = ProducerConsts.PRODUCER_API_NAME, description = ProducerConsts.PRODUCER_API_DESCRIPTION)
 public class ProducerController {
 
     private static Gson gson = new GsonBuilder().create();
@@ -113,7 +113,7 @@ public class ProducerController {
                 description = "Information type is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
     public ResponseEntity<Object> getInfoType( //
-        @PathVariable("infoTypeId") String infoTypeId) {
+        @PathVariable(ProducerConsts.INFO_TYPE_ID_PATH) String infoTypeId) {
         try {
             InfoType t = this.infoTypes.getType(infoTypeId);
             ProducerInfoTypeInfo info = toInfoTypeInfo(t);
@@ -142,7 +142,7 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
     @Operation(summary = "Individual Information Type", description = "")
     public ResponseEntity<Object> putInfoType( //
-        @PathVariable("infoTypeId") String infoTypeId, //
+        @PathVariable(ProducerConsts.INFO_TYPE_ID_PATH) String infoTypeId, //
         @RequestBody ProducerInfoTypeInfo registrationInfo) {
 
         InfoType previousDefinition = this.infoTypes.get(infoTypeId);
@@ -180,7 +180,7 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> deleteInfoType( //
-        @PathVariable("infoTypeId") String infoTypeId) {
+        @PathVariable(ProducerConsts.INFO_TYPE_ID_PATH) String infoTypeId) {
 
         InfoType type = this.infoTypes.get(infoTypeId);
         if (type == null) {
@@ -207,10 +207,10 @@ public class ProducerController {
         })
     public ResponseEntity<Object> getInfoProducerIdentifiers( //
         @Parameter(
-            name = "info_type_id",
+            name = ProducerConsts.INFO_TYPE_ID_PARAM,
             required = false,
             description = "If given, only the producers for the EI Data type is returned.") //
-        @RequestParam(name = "info_type_id", required = false) String typeId //
+        @RequestParam(name = ProducerConsts.INFO_TYPE_ID_PARAM, required = false) String typeId //
     ) {
         List<String> result = new ArrayList<>();
         for (InfoProducer infoProducer : typeId == null ? this.infoProducers.getAllProducers()
@@ -237,7 +237,7 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))//
         })
     public ResponseEntity<Object> getInfoProducer( //
-        @PathVariable("infoProducerId") String infoProducerId) {
+        @PathVariable(ProducerConsts.INFO_PRODUCER_ID_PATH) String infoProducerId) {
         try {
             InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             ProducerRegistrationInfo info = toProducerRegistrationInfo(producer);
@@ -265,7 +265,7 @@ public class ProducerController {
                 content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProducerJobInfo.class)))), //
         })
     public ResponseEntity<Object> getInfoProducerJobs( //
-        @PathVariable("infoProducerId") String infoProducerId) {
+        @PathVariable(ProducerConsts.INFO_PRODUCER_ID_PATH) String infoProducerId) {
         try {
             InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             Collection<ProducerJobInfo> producerJobs = new ArrayList<>();
@@ -298,7 +298,7 @@ public class ProducerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> getInfoProducerStatus( //
-        @PathVariable("infoProducerId") String infoProducerId) {
+        @PathVariable(ProducerConsts.INFO_PRODUCER_ID_PATH) String infoProducerId) {
         try {
             InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             return new ResponseEntity<>(gson.toJson(producerStatusInfo(producer)), HttpStatus.OK);
@@ -384,7 +384,8 @@ public class ProducerController {
                 description = "Producer is not found", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
-    public ResponseEntity<Object> deleteInfoProducer(@PathVariable("infoProducerId") String infoProducerId) {
+    public ResponseEntity<Object> deleteInfoProducer(
+        @PathVariable(ProducerConsts.INFO_PRODUCER_ID_PATH) String infoProducerId) {
         try {
             final InfoProducer producer = this.infoProducers.getProducer(infoProducerId);
             this.infoProducers.deregisterProducer(producer);

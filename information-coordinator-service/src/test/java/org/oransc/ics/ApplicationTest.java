@@ -48,6 +48,7 @@ import org.oransc.ics.configuration.ImmutableHttpProxyConfig;
 import org.oransc.ics.configuration.ImmutableWebClientConfig;
 import org.oransc.ics.configuration.WebClientConfig;
 import org.oransc.ics.configuration.WebClientConfig.HttpProxyConfig;
+import org.oransc.ics.controller.A1eCallbacksSimulatorController;
 import org.oransc.ics.controller.ConsumerSimulatorController;
 import org.oransc.ics.controller.ProducerSimulatorController;
 import org.oransc.ics.controllers.a1e.A1eConsts;
@@ -133,6 +134,9 @@ class ApplicationTest {
     ConsumerSimulatorController consumerSimulator;
 
     @Autowired
+    A1eCallbacksSimulatorController a1eCallbacksSimulator;
+
+    @Autowired
     ProducerSupervision producerSupervision;
 
     @Autowired
@@ -165,6 +169,7 @@ class ApplicationTest {
         this.infoTypeSubscriptions.clear();
         this.producerSimulator.getTestResults().reset();
         this.consumerSimulator.getTestResults().reset();
+        this.a1eCallbacksSimulator.getTestResults().reset();
     }
 
     @AfterEach
@@ -379,7 +384,7 @@ class ApplicationTest {
         assertThat(this.infoJobs.size()).isZero();
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped).hasSize(1));
         assertThat(simulatorResults.jobsStopped.get(0)).isEqualTo("jobId");
     }
 
@@ -393,7 +398,7 @@ class ApplicationTest {
         assertThat(this.infoJobs.size()).isZero();
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped).hasSize(1));
         assertThat(simulatorResults.jobsStopped.get(0)).isEqualTo("jobId");
 
         testErrorCode(restClient().delete(url), HttpStatus.NOT_FOUND, "Could not find Information job: jobId");
@@ -426,7 +431,7 @@ class ApplicationTest {
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted).hasSize(1));
         ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
         assertThat(request.id).isEqualTo("jobId");
 
@@ -454,7 +459,7 @@ class ApplicationTest {
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted).hasSize(1));
         ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
         assertThat(request.id).isEqualTo("jobId");
 
@@ -647,7 +652,7 @@ class ApplicationTest {
         restClient().putForEntity(url, body).block();
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted).hasSize(2));
         ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
         assertThat(request.id).isEqualTo("jobId");
     }
@@ -673,7 +678,7 @@ class ApplicationTest {
         restClient().putForEntity(url, body).block();
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted).hasSize(1));
         ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
         assertThat(request.id).isEqualTo("jobId");
     }
@@ -726,25 +731,25 @@ class ApplicationTest {
 
     @Test
     void a1eJobStatusNotifications() throws JsonMappingException, JsonProcessingException, ServiceException {
-        ConsumerSimulatorController.TestResults consumerCalls = this.consumerSimulator.getTestResults();
+        A1eCallbacksSimulatorController.TestResults consumerCalls = this.a1eCallbacksSimulator.getTestResults();
         ProducerSimulatorController.TestResults producerCalls = this.producerSimulator.getTestResults();
 
         putInfoProducerWithOneType("infoProducerId", TYPE_ID);
         putInfoJob(TYPE_ID, "jobId");
         putInfoProducerWithOneType("infoProducerId2", TYPE_ID);
-        await().untilAsserted(() -> assertThat(producerCalls.jobsStarted.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(producerCalls.jobsStarted).hasSize(2));
 
         deleteInfoProducer("infoProducerId2");
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains, one producer left
         deleteInfoProducer("infoProducerId");
         assertThat(this.infoTypes.size()).isEqualTo(1); // The type remains
         assertThat(this.infoJobs.size()).isEqualTo(1); // The job remains
-        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks).hasSize(1));
         assertThat(consumerCalls.eiJobStatusCallbacks.get(0).state)
             .isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
 
         putInfoProducerWithOneType("infoProducerId", TYPE_ID);
-        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks).hasSize(2));
         assertThat(consumerCalls.eiJobStatusCallbacks.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
     }
 
@@ -759,14 +764,14 @@ class ApplicationTest {
         // change the type for the producer, the job shall be disabled
         putInfoProducerWithOneType(PRODUCER_ID, "junk");
         verifyJobStatus(EI_JOB_ID, "DISABLED");
-        ConsumerSimulatorController.TestResults consumerCalls = this.consumerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(1));
+        A1eCallbacksSimulatorController.TestResults consumerCalls = this.a1eCallbacksSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks).hasSize(1));
         assertThat(consumerCalls.eiJobStatusCallbacks.get(0).state)
             .isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
 
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
         verifyJobStatus(EI_JOB_ID, "ENABLED");
-        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(consumerCalls.eiJobStatusCallbacks).hasSize(2));
         assertThat(consumerCalls.eiJobStatusCallbacks.get(1).state).isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
     }
 
@@ -789,11 +794,11 @@ class ApplicationTest {
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         assertThat(resp.getBody()).contains(PRODUCER_ID);
 
-        url = ProducerConsts.API_ROOT + "/info-producers?info_type_id=" + TYPE_ID;
+        url = ProducerConsts.API_ROOT + "/info-producers?infoTypeId=" + TYPE_ID;
         resp = restClient().getForEntity(url).block();
         assertThat(resp.getBody()).contains(PRODUCER_ID);
 
-        url = ProducerConsts.API_ROOT + "/info-producers?info_type_id=junk";
+        url = ProducerConsts.API_ROOT + "/info-producers?infoTypeId=junk";
         resp = restClient().getForEntity(url).block();
         assertThat(resp.getBody()).isEqualTo("[]");
     }
@@ -801,7 +806,7 @@ class ApplicationTest {
     @Test
     void producerSupervision() throws JsonMappingException, JsonProcessingException, ServiceException {
 
-        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
+        A1eCallbacksSimulatorController.TestResults consumerResults = this.a1eCallbacksSimulator.getTestResults();
         putInfoProducerWithOneTypeRejecting("simulateProducerError", TYPE_ID);
 
         {
@@ -811,7 +816,7 @@ class ApplicationTest {
             verifyJobStatus(EI_JOB_ID, "ENABLED");
             deleteInfoProducer(PRODUCER_ID);
             // A Job disabled status notification shall now be received
-            await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(1));
+            await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks).hasSize(1));
             assertThat(consumerResults.eiJobStatusCallbacks.get(0).state)
                 .isEqualTo(A1eEiJobStatus.EiJobStatusValues.DISABLED);
             verifyJobStatus(EI_JOB_ID, "DISABLED");
@@ -836,7 +841,7 @@ class ApplicationTest {
         // Now we have one disabled job, and no producer.
         // PUT a producer, then a Job ENABLED status notification shall be received
         putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
-        await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks).hasSize(2));
         assertThat(consumerResults.eiJobStatusCallbacks.get(1).state)
             .isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
         verifyJobStatus(EI_JOB_ID, "ENABLED");
@@ -860,8 +865,8 @@ class ApplicationTest {
 
         // Run the supervision and wait for the job to get started in the producer
         this.producerSupervision.createTask().blockLast();
-        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks.size()).isEqualTo(1));
+        A1eCallbacksSimulatorController.TestResults consumerResults = this.a1eCallbacksSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(consumerResults.eiJobStatusCallbacks).hasSize(1));
         assertThat(consumerResults.eiJobStatusCallbacks.get(0).state)
             .isEqualTo(A1eEiJobStatus.EiJobStatusValues.ENABLED);
         verifyJobStatus(EI_JOB_ID, "ENABLED");
@@ -909,7 +914,7 @@ class ApplicationTest {
         assertThat(this.infoJobs.size()).isEqualTo(1);
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
-        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(3));
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped).hasSize(3));
     }
 
     @Test
@@ -1001,13 +1006,13 @@ class ApplicationTest {
 
             // Test callback for PUT type
             this.putInfoType(TYPE_ID);
-            await().untilAsserted(() -> assertThat(consumerCalls.typeRegistrationInfoCallbacks.size()).isEqualTo(1));
+            await().untilAsserted(() -> assertThat(consumerCalls.typeRegistrationInfoCallbacks).hasSize(1));
             assertThat(consumerCalls.typeRegistrationInfoCallbacks.get(0).state)
                 .isEqualTo(ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.REGISTERED);
 
             // Test callback for DELETE type
             this.deleteInfoType(TYPE_ID);
-            await().untilAsserted(() -> assertThat(consumerCalls.typeRegistrationInfoCallbacks.size()).isEqualTo(2));
+            await().untilAsserted(() -> assertThat(consumerCalls.typeRegistrationInfoCallbacks).hasSize(2));
             assertThat(consumerCalls.typeRegistrationInfoCallbacks.get(1).state)
                 .isEqualTo(ConsumerTypeRegistrationInfo.ConsumerTypeStatusValues.DEREGISTERED);
         }
@@ -1096,7 +1101,7 @@ class ApplicationTest {
     ConsumerJobInfo consumerJobInfo(String typeId, String infoJobId)
         throws JsonMappingException, JsonProcessingException {
         return new ConsumerJobInfo(typeId, jsonObject(), "owner", "https://junk.com",
-            baseUrl() + ConsumerSimulatorController.getJobStatusUrl(infoJobId));
+            baseUrl() + A1eCallbacksSimulatorController.getJobStatusUrl(infoJobId));
     }
 
     private A1eEiJobInfo infoJobInfo() throws JsonMappingException, JsonProcessingException {
@@ -1105,7 +1110,7 @@ class ApplicationTest {
 
     A1eEiJobInfo infoJobInfo(String typeId, String infoJobId) throws JsonMappingException, JsonProcessingException {
         return new A1eEiJobInfo(typeId, jsonObject(), "owner", "https://junk.com",
-            baseUrl() + ConsumerSimulatorController.getJobStatusUrl(infoJobId));
+            baseUrl() + A1eCallbacksSimulatorController.getJobStatusUrl(infoJobId));
     }
 
     private Object jsonObject(String json) {

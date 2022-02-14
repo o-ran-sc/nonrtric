@@ -70,7 +70,7 @@ import reactor.core.publisher.Mono;
 
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 @RestController("Consumer API")
-@Tag(name = ConsumerConsts.CONSUMER_API_NAME)
+@Tag(name = ConsumerConsts.CONSUMER_API_NAME, description = ConsumerConsts.CONSUMER_API_DESCRIPTION)
 @RequestMapping(path = ConsumerConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsumerController {
 
@@ -125,7 +125,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> getInfoType( //
-        @PathVariable("infoTypeId") String infoTypeId) {
+        @PathVariable(ConsumerConsts.INFO_TYPE_ID_PATH) String infoTypeId) {
         try {
             InfoType type = this.infoTypes.getType(infoTypeId);
             ConsumerInfoTypeInfo info = toInfoTypeInfo(type);
@@ -194,7 +194,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> getIndividualEiJob( //
-        @PathVariable("infoJobId") String infoJobId) {
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String infoJobId) {
         try {
             InfoJob job = this.infoJobs.getJob(infoJobId);
             return new ResponseEntity<>(gson.toJson(toInfoJobInfo(job)), HttpStatus.OK);
@@ -217,7 +217,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> getEiJobStatus( //
-        @PathVariable("infoJobId") String jobId) {
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String jobId) {
         try {
             InfoJob job = this.infoJobs.getJob(jobId);
             return new ResponseEntity<>(gson.toJson(toInfoJobStatus(job)), HttpStatus.OK);
@@ -254,7 +254,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> deleteIndividualEiJob( //
-        @PathVariable("infoJobId") String jobId) {
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String jobId) {
         try {
             InfoJob job = this.infoJobs.getJob(jobId);
             this.infoJobs.remove(job, this.infoProducers);
@@ -292,7 +292,7 @@ public class ConsumerController {
                 description = "Cannot modify job type", //
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class)))})
     public Mono<ResponseEntity<Object>> putIndividualInfoJob( //
-        @PathVariable("infoJobId") String jobId, //
+        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String jobId, //
         @Parameter(
             name = ConsumerConsts.PERFORM_TYPE_CHECK_PARAM,
             required = false, //
@@ -358,7 +358,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> getIndividualTypeSubscription( //
-        @PathVariable("subscriptionId") String subscriptionId) {
+        @PathVariable(ConsumerConsts.SUBSCRIPTION_ID_PATH) String subscriptionId) {
         try {
             InfoTypeSubscriptions.SubscriptionInfo subscription =
                 this.infoTypeSubscriptions.getSubscription(subscriptionId);
@@ -387,7 +387,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public Mono<ResponseEntity<Object>> putIndividualTypeSubscription( //
-        @PathVariable("subscriptionId") String subscriptionId, //
+        @PathVariable(ConsumerConsts.SUBSCRIPTION_ID_PATH) String subscriptionId, //
         @RequestBody ConsumerTypeSubscriptionInfo subscription) {
 
         final boolean isNewSubscription = this.infoTypeSubscriptions.get(subscriptionId) == null;
@@ -413,7 +413,7 @@ public class ConsumerController {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.ErrorInfo.class))) //
         })
     public ResponseEntity<Object> deleteIndividualTypeSubscription( //
-        @PathVariable("subscriptionId") String subscriptionId) {
+        @PathVariable(ConsumerConsts.SUBSCRIPTION_ID_PATH) String subscriptionId) {
         try {
             InfoTypeSubscriptions.SubscriptionInfo subscription =
                 this.infoTypeSubscriptions.getSubscription(subscriptionId);
