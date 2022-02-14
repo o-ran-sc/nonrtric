@@ -214,7 +214,7 @@ Version history usecase O-DU Slice Assurance
 | 2021-12-14 | 1.0.0    | Henrik Andersson | E Release       |
 |            |          |                  | Initial version |
 +------------+----------+------------------+-----------------+
-| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance   |
+| 2022-02-14 | 1.0.2    | Henrik Andersson | E Maintenance   |
 |            |          |                  | Release         |
 +------------+----------+------------------+-----------------+
 
