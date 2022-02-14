@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "381b8136_4eeb0562",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2022-02-14T14:06:20Z",
+      "side": 1,
+      "message": "This commit is to fix a few minor bugs in oru-app go version, and add deployment in docker env.",
+      "revId": "01d9d8b4cd3251e6f6438fa4fb115a3b1abb78b6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
