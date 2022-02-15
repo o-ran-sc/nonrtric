@@ -59,11 +59,11 @@ func NewPolicyRatio(id string, max_ratio int, min_ratio int, ded_ratio int) *Pol
 	return &pr
 }
 
-func (pr *PolicyRatio) GetUpdateDedicatedRatioMessage(sd int, sst int, dedicatedRatio int) []messages.RRMPolicyRatio {
+func (pr *PolicyRatio) GetUpdateDedicatedRatioMessage(sd int, sst int, dedicatedRatio int) interface{} {
 	message := messages.RRMPolicyRatio{
 		Id:                      pr.PolicyRatioId,
-		AdmState:                "Locked",
-		UserLabel:               "Some user label",
+		AdmState:                "unlocked",
+		UserLabel:               pr.PolicyRatioId,
 		RRMPolicyMaxRatio:       pr.PolicyMaxRatio,
 		RRMPolicyMinRatio:       pr.PolicyMinRatio,
 		RRMPolicyDedicatedRatio: dedicatedRatio,
@@ -77,5 +77,12 @@ func (pr *PolicyRatio) GetUpdateDedicatedRatioMessage(sd int, sst int, dedicated
 			},
 		},
 	}
-	return []messages.RRMPolicyRatio{message}
+	rrmPolicies := []messages.RRMPolicyRatio{message}
+
+	return struct {
+		RRMPolicies []messages.RRMPolicyRatio `json:"radio-resource-management-policy-ratio"`
+	}{
+		RRMPolicies: rrmPolicies,
+	}
+
 }

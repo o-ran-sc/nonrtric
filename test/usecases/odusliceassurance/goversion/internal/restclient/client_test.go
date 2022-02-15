@@ -27,6 +27,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -83,7 +84,7 @@ func TestNewRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := New(&http.Client{})
+			client := New(&http.Client{}, false)
 
 			req, err := client.newRequest(tt.args.method, tt.args.path, tt.args.payload)
 			if tt.wantErr != nil {
@@ -91,7 +92,7 @@ func TestNewRequest(t *testing.T) {
 				assertions.EqualError(tt.wantErr, err.Error())
 			} else {
 				assertions.Equal("url", req.URL.Path)
-				assertions.Equal("application/json; charset=utf-8", req.Header.Get("Content-Type"))
+				assertions.Equal("application/json", req.Header.Get("Content-Type"))
 				assertions.Empty(req.Header.Get("Authorization"))
 				assertions.Nil(err)
 			}
@@ -128,7 +129,7 @@ func TestGet(t *testing.T) {
 				respCode: http.StatusBadRequest,
 				resp:     nil,
 			},
-			wantErr: "failed to do request, 400 status code received",
+			wantErr: "error response with status: 400 and body:",
 		},
 	}
 
@@ -136,6 +137,7 @@ func TestGet(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assertions.Equal(http.MethodGet, r.Method)
 				response, _ := json.Marshal(tt.args.resp)
 				w.Header().Set("Content-Type", tt.args.header)
 				w.WriteHeader(tt.args.respCode)
@@ -143,12 +145,12 @@ func TestGet(t *testing.T) {
 			}))
 			defer srv.Close()
 
-			client := New(&http.Client{})
+			client := New(&http.Client{}, false)
 			var res interface{}
 			err := client.Get(srv.URL, &res)
 
 			if err != nil {
-				assertions.Equal(tt.wantErr, err.Error())
+				assertions.Contains(err.Error(), tt.wantErr)
 			}
 			assertions.Equal(tt.args.resp, res)
 		})
@@ -156,55 +158,63 @@ func TestGet(t *testing.T) {
 }
 
 func TestPost(t *testing.T) {
-	assertions := require.New(t)
-	type args struct {
-		header   string
-		respCode int
-		resp     interface{}
+	header := "application/json"
+	respCode := http.StatusOK
+	resp := "Success!"
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.Contains(t, r.Header.Get("Content-Type"), "application/json")
+
+		var reqBody string
+		decoder := json.NewDecoder(r.Body)
+		decoder.Decode(&reqBody)
+		assert.Equal(t, reqBody, `json:"example"`)
+
+		response, _ := json.Marshal(resp)
+		w.Header().Set("Content-Type", header)
+		w.WriteHeader(respCode)
+		w.Write(response)
+	}))
+	defer srv.Close()
+
+	client := New(&http.Client{}, false)
+	payload := `json:"example"`
+	err := client.Post(srv.URL, payload, nil, "admin", "pass")
+
+	if err != nil {
+		assert.Equal(t, "", err.Error())
 	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr string
-	}{
-		{
-			name: "successful Post request",
-			args: args{
-				header:   "application/json",
-				respCode: http.StatusOK,
-				resp:     "Success!",
-			},
-			wantErr: "",
-		},
-	}
+}
 
-	for _, tt := range tests {
+func TestPut(t *testing.T) {
+	header := "application/json"
+	respCode := http.StatusOK
+	resp := "Success!"
 
-		t.Run(tt.name, func(t *testing.T) {
-			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-				assertions.Equal(http.MethodPost, r.Method)
-				assertions.Contains(r.Header.Get("Content-Type"), "application/json")
+		assert.Equal(t, http.MethodPut, r.Method)
+		assert.Contains(t, r.Header.Get("Content-Type"), "application/json")
 
-				var reqBody interface{}
-				decoder := json.NewDecoder(r.Body)
-				decoder.Decode(&reqBody)
-				assertions.Equal(reqBody, `json:"example"`)
+		var reqBody string
+		decoder := json.NewDecoder(r.Body)
+		decoder.Decode(&reqBody)
+		assert.Equal(t, reqBody, `json:"example"`)
 
-				response, _ := json.Marshal(tt.args.resp)
-				w.Header().Set("Content-Type", tt.args.header)
-				w.WriteHeader(tt.args.respCode)
-				w.Write(response)
-			}))
-			defer srv.Close()
+		response, _ := json.Marshal(resp)
+		w.Header().Set("Content-Type", header)
+		w.WriteHeader(respCode)
+		w.Write(response)
+	}))
+	defer srv.Close()
 
-			client := New(&http.Client{})
-			payload := `json:"example"`
-			err := client.Post(srv.URL, payload, nil)
+	client := New(&http.Client{}, false)
+	payload := `json:"example"`
+	err := client.Put(srv.URL, payload, nil, "admin", "pass")
 
-			if err != nil {
-				assertions.Equal(tt.wantErr, err.Error())
-			}
-		})
+	if err != nil {
+		assert.Equal(t, "", err.Error())
 	}
 }

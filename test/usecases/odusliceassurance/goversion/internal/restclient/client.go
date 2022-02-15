@@ -26,22 +26,42 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
 
 	log "github.com/sirupsen/logrus"
 )
 
-type Client struct {
-	httpClient *http.Client
+type RequestError struct {
+	StatusCode int
+	Body       []byte
 }
 
-func New(httpClient *http.Client) *Client {
+func (e RequestError) Error() string {
+	return fmt.Sprintf("error response with status: %v and body: %v", e.StatusCode, string(e.Body))
+}
+
+type Client struct {
+	httpClient *http.Client
+	verbose    bool
+}
+
+func New(httpClient *http.Client, verbose bool) *Client {
 	return &Client{
 		httpClient: httpClient,
+		verbose:    verbose,
 	}
 }
 
-func (c *Client) Get(path string, v interface{}) error {
-	req, err := c.newRequest(http.MethodGet, path, nil)
+func (c *Client) Get(path string, v interface{}, userInfo ...string) error {
+	var req *http.Request
+	var err error
+
+	if len(userInfo) > 1 {
+		req, err = c.newRequest(http.MethodGet, path, nil, userInfo[0], userInfo[1])
+	} else {
+		req, err = c.newRequest(http.MethodGet, path, nil)
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to create GET request: %w", err)
 	}
@@ -53,12 +73,16 @@ func (c *Client) Get(path string, v interface{}) error {
 	return nil
 }
 
-func (c *Client) Post(path string, payload interface{}, v interface{}) error {
+func (c *Client) Post(path string, payload interface{}, v interface{}, userInfo ...string) error {
+	var req *http.Request
+	var err error
 
-	s, _ := json.MarshalIndent(payload, "", "\t")
-	log.Debugf("Post request payload: " + string(s))
+	if len(userInfo) > 1 {
+		req, err = c.newRequest(http.MethodPost, path, payload, userInfo[0], userInfo[1])
+	} else {
+		req, err = c.newRequest(http.MethodPost, path, payload)
+	}
 
-	req, err := c.newRequest(http.MethodPost, path, payload)
 	if err != nil {
 		return fmt.Errorf("failed to create POST request: %w", err)
 	}
@@ -70,8 +94,22 @@ func (c *Client) Post(path string, payload interface{}, v interface{}) error {
 	return nil
 }
 
-func (c *Client) newRequest(method, path string, payload interface{}) (*http.Request, error) {
+func (c *Client) Put(path string, payload interface{}, v interface{}, userName string, password string) error {
+	req, err := c.newRequest(http.MethodPut, path, payload, userName, password)
+	if err != nil {
+		return fmt.Errorf("failed to create PUT request: %w", err)
+	}
+
+	if err := c.doRequest(req, v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) newRequest(method, path string, payload interface{}, userInfo ...string) (*http.Request, error) {
 	var reqBody io.Reader
+
 	if payload != nil {
 		bodyBytes, err := json.Marshal(payload)
 		if err != nil {
@@ -81,14 +119,27 @@ func (c *Client) newRequest(method, path string, payload interface{}) (*http.Req
 	}
 
 	req, err := http.NewRequest(method, path, reqBody)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 
-	if reqBody != nil {
-		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	if len(userInfo) > 0 {
+		req.SetBasicAuth(userInfo[0], userInfo[1])
 	}
-	log.Debugf("Http Client Request: [%s:%s]\n", req.Method, req.URL)
+
+	if reqBody != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	if c.verbose {
+		if reqDump, error := httputil.DumpRequest(req, true); error != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(reqDump))
+		}
+	}
+
 	return req, nil
 }
 
@@ -108,7 +159,7 @@ func (c *Client) doRequest(r *http.Request, v interface{}) error {
 	}
 
 	dec := json.NewDecoder(resp.Body)
-	if err := dec.Decode(v); err != nil {
+	if err := dec.Decode(&v); err != nil {
 		return fmt.Errorf("could not parse response body: %w [%s:%s]", err, r.Method, r.URL.String())
 	}
 	log.Debugf("Http Client Response: %v\n", v)
@@ -121,11 +172,25 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 		return nil, fmt.Errorf("failed to make request [%s:%s]: %w", r.Method, r.URL.String(), err)
 	}
 
+	if c.verbose {
+		if responseDump, error := httputil.DumpResponse(resp, true); error != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(responseDump))
+		}
+	}
+
 	if resp.StatusCode >= http.StatusOK && resp.StatusCode <= 299 {
 		return resp, nil
 	}
 
 	defer resp.Body.Close()
+	responseData, _ := io.ReadAll(resp.Body)
 
-	return resp, fmt.Errorf("failed to do request, %d status code received", resp.StatusCode)
+	putError := RequestError{
+		StatusCode: resp.StatusCode,
+		Body:       responseData,
+	}
+
+	return resp, putError
 }
