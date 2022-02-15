@@ -22,9 +22,12 @@ package messages
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetMeasurements(t *testing.T) {
+	assertions := require.New(t)
 	type fields struct {
 		Event Event
 	}
@@ -68,9 +71,16 @@ func TestGetMeasurements(t *testing.T) {
 			message := StdDefinedMessage{
 				Event: tt.fields.Event,
 			}
-			if got := message.GetMeasurements(); len(got) != len(tt.want) {
+			var got []Measurement
+			if got = message.GetMeasurements(); len(got) != len(tt.want) {
 				t.Errorf("Message.GetMeasurements() = %v, want %v", got, tt.want)
 			}
+
+			for _, meas := range got {
+				assertions.Equal(51232, meas.Value)
+				assertions.Contains(meas.MeasurementTypeInstanceReference, "user-equipment-average-throughput-uplink")
+			}
+
 		})
 	}
 }
