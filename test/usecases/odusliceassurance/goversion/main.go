@@ -41,14 +41,12 @@ func main() {
 
 	log.Debug("Using configuration: ", configuration)
 
-	dmaapUrl := configuration.MRHost + ":" + configuration.MRPort
-
 	if err := validateConfiguration(configuration); err != nil {
 		log.Fatalf("Unable to start consumer due to configuration error: %v", err)
 	}
 
 	a := sliceassurance.App{}
-	a.Initialize(dmaapUrl, configuration.SDNRAddress)
+	a.Initialize(configuration)
 	go a.Run(TOPIC, configuration.Polltime)
 
 	http.HandleFunc("/status", statusHandler)
