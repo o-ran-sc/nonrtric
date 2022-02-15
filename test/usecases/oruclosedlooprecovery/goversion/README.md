@@ -11,7 +11,7 @@ The consumer takes a number of environment variables, described below, as config
 >- CONSUMER_CERT_PATH   **Required**. The path to the certificate to use for https.                Defaults to `security/producer.crt`
 >- CONSUMER_KEY_PATH    **Required**. The path to the key to the certificate to use for https.     Defaults to `security/producer.key`
 >- INFO_COORD_ADDR      Optional. The address of the Information Coordinator.                      Defaults to `http://enrichmentservice:8083`.
->- SDNR_ADDRESS         Optional. The address for SDNR.                                            Defaults to `http://localhost:3904`.
+>- SDNR_ADDR            Optional. The address for SDNR.                                            Defaults to `http://localhost:3904`.
 >- SDNR_USER            Optional. The user for the SDNR.                                           Defaults to `admin`.
 >- SDNR_PASSWORD        Optional. The password for the SDNR user.                                  Defaults to `Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U`.
 >- ORU_TO_ODU_MAP_FILE  Optional. The file containing the mapping from O-RU ID to O-DU ID.         Defaults to `o-ru-to-o-du-map.csv`.
