@@ -6,7 +6,7 @@ The consumer takes a number of environment variables, described below, as config
 
 >- MR_HOST              **Required**. The host for Dmaap Message Router.                           Example: `http://mrproducer`
 >- MR_PORT              **Required**. The port for the Dmaap Message Router.                       Example: `8095`
->- SDNR_ADDRESS         Optional. The address for SDNR.                                            Defaults to `http://localhost:3904`.
+>- SDNR_ADDR            Optional. The address for SDNR.                                            Defaults to `http://localhost:3904`.
 >- SDNR_USER            Optional. The user for the SDNR.                                           Defaults to `admin`.
 >- SDNR_PASSWORD        Optional. The password for the SDNR user.                                  Defaults to `Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U`.
 >- LOG_LEVEL            Optional. The log level, which can be `Error`, `Warn`, `Info` or `Debug`.  Defaults to `Info`.
