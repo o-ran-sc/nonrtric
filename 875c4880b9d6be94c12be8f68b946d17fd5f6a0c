@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01b79f64_277727e3",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/sliceassurance/app.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-16T12:17:29Z",
+      "side": 1,
+      "message": "If we end up here it is not possible to continue in the loop for this entry since there is no message, so a \"continue\" should follow this log entry",
+      "range": {
+        "startLine": 92,
+        "startChar": 3,
+        "endLine": 92,
+        "endChar": 16
+      },
+      "revId": "875c4880b9d6be94c12be8f68b946d17fd5f6a0c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b861bc1_c5113f60",
+        "filename": "test/usecases/odusliceassurance/goversion/internal/sliceassurance/app.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-16T12:17:29Z",
+      "side": 1,
+      "message": "This loop is not needed, could be part of the first loop and use \"message\" here instead.",
+      "range": {
+        "startLine": 96,
+        "startChar": 1,
+        "endLine": 96,
+        "endChar": 41
+      },
+      "revId": "875c4880b9d6be94c12be8f68b946d17fd5f6a0c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
