@@ -45,6 +45,7 @@ services:
           - odu-app
     ports:
       - 8086:8086
+      - 40936:40936
     environment:
       - MR_HOST=http://sdnr-mr-sim
       - MR_PORT=3905
