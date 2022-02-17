@@ -35,7 +35,6 @@
     <modules>
         <module>a1-policy-management-service</module>
         <module>information-coordinator-service</module>
-        <module>r-app-catalogue</module>
         <module>helm-manager</module>
         <module>dmaap-adaptor-java</module>
     </modules>

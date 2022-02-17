@@ -195,6 +195,9 @@ Register for Non-RT-RIC Apps.
 * Non-RT-RIC Apps can be registered / queried.
 * Limited functionality/integration for now.
 * *More work required in coming releases as the rApp concept matures*.
+* Repo: *portal/nonrtric-plt-rappcatalogue*
+
+More details available at the `documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-rappcatalogue>`_.
 
 Initial K8S Helm Chart LCM Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

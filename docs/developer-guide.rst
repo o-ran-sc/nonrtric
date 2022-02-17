@@ -58,11 +58,6 @@ Then start the container by running the following command:
     | docker run nonrtric-information-coordinator-service                |
     +--------------------------------------------------------------------+
 
-Initial Non-RT-RIC App Catalogue
---------------------------------
-
-See the README.md file in the *r-app-catalogue* directory in the Gerrit repo for more details how to run the component.
-
 DMaaP Adaptor Service
 ---------------------
 
