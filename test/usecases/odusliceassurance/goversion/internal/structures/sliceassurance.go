@@ -79,7 +79,7 @@ func (sa *SliceAssuranceMeas) AddOrUpdateMetric(meas messages.Measurement) (stri
 	var duid string
 	var sd, sst int
 
-	regex := *regexp.MustCompile(`\/(.*)network-function\/distributed-unit-functions\[id=\'(.*)\'\]\/cell\[id=\'(.*)\'\]\/supported-measurements\/performance-measurement-type=\'(.*)\'\]\/supported-snssai-subcounter-instances\[slice-differentiator=\'(\d+)\'\]\[slice-service-type=\'(\d+)\'\]`)
+	regex := *regexp.MustCompile(`\/(.*)network-function\/distributed-unit-functions\[id=\'(.*)\'\]\/cell\[id=\'(.*)\'\]\/supported-measurements\[performance-measurement-type=\'(.*)\'\]\/supported-snssai-subcounter-instances\[slice-differentiator=\'(\d+)\'\]\[slice-service-type=\'(\d+)\'\]`)
 	res := regex.FindAllStringSubmatch(meas.MeasurementTypeInstanceReference, -1)
 
 	if res != nil && len(res[0]) == 7 {

@@ -38,7 +38,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const THRESHOLD_TPUT int = 700
+const THRESHOLD_TPUT int = 7000
 
 type SliceAssuranceInformation struct {
 	duId                 string
@@ -117,7 +117,7 @@ func main() {
 
 		r := mux.NewRouter()
 		r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={NODE-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={O-DU-ID}", getSdnrResponseMessage).Methods(http.MethodGet)
-		r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={NODE-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={O-DU-ID}/radio-resource-management-policy-ratio={POLICY-ID}", updateRRMPolicyDedicatedRatio).Methods(http.MethodPost)
+		r.HandleFunc("/rests/data/network-topology:network-topology/topology=topology-netconf/node={NODE-ID}/yang-ext:mount/o-ran-sc-du-hello-world:network-function/distributed-unit-functions={O-DU-ID}/radio-resource-management-policy-ratio={POLICY-ID}", updateRRMPolicyDedicatedRatio).Methods(http.MethodPut)
 
 		fmt.Println("Starting SDNR stub on port: ", *portSdnr)
 
@@ -143,55 +143,133 @@ func getSdnrResponseMessage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Info("Get messages for RRM Policy Ratio information for O-Du ID ", vars["O-DU-ID"])
 
-	message := messages.ORanDuRestConf{
-		DistributedUnitFunction: messages.DistributedUnitFunction{
-			Id:             vars["O-DU-ID"],
-			RRMPolicyRatio: getPolicyRatioMessage(),
-		},
-	}
-	respondWithJSON(w, http.StatusOK, message)
+	distUnitFunctions := getDistributedUnitFunctionMessage(vars["O-DU-ID"])
+
+	respondWithJSON(w, http.StatusOK, distUnitFunctions)
 }
 
-func getPolicyRatioMessage() []messages.RRMPolicyRatio {
+func getDistributedUnitFunctionMessage(oduId string) messages.ORanDuRestConf {
+
 	var policies []messages.RRMPolicyRatio
-
+	keys := make(map[string]bool)
 	for _, entry := range data {
+		if _, value := keys[entry.policyRatioId]; !value {
+			keys[entry.policyRatioId] = true
+			message := messages.RRMPolicyRatio{
 
-		message := messages.RRMPolicyRatio{
-			Id:                      entry.policyRatioId,
-			AdmState:                "locked",
-			UserLabel:               entry.policyRatioId,
-			RRMPolicyMaxRatio:       entry.policyMaxRatio,
-			RRMPolicyMinRatio:       entry.policyMinRatio,
-			RRMPolicyDedicatedRatio: entry.policyDedicatedRatio,
-			ResourceType:            "prb",
-			RRMPolicyMembers: []messages.RRMPolicyMember{
-				{
-					MobileCountryCode:   "046",
-					MobileNetworkCode:   "651",
-					SliceDifferentiator: entry.sd,
-					SliceServiceType:    entry.sst,
+				Id:                      entry.policyRatioId,
+				AdmState:                "locked",
+				UserLabel:               entry.policyRatioId,
+				RRMPolicyMaxRatio:       entry.policyMaxRatio,
+				RRMPolicyMinRatio:       entry.policyMinRatio,
+				RRMPolicyDedicatedRatio: entry.policyDedicatedRatio,
+				ResourceType:            "prb",
+				RRMPolicyMembers: []messages.RRMPolicyMember{
+					{
+						MobileCountryCode:   "310",
+						MobileNetworkCode:   "150",
+						SliceDifferentiator: entry.sd,
+						SliceServiceType:    entry.sst,
+					},
 				},
-			},
+			}
+			policies = append(policies, message)
 		}
-		policies = append(policies, message)
 	}
-	return policies
+
+	var publicLandMobileNetworks []messages.PublicLandMobileNetworks
+	for _, entry := range data {
+		publicLandMobileNetwork := messages.PublicLandMobileNetworks{
+			MobileCountryCode:   "310",
+			MobileNetworkCode:   "150",
+			SliceDifferentiator: entry.sd,
+			SliceServiceType:    entry.sst,
+		}
+		publicLandMobileNetworks = append(publicLandMobileNetworks, publicLandMobileNetwork)
+	}
+
+	var supportedSnssaiSubcounterInstances []messages.SupportedSnssaiSubcounterInstances
+	for _, entry := range data {
+		supportedSnssaiSubcounterInstance := messages.SupportedSnssaiSubcounterInstances{
+			SliceDifferentiator: entry.sd,
+			SliceServiceType:    entry.sst,
+		}
+		supportedSnssaiSubcounterInstances = append(supportedSnssaiSubcounterInstances, supportedSnssaiSubcounterInstance)
+	}
+
+	cell := messages.Cell{
+		Id:             "cell-1",
+		LocalId:        1,
+		PhysicalCellId: 1,
+		BaseStationChannelBandwidth: messages.BaseStationChannelBandwidth{
+			Uplink:              83000,
+			Downlink:            80000,
+			SupplementaryUplink: 84000,
+		},
+		OperationalState:         "enabled",
+		TrackingAreaCode:         10,
+		AdmState:                 "unlocked",
+		PublicLandMobileNetworks: publicLandMobileNetworks,
+		SupportedMeasurements: []messages.SupportedMeasurements{
+			{
+				PerformanceMeasurementType:         "o-ran-sc-du-hello-world:user-equipment-average-throughput-uplink",
+				SupportedSnssaiSubcounterInstances: supportedSnssaiSubcounterInstances,
+			},
+			{
+				PerformanceMeasurementType:         "o-ran-sc-du-hello-world:user-equipment-average-throughput-downlink",
+				SupportedSnssaiSubcounterInstances: supportedSnssaiSubcounterInstances,
+			},
+		},
+		TrafficState: "active",
+		AbsoluteRadioFrequencyChannelNumber: messages.AbsoluteRadioFrequencyChannelNumber{
+			Uplink:              14000,
+			Downlink:            15000,
+			SupplementaryUplink: 14500,
+		},
+		UserLabel: "cell-1",
+		SynchronizationSignalBlock: messages.SynchronizationSignalBlock{
+			Duration:               2,
+			FrequencyChannelNumber: 12,
+			Periodicity:            10,
+			SubcarrierSpacing:      30,
+			Offset:                 3,
+		},
+	}
+
+	distUnitFunction := messages.DistributedUnitFunction{
+		Id:               oduId,
+		OperationalState: "enabled",
+		AdmState:         "unlocked",
+		UserLabel:        oduId,
+		Cell: []messages.Cell{
+			cell,
+		},
+		RRMPolicyRatio: policies,
+	}
+
+	duRRMPolicyRatio := messages.ORanDuRestConf{
+		DistributedUnitFunction: []messages.DistributedUnitFunction{
+			distUnitFunction,
+		},
+	}
+
+	return duRRMPolicyRatio
 }
 
 func updateRRMPolicyDedicatedRatio(w http.ResponseWriter, r *http.Request) {
-
-	var prMessages []messages.RRMPolicyRatio
+	var policies struct {
+		RRMPolicies []messages.RRMPolicyRatio `json:"radio-resource-management-policy-ratio"`
+	}
 	decoder := json.NewDecoder(r.Body)
 
-	if err := decoder.Decode(&prMessages); err != nil {
+	if err := decoder.Decode(&policies); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
+	prMessages := policies.RRMPolicies
 	log.Infof("Post request to update RRMPolicyDedicatedRatio %+v", prMessages)
-
 	findAndUpdatePolicy(prMessages)
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200"})
 }
@@ -233,14 +311,14 @@ func sendDmaapMRMessages(w http.ResponseWriter, r *http.Request) {
 		log.Info("Using tput value higher than THRESHOLD_TPUT ", randomTput)
 		entry.metricValue = randomTput
 	}
-
+	randomEventId := rand.Intn(10000)
 	messagesToSend = append(messagesToSend, generateMeasurementEntry(entry))
 
 	message := messages.StdDefinedMessage{
 		Event: messages.Event{
 			CommonEventHeader: messages.CommonEventHeader{
 				Domain:                  "stndDefined",
-				EventId:                 "pm-1_1644252450",
+				EventId:                 "pm-1_16442" + strconv.Itoa(randomEventId),
 				EventName:               "stndDefined_performanceMeasurementStreaming",
 				EventType:               "performanceMeasurementStreaming",
 				Sequence:                825,
@@ -275,17 +353,20 @@ func sendDmaapMRMessages(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	fmt.Printf("Send Dmaap messages\n %+v\n", message)
+	fmt.Printf("Sending Dmaap message:\n %+v\n", message)
+
+	messageAsByteArray, _ := json.Marshal(message)
+	response := [1]string{string(messageAsByteArray)}
 
 	time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
-	respondWithJSON(w, http.StatusOK, message)
+	respondWithJSON(w, http.StatusOK, response)
 
 	messagesToSend = nil
 }
 
 func generateMeasurementEntry(entry *SliceAssuranceInformation) messages.Measurement {
 
-	measurementTypeInstanceReference := "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='" + entry.duId + "']/cell[id='" + entry.cellId + "']/supported-measurements/performance-measurement-type='(urn:o-ran-sc:yang:o-ran-sc-du-hello-world?revision=2021-11-23)" + entry.metricName + "']/supported-snssai-subcounter-instances[slice-differentiator='" + strconv.Itoa(entry.sd) + "'][slice-service-type='" + strconv.Itoa(entry.sst) + "']"
+	measurementTypeInstanceReference := "/o-ran-sc-du-hello-world:network-function/distributed-unit-functions[id='" + entry.duId + "']/cell[id='" + entry.cellId + "']/supported-measurements[performance-measurement-type='(urn:o-ran-sc:yang:o-ran-sc-du-hello-world?revision=2021-11-23)" + entry.metricName + "']/supported-snssai-subcounter-instances[slice-differentiator='" + strconv.Itoa(entry.sd) + "'][slice-service-type='" + strconv.Itoa(entry.sst) + "']"
 	meas := messages.Measurement{
 
 		MeasurementTypeInstanceReference: measurementTypeInstanceReference,
