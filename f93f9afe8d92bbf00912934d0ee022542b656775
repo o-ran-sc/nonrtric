@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db25474f_e0658af1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-02-17T15:44:35Z",
+      "side": 1,
+      "message": "Verification failure will be fixed when https://gerrit.o-ran-sc.org/r/c/ci-management/+/7760 is merged",
+      "revId": "f93f9afe8d92bbf00912934d0ee022542b656775",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
