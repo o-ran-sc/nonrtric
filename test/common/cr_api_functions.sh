@@ -94,8 +94,8 @@ __CR_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __CR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		for podname in $(kubectl get pods -n $KUBE_SIM_NAMESPACE -l "autotest=CR" -o custom-columns=":metadata.name"); do
-			kubectl logs -n $KUBE_SIM_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
+		for podname in $(kubectl $KUBECONF get pods -n $KUBE_SIM_NAMESPACE -l "autotest=CR" -o custom-columns=":metadata.name"); do
+			kubectl $KUBECONF logs -n $KUBE_SIM_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
 		done
 	else
 		crs=$(docker ps --filter "name=$CR_APP_NAME" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})

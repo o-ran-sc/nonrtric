@@ -72,8 +72,8 @@ __RICSIM_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __RICSIM_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		for podname in $(kubectl get pods -n $KUBE_A1SIM_NAMESPACE -l "autotest=RICSIM" -o custom-columns=":metadata.name"); do
-			kubectl logs -n $KUBE_A1SIM_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
+		for podname in $(kubectl $KUBECONF get pods -n $KUBE_A1SIM_NAMESPACE -l "autotest=RICSIM" -o custom-columns=":metadata.name"); do
+			kubectl $KUBECONF logs -n $KUBE_A1SIM_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
 		done
 	else
 

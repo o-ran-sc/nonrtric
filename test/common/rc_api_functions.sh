@@ -71,7 +71,7 @@ __RC_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __RC_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=RC" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_rc.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=RC" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_rc.log 2>&1
 	else
 		docker logs $RAPP_CAT_APP_NAME > $1$2_rc.log 2>&1
 	fi

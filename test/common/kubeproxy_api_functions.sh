@@ -94,7 +94,7 @@ __KUBEPROXY_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __KUBEPROXY_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=KUBEPROXY" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_kubeproxy.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=KUBEPROXY" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_kubeproxy.log 2>&1
 	else
 		docker logs $KUBE_PROXY_APP_NAME > $1$2_kubeproxy.log 2>&1
 	fi
@@ -249,7 +249,7 @@ start_kube_proxy() {
 
 		#Finding host of the proxy
 		echo "  Trying to find svc hostname..."
-		CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].hostname}")
+		CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].hostname}")
 
 
 		if [ "$CLUSTER_KUBE_PROXY_HOST" == "localhost" ]; then
@@ -260,7 +260,7 @@ start_kube_proxy() {
 			if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
 				#Host of proxy not found, trying to find the ip....
 				echo "  Trying to find svc ip..."
-				CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].ip}")
+				CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].ip}")
 				if [ ! -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
 					#Host ip found
 					echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
@@ -277,7 +277,7 @@ start_kube_proxy() {
 		fi
 		if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
 			#Host/ip of proxy not found, try to use the cluster and the nodeports of the proxy
-			CLUSTER_KUBE_PROXY_HOST=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+			CLUSTER_KUBE_PROXY_HOST=$(kubectl $KUBECONF config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
 			echo -e $YELLOW" The test environment cluster ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
 			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
 			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test

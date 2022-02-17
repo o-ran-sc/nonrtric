@@ -79,7 +79,7 @@ __DMAAPMED_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __DMAAPMED_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=DMAAPMED" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_dmaapmediator.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=DMAAPMED" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_dmaapmediator.log 2>&1
 	else
 		docker logs $DMAAP_MED_APP_NAME > $1$2_dmaapmediator.log 2>&1
 	fi

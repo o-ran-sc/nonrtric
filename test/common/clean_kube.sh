@@ -28,20 +28,22 @@ YELLOW="\033[33m\033[1m"
 EYELLOW="\033[0m"
 SAMELINE="\033[0K\r"
 
+KUBECONF=""
+
 __kube_scale_all_resources() {
 
 	echo " Scaling down in namespace $1 ..."
 	namespace=$1
 	resources="deployment replicaset statefulset"
 	for restype in $resources; do
-		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
-				count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
+				count=$(kubectl $KUBECONF get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
 				if [ $? -eq 0 ] && [ ! -z "$count" ]; then
 					if [ $count -ne 0 ]; then
 						echo "  Scaling $restype $resid in namespace $namespace with label autotest to 0, current count=$count."
-						kubectl scale  $restype $resid -n $namespace --replicas=0 1> /dev/null 2> /dev/null
+						kubectl $KUBECONF scale  $restype $resid -n $namespace --replicas=0 1> /dev/null 2> /dev/null
 					fi
 				fi
 			done
@@ -54,14 +56,14 @@ __kube_wait_for_zero_count() {
 	namespace=$1
 	resources="deployment replicaset statefulset"
 	for restype in $resources; do
-		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				T_START=$SECONDS
 				count=1
 				scaled=0
 				while [ $count -gt 0 ]; do
-					count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
+					count=$(kubectl $KUBECONF get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
 					if [ $? -eq 0 ] && [ ! -z "$count" ]; then
 						if [ $count -ne 0 ]; then
 							echo -ne "  Scaling $restype $resid in namespace $namespace with label autotest to 0, current count=$count....$(($SECONDS-$T_START)) seconds"$SAMELINE
@@ -86,11 +88,11 @@ __kube_delete_all_resources() {
 	namespace=$1
 	resources="deployments replicaset statefulset services pods configmaps pvc serviceaccounts"
 	for restype in $resources; do
-		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid in namespace $namespace with label autotest "
-				kubectl delete --grace-period=1 $restype $resid -n $namespace 1> /dev/null 2> /dev/null
+				kubectl $KUBECONF delete --grace-period=1 $restype $resid -n $namespace 1> /dev/null 2> /dev/null
 			done
 		fi
 	done
@@ -100,11 +102,11 @@ __kube_delete_all_pv() {
 	echo " Delete all non-namespaced resources ..."
 	resources="pv clusterrolebindings"
 	for restype in $resources; do
-		result=$(kubectl get $restype -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid with label autotest "
-				kubectl delete --grace-period=1 $restype $resid 1> /dev/null 2> /dev/null
+				kubectl $KUBECONF delete --grace-period=1 $restype $resid 1> /dev/null 2> /dev/null
 			done
 		fi
 	done
@@ -115,17 +117,17 @@ __kube_wait_for_delete() {
 	namespace=$1
 	resources="deployments replicaset statefulset services pods configmaps pvc "
 	for restype in $resources; do
-		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid in namespace $namespace with label autotest "
-				kubectl delete --grace-period=1 $restype $resid -n $namespace #1> /dev/null 2> /dev/null
+				kubectl $KUBECONF delete --grace-period=1 $restype $resid -n $namespace #1> /dev/null 2> /dev/null
 				echo -ne "  Waiting for $restype $resid in namespace $namespace with label autotest to be deleted..."$SAMELINE
 				T_START=$SECONDS
 				result="dummy"
 				while [ ! -z "$result" ]; do
 					sleep 0.5
-					result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+					result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 					echo -ne "  Waiting for $restype $resid in namespace $namespace with label autotest to be deleted...$(($SECONDS-$T_START)) seconds "$SAMELINE
 					if [ -z "$result" ]; then
 						echo -e " Waiting for $restype $resid in namespace $namespace with label autotest to be deleted...$(($SECONDS-$T_START)) seconds $GREEN OK $EGREEN"
@@ -143,17 +145,17 @@ __kube_wait_for_delete_pv() {
 	echo " Wait for delete pv ..."
 	resources="pv "
 	for restype in $resources; do
-		result=$(kubectl get $restype -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid with label autotest "
-				kubectl delete --grace-period=1 $restype $resid -n $namespace #1> /dev/null 2> /dev/null
+				kubectl $KUBECONF delete --grace-period=1 $restype $resid -n $namespace #1> /dev/null 2> /dev/null
 				echo -ne "  Waiting for $restype $resid with label autotest to be deleted..."$SAMELINE
 				T_START=$SECONDS
 				result="dummy"
 				while [ ! -z "$result" ]; do
 					sleep 0.5
-					result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+					result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 					echo -ne "  Waiting for $restype $resid with label autotest to be deleted...$(($SECONDS-$T_START)) seconds "$SAMELINE
 					if [ -z "$result" ]; then
 						echo -e " Waiting for $restype $resid with label autotest to be deleted...$(($SECONDS-$T_START)) seconds $GREEN OK $EGREEN"
@@ -170,8 +172,32 @@ __kube_wait_for_delete_pv() {
 
 echo "Will remove all kube resources marked with label 'autotest'"
 
+print_usage() {
+    echo "Usage: clean_kube.sh [--kubeconfig <kube-config-file>]"
+}
+
+if [ $# -eq 1 ]; then
+    print_usage
+    exit
+elif [ $# -eq 2 ]; then
+    if [ $1 == "--kubeconfig" ]; then
+        if [ ! -f $2 ]; then
+            echo "File $2 for --kubeconfig is not found"
+            print_usage
+            exit
+        fi
+        KUBECONF="--kubeconfig $2"
+    else
+        print_usage
+        exit
+    fi
+else
+    print_usage
+    exit
+fi
+
 # List all namespace and scale/delete per namespace
-nss=$(kubectl get ns  -o jsonpath='{.items[*].metadata.name}')
+nss=$(kubectl $KUBECONF get ns  -o jsonpath='{.items[*].metadata.name}')
 if [ ! -z "$nss" ]; then
 	for ns in $nss; do
 		__kube_scale_all_resources $ns

@@ -78,7 +78,7 @@ __PA_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __PA_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_policy-agent.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_policy-agent.log 2>&1
 	else
 		docker logs $POLICY_AGENT_APP_NAME > $1$2_policy-agent.log 2>&1
 	fi
@@ -311,7 +311,7 @@ start_policy_agent() {
 
 		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
 		if [ $retcode_i -eq 0 ]; then
-			__PA_WORKER_NODE=$(kubectl get pod -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+			__PA_WORKER_NODE=$(kubectl $KUBECONF get pod -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
 			if [ -z "$__PA_WORKER_NODE" ]; then
 				echo -e $YELLOW" Cannot find worker node for pod for $POLICY_AGENT_APP_NAME, persistency may not work"$EYELLOW
 			fi
@@ -382,7 +382,7 @@ stop_policy_agent() {
 		fi
 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
 		echo "  Deleting the replica set - a new will be started when the app is started"
-		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=PA")
+		tmp=$(kubectl $KUBECONF delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=PA")
 		if [ $? -ne 0 ]; then
 			echo -e $RED" Could not delete replica set "$RED
 			((RES_CONF_FAIL++))
@@ -428,7 +428,7 @@ start_stopped_policy_agent() {
 		else
 			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__PA_WORKER_NODE to deployment for $POLICY_AGENT_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
 			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
-			tmp=$(kubectl patch deployment $POLICY_AGENT_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__PA_WORKER_NODE'"}}}}}')
+			tmp=$(kubectl $KUBECONF patch deployment $POLICY_AGENT_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__PA_WORKER_NODE'"}}}}}')
 			if [ $? -ne 0 ]; then
 				echo -e $YELLOW" Cannot set nodeSelector to deployment for $POLICY_AGENT_APP_NAME, persistency may not work"$EYELLOW
 			fi
@@ -508,13 +508,13 @@ prepare_consul_config() {
 	config_json=$config_json"\n   \"ric\": ["
 
 	if [ $RUNMODE == "KUBE" ]; then
-		result=$(kubectl get pods -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.items[?(@.metadata.labels.autotest=="RICSIM")].metadata.name}')
+		result=$(kubectl $KUBECONF get pods -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.items[?(@.metadata.labels.autotest=="RICSIM")].metadata.name}')
 		rics=""
 		ric_cntr=0
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for im in $result; do
 				if [[ $im != *"-0" ]]; then
-					ric_subdomain=$(kubectl get pod $im -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.spec.subdomain}')
+					ric_subdomain=$(kubectl $KUBECONF get pod $im -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.spec.subdomain}')
 					rics=$rics" "$im"."$ric_subdomain"."$KUBE_A1SIM_NAMESPACE
 					let ric_cntr=ric_cntr+1
 				fi
@@ -2370,7 +2370,7 @@ api_get_configuration() {
 pms_kube_pvc_reset() {
 	__log_test_start $@
 
-	pvc_name=$(kubectl get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep policy)
+	pvc_name=$(kubectl $KUBECONF get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep policy)
 	if [ -z "$pvc_name" ]; then
 		pvc_name=policymanagementservice-vardata-pvc
 	fi
