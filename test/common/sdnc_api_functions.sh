@@ -93,9 +93,9 @@ __SDNC_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __SDNC_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=SDNC" -n $KUBE_SDNC_NAMESPACE --tail=-1 > $1$2_SDNC.log 2>&1
-		podname=$(kubectl get pods -n $KUBE_SDNC_NAMESPACE -l "autotest=SDNC" -o custom-columns=":metadata.name")
-		kubectl exec -t -n $KUBE_SDNC_NAMESPACE $podname -- cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=SDNC" -n $KUBE_SDNC_NAMESPACE --tail=-1 > $1$2_SDNC.log 2>&1
+		podname=$(kubectl $KUBECONF get pods -n $KUBE_SDNC_NAMESPACE -l "autotest=SDNC" -o custom-columns=":metadata.name")
+		kubectl $KUBECONF exec -t -n $KUBE_SDNC_NAMESPACE $podname -- cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
 	else
 		docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $1$2_SDNC_karaf.log 2>&1
 	fi

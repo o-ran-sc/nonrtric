@@ -79,7 +79,7 @@ __DMAAPADP_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __DMAAPADP_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=DMAAPADP" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_dmaapadapter.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=DMAAPADP" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_dmaapadapter.log 2>&1
 	else
 		docker logs $DMAAP_ADP_APP_NAME > $1$2_dmaapadapter.log 2>&1
 	fi

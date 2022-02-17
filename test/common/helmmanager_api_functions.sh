@@ -71,7 +71,7 @@ __HELMMANAGER_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __HELMMANAGER_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=HELMMANAGER" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_helmmanager.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=HELMMANAGER" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_helmmanager.log 2>&1
 	else
 		docker logs $HELM_MANAGER_APP_NAME > $1$2_helmmanager.log 2>&1
 	fi
@@ -517,7 +517,7 @@ helm_manager_api_exec_add_repo() {
 			return 1
 		fi
 	else
-		retmsg=$(kubectl exec -it $HELM_MANAGER_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE -- helm repo add $1 $2)
+		retmsg=$(kubectl $KUBECONF exec -it $HELM_MANAGER_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE -- helm repo add $1 $2)
 		retcode=$?
 		if [ $retcode -ne 0 ]; then
 			__log_conf_fail_general " Cannot add repo to helm, return code: $retcode, msg: $retmsg"

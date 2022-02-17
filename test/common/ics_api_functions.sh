@@ -78,7 +78,7 @@ __ICS_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __ICS_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=ICS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_ics.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=ICS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_ics.log 2>&1
 	else
 		docker logs $ICS_APP_NAME > $1$2_ics.log 2>&1
 	fi
@@ -357,7 +357,7 @@ stop_ics() {
 
 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ICS
 		echo "  Deleting the replica set - a new will be started when the app is started"
-		tmp=$(kubectl delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=ICS")
+		tmp=$(kubectl $KUBECONF delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=ICS")
 		if [ $? -ne 0 ]; then
 			echo -e $RED" Could not delete replica set "$RED
 			((RES_CONF_FAIL++))
@@ -403,7 +403,7 @@ start_stopped_ics() {
 		else
 			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__ICS_WORKER_NODE to deployment for $ICS_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
 			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
-			tmp=$(kubectl patch deployment $ICS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__ICS_WORKER_NODE'"}}}}}')
+			tmp=$(kubectl $KUBECONF patch deployment $ICS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__ICS_WORKER_NODE'"}}}}}')
 			if [ $? -ne 0 ]; then
 				echo -e $YELLOW" Cannot set nodeSelector to deployment for $ICS_APP_NAME, persistency may not work"$EYELLOW
 			fi
@@ -2449,7 +2449,7 @@ ics_api_admin_reset() {
 ics_kube_pvc_reset() {
 	__log_test_start $@
 
-	pvc_name=$(kubectl get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep information)
+	pvc_name=$(kubectl $KUBECONF get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep information)
 	if [ -z "$pvc_name" ]; then
 		pvc_name=informationservice-pvc
 	fi

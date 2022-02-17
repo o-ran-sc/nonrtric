@@ -158,7 +158,7 @@ __DMAAPMR_kube_delete_all() {
 # args: <log-dir> <file-prexix>
 __MR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl  logs -l "autotest=MR" -n $KUBE_ONAP_NAMESPACE --tail=-1 > $1$2_mr_stub.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=MR" -n $KUBE_ONAP_NAMESPACE --tail=-1 > $1$2_mr_stub.log 2>&1
 	else
 		docker logs $MR_STUB_APP_NAME > $1$2_mr_stub.log 2>&1
 	fi
@@ -169,8 +169,8 @@ __MR_store_docker_logs() {
 # args: <log-dir> <file-prexix>
 __DMAAPMR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		for podname in $(kubectl get pods -n $KUBE_ONAP_NAMESPACE -l "autotest=DMAAPMR" -o custom-columns=":metadata.name"); do
-			kubectl logs -n $KUBE_ONAP_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
+		for podname in $(kubectl $KUBECONF get pods -n $KUBE_ONAP_NAMESPACE -l "autotest=DMAAPMR" -o custom-columns=":metadata.name"); do
+			kubectl $KUBECONF logs -n $KUBE_ONAP_NAMESPACE $podname --tail=-1 > $1$2_$podname.log 2>&1
 		done
 	else
 		docker logs $MR_DMAAP_APP_NAME > $1$2_mr.log 2>&1

@@ -26,10 +26,10 @@
 __print_args() {
 	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
-	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address]"
+	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address>]"
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
-	echo "      [--delete-containers] [--endpoint-stats]"
+	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -64,6 +64,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--delete-namespaces   -  Delete kubernetes namespaces before starting tests - but only those created by the test scripts. Kube mode only. Ignored if running with prestarted apps."
 	echo "--delete-containers   -  Delete docker containers before starting tests - but only those created by the test scripts. Docker mode only."
 	echo "--endpoint-stats      -  Collect endpoint statistics"
+	echo "--kubeconfig          -  Configure kubectl to use cluster specific cluster config file"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -265,6 +266,9 @@ DELETE_KUBE_NAMESPACES=0
 
 #Var to control if containers shall be delete before test setup
 DELETE_CONTAINERS=0
+
+#Var to configure kubectl from a config file.
+KUBECONF=""
 
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
@@ -810,7 +814,29 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			foundparm=0
 		fi
 	fi
-
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--kubeconfig" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No path found for : '--kubeconfig'"
+				fi
+			else
+			    if [ -f  $1 ]; then
+					KUBECONF="--kubeconfig $1"
+					echo "Option set - Kubeconfig path: "$1
+					shift;
+					foundparm=0
+				else
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="File $1 for --kubeconfig not found"
+					fi
+				fi
+			fi
+		fi
+	fi
 done
 echo ""
 
@@ -995,17 +1021,17 @@ else
 	if [ $RUNMODE == "KUBE" ]; then
 		echo " kubectl is installed and using versions:"
 		echo $(kubectl version --short=true) | indent2
-		res=$(kubectl cluster-info 2>&1)
+		res=$(kubectl $KUBECONF cluster-info 2>&1)
 		if [ $? -ne 0 ]; then
 			echo -e "$BOLD$RED############################################# $ERED$EBOLD"
-			echo -e  $BOLD$RED"Command 'kubectl cluster-info' returned error $ERED$EBOLD"
+			echo -e  $BOLD$RED"Command 'kubectl '$KUBECONF' cluster-info' returned error $ERED$EBOLD"
 			echo -e "$BOLD$RED############################################# $ERED$EBOLD"
 			echo " "
 			echo "kubectl response:"
 			echo $res
 			echo " "
 			echo "This script may have been started with user with no permission to run kubectl"
-			echo "Try running with 'sudo' or set 'KUBECONFIG'"
+			echo "Try running with 'sudo', set env KUBECONFIG or set '--kubeconfig' parameter"
 			echo "Do either 1, 2 or 3 "
 			echo " "
 			echo "1"
@@ -1018,13 +1044,14 @@ else
 			echo -e $BOLD"sudo -E <test-script-and-parameters>"$EBOLD
 			echo " "
 			echo "3"
-			echo "Set KUBECONFIG inline (replace user)"
-			echo -e $BOLD"sudo  KUBECONFIG='/home/<user>/.kube/config' <test-script-and-parameters>"$EBOLD
+			echo "Set KUBECONFIG via script parameter"
+			echo -e $BOLD"sudo ... --kubeconfig /home/<user>/.kube/<config-file> ...."$EBOLD
+			echo "The config file need to downloaded from the cluster"
 
 			exit 1
 		fi
 		echo " Node(s) and container runtime config"
-		kubectl get nodes -o wide | indent2
+		kubectl $KUBECONF get nodes -o wide | indent2
 	fi
 fi
 
@@ -1483,7 +1510,7 @@ setup_testenvironment() {
 
 
 	if [ "$DELETE_KUBE_NAMESPACES" -eq 1 ]; then
-		test_env_namespaces=$(kubectl get ns  --no-headers -o custom-columns=":metadata.name" -l autotest=engine) #Get list of ns created by the test env
+		test_env_namespaces=$(kubectl $KUBECONF get ns  --no-headers -o custom-columns=":metadata.name" -l autotest=engine) #Get list of ns created by the test env
 		if [ $? -ne 0 ]; then
 			echo " Cannot get list of namespaces...ignoring delete"
 		else
@@ -1492,7 +1519,7 @@ setup_testenvironment() {
 			done
 		fi
 	else
-		echo " Namespace delete option not set"
+		echo " Namespace delete option not set or ignored"
 	fi
 	echo ""
 
@@ -1505,7 +1532,7 @@ setup_testenvironment() {
 		echo " Removing stopped containers..."
 		docker rm $(docker ps -qa  --filter "label=nrttest_app") 2> /dev/null
 	else
-		echo " Contatiner delete option not set"
+		echo " Contatiner delete option not set or ignored"
 	fi
 	echo ""
 
@@ -1682,7 +1709,7 @@ setup_testenvironment() {
 			echo -e " Pulling remote snapshot or staging images my in some case result in pulling newer image versions outside the control of the test engine"
 			export KUBE_IMAGE_PULL_POLICY="Always"
 		fi
-		CLUSTER_IP=$(kubectl config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+		CLUSTER_IP=$(kubectl $KUBECONF config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
 		echo -e $YELLOW" The cluster hostname/ip is: $CLUSTER_IP"$EYELLOW
 
 		echo "================================================================================="
@@ -2059,12 +2086,12 @@ __clean_containers() {
 # Get resource type for scaling
 # args: <resource-name> <namespace>
 __kube_get_resource_type() {
-	kubectl get deployment $1 -n $2 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF get deployment $1 -n $2 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -eq 0 ]; then
 		echo "deployment"
 		return 0
 	fi
-	kubectl get sts $1 -n $2 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF get sts $1 -n $2 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -eq 0 ]; then
 		echo "sts"
 		return 0
@@ -2078,7 +2105,7 @@ __kube_get_resource_type() {
 # (Not for test scripts)
 __kube_scale() {
 	echo -ne "  Setting $1 $2 replicas=$4 in namespace $3"$SAMELINE
-	kubectl scale  $1 $2  -n $3 --replicas=$4 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF scale  $1 $2  -n $3 --replicas=$4 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		echo -e "  Setting $1 $2 replicas=$4 in namespace $3 $RED Failed $ERED"
 		((RES_CONF_FAIL++))
@@ -2091,7 +2118,7 @@ __kube_scale() {
 	TSTART=$SECONDS
 
 	for i in {1..500}; do
-		count=$(kubectl get $1/$2  -n $3 -o jsonpath='{.status.replicas}' 2> /dev/null)
+		count=$(kubectl $KUBECONF get $1/$2  -n $3 -o jsonpath='{.status.replicas}' 2> /dev/null)
 		retcode=$?
 		if [ -z "$count" ]; then
 			#No value is sometimes returned for some reason, in case the resource has replica 0
@@ -2129,11 +2156,11 @@ __kube_scale_all_resources() {
 	labelid=$3
 	resources="deployment replicaset statefulset"
 	for restype in $resources; do
-		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo -ne "  Ordered caling $restype $resid in namespace $namespace with label $labelname=$labelid to 0"$SAMELINE
-				kubectl scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
+				kubectl $KUBECONF scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
 				echo -e "  Ordered scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0 $GREEN OK $EGREEN"
 			done
 		fi
@@ -2159,18 +2186,18 @@ __kube_scale_and_wait_all_resources() {
 		scaled_all=0
 		for restype in $resources; do
 		    if [ -z "$3" ]; then
-				result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname')].metadata.name}')
+				result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname')].metadata.name}')
 			else
-				result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+				result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 			fi
 			if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 				for resid in $result; do
 					echo -e "   Ordered scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0"
-					kubectl scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
+					kubectl $KUBECONF scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
 					count=1
 					T_START=$SECONDS
 					while [ $count -ne 0 ]; do
-						count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
+						count=$(kubectl $KUBECONF get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
 						echo -ne "    Scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0, current count=$count"$SAMELINE
 						if [ $? -eq 0 ] && [ ! -z "$count" ]; then
 							sleep 0.5
@@ -2212,14 +2239,14 @@ __kube_delete_all_resources() {
 			ns_flag=""
 			ns_text=""
 		fi
-		result=$(kubectl get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			deleted_resourcetypes=$deleted_resourcetypes" "$restype
 			for resid in $result; do
 				if [ $restype == "replicaset" ] || [ $restype == "statefulset" ]; then
 					count=1
 					while [ $count -ne 0 ]; do
-						count=$(kubectl get $restype $resid  $ns_flag -o jsonpath='{.status.replicas}' 2> /dev/null)
+						count=$(kubectl $KUBECONF get $restype $resid  $ns_flag -o jsonpath='{.status.replicas}' 2> /dev/null)
 						echo -ne "  Scaling $restype $resid $ns_text with label $labelname=$labelid to 0, current count=$count"$SAMELINE
 						if [ $? -eq 0 ] && [ ! -z "$count" ]; then
 							sleep 0.5
@@ -2230,7 +2257,7 @@ __kube_delete_all_resources() {
 					echo -e "  Scaled $restype $resid $ns_text with label $labelname=$labelid to 0, current count=$count $GREEN OK $EGREEN"
 				fi
 				echo -ne "  Deleting $restype $resid $ns_text with label $labelname=$labelid "$SAMELINE
-				kubectl delete --grace-period=1 $restype $resid $ns_flag 1> /dev/null 2> ./tmp/kubeerr
+				kubectl $KUBECONF delete --grace-period=1 $restype $resid $ns_flag 1> /dev/null 2> ./tmp/kubeerr
 				if [ $? -eq 0 ]; then
 					echo -e "  Deleted $restype $resid $ns_text with label $labelname=$labelid $GREEN OK $EGREEN"
 				else
@@ -2253,7 +2280,7 @@ __kube_delete_all_resources() {
 			result="dummy"
 			while [ ! -z "$result" ]; do
 				sleep 0.5
-				result=$(kubectl get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+				result=$(kubectl $KUBECONF get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 				echo -ne "  Waiting for $restype $ns_text with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds "$SAMELINE
 				if [ -z "$result" ]; then
 					echo -e " Waiting for $restype $ns_text with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $GREEN OK $EGREEN"
@@ -2272,17 +2299,17 @@ __kube_delete_all_resources() {
 __kube_create_namespace() {
 
 	#Check if test namespace exists, if not create it
-	kubectl get namespace $1 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF get namespace $1 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		echo -ne " Creating namespace "$1 $SAMELINE
-		kubectl create namespace $1 1> /dev/null 2> ./tmp/kubeerr
+		kubectl $KUBECONF create namespace $1 1> /dev/null 2> ./tmp/kubeerr
 		if [ $? -ne 0 ]; then
 			echo -e " Creating namespace $1 $RED$BOLD FAILED $EBOLD$ERED"
 			((RES_CONF_FAIL++))
 			echo "  Message: $(<./tmp/kubeerr)"
 			return 1
 		else
-			kubectl label ns $1 autotest=engine
+			kubectl $KUBECONF label ns $1 autotest=engine
 			echo -e " Creating namespace $1 $GREEN$BOLD OK $EBOLD$EGREEN"
 		fi
 	else
@@ -2297,10 +2324,10 @@ __kube_create_namespace() {
 __kube_delete_namespace() {
 
 	#Check if test namespace exists, if so remove it
-	kubectl get namespace $1 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF get namespace $1 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -eq 0 ]; then
 		echo -ne " Removing namespace "$1 $SAMELINE
-		kubectl delete namespace $1 1> /dev/null 2> ./tmp/kubeerr
+		kubectl $KUBECONF delete namespace $1 1> /dev/null 2> ./tmp/kubeerr
 		if [ $? -ne 0 ]; then
 			echo -e " Removing namespace $1 $RED$BOLD FAILED $EBOLD$ERED"
 			((RES_CONF_FAIL++))
@@ -2346,7 +2373,7 @@ __kube_get_service_host() {
 		exit 1
 	fi
 	for timeout in {1..60}; do
-		host=$(kubectl get svc $1  -n $2 -o jsonpath='{.spec.clusterIP}')
+		host=$(kubectl $KUBECONF get svc $1  -n $2 -o jsonpath='{.spec.clusterIP}')
 		if [ $? -eq 0 ]; then
 			if [ ! -z "$host" ]; then
 				echo $host
@@ -2371,7 +2398,7 @@ __kube_get_service_port() {
 	fi
 
 	for timeout in {1..60}; do
-		port=$(kubectl get svc $1  -n $2 -o jsonpath='{...ports[?(@.name=="'$3'")].port}')
+		port=$(kubectl $KUBECONF get svc $1  -n $2 -o jsonpath='{...ports[?(@.name=="'$3'")].port}')
 		if [ $? -eq 0 ]; then
 			if [ ! -z "$port" ]; then
 				echo $port
@@ -2396,7 +2423,7 @@ __kube_get_service_nodeport() {
 	fi
 
 	for timeout in {1..60}; do
-		port=$(kubectl get svc $1  -n $2 -o jsonpath='{...ports[?(@.name=="'$3'")].nodePort}')
+		port=$(kubectl $KUBECONF get svc $1  -n $2 -o jsonpath='{...ports[?(@.name=="'$3'")].nodePort}')
 		if [ $? -eq 0 ]; then
 			if [ ! -z "$port" ]; then
 				echo $port
@@ -2416,7 +2443,7 @@ __kube_get_service_nodeport() {
 __kube_create_instance() {
 	echo -ne " Creating $1 $2"$SAMELINE
 	envsubst < $3 > $4
-	kubectl apply -f $4 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF apply -f $4 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		((RES_CONF_FAIL++))
 		echo -e " Creating $1 $2 $RED Failed $ERED"
@@ -2434,21 +2461,21 @@ __kube_create_configmap() {
 	echo -ne " Creating configmap $1 "$SAMELINE
 	envsubst < $5 > $5"_tmp"
 	cp $5"_tmp" $5  #Need to copy back to orig file name since create configmap neeed the original file name
-	kubectl create configmap $1  -n $2 --from-file=$5 --dry-run=client -o yaml > $6
+	kubectl $KUBECONF create configmap $1  -n $2 --from-file=$5 --dry-run=client -o yaml > $6
 	if [ $? -ne 0 ]; then
 		echo -e " Creating configmap $1 $RED Failed $ERED"
 		((RES_CONF_FAIL++))
 		return 1
 	fi
 
-	kubectl apply -f $6 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF apply -f $6 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		echo -e " Creating configmap $1 $RED Apply failed $ERED"
 		echo "  Message: $(<./tmp/kubeerr)"
 		((RES_CONF_FAIL++))
 		return 1
 	fi
-	kubectl label configmap $1 -n $2 $3"="$4 --overwrite 1> /dev/null 2> ./tmp/kubeerr
+	kubectl $KUBECONF label configmap $1 -n $2 $3"="$4 --overwrite 1> /dev/null 2> ./tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		echo -e " Creating configmap $1 $RED Labeling failed $ERED"
 		echo "  Message: $(<./tmp/kubeerr)"
@@ -2456,7 +2483,7 @@ __kube_create_configmap() {
 		return 1
 	fi
 	# Log the resulting map
-	kubectl get configmap $1 -n $2 -o yaml > $6
+	kubectl $KUBECONF get configmap $1 -n $2 -o yaml > $6
 
 	echo -e " Creating configmap $1 $GREEN OK $EGREEN"
 	return 0
@@ -2500,7 +2527,7 @@ __kube_clean_pvc() {
 
 	envsubst < $input_yaml > $output_yaml
 
-	kubectl delete -f $output_yaml 1> /dev/null 2> /dev/null   # Delete the previous terminated pod - if existing
+	kubectl $KUBECONF delete -f $output_yaml 1> /dev/null 2> /dev/null   # Delete the previous terminated pod - if existing
 
 	__kube_create_instance pod $PVC_CLEANER_APP_NAME $input_yaml $output_yaml
 	if [ $? -ne 0 ]; then
@@ -2510,7 +2537,7 @@ __kube_clean_pvc() {
 
 	term_ts=$(($SECONDS+30))
 	while [ $term_ts -gt $SECONDS ]; do
-		pod_status=$(kubectl get pod pvc-cleaner -n $PVC_CLEANER_NAMESPACE --no-headers -o custom-columns=":status.phase")
+		pod_status=$(kubectl $KUBECONF get pod pvc-cleaner -n $PVC_CLEANER_NAMESPACE --no-headers -o custom-columns=":status.phase")
 		if [ "$pod_status" == "Succeeded" ]; then
 			return 0
 		fi
@@ -2586,7 +2613,7 @@ clean_environment() {
 		__clean_containers
 		if [ $PRE_CLEAN -eq 1 ]; then
 			echo " Cleaning kubernetes resouces to free up resources, may take time..."
-			../common/clean_kube.sh 2>&1 /dev/null
+			../common/clean_kube.sh $KUBECONF 2>&1 /dev/null
 			echo ""
 		fi
 	fi
@@ -2887,11 +2914,11 @@ store_logs() {
 		done
 	fi
 	if [ $RUNMODE == "KUBE" ]; then
-		namespaces=$(kubectl  get namespaces -o jsonpath='{.items[?(@.metadata.name)].metadata.name}')
+		namespaces=$(kubectl $KUBECONF  get namespaces -o jsonpath='{.items[?(@.metadata.name)].metadata.name}')
 		for nsid in $namespaces; do
-			pods=$(kubectl get pods -n $nsid -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+			pods=$(kubectl $KUBECONF get pods -n $nsid -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 			for podid in $pods; do
-				kubectl logs -n $nsid $podid > $TESTLOGS/$ATC/$1_${podid}.log
+				kubectl $KUBECONF logs -n $nsid $podid > $TESTLOGS/$ATC/$1_${podid}.log
 			done
 		done
 	fi
