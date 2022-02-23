@@ -1,11 +1,11 @@
 tox
-Sphinx>=2,<4
+Sphinx
 doc8
 docutils
 setuptools
 six
-sphinx_rtd_theme>=0.4.3
-sphinxcontrib-needs>=0.2.3
+sphinx_rtd_theme
+sphinxcontrib-needs
 sphinxcontrib-swaggerdoc
 sphinx_bootstrap_theme
 sphinxcontrib-redoc

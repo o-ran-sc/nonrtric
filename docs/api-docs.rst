@@ -22,7 +22,6 @@ The core Non-RT RIC consists of several parts, with available APIs described in 
 * The A1 Policy Management Service
 * The Information Coordinator Service
 * DMaaP Adaptor
-* The Non-RT-RIC App Catalogue
 * K8S Helm Chart LCM Manager (Initial) **<ToDo>**
 
 A1 Policy Management Service
@@ -74,22 +73,6 @@ The API is also described in Swagger-JSON and YAML:
    :widths: 10,5, 5
 
    "DMaaP Mediator Producer API", ":download:`link <../dmaap-mediator-producer/api/swagger.json>`", ":download:`link <../dmaap-mediator-producer/api/swagger.yaml>`"
-
-Non-RT-RIC App Catalogue (Initial)
-==================================
-
-The Service Catalogue provides a way for services to register themselves for other services to discover.
-
-See `Service Catalogue API <./rac-api.html>`_ for full details of the API.
-
-The API is also described in Swagger-JSON and YAML:
-
-
-.. csv-table::
-   :header: "API name", "|swagger-icon|", "|yaml-icon|"
-   :widths: 10,5, 5
-
-   "Service Catalogue API", ":download:`link <../r-app-catalogue/api/rac-api.json>`", ":download:`link <../r-app-catalogue/api/rac-api.yaml>`"
 
 K8S Helm Chart LCM Manager (Initial)
 ====================================
