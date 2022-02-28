@@ -199,7 +199,6 @@ EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 adp_timeout=$(($NUM_JOBS*1*2+60))  #NUM_JOBS*MIN_BUFFERTIMEOUT*2+60_SEC_DELAY
 for ((i=0; i<$NUM_CR; i++))
 do
-    #tmp_receptio
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV $adp_timeout
     cr_greater_or_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV
 done

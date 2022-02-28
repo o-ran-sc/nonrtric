@@ -42,6 +42,7 @@ fi
 
 # source function to do curl and check result
 . ../common/do_curl_function.sh
+RESP_CONTENT="*"
 
 echo "=== hello world ==="
 RESULT="OK"

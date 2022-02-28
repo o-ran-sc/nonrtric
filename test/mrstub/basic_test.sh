@@ -44,6 +44,8 @@ fi
 # source function to do curl and check result
 . ../common/do_curl_function.sh
 
+RESP_CONTENT='*' #Dont check resp content type
+
 echo "=== Stub hello world ==="
 RESULT="OK"
 do_curl GET / 200
@@ -172,7 +174,7 @@ RESULT="{}"
 do_curl POST /events/generic-path 200 .tmp.json
 
 echo "=== Fetch a request ==="
-RESULT="json:[{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse\"}, \"status\": \"200\"}]"
+RESULT="json:[\"{\\\"correlationId\\\": \\\""$CORRID"\\\", \\\"message\\\": {\\\"test\\\": \\\"testresponse\\\"}, \\\"status\\\": \\\"200\\\"}\"]"
 do_curl GET '/events/generic-path' 200
 
 echo "********************"

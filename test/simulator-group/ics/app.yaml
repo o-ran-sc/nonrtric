@@ -17,6 +17,9 @@ spec:
         run: $ICS_APP_NAME
         autotest: ICS
     spec:
+      securityContext:
+        runAsUser: 0
+# Need to run as root to be able to store files in dir mounted as a hostPath volume
       containers:
       - name: $ICS_APP_NAME
         image: $ICS_IMAGE

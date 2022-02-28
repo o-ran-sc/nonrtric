@@ -582,7 +582,7 @@ if os.getenv("TOPIC_READ") is not None:
         uploader_thread=Thread(target=dmaap_uploader)
         uploader_thread.start()
 
-if os.environ['GENERIC_TOPICS_UPLOAD_BASEURL'] is not None:
+if 'GENERIC_TOPICS_UPLOAD_BASEURL' in os.environ:
     print("GENERIC_TOPICS_UPLOAD_BASEURL:"+os.environ['GENERIC_TOPICS_UPLOAD_BASEURL'])
     generic_topics_upload_baseurl=os.environ['GENERIC_TOPICS_UPLOAD_BASEURL']
     if generic_topics_upload_baseurl and generic_uploader_thread is None:

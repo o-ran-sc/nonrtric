@@ -36,7 +36,9 @@ print_usage() {
     echo "Usage: clean_kube_ns.sh [--kubeconfig <kube-config-file>]"
 }
 
-if [ $# -eq 1 ]; then
+if [ $# -eq 0 ]; then
+:
+elif [ $# -eq 1 ]; then
     print_usage
     exit
 elif [ $# -eq 2 ]; then

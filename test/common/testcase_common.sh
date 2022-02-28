@@ -29,7 +29,7 @@ __print_args() {
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address>]"
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
-	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>]"
+	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>] [--host-path-dir <local-host-dir>]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -65,6 +65,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--delete-containers   -  Delete docker containers before starting tests - but only those created by the test scripts. Docker mode only."
 	echo "--endpoint-stats      -  Collect endpoint statistics"
 	echo "--kubeconfig          -  Configure kubectl to use cluster specific cluster config file"
+	echo "--host-path-dir       -  (Base-)path on local-hostmounted to all VMs (nodes), for hostpath volumes in kube"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -269,6 +270,14 @@ DELETE_CONTAINERS=0
 
 #Var to configure kubectl from a config file.
 KUBECONF=""
+
+#Var pointing to dir mounted to each kubernetes node (master and workers)
+#Persistent volumes using "hostpath" are allocated beneath the point.
+#Typically it is a dir on local host mounted to each VM running the master and worker.
+#So the intention is make this dir available so the PODs can be restarted on any
+#node and still access the persistent data
+#If not set from cmd line, the path is defaults to "/tmp"
+HOST_PATH_BASE_DIR=""
 
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
@@ -837,6 +846,21 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			fi
 		fi
 	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--host-path-dir" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No path found for : '--host-path-dir'"
+				fi
+			else
+				HOST_PATH_BASE_DIR=$1
+				shift
+				foundparm=0
+			fi
+		fi
+	fi
 done
 echo ""
 
@@ -1020,7 +1044,7 @@ if [ $? -ne 0 ] || [ -z tmp ]; then
 else
 	if [ $RUNMODE == "KUBE" ]; then
 		echo " kubectl is installed and using versions:"
-		echo $(kubectl version --short=true) | indent2
+		echo $(kubectl $KUBECONF version --short=true) | indent2
 		res=$(kubectl $KUBECONF cluster-info 2>&1)
 		if [ $? -ne 0 ]; then
 			echo -e "$BOLD$RED############################################# $ERED$EBOLD"
@@ -1052,6 +1076,16 @@ else
 		fi
 		echo " Node(s) and container runtime config"
 		kubectl $KUBECONF get nodes -o wide | indent2
+		echo ""
+		if [ -z "$HOST_PATH_BASE_DIR" ]; then
+			HOST_PATH_BASE_DIR="/tmp"
+			echo " Persistent volumes will be mounted to $HOST_PATH_BASE_DIR on applicable node"
+			echo " No guarantee that persistent volume data is available on all nodes in the cluster"
+		else
+			echo "Persistent volumes will be mounted to base dir: $HOST_PATH_BASE_DIR"
+			echo "Assuming this dir is mounted from each node to a dir on the localhost or other"
+			echo "file system available to all nodes"
+		fi
 	fi
 fi
 

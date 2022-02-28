@@ -165,6 +165,7 @@ done
 
 
 EXPECTED_DATA_DELIV=0 #Total delivered msg per CR
+EXPECTED_BATCHES_DELIV=0 #Total delivered batches per CR
 DATA_DELIV_JOBS=0 #Total delivered msg per job per CR
 
 mr_api_generate_json_payload_file 1 ./tmp/data_for_dmaap_test.json
@@ -173,43 +174,48 @@ kafkapc_api_generate_text_payload_file 1 ./tmp/data_for_dmaap_test.txt
 ## Send json file via message-router to adapter
 DATA_DELIV_JOBS=5 #Each job will eventuall get 2 msgs
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapadp.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 # Check received data callbacks from adapter
@@ -227,48 +233,53 @@ done
 ## Send text file via message-router to adapter kafka
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 1 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 2 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 3 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 4 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 5 30
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 # Check received data callbacks from adapter kafka
@@ -285,43 +296,48 @@ done
 ## Send json file via message-router to mediator
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 mr_api_send_json_file "/events/unauthenticated.dmaapmed.json" ./tmp/data_for_dmaap_test.json
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+    cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
 done
 
 # Check received data callbacks from mediator
@@ -339,48 +355,53 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     ## Send text file via message-router to mediator kafka
 
     EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+    EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
     kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 1 30
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+        cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
     done
 
     EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+    EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
     kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 2 30
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+        cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
     done
 
     EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+    EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
     kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 3 30
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+        cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
     done
 
     EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+    EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
     kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 4 30
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+        cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
     done
 
     EXPECTED_DATA_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_DATA_DELIV))
+    EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
     kafkapc_api_post_msg_from_file 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" ./tmp/data_for_dmaap_test.txt
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 5 30
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
+        cr_equal $i received_callback_batches $EXPECTED_BATCHES_DELIV 60
     done
 
     # Check received data callbacks from adapter kafka
@@ -399,6 +420,13 @@ fi
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-1"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
 
+#########################################################
+#Checking number of message batches is not reliable when
+#sending several messages at the same time
+#Two messages may be send separately or to together
+#in one batch
+#########################################################
+
 DATA_DELIV_JOBS=7 #Each job will eventuall get 5+2 msgs
 
 # Wait for data recetption, adapter
@@ -407,7 +435,6 @@ start_timer "Data delivery adapter, 2 json per job"
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
 done
 print_timer
 
@@ -422,7 +449,6 @@ start_timer "Data delivery adapter kafka, 2 strings per job"
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
 done
 print_timer
 
@@ -436,7 +462,6 @@ start_timer "Data delivery mediator, 2 json per job"
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 100
 done
 print_timer
 
@@ -452,7 +477,6 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 60
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 60
     done
     print_timer
 fi
@@ -462,14 +486,10 @@ for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
     cr_equal $cr_index received_callbacks?id=job-med-data$i $DATA_DELIV_JOBS
-    cr_equal $cr_index received_callback_batches?id=job-med-data$i $DATA_DELIV_JOBS
     cr_equal $cr_index received_callbacks?id=job-adp-data$i $DATA_DELIV_JOBS
-    cr_equal $cr_index received_callback_batches?id=job-adp-data$i $DATA_DELIV_JOBS
     cr_equal $cr_index received_callbacks?id=job-adp-kafka-data$i $DATA_DELIV_JOBS
-    cr_equal $cr_index received_callback_batches?id=job-adp-kafka-data$i $DATA_DELIV_JOBS
     if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
         cr_equal $cr_index received_callbacks?id=job-med-kafka-data$i $DATA_DELIV_JOBS
-        cr_equal $cr_index received_callback_batches?id=job-med-kafka-data$i $DATA_DELIV_JOBS
     fi
 done
 
@@ -506,7 +526,6 @@ start_timer "Data delivery adapter with $SEC_DELAY seconds delay in consumer, 2 
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 100
 done
 print_timer
 
@@ -522,7 +541,6 @@ start_timer "Data delivery adapter kafka with $SEC_DELAY seconds delay in consum
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 100
 done
 print_timer
 
@@ -537,7 +555,6 @@ start_timer "Data delivery mediator with $SEC_DELAY seconds delay in consumer, 2
 for ((i=0; i<$NUM_CR; i++))
 do
     cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
-    cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 100
 done
 print_timer
 
@@ -553,7 +570,6 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     for ((i=0; i<$NUM_CR; i++))
     do
         cr_equal $i received_callbacks $EXPECTED_DATA_DELIV 100
-        cr_equal $i received_callback_batches $EXPECTED_DATA_DELIV 100
     done
     print_timer
 fi
@@ -563,14 +579,10 @@ for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
     cr_equal $cr_index received_callbacks?id=job-med-data$i 9
-    cr_equal $cr_index received_callback_batches?id=job-med-data$i 9
     cr_equal $cr_index received_callbacks?id=job-adp-data$i 9
-    cr_equal $cr_index received_callback_batches?id=job-adp-data$i 9
     cr_equal $cr_index received_callbacks?id=job-adp-kafka-data$i 9
-    cr_equal $cr_index received_callback_batches?id=job-adp-kafka-data$i 9
     if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
         cr_equal $cr_index received_callbacks?id=job-med-kafka-data$i 9
-        cr_equal $cr_index received_callback_batches?id=job-med-kafka-data$i 9
     fi
 done
 

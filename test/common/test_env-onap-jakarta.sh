@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -86,12 +86,12 @@ SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-# ICS image and tag - used e release
+# ICS image and tag - using e release
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-information-coordinator-service"
-ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.2.0"
+ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.2.1"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
-# Control Panel image and tag - used e release
+# Control Panel image and tag - using e release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
 CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.3.0"
 
@@ -101,7 +101,7 @@ NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
 
 # RAPP Catalogue image and tags - used e release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.1"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.2"
 
 
 # Near RT RIC Simulator image and tags - used e release

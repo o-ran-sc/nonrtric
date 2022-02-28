@@ -98,7 +98,7 @@ RESULT="2"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="2"
+RESULT="0"
 do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="
@@ -115,7 +115,7 @@ RESULT="2"
 do_curl GET /counter/received_callbacks?id=test 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="2"
+RESULT="1"
 do_curl GET /counter/received_callback_batches?id=test 200
 
 echo "=== Get counter - fetched events ==="
@@ -161,7 +161,7 @@ RESULT="2"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="2"
+RESULT="0"
 do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="
@@ -178,7 +178,7 @@ RESULT="2"
 do_curl GET /counter/received_callbacks?id=test 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="2"
+RESULT="1"
 do_curl GET /counter/received_callback_batches?id=test 200
 
 echo "=== Get counter - fetched events ==="
@@ -212,7 +212,7 @@ RESULT="5"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="5"
+RESULT="0"
 do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="
@@ -229,7 +229,7 @@ RESULT="1"
 do_curl GET /counter/received_callbacks?id=test1 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="1"
+RESULT="0"
 do_curl GET /counter/received_callback_batches?id=test1 200
 
 echo "=== Get counter - fetched events ==="
@@ -249,7 +249,7 @@ RESULT="5"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="5"
+RESULT="0"
 do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="
@@ -271,7 +271,7 @@ RESULT="7"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - callback batches ==="
-RESULT="6"
+RESULT="1"
 do_curl GET /counter/received_callback_batches 200
 
 echo "=== Get counter - fetched events ==="

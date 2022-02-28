@@ -253,7 +253,7 @@ start_ric_simulators() {
 
 			# Create app
 			input_yaml=$SIM_GROUP"/"$RIC_SIM_COMPOSE_DIR"/"app.yaml
-			output_yaml=$PWD/tmp/pa_${1}_app.yaml
+			output_yaml=$PWD/tmp/ric_${1}_app.yaml
 			__kube_create_instance app $RIC_SIM_SET_NAME $input_yaml $output_yaml
 
 			#Using only instance from index 1 to keep compatability with docker

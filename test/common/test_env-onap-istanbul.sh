@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -76,10 +76,10 @@ POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.2.5"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.2.5-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.5-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.2.5-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.4"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.2.6-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.2.6-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.2.6-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.2.5"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC

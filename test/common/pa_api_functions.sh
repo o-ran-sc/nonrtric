@@ -209,6 +209,7 @@ __export_agent_vars() {
 		##Create a unique path for the pv each time to prevent a previous volume to be reused
 		export POLICY_AGENT_PV_PATH="padata-"$(date +%s)
 		export POLICY_AGENT_CONTAINER_MNT_DIR
+		export HOST_PATH_BASE_DIR
 
 		if [ $1 == "PROXY" ]; then
 			export AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started

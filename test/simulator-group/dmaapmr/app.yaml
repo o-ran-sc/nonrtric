@@ -113,6 +113,10 @@ spec:
         - mountPath: /etc/kafka/secrets/jaas/zk_client_jaas.conf
           subPath: zk_client_jaas.conf
           name: dmaapmr-zk-client-jaas
+      initContainers:
+      - name: init-kafka
+        image: busybox
+        command: ['sh', '-c', 'until nslookup $MR_ZOOKEEPER_APP_NAME; do echo waiting for $MR_ZOOKEEPER_APP_NAME; sleep 2; done;']
       volumes:
       - configMap:
           defaultMode: 420
@@ -160,6 +164,10 @@ spec:
         - mountPath: /appl/dmaapMR1/etc/cadi.properties
           subPath: cadi.properties
           name: dmaapmr-cadi
+      initContainers:
+      - name: init-dmaap-mr
+        image: busybox
+        command: ['sh', '-c', 'until nslookup $MR_KAFKA_APP_NAME; do echo waiting for $MR_KAFKA_APP_NAME; sleep 2; done;']
       volumes:
       - configMap:
           defaultMode: 420

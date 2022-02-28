@@ -15,4 +15,4 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Delete
   hostPath:
-    path: "/tmp/$POLICY_AGENT_PV_PATH"
+    path: "$HOST_PATH_BASE_DIR/$POLICY_AGENT_PV_PATH"

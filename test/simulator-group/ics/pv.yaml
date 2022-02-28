@@ -2,6 +2,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: $ICS_DATA_PV_NAME
+  annotations:
+    pv.beta.kubernetes.io/gid: "999"
   labels:
     run: $ICS_APP_NAME
     autotest: ICS
@@ -13,4 +15,4 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Delete
   hostPath:
-    path: "/tmp/$ICS_PV_PATH"
+    path: "$HOST_PATH_BASE_DIR/$ICS_PV_PATH"

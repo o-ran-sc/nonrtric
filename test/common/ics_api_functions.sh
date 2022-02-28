@@ -192,6 +192,7 @@ __ics_export_vars() {
 		export ICS_DATA_PVC_NAME=$ICS_APP_NAME"-pvc"
 		#Create a unique path for the pv each time to prevent a previous volume to be reused
 		export ICS_PV_PATH="icsdata-"$(date +%s)
+		export HOST_PATH_BASE_DIR
 
 		if [ $1 == "PROXY" ]; then
 			export ICS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
@@ -285,7 +286,7 @@ start_ics() {
 
 		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
 		if [ $retcode_i -eq 0 ]; then
-			__ICS_WORKER_NODE=$(kubectl get pod -l "autotest=ICS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+			__ICS_WORKER_NODE=$(kubectl $KUBECONF get pod -l "autotest=ICS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
 			if [ -z "$__ICS_WORKER_NODE" ]; then
 				echo -e $YELLOW" Cannot find worker node for pod for $ICS_APP_NAME, persistency may not work"$EYELLOW
 			fi
@@ -394,7 +395,7 @@ start_stopped_ics() {
 			return 0
 		fi
 
-		# Tie the PMS to the same worker node it was initially started on
+		# Tie the ICS to the same worker node it was initially started on
 		# A PVC of type hostPath is mounted to PMS, for persistent storage, so the PMS must always be on the node which mounted the volume
 		if [ -z "$__ICS_WORKER_NODE" ]; then
 			echo -e $RED" No initial worker node found for pod "$RED
@@ -1104,7 +1105,8 @@ ics_api_edp_get_producer_ids_2() {
     if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
 		query="/data-producer/v1/info-producers"
 		if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
-			query=$query"?info_type_id=$2"
+			query=$query"?info_type_id=$2&infoTypeId=$2"  #info_type_id changed to infoTypeId in F-release.
+			                                              #Remove info_type_id when F-release is no longer supported
 		fi
 	else
 		query="/ei-producer/v1/eiproducers"
