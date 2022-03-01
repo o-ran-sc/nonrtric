@@ -229,3 +229,5 @@ A very simplified closed-loop rApp use case to re-establish front-haul connectio
 
 A very simplified closed-loop rApp use case to re-prioritize a RAN slice's radio resource allocation priority if sufficient throughput cannot be maintained. Not intended to to be 'real-world'.
 * Repo: *nonrtric/rapp/ransliceassurance*
+
+More details available at the `documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-ransliceassurance>`__.
