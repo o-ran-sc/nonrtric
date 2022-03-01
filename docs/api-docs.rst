@@ -58,22 +58,6 @@ The API is also described in Swagger-JSON and YAML:
 
    "DMaaP Adaptor API", ":download:`link <../dmaap-adaptor-java/api/api.json>`", ":download:`link <../dmaap-adaptor-java/api/api.yaml>`"
 
-DMaaP Mediator Producer
-=======================
-
-The DMaaP Mediator Producer provides support for push delivery of any data received from DMaaP or Kafka.
-
-See `DMaaP Mediator Producer API <./dmaap-mediator-producer-api.html>`_ for full details of the API.
-
-The API is also described in Swagger-JSON and YAML:
-
-
-.. csv-table::
-   :header: "API name", "|swagger-icon|", "|yaml-icon|"
-   :widths: 10,5, 5
-
-   "DMaaP Mediator Producer API", ":download:`link <../dmaap-mediator-producer/api/swagger.json>`", ":download:`link <../dmaap-mediator-producer/api/swagger.yaml>`"
-
 K8S Helm Chart LCM Manager (Initial)
 ====================================
 
