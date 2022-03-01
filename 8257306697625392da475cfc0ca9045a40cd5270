@@ -39,6 +39,30 @@
       },
       "revId": "8257306697625392da475cfc0ca9045a40cd5270",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4dcc3032_afeb9cf5",
+        "filename": "docs/overview.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1001106
+      },
+      "writtenOn": "2022-03-01T08:27:05Z",
+      "side": 1,
+      "message": "Thanks Henrik, I saw that another way around this problem is to use two underscore symbol at the end. However I have a problem with the link I\u0027m using, current link is broken so I removed it for now, until I can solve that problem.",
+      "parentUuid": "0755ecd2_0ceed94e",
+      "range": {
+        "startLine": 233,
+        "startChar": 31,
+        "endLine": 233,
+        "endChar": 49
+      },
+      "revId": "8257306697625392da475cfc0ca9045a40cd5270",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
