@@ -78,11 +78,6 @@ O-DU & O-RU fronthaul recovery
 
 See the page in Wiki: `O-RU Fronthaul Recovery usecase <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_.
 
-O-DU Slicing use cases
-----------------------
-
-See the page in Wiki: `O-DU Slice Assurance usecase <https://wiki.o-ran-sc.org/display/RICNR/O-DU+Slice+Assurance+usecase>`_.
-
 Helm Manager
 ------------
 
