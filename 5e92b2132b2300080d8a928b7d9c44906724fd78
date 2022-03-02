@@ -16,6 +16,23 @@
       "message": "Verification vill fail until https://gerrit.o-ran-sc.org/r/c/ci-management/+/7846 is merged.",
       "revId": "5e92b2132b2300080d8a928b7d9c44906724fd78",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "019ae1c0_19cfc28e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-03-02T06:31:43Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "5e92b2132b2300080d8a928b7d9c44906724fd78",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
