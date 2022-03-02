@@ -26,12 +26,6 @@ redoc = [
                 'name': 'DMaaP Adaptor API',
                 'page': 'dmaap-adaptor-api',
                 'spec': '../dmaap-adaptor-java/api/api.json',
-            },
-            {
-                'name': 'DMaaP Mediator Producer API',
-                'page': 'dmaap-mediator-producer-api',
-                'spec': '../dmaap-mediator-producer/api/swagger.json',
-                'embed': True,
             }
         ]
 

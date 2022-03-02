@@ -136,23 +136,6 @@ Version history DMaaP Adator
 +------------+----------+------------------+-----------------+
 
 
-Version history DMaaP Mediator Producer
-=======================================
-
-+------------+----------+------------------+-----------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**     |
-|            |          |                  |                 |
-+------------+----------+------------------+-----------------+
-| 2021-12-13 | 1.0.0    | Henrik Andersson | E Release       |
-|            |          |                  | Initial version |
-+------------+----------+------------------+-----------------+
-| 2022-02-07 | 1.0.1    | Henrik Andersson | E Maintenance   |
-|            |          |                  | Release         |
-|            |          |                  | Added Kafka as  |
-|            |          |                  | message source  |
-+------------+----------+------------------+-----------------+
-
-
 Version history usecase O-RU Front-Haul Recovery Script version
 ===============================================================
 

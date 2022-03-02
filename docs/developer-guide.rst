@@ -68,11 +68,6 @@ The following properties in the application.yaml file have to be modified:
 * app.webclient.trust-store=./config/truststore.jks
 * app.configuration-filepath=./src/test/resources/test_application_configuration.json
 
-DMaaP Mediator Producer
------------------------
-
-To build and run this Go implementation, see the README.md file under the folder "dmaap-mediator-producer" in the "nonrtric" repo.
-
 O-DU & O-RU fronthaul recovery
 ------------------------------
 
