@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.catalina.connector.Connector;
+import org.oransc.ics.clients.SecurityContext;
 import org.oransc.ics.configuration.ApplicationConfig;
 import org.oransc.ics.controllers.r1producer.ProducerCallbacks;
 import org.oransc.ics.repository.InfoJobs;
@@ -65,9 +66,9 @@ class BeanFactory {
     }
 
     @Bean
-    public InfoJobs infoJobs() {
+    public InfoJobs infoJobs(SecurityContext securityContext) {
         if (infoJobs == null) {
-            infoJobs = new InfoJobs(getApplicationConfig(), producerCallbacks());
+            infoJobs = new InfoJobs(getApplicationConfig(), producerCallbacks(securityContext));
             try {
                 infoJobs.restoreJobsFromDatabase();
             } catch (Exception e) {
@@ -91,9 +92,9 @@ class BeanFactory {
     }
 
     @Bean
-    public ProducerCallbacks producerCallbacks() {
+    public ProducerCallbacks producerCallbacks(SecurityContext securityContext) {
         if (this.producerCallbacks == null) {
-            producerCallbacks = new ProducerCallbacks(getApplicationConfig());
+            producerCallbacks = new ProducerCallbacks(getApplicationConfig(), securityContext);
         }
         return this.producerCallbacks;
     }

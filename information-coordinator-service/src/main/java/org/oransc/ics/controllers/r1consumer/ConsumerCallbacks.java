@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 
 import org.oransc.ics.clients.AsyncRestClient;
 import org.oransc.ics.clients.AsyncRestClientFactory;
+import org.oransc.ics.clients.SecurityContext;
 import org.oransc.ics.configuration.ApplicationConfig;
 import org.oransc.ics.repository.InfoType;
 import org.oransc.ics.repository.InfoTypeSubscriptions;
@@ -45,9 +46,11 @@ public class ConsumerCallbacks implements InfoTypeSubscriptions.ConsumerCallback
 
     public static final String API_VERSION = "version_1";
 
-    public ConsumerCallbacks(@Autowired ApplicationConfig config,
-        @Autowired InfoTypeSubscriptions infoTypeSubscriptions) {
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
+    @Autowired
+    public ConsumerCallbacks(ApplicationConfig config, InfoTypeSubscriptions infoTypeSubscriptions,
+        SecurityContext securityContext) {
+        AsyncRestClientFactory restClientFactory =
+            new AsyncRestClientFactory(config.getWebClientConfig(), securityContext);
         this.restClient = restClientFactory.createRestClientNoHttpProxy("");
         infoTypeSubscriptions.registerCallbackhandler(this, API_VERSION);
     }

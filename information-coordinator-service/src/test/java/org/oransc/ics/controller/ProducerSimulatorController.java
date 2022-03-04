@@ -31,6 +31,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 
@@ -49,6 +50,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ProducerSimulatorController")
@@ -67,6 +69,8 @@ public class ProducerSimulatorController {
 
         public List<ProducerJobInfo> jobsStarted = Collections.synchronizedList(new ArrayList<ProducerJobInfo>());
         public List<String> jobsStopped = Collections.synchronizedList(new ArrayList<String>());
+        public List<Map<String, String>> receivedHeaders =
+            Collections.synchronizedList(new ArrayList<Map<String, String>>());
         public int noOfRejectedCreate = 0;
         public int noOfRejectedDelete = 0;
         public boolean errorFound = false;
@@ -77,6 +81,7 @@ public class ProducerSimulatorController {
         public void reset() {
             jobsStarted.clear();
             jobsStopped.clear();
+            receivedHeaders.clear();
             this.errorFound = false;
             this.noOfRejectedCreate = 0;
             this.noOfRejectedDelete = 0;
@@ -98,9 +103,12 @@ public class ProducerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobCreatedCallback( //
+        @RequestHeader Map<String, String> headers, //
         @RequestBody ProducerJobInfo request) {
         try {
+            logHeaders(headers);
             this.testResults.jobsStarted.add(request);
+            this.testResults.receivedHeaders.add(headers);
             logger.info("Job started callback {}", request.id);
             if (request.id == null) {
                 throw new NullPointerException("Illegal argument");
@@ -124,10 +132,12 @@ public class ProducerSimulatorController {
                 content = @Content(schema = @Schema(implementation = VoidResponse.class))) //
         })
     public ResponseEntity<Object> jobDeletedCallback( //
-        @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String infoJobId) {
+        @RequestHeader Map<String, String> headers, @PathVariable(ConsumerConsts.INFO_JOB_ID_PATH) String infoJobId) {
         try {
+            logHeaders(headers);
             logger.info("Job deleted callback {}", infoJobId);
             this.testResults.jobsStopped.add(infoJobId);
+            this.testResults.receivedHeaders.add(headers);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -179,7 +189,7 @@ public class ProducerSimulatorController {
         })
     public ResponseEntity<Object> producerSupervision() {
         logger.info("Producer supervision");
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Hunky dory", HttpStatus.OK);
     }
 
     @GetMapping(path = SUPERVISION_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -194,6 +204,12 @@ public class ProducerSimulatorController {
     public ResponseEntity<Object> producerSupervisionError() {
         logger.info("Producer supervision error");
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    private void logHeaders(Map<String, String> headers) {
+        logger.debug("Header begin");
+        headers.forEach((key, value) -> logger.debug("  key: {}, value: {}", key, value));
+        logger.debug("Header end");
     }
 
 }

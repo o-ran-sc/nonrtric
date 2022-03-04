@@ -34,7 +34,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.ics.clients.AsyncRestClient;
 import org.oransc.ics.clients.AsyncRestClientFactory;
+import org.oransc.ics.clients.SecurityContext;
 import org.oransc.ics.configuration.ApplicationConfig;
 import org.oransc.ics.configuration.ImmutableHttpProxyConfig;
 import org.oransc.ics.configuration.ImmutableWebClientConfig;
@@ -145,6 +149,9 @@ class ApplicationTest {
     @Autowired
     InfoTypeSubscriptions infoTypeSubscriptions;
 
+    @Autowired
+    SecurityContext securityContext;
+
     private static Gson gson = new GsonBuilder().create();
 
     /**
@@ -170,6 +177,7 @@ class ApplicationTest {
         this.producerSimulator.getTestResults().reset();
         this.consumerSimulator.getTestResults().reset();
         this.a1eCallbacksSimulator.getTestResults().reset();
+        this.securityContext.setAuthTokenFilePath(null);
     }
 
     @AfterEach
@@ -386,6 +394,7 @@ class ApplicationTest {
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
         await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped).hasSize(1));
         assertThat(simulatorResults.jobsStopped.get(0)).isEqualTo("jobId");
+
     }
 
     @Test
@@ -1053,6 +1062,30 @@ class ApplicationTest {
             "Could not find Information subscription: junk");
     }
 
+    @Test
+    void testAuthHeader() throws Exception {
+        final String AUTH_TOKEN = "testToken";
+        Path authFile = Files.createTempFile("icsTestAuthToken", ".txt");
+        Files.write(authFile, AUTH_TOKEN.getBytes());
+        this.securityContext.setAuthTokenFilePath(authFile);
+        putInfoProducerWithOneType(PRODUCER_ID, TYPE_ID);
+        putInfoJob(TYPE_ID, "jobId");
+
+        // Test that authorization header is sent to the producer.
+        assertThat(this.producerSimulator.getTestResults().receivedHeaders).hasSize(1);
+        Map<String, String> headers = this.producerSimulator.getTestResults().receivedHeaders.get(0);
+        assertThat(headers).containsEntry("authorization", "Bearer " + AUTH_TOKEN);
+
+        Files.delete(authFile);
+
+        // Test that it works. The cached header is used
+        putInfoJob(TYPE_ID, "jobId2");
+        assertThat(this.infoJobs.size()).isEqualByComparingTo(2);
+        headers = this.producerSimulator.getTestResults().receivedHeaders.get(1);
+        assertThat(headers).containsEntry("authorization", "Bearer " + AUTH_TOKEN);
+
+    }
+
     private String typeSubscriptionUrl() {
         return ConsumerConsts.API_ROOT + "/info-type-subscription";
     }
@@ -1215,7 +1248,7 @@ class ApplicationTest {
             .trustStorePassword(config.trustStorePassword()) //
             .httpProxyConfig(httpProxyConfig).build();
 
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config);
+        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config, securityContext);
         return restClientFactory.createRestClientNoHttpProxy(baseUrl());
     }
 

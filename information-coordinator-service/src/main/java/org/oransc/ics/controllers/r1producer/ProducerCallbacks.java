@@ -29,6 +29,7 @@ import java.util.Collection;
 
 import org.oransc.ics.clients.AsyncRestClient;
 import org.oransc.ics.clients.AsyncRestClientFactory;
+import org.oransc.ics.clients.SecurityContext;
 import org.oransc.ics.configuration.ApplicationConfig;
 import org.oransc.ics.repository.InfoJob;
 import org.oransc.ics.repository.InfoJobs;
@@ -52,8 +53,9 @@ public class ProducerCallbacks {
 
     private final AsyncRestClient restClient;
 
-    public ProducerCallbacks(ApplicationConfig config) {
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
+    public ProducerCallbacks(ApplicationConfig config, SecurityContext securityContext) {
+        AsyncRestClientFactory restClientFactory =
+            new AsyncRestClientFactory(config.getWebClientConfig(), securityContext);
         this.restClient = restClientFactory.createRestClientNoHttpProxy("");
     }
 
