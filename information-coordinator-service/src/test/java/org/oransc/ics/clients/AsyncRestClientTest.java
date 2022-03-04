@@ -52,13 +52,15 @@ class AsyncRestClientTest {
 
     private static AsyncRestClient clientUnderTest;
 
+    private static final SecurityContext securityContext = new SecurityContext("");
+
     @BeforeAll
     static void init() {
         // skip a lot of unnecessary logs from MockWebServer
         InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
         Loggers.useJdkLoggers();
         mockWebServer = new MockWebServer();
-        clientUnderTest = new AsyncRestClient(mockWebServer.url(BASE_URL).toString(), null, null);
+        clientUnderTest = new AsyncRestClient(mockWebServer.url(BASE_URL).toString(), null, null, securityContext);
     }
 
     @AfterAll
