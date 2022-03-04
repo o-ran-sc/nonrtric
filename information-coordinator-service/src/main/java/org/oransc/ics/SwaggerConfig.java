@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 
-
 /**
  * Swagger configuration class that uses swagger documentation type and scans
  * all the controllers. To access the swagger gui go to

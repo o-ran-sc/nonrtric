@@ -6,7 +6,7 @@ spring:
   aop:
     auto: false
 springdoc:
-  show-actuator: true 
+  show-actuator: true
 management:
   endpoints:
     web:
@@ -48,4 +48,5 @@ app:
     http.proxy-host:
     http.proxy-port: 0
   vardata-directory: /var/information-coordinator-service
-
+  # If the file name is empty, no authorzation token is sent
+  auth-token-file:

@@ -28,6 +28,7 @@ import java.util.Collection;
 
 import org.oransc.ics.clients.AsyncRestClient;
 import org.oransc.ics.clients.AsyncRestClientFactory;
+import org.oransc.ics.clients.SecurityContext;
 import org.oransc.ics.configuration.ApplicationConfig;
 import org.oransc.ics.repository.InfoJob;
 import org.oransc.ics.repository.InfoJobs;
@@ -55,8 +56,9 @@ public class A1eCallbacks {
     private final InfoJobs eiJobs;
 
     @Autowired
-    public A1eCallbacks(ApplicationConfig config, InfoJobs eiJobs) {
-        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
+    public A1eCallbacks(ApplicationConfig config, InfoJobs eiJobs, SecurityContext securityContext) {
+        AsyncRestClientFactory restClientFactory =
+            new AsyncRestClientFactory(config.getWebClientConfig(), securityContext);
         this.restClient = restClientFactory.createRestClientUseHttpProxy("");
         this.eiJobs = eiJobs;
     }
