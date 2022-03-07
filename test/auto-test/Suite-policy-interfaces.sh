@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - interface testing. Agent REST, DMAAP and SNDC controller resconf"
+TS_ONELINE_DESCR="Test suite - interface testing. PMS REST, DMAAP and SNDC controller resconf"
 
 . ../common/testsuite_common.sh
 

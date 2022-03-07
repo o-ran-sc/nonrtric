@@ -18,7 +18,7 @@
 #
 
 
-TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no agent)"
+TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no pms)"
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="RICSIM SDNC KUBEPROXY"
@@ -45,7 +45,7 @@ setup_testenvironment
 
 generate_policy_uuid
 
-#Test agent and simulator protocol versions (others are http only)
+#Test pms and simulator protocol versions (others are http only)
 NB_TESTED_PROTOCOLS="HTTP HTTPS"
 SB_TESTED_PROTOCOLS="HTTP HTTPS"
 

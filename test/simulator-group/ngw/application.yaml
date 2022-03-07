@@ -27,7 +27,7 @@ spring:
         wiretap: true
       routes:
       - id: A1-Policy
-        uri: https://${POLICY_AGENT_DOMAIN_NAME}:${POLICY_AGENT_EXTERNAL_SECURE_PORT}
+        uri: https://${PMS_DOMAIN_NAME}:${PMS_EXTERNAL_SECURE_PORT}
         predicates:
         - Path=/a1-policy/**
       - id: A1-EI

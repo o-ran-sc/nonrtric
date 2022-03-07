@@ -332,7 +332,7 @@ if __name__ == '__main__':
     try:
         rics_from_agent = get_rics_from_agent()
     except ConnectionError:
-        print(f'Policy Agent is not answering on {BASE_URL}, cannot start!')
+        print(f'PMS is not answering on {BASE_URL}, cannot start!')
         sys.exit(1)
 
     rics = create_ric_dict(rics_from_agent)

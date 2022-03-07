@@ -33,7 +33,7 @@ KUBECONF=""
 echo "Will remove all kube namespaces marked with label 'autotest'"
 
 print_usage() {
-    echo "Usage: clean_kube_ns.sh [--kubeconfig <kube-config-file>]"
+    echo "Usage: clean_kube_ns.sh [--kubeconfig <kube-config-file>] | [--kubecontext <context name>]"
 }
 
 if [ $# -eq 0 ]; then
@@ -49,6 +49,13 @@ elif [ $# -eq 2 ]; then
             exit
         fi
         KUBECONF="--kubeconfig $2"
+    elif [ $1 == "--kubecontext" ]; then
+        if [ -z $2 ]; then
+            echo "No context found for --kubecontext"
+            print_usage
+            exit
+        fi
+        KUBECONF="--context $2"
     else
         print_usage
         exit

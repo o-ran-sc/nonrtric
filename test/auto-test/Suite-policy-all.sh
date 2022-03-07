@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - all test cases except the stab test(s)"
+TS_ONELINE_DESCR="Test suite - all test cases for pms except the stab test(s)"
 
 . ../common/testsuite_common.sh
 

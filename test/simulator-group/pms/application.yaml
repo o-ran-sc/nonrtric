@@ -35,7 +35,7 @@ logging:
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
-    ${POLICY_AGENT_PKG_NAME}: INFO
+    ${PMS_PKG_NAME}: INFO
   file: /var/log/policy-agent/application.log
 
 server:
@@ -52,7 +52,7 @@ server:
 app:
   # Location of the component configuration file. The file will only be used if the Consul database is not used;
   # configuration from the Consul will override the file.
-  filepath: /var/policy-management-service/application_configuration.json
+  filepath: /opt/app/policy-agent/data/application_configuration.json
   # path where the service can store data
   vardata-directory: /var/policy-management-service
   # path to json schema for config validation
@@ -66,6 +66,6 @@ app:
     trust-store: /opt/app/policy-agent/etc/cert/truststore.jks
     # Configuration of usage of HTTP Proxy for the southbound accesses.
     # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
-    http.proxy-host: $AGENT_HTTP_PROXY_CONFIG_HOST_NAME
-    http.proxy-port: $AGENT_HTTP_PROXY_CONFIG_PORT
+    http.proxy-host: $PMS_HTTP_PROXY_CONFIG_HOST_NAME
+    http.proxy-port: $PMS_HTTP_PROXY_CONFIG_PORT
     http.proxy-type: HTTP

@@ -18,13 +18,13 @@
 #
 
 
-TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and Agent REST/DMAAP with/without SDNC controller"
+TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and PMS REST/DMAAP with/without SDNC controller"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY "
+KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR PMS RICSIM SDNC NGW KUBEPROXY "
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -48,14 +48,14 @@ generate_policy_uuid
 
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC"
-#Test agent and simulator protocol versions (others are http only)
+#Test pms and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
 
         echo "#####################################################################"
         echo "#####################################################################"
-        echo "### Testing agent: $interface using $__httpx"
+        echo "### Testing pms: $interface using $__httpx"
         echo "#####################################################################"
         echo "#####################################################################"
 
@@ -64,18 +64,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_kube_proxy
 
         if [ $__httpx == "HTTPS" ]; then
-            use_agent_rest_https
+            use_pms_rest_https
         else
-            use_agent_rest_http
+            use_pms_rest_http
         fi
 
-        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+        start_pms NORPOXY $SIM_GROUP/$PMS_COMPOSE_DIR/$PMS_CONFIG_FILE
 
-        set_agent_trace
+        set_pms_trace
 
         # Create service to be able to receive events when rics becomes available
-        # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
+        # Must use rest towards the pms since dmaap is not configured yet
+        pms_api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -85,9 +85,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_sdnc_https
             fi
             if [[ $interface = *"DMAAP"* ]]; then
-                use_agent_dmaap_https
+                use_pms_dmaap_https
             else
-                use_agent_rest_https
+                use_pms_rest_https
             fi
         else
             use_cr_http
@@ -97,9 +97,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_sdnc_http
             fi
             if [[ $interface = *"DMAAP"* ]]; then
-                use_agent_dmaap_http
+                use_pms_dmaap_http
             else
-                use_agent_rest_http
+                use_pms_rest_http
             fi
         fi
 
@@ -128,27 +128,27 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
-            agent_load_config                       ".consul_config.json"
+            pms_load_config                       ".consul_config.json"
         else
             if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
                 #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
                 if [ $__httpx == "HTTPS" ]; then
-                    use_agent_rest_https
+                    use_pms_rest_https
                 else
-                    use_agent_rest_http
+                    use_pms_rest_http
                 fi
-                api_put_configuration 200 ".consul_config.json"
+                pms_api_put_configuration 200 ".consul_config.json"
                 if [ $__httpx == "HTTPS" ]; then
                     if [[ $interface = *"DMAAP"* ]]; then
-                        use_agent_dmaap_https
+                        use_pms_dmaap_https
                     else
-                        use_agent_rest_https
+                        use_pms_rest_https
                     fi
                 else
                     if [[ $interface = *"DMAAP"* ]]; then
-                        use_agent_dmaap_http
+                        use_pms_dmaap_http
                     else
-                        use_agent_rest_http
+                        use_pms_rest_http
                     fi
                 fi
             else
@@ -165,54 +165,54 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
 
-            api_equal json:rics 3 300
+            pms_equal json:rics 3 300
 
-            api_equal json:policy-types 3 120
+            pms_equal json:policy-types 3 120
 
-            api_equal json:policies 0
+            pms_equal json:policies 0
 
-            api_equal json:policy-instances 0
+            pms_equal json:policy-instances 0
 
             cr_equal 0 received_callbacks 3 120
 
             cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
 
         else
-            api_equal json:rics 2 300
+            pms_equal json:rics 2 300
 
-            api_equal json:policy_schemas 2 120
+            pms_equal json:policy_schemas 2 120
 
-            api_equal json:policy_types 2
+            pms_equal json:policy_types 2
 
-            api_equal json:policies 0
+            pms_equal json:policies 0
 
-            api_equal json:policy_ids 0
+            pms_equal json:policy_ids 0
         fi
 
         echo "############################################"
         echo "############## Health check ################"
         echo "############################################"
 
-        api_get_status 200
+        pms_api_get_status 200
 
         echo "############################################"
         echo "##### Service registry and supervision #####"
         echo "############################################"
 
-        api_put_service 201 "serv1" 1000 "$CR_SERVICE_APP_PATH_0/1"
+        pms_api_put_service 201 "serv1" 1000 "$CR_SERVICE_APP_PATH_0/1"
 
-        api_get_service_ids 200 "serv1" "ric-registration"
+        pms_api_get_service_ids 200 "serv1" "ric-registration"
 
-        api_put_services_keepalive 200 "serv1"
+        pms_api_put_services_keepalive 200 "serv1"
 
         echo "############################################"
         echo "############## RIC Repository ##############"
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0:AVAILABLE"
+            pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0:AVAILABLE"
         else
-            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+            pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
         fi
 
         echo "############################################"
@@ -224,38 +224,38 @@ for __httpx in $TESTED_PROTOCOLS ; do
         else
             notificationurl=""
         fi
-        api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
-        api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
+        pms_api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
+        pms_api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
-            api_put_policy 200 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
+            pms_api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
+            pms_api_put_policy 200 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
         fi
 
-        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
-        api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
+        pms_api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
+        pms_api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policies 3
+            pms_equal json:policies 3
         else
-            api_equal json:policies 2
+            pms_equal json:policies 2
         fi
 
-        api_delete_policy 204 5000
+        pms_api_delete_policy 204 5000
 
-        api_delete_policy 204 5100
+        pms_api_delete_policy 204 5100
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_delete_policy 204 5200
+            pms_api_delete_policy 204 5200
         fi
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policies 0
+            pms_equal json:policies 0
 
-            api_equal json:policy-instances 0
+            pms_equal json:policy-instances 0
         else
-            api_equal json:policies 0
+            pms_equal json:policies 0
 
-            api_equal json:policy_ids 0
+            pms_equal json:policy_ids 0
         fi
 
         if [ "$PMS_VERSION" == "V2" ]; then
@@ -265,9 +265,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [[ $interface = *"DMAAP"* ]]; then
 
             if [ "$PMS_VERSION" == "V2" ]; then
-                VAL=14 # Number of Agent API calls over DMAAP
+                VAL=14 # Number of pms API calls over DMAAP
             else
-                VAL=11 # Number of Agent API calls over DMAAP
+                VAL=11 # Number of pms API calls over DMAAP
             fi
             mr_equal requests_fetched $VAL
             mr_equal responses_submitted $VAL
@@ -285,14 +285,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
             fi
         else
-            sim_contains_str ricsim_g1_1 remote_hosts $POLICY_AGENT_APP_NAME
-            sim_contains_str ricsim_g2_1 remote_hosts $POLICY_AGENT_APP_NAME
+            sim_contains_str ricsim_g1_1 remote_hosts $PMS_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $PMS_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts $POLICY_AGENT_APP_NAME
+                sim_contains_str ricsim_g3_1 remote_hosts $PMS_APP_NAME
             fi
         fi
 
-        check_policy_agent_logs
+        check_pms_logs
 
 
         if [[ $interface = *"SDNC"* ]]; then

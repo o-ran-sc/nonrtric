@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via agent REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
+TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via pms REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR MR PMS RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -68,12 +68,12 @@ HTTPX=HTTPS
 
 if [ $HTTPX == "HTTP" ]; then
    use_cr_http
-   use_agent_rest_http
+   use_pms_rest_http
    use_sdnc_http
    use_simulator_http
 else
    use_cr_https
-   use_agent_rest_https
+   use_pms_rest_https
    use_sdnc_https
    use_simulator_https
 fi
@@ -96,15 +96,15 @@ if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
    start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
 fi
 
-start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+start_pms NORPOXY $SIM_GROUP/$PMS_COMPOSE_DIR/$PMS_CONFIG_FILE
 
 prepare_consul_config      SDNC  ".consul_config.json"
 
 if [ $RUNMODE == "KUBE" ]; then
-    agent_load_config                       ".consul_config.json"
+    pms_load_config                       ".consul_config.json"
 else
     if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        api_put_configuration 200 ".consul_config.json"
+        pms_api_put_configuration 200 ".consul_config.json"
     else
         start_consul_cbs
         consul_config_app                   ".consul_config.json"
@@ -114,7 +114,7 @@ fi
 start_sdnc
 
 
-api_get_status 200
+pms_api_get_status 200
 
 echo "Print the interface for group 1 simulators, shall be OSC"
 for ((i=1; i<=$NUM_RICS; i++))
@@ -170,31 +170,31 @@ if [ "$PMS_VERSION" == "V2" ]; then
    done
 fi
 
-echo "Wait for the agent to refresh types from the simulator"
+echo "Wait for the pms to refresh types from the simulator"
 if [ "$PMS_VERSION" == "V2" ]; then
-   api_equal json:policy-types 3 300
+   pms_equal json:policy-types 3 300
 else
-   api_equal json:policy_types 2 300
+   pms_equal json:policy_types 2 300
 fi
 
-echo "Check the number of types in the agent for each ric is 1"
+echo "Check the number of types in the pms for each ric is 1"
 for ((i=1; i<=$NUM_RICS; i++))
 do
    if [ "$PMS_VERSION" == "V2" ]; then
-      api_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
-      api_equal json:policy-types?ric_id=ricsim_g3_$i 1 120
+      pms_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+      pms_equal json:policy-types?ric_id=ricsim_g3_$i 1 120
    else
-      api_equal json:policy_types?ric=ricsim_g1_$i 1 120
+      pms_equal json:policy_types?ric=ricsim_g1_$i 1 120
    fi
 done
 
 echo "Register a service"
-api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
+pms_api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 TEST_DURATION=$((24*3600*$DAYS))
 TEST_START=$SECONDS
 
-AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
+PMS_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 
 MR_MESSAGES=0
 
@@ -212,25 +212,25 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
     echo "#########################################################################################################"
     echo ""
 
-   for interface in $AGENT_INTERFACES ; do
+   for interface in $PMS_INTERFACES ; do
 
       echo "############################################"
-      echo "## Testing using agent interface: $interface ##"
+      echo "## Testing using pms interface: $interface ##"
       echo "############################################"
 
       if [ $interface == "REST" ] || [ $interface == "REST_PARALLEL" ]; then
          if [ $HTTPX == "HTTP" ]; then
-            use_agent_rest_http
+            use_pms_rest_http
          else
-            use_agent_rest_https
+            use_pms_rest_https
          fi
       else
          if [ $HTTPX == "HTTPS" ]; then
                echo "Using secure ports towards dmaap"
-               use_agent_dmaap_https
+               use_pms_dmaap_https
          else
                echo "Using non-secure ports towards dmaap"
-               use_agent_dmaap_http
+               use_pms_dmaap_http
          fi
       fi
 
@@ -238,14 +238,14 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       INSTANCE_ID=200000
       INSTANCES=0
       if [ $interface == "REST_PARALLEL" ]; then
-         api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES 3
+         pms_api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES 3
       fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_put_policy_batch 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES
+            pms_api_put_policy_batch 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES
          elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-            api_put_policy 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES
+            pms_api_put_policy 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES
          fi
          if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -256,21 +256,21 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy-instances $INSTANCES
+         pms_equal json:policy-instances $INSTANCES
       else
-         api_equal json:policy_ids $INSTANCES
+         pms_equal json:policy_ids $INSTANCES
       fi
 
       echo "Create $NUM_INSTANCES instances in each STD RIC"
       if [ $interface == "REST_PARALLEL" ]; then
-         api_put_policy_parallel 201 "serv1" ricsim_g2_ $NUM_RICS NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES 3
+         pms_api_put_policy_parallel 201 "serv1" ricsim_g2_ $NUM_RICS NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES 3
       fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_put_policy_batch 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES
+            pms_api_put_policy_batch 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES
          elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-            api_put_policy 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES
+            pms_api_put_policy 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES
          fi
          if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -281,22 +281,22 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy-instances $INSTANCES
+         pms_equal json:policy-instances $INSTANCES
       else
-         api_equal json:policy_ids $INSTANCES
+         pms_equal json:policy_ids $INSTANCES
       fi
 
       if [ "$PMS_VERSION" == "V2" ]; then
          echo "Create $NUM_INSTANCES instances in each STD 2 RIC"
          if [ $interface == "REST_PARALLEL" ]; then
-            api_put_policy_parallel 201 "serv1" ricsim_g3_ $NUM_RICS STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES 3
+            pms_api_put_policy_parallel 201 "serv1" ricsim_g3_ $NUM_RICS STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES 3
          fi
          for ((i=1; i<=$NUM_RICS; i++))
          do
             if [ $interface == "DMAAP-BATCH" ]; then
-               api_put_policy_batch 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
+               pms_api_put_policy_batch 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
             elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-               api_put_policy 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
+               pms_api_put_policy 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
             fi
             if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
                MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -307,9 +307,9 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          done
 
          if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-instances $INSTANCES
+            pms_equal json:policy-instances $INSTANCES
          else
-            api_equal json:policy_ids $INSTANCES
+            pms_equal json:policy_ids $INSTANCES
          fi
       fi
 
@@ -318,14 +318,14 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
       INSTANCE_ID=200000
       if [ $interface == "REST_PARALLEL" ]; then
-         api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+         pms_api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
       fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
+            pms_api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
          elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-            api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
+            pms_api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
          fi
          if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -336,22 +336,22 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy-instances $INSTANCES
+         pms_equal json:policy-instances $INSTANCES
       else
-         api_equal json:policy_ids $INSTANCES
+         pms_equal json:policy_ids $INSTANCES
       fi
 
       echo "Delete all instances in each STD RIC"
 
       if [ $interface == "REST_PARALLEL" ]; then
-         api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+         pms_api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
       fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
+            pms_api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
          elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-            api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
+            pms_api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
          fi
          if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -362,23 +362,23 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy-instances $INSTANCES
+         pms_equal json:policy-instances $INSTANCES
       else
-         api_equal json:policy_ids $INSTANCES
+         pms_equal json:policy_ids $INSTANCES
       fi
 
       if [ "$PMS_VERSION" == "V2" ]; then
          echo "Delete all instances in each STD 2 RIC"
 
          if [ $interface == "REST_PARALLEL" ]; then
-            api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+            pms_api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
          fi
          for ((i=1; i<=$NUM_RICS; i++))
          do
             if [ $interface == "DMAAP-BATCH" ]; then
-               api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
+               pms_api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
             elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-               api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
+               pms_api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
             fi
             if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
                MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -389,9 +389,9 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          done
 
          if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-instances $INSTANCES
+            pms_equal json:policy-instances $INSTANCES
          else
-            api_equal json:policy_ids $INSTANCES
+            pms_equal json:policy_ids $INSTANCES
          fi
       fi
 
@@ -417,7 +417,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
 done
 
-check_policy_agent_logs
+check_pms_logs
 check_sdnc_logs
 
 #### TEST COMPLETE ####

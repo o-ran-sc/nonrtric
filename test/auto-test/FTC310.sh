@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config or pushed config"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PMS RICSIM KUBEPROXY"
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
@@ -56,13 +56,13 @@ for consul_conf in $TESTED_VARIANTS ; do
 
     start_kube_proxy
 
-    start_policy_agent NOPROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+    start_pms NOPROXY $SIM_GROUP/$PMS_COMPOSE_DIR/$PMS_CONFIG_FILE
 
-    set_agent_trace
+    set_pms_trace
 
     # Create service to be able to receive events when rics becomes available
-    # Must use rest towards the agent since dmaap is not configured yet
-    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
+    # Must use rest towards the pms since dmaap is not configured yet
+    pms_api_put_service 201 "ric-registration" 0 "$CR_SERVICE_APP_PATH_0/ric-registration"
 
     # Start one RIC of each type
     start_ric_simulators ricsim_g1 1  OSC_2.1.0
@@ -84,20 +84,20 @@ for consul_conf in $TESTED_VARIANTS ; do
     prepare_consul_config      NOSDNC  ".consul_config.json"
 
     if [ "$PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
-        api_put_configuration 200 ".consul_config.json"
-        api_get_configuration 200 ".consul_config.json"
+        pms_api_put_configuration 200 ".consul_config.json"
+        pms_api_get_configuration 200 ".consul_config.json"
     else
         consul_config_app                  ".consul_config.json"
     fi
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        api_equal json:rics 3 300
+        pms_equal json:rics 3 300
 
         cr_equal 0 received_callbacks 3 120
 
         cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
     else
-        api_equal json:rics 2 300
+        pms_equal json:rics 2 300
     fi
 
     # Add an STD RIC and check
@@ -105,23 +105,23 @@ for consul_conf in $TESTED_VARIANTS ; do
 
     prepare_consul_config      NOSDNC  ".consul_config.json"
     if [ "$PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
-        api_put_configuration 200 ".consul_config.json"
-        api_get_configuration 200 ".consul_config.json"
+        pms_api_put_configuration 200 ".consul_config.json"
+        pms_api_get_configuration 200 ".consul_config.json"
     else
         consul_config_app                  ".consul_config.json"
     fi
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        api_equal json:rics 4 120
+        pms_equal json:rics 4 120
 
         cr_equal 0 received_callbacks 4 120
 
         cr_api_check_all_sync_events 200 0 ric-registration ricsim_g2_2
     else
-        api_equal json:rics 3 120
+        pms_equal json:rics 3 120
     fi
 
-    check_policy_agent_logs
+    check_pms_logs
 
 
     # Remove one RIC RIC and check
@@ -129,25 +129,25 @@ for consul_conf in $TESTED_VARIANTS ; do
 
     prepare_consul_config      NOSDNC  ".consul_config.json"
     if [ "$PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
-        api_put_configuration 200 ".consul_config.json"
-        api_get_configuration 200 ".consul_config.json"
+        pms_api_put_configuration 200 ".consul_config.json"
+        pms_api_get_configuration 200 ".consul_config.json"
     else
         consul_config_app                  ".consul_config.json"
     fi
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        api_equal json:rics 3 120
+        pms_equal json:rics 3 120
 
         cr_equal 0 received_callbacks 4 120
     else
-        api_equal json:rics 2 120
+        pms_equal json:rics 2 120
     fi
 
     if [ "$PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
-        api_get_configuration 200 ".consul_config.json"
+        pms_api_get_configuration 200 ".consul_config.json"
     fi
 
-    check_policy_agent_logs
+    check_pms_logs
 
     store_logs          END_$consul_conf
 done

@@ -44,7 +44,7 @@ setup_testenvironment
 
 generate_policy_uuid
 
-#Test agent and simulator protocol versions (others are http only)
+#Test pms and simulator protocol versions (others are http only)
 NB_TESTED_PROTOCOLS="HTTP HTTPS"
 SB_TESTED_PROTOCOLS="HTTP HTTPS"
 

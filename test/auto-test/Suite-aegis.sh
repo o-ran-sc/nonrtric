@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - PMS endpoint aegis image testing. Agent REST, DMAAP and SNDC controller resconf"
+TS_ONELINE_DESCR="Test suite - PMS endpoint aegis image testing. pms REST, DMAAP and SNDC controller resconf"
 
 . ../common/testsuite_common.sh
 

@@ -146,7 +146,7 @@ __CBS_store_docker_logs() {
 		:
 	else
 		docker logs $CBS_APP_NAME > $1$2_cbs.log 2>&1
-		body="$(__do_curl $LOCALHOST_HTTP:$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
+		body="$(__do_curl $LOCALHOST_HTTP:$CBS_EXTERNAL_PORT/service_component_all/$PMS_APP_NAME)"
 		echo "$body" > $1$2_consul_config.json 2>&1
 	fi
 }
@@ -199,7 +199,7 @@ __CBS_test_requirements() {
 ### Consul functions
 ####################
 
-# Function to load config from a file into consul for the Policy Agent
+# Function to load config from a file into consul for the pms
 # arg: <json-config-file>
 # (Function for test scripts)
 consul_config_app() {
@@ -212,9 +212,9 @@ consul_config_app() {
 		exit 1
 	fi
 
-	echo " Loading config for "$POLICY_AGENT_APP_NAME" from "$1
+	echo " Loading config for "$PMS_APP_NAME" from "$1
 
-	curlString="$CONSUL_SERVICE_PATH/v1/kv/${POLICY_AGENT_CONFIG_KEY}?dc=dc1 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @"$1
+	curlString="$CONSUL_SERVICE_PATH/v1/kv/${PMS_CONFIG_KEY}?dc=dc1 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @"$1
 
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
@@ -222,7 +222,7 @@ consul_config_app() {
 		((RES_CONF_FAIL++))
 		return 1
 	fi
-	body="$(__do_curl $CBS_SERVICE_PATH/service_component_all/$POLICY_AGENT_CONFIG_KEY)"
+	body="$(__do_curl $CBS_SERVICE_PATH/service_component_all/$PMS_CONFIG_KEY)"
 	echo $body > "./tmp/.output"$1
 
 	if [ $? -ne 0 ]; then

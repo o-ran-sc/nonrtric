@@ -248,7 +248,7 @@ start_sdnc() {
 		__check_included_image 'SDNC'
 		if [ $? -eq 1 ]; then
 			echo -e $RED"The SDNC A1 Controller app is not included in this test script"$ERED
-			echo -e $RED"The Policy Agent will not be started"$ERED
+			echo -e $RED"The PMS will not be started"$ERED
 			exit
 		fi
 
@@ -313,7 +313,7 @@ start_stopped_sdnc() {
 	return 0
 }
 
-# Check the agent logs for WARNINGs and ERRORs
+# Check the sdnc logs for WARNINGs and ERRORs
 # args: -
 # (Function for test scripts)
 check_sdnc_logs() {

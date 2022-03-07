@@ -20,24 +20,24 @@ networks:
     external: true
     name: ${DOCKER_SIM_NWNAME}
 services:
-  policy-agent:
-    image: ${POLICY_AGENT_IMAGE}
-    container_name: ${POLICY_AGENT_APP_NAME}
+  pms:
+    image: ${PMS_IMAGE}
+    container_name: ${PMS_APP_NAME}
     networks:
       default:
         aliases:
-          - ${POLICY_AGENT_APP_NAME_ALIAS}
+          - ${PMS_APP_NAME_ALIAS}
     ports:
-    - ${POLICY_AGENT_EXTERNAL_PORT}:${POLICY_AGENT_INTERNAL_PORT}
-    - ${POLICY_AGENT_EXTERNAL_SECURE_PORT}:${POLICY_AGENT_INTERNAL_SECURE_PORT}
+    - ${PMS_EXTERNAL_PORT}:${PMS_INTERNAL_PORT}
+    - ${PMS_EXTERNAL_SECURE_PORT}:${PMS_INTERNAL_SECURE_PORT}
     environment:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_INTERNAL_PORT}
       - CONFIG_BINDING_SERVICE=${CONFIG_BINDING_SERVICE}
-      - HOSTNAME=${POLICY_AGENT_CONFIG_KEY}
+      - HOSTNAME=${PMS_CONFIG_KEY}
     volumes:
-    - ${POLICY_AGENT_HOST_MNT_DIR}/$POLICY_AGENT_CONFIG_FILE:${POLICY_AGENT_CONFIG_MOUNT_PATH}/$POLICY_AGENT_CONFIG_FILE
-    - ${POLICY_AGENT_HOST_MNT_DIR}/db:${POLICY_AGENT_CONTAINER_MNT_DIR}
+    - ${PMS_HOST_MNT_DIR}/$PMS_CONFIG_FILE:${PMS_CONFIG_MOUNT_PATH}/$PMS_CONFIG_FILE
+    - ${PMS_HOST_MNT_DIR}/db:${PMS_CONTAINER_MNT_DIR}
     labels:
-      - "nrttest_app=PA"
-      - "nrttest_dp=${POLICY_AGENT_DISPLAY_NAME}"
+      - "nrttest_app=PMS"
+      - "nrttest_dp=${PMS_DISPLAY_NAME}"

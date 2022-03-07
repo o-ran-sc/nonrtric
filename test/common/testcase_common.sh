@@ -30,6 +30,7 @@ __print_args() {
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
 	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>] [--host-path-dir <local-host-dir>]"
+	echo "      [--kubecontext <context-name>]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -66,6 +67,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--endpoint-stats      -  Collect endpoint statistics"
 	echo "--kubeconfig          -  Configure kubectl to use cluster specific cluster config file"
 	echo "--host-path-dir       -  (Base-)path on local-hostmounted to all VMs (nodes), for hostpath volumes in kube"
+	echo "--kubecontext         -  Configure kubectl to use a certain context, e.g 'minikube'"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -100,11 +102,6 @@ TEST_ENV_VAR_FILE=""
 TEST_ENV_VAR_FILE_OVERRIDE=""
 
 echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
-
-#Localhost constants
-LOCALHOST_NAME="localhost"
-LOCALHOST_HTTP="http://localhost"
-LOCALHOST_HTTPS="https://localhost"
 
 # Var to hold 'auto' in case containers shall be stopped when test case ends
 AUTO_CLEAN=""
@@ -268,7 +265,7 @@ DELETE_KUBE_NAMESPACES=0
 #Var to control if containers shall be delete before test setup
 DELETE_CONTAINERS=0
 
-#Var to configure kubectl from a config file.
+#Var to configure kubectl from a config file or context
 KUBECONF=""
 
 #Var pointing to dir mounted to each kubernetes node (master and workers)
@@ -450,7 +447,7 @@ __collect_endpoint_stats_image_info() {
 		return
 	fi
 	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/imageinfo_$ATC_$1".log"
-	echo $POLICY_AGENT_IMAGE > $ENDPOINT_STAT_FILE
+	echo $PMS_IMAGE > $ENDPOINT_STAT_FILE
 }
 
 #Var for measuring execution time
@@ -833,15 +830,45 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 				fi
 			else
 			    if [ -f  $1 ]; then
-					KUBECONF="--kubeconfig $1"
-					echo "Option set - Kubeconfig path: "$1
-					shift;
-					foundparm=0
+					if [ ! -z "$KUBECONF" ]; then
+						paramerror=1
+						if [ -z "$paramerror_str" ]; then
+							paramerror_str="Only one of --kubeconfig/--kubecontext can be set"
+						fi
+					else
+						KUBECONF="--kubeconfig $1"
+						echo "Option set - Kubeconfig path: "$1
+						shift;
+						foundparm=0
+					fi
 				else
 					paramerror=1
 					if [ -z "$paramerror_str" ]; then
 						paramerror_str="File $1 for --kubeconfig not found"
 					fi
+				fi
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--kubecontext" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No context-name found for : '--kubecontext'"
+				fi
+			else
+				if [ ! -z "$KUBECONF" ]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="Only one of --kubeconfig or --kubecontext can be set"
+					fi
+				else
+					KUBECONF="--context $1"
+					echo "Option set - Kubecontext name: "$1
+					shift;
+					foundparm=0
 				fi
 			fi
 		fi
@@ -877,6 +904,14 @@ if [ $paramerror -eq 1 ]; then
 	__print_args
 	exit 1
 fi
+
+#Localhost constants
+LOCALHOST_NAME="localhost"
+# if [ ! -z "$DOCKER_HOST" ]; then
+# 	LOCALHOST_NAME=$(echo $DOCKER_HOST | awk -F[/:] '{print $4}' )
+# fi
+LOCALHOST_HTTP="http://$LOCALHOST_NAME"
+LOCALHOST_HTTPS="https://$LOCALHOST_NAME"
 
 # sourcing the selected env variables for the test case
 if [ -f "$TEST_ENV_VAR_FILE" ]; then
@@ -1022,27 +1057,25 @@ fi
 echo " docker is installed and using versions:"
 echo  "  $(docker version --format 'Client version {{.Client.Version}} Server version {{.Server.Version}}')"
 
-tmp=$(which docker-compose)
-if [ $? -ne 0 ] || [ -z "$tmp" ]; then
-	if [ $RUNMODE == "DOCKER" ]; then
+if [ $RUNMODE == "DOCKER" ]; then
+	tmp=$(which docker-compose)
+	if [ $? -ne 0 ] || [ -z "$tmp" ]; then
 		echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
 		exit 1
+	else
+		tmp=$(docker-compose version --short)
+		echo " docker-compose installed and using version $tmp"
+		if [[ "$tmp" == *'v2'* ]]; then
+			DOCKER_COMPOSE_VERION="V2"
+		fi
 	fi
 fi
-tmp=$(docker-compose version --short)
-echo " docker-compose installed and using version $tmp"
-if [[ "$tmp" == *'v2'* ]]; then
-	DOCKER_COMPOSE_VERION="V2"
-fi
-
-tmp=$(which kubectl)
-if [ $? -ne 0 ] || [ -z tmp ]; then
-	if [ $RUNMODE == "KUBE" ]; then
+if [ $RUNMODE == "KUBE" ]; then
+	tmp=$(which kubectl)
+	if [ $? -ne 0 ] || [ -z tmp ]; then
 		echo -e $RED"kubectl is required to run the test environment in kubernetes mode, pls install"$ERED
 		exit 1
-	fi
-else
-	if [ $RUNMODE == "KUBE" ]; then
+	else
 		echo " kubectl is installed and using versions:"
 		echo $(kubectl $KUBECONF version --short=true) | indent2
 		res=$(kubectl $KUBECONF cluster-info 2>&1)
@@ -1743,8 +1776,8 @@ setup_testenvironment() {
 			echo -e " Pulling remote snapshot or staging images my in some case result in pulling newer image versions outside the control of the test engine"
 			export KUBE_IMAGE_PULL_POLICY="Always"
 		fi
-		CLUSTER_IP=$(kubectl $KUBECONF config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
-		echo -e $YELLOW" The cluster hostname/ip is: $CLUSTER_IP"$EYELLOW
+		#CLUSTER_IP=$(kubectl $KUBECONF config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+		#echo -e $YELLOW" The cluster hostname/ip is: $CLUSTER_IP"$EYELLOW
 
 		echo "================================================================================="
 		echo "================================================================================="
@@ -2640,14 +2673,14 @@ clean_environment() {
 		__clean_kube
 		if [ $PRE_CLEAN -eq 1 ]; then
 			echo " Cleaning docker resouces to free up resources, may take time..."
-			../common/clean_docker.sh 2>&1 /dev/null
+			../common/clean_docker.sh 2>&1 > /dev/null
 			echo ""
 		fi
 	else
 		__clean_containers
 		if [ $PRE_CLEAN -eq 1 ]; then
 			echo " Cleaning kubernetes resouces to free up resources, may take time..."
-			../common/clean_kube.sh $KUBECONF 2>&1 /dev/null
+			../common/clean_kube.sh $KUBECONF 2>&1 > /dev/null
 			echo ""
 		fi
 	fi
@@ -2885,7 +2918,7 @@ __check_container_logs() {
 
 	#tmp=$(docker ps | grep $appname)
 	tmp=$(docker ps -q --filter name=$appname) #get the container id
-	if [ -z "$tmp" ]; then  #Only check logs for running Policy Agent apps
+	if [ -z "$tmp" ]; then  #Only check logs for running PMS apps
 		echo " "$dispname" is not running, no check made"
 		return
 	fi

@@ -136,7 +136,7 @@ eg:
 In 'docker-compose.yml', use field:<br>
 >```volumes: - ./certificate:/usr/src/app/cert:ro```
 
-The script ```prodstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the producer-stub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
+The script ```prodstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the producer-stub should be executed manually with the pms, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
 ```docker run --rm -it -p 8092:8092 -p 8093:8093 --name producer-stub producer-stub```
 
 ### Basic test

@@ -58,8 +58,8 @@ cntr_msg_responses_fetched=0
 # Request and response constants
 ORU_WRITE_URL="/events/unauthenticated.SEC_FAULT_OUTPUT"
 ORU_READ_URL="/events/unauthenticated.SEC_FAULT_OUTPUT/users/test/"
-AGENT_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"
-AGENT_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent"
+PMS_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"
+PMS_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent"
 APP_WRITE_URL="/send-request"
 APP_READ_URL="/receive-response"
 MIME_TEXT="text/plain"
@@ -291,7 +291,7 @@ def receiveresponse():
 # Read PMS messages stream. URI according to agent configuration.
 # URI, (GET): /events/A1-POLICY-AGENT-READ/users/policy-agent
 # response: 200 <json array of request messages>, or 500 for other errors
-@app.route(AGENT_READ_URL,
+@app.route(PMS_READ_URL,
     methods=['GET'])
 def events_read():
     global msg_requests
@@ -333,10 +333,10 @@ def events_read():
                         cntr_msg_requests_fetched += 1
                         cntr=cntr+1
                     msgs='['+msgs+']'
-                    print(AGENT_READ_URL+" MSGs: "+json.dumps(json.loads(msgs), indent=2))
+                    print(PMS_READ_URL+" MSGs: "+json.dumps(json.loads(msgs), indent=2))
                     return Response(msgs, status=200, mimetype=MIME_JSON)
                 except Exception as e:
-                    print(AGENT_READ_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
+                    print(PMS_READ_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
                     return Response(SERVER_ERROR+" "+str(e), status=500, mimetype=MIME_TEXT)
         sleep(0.025) # sleep 25 milliseconds
         current_time=int(round(time.time() * 1000))
@@ -347,7 +347,7 @@ def events_read():
 # Write PMS messages stream. URI according to agent configuration.
 # URI and payload, (PUT or POST): /events/A1-POLICY-AGENT-WRITE <json array of response messages>
 # response: OK 200 or 400 for missing json parameters, 500 for other errors
-@app.route(AGENT_WRITE_URL,
+@app.route(PMS_WRITE_URL,
     methods=['PUT','POST'])
 def events_write():
     global msg_responses
@@ -357,10 +357,10 @@ def events_write():
         return Response('Url not available when running as mrstub frontend', status=404, mimetype=MIME_TEXT)
 
     with lock:
-        print("AGENT_WRITE_URL lock")
+        print("PMS_WRITE_URL lock")
         try:
             answer=request.json
-            print(AGENT_WRITE_URL+ " json=" + json.dumps(answer, indent=2))
+            print(PMS_WRITE_URL+ " json=" + json.dumps(answer, indent=2))
             if isinstance(answer, dict):
                 #Create a an array if the answer is a dict (single message)
                 answer_list=[]
@@ -370,15 +370,15 @@ def events_write():
             for item in answer:
                 cid=item['correlationId']
                 if (cid is None):
-                    print(AGENT_WRITE_URL+" parameter 'correlatonid' missing")
+                    print(PMS_WRITE_URL+" parameter 'correlatonid' missing")
                     return Response('Parameter <correlationid> missing in json', status=400, mimetype=MIME_TEXT)
                 msg=item['message']
                 if (msg is None):
-                    print(AGENT_WRITE_URL+" parameter 'msgs' missing")
+                    print(PMS_WRITE_URL+" parameter 'msgs' missing")
                     return Response('Parameter >message> missing in json', status=400, mimetype=MIME_TEXT)
                 status=item['status']
                 if (status is None):
-                    print(AGENT_WRITE_URL+" parameter 'status' missing")
+                    print(PMS_WRITE_URL+" parameter 'status' missing")
                     return Response('Parameter <status> missing in json', status=400, mimetype=MIME_TEXT)
                 if isinstance(msg, list) or isinstance(msg, dict):
                     msg_str=json.dumps(msg)+status[0:3]
@@ -386,9 +386,9 @@ def events_write():
                     msg_str=msg+status[0:3]
                 msg_responses[cid]=msg_str
                 cntr_msg_responses_submitted += 1
-                print(AGENT_WRITE_URL+ " msg+status (correlationid="+cid+") :" + str(msg_str))
+                print(PMS_WRITE_URL+ " msg+status (correlationid="+cid+") :" + str(msg_str))
         except Exception as e:
-            print(AGENT_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
+            print(PMS_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
             return Response('{"message": "' + SERVER_ERROR + ' ' + str(e) + '","status":"500"}', status=200, mimetype=MIME_JSON)
 
         return Response('{}', status=200, mimetype=MIME_JSON)

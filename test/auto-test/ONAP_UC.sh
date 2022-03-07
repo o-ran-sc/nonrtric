@@ -20,10 +20,10 @@
 
 TC_ONELINE_DESCR="ONAP Use case REQ-626"
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR PMS RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -47,11 +47,11 @@ setup_testenvironment
 ##########################
 
 use_cr_https
-use_agent_rest_https
+use_pms_rest_https
 use_sdnc_https
 use_simulator_https
 use_mr_https
-
+__httpx="HTTPS"
 if [ "$PMS_VERSION" == "V2" ]; then
     notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
@@ -67,7 +67,7 @@ for interface in $TESTED_VARIANTS ; do
 
     echo "#####################################################################"
     echo "#####################################################################"
-    echo "### Testing agent: $interface using https"
+    echo "### Testing pms: $interface using https"
     echo "#####################################################################"
     echo "#####################################################################"
 
@@ -76,9 +76,9 @@ for interface in $TESTED_VARIANTS ; do
     start_kube_proxy
 
     if [[ $interface = *"DMAAP"* ]]; then
-        use_agent_dmaap_https
+        use_pms_dmaap_https
     else
-        use_agent_rest_https
+        use_pms_rest_https
     fi
 
     OSC_NUM_RICS=1
@@ -106,32 +106,32 @@ for interface in $TESTED_VARIANTS ; do
         prepare_consul_config      NOSDNC  ".consul_config.json"
     fi
 
-    start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+    start_pms NORPOXY $SIM_GROUP/$PMS_COMPOSE_DIR/$PMS_CONFIG_FILE
 
-    set_agent_trace
+    set_pms_trace
 
     if [ $RUNMODE == "KUBE" ]; then
-        agent_load_config                       ".consul_config.json"
+        pms_load_config                       ".consul_config.json"
     else
         if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
             #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
             if [ $__httpx == "HTTPS" ]; then
-                use_agent_rest_https
+                use_pms_rest_https
             else
-                use_agent_rest_http
+                use_pms_rest_http
             fi
-            api_put_configuration 200 ".consul_config.json"
+            pms_api_put_configuration 200 ".consul_config.json"
             if [ $__httpx == "HTTPS" ]; then
                 if [[ $interface = *"DMAAP"* ]]; then
-                    use_agent_dmaap_https
+                    use_pms_dmaap_https
                 else
-                    use_agent_rest_https
+                    use_pms_rest_https
                 fi
             else
                 if [[ $interface = *"DMAAP"* ]]; then
-                    use_agent_dmaap_http
+                    use_pms_dmaap_http
                 else
-                    use_agent_rest_http
+                    use_pms_rest_http
                 fi
             fi
         else
@@ -141,9 +141,9 @@ for interface in $TESTED_VARIANTS ; do
     fi
 
     # Check that all rics are synced in
-    api_equal json:rics 3 300
+    pms_equal json:rics 3 300
 
-    api_get_status 200
+    pms_api_get_status 200
 
     # Print the A1 version for OSC
     for ((i=1; i<=$OSC_NUM_RICS; i++))
@@ -176,18 +176,18 @@ for interface in $TESTED_VARIANTS ; do
     done
 
     #Check the number of schemas and the individual schemas in OSC
-    api_equal json:policy-types 3 300
+    pms_equal json:policy-types 3 300
 
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
-        api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g1_"$i 2 120
+        pms_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g1_"$i 2 120
     done
 
     # Check the schemas in OSC
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
-        api_get_policy_type 200 100 demo-testdata/OSC/qos-agent-modified.json
-        api_get_policy_type 200 20008 demo-testdata/OSC/tsa-agent-modified.json
+        pms_api_get_policy_type 200 100 demo-testdata/OSC/qos-pms-modified.json
+        pms_api_get_policy_type 200 20008 demo-testdata/OSC/tsa-pms-modified.json
     done
 
 
@@ -199,37 +199,37 @@ for interface in $TESTED_VARIANTS ; do
     done
 
     #Check the number of schemas and the individual schemas in STD
-    api_equal json:policy-types 5 120
+    pms_equal json:policy-types 5 120
 
     for ((i=1; i<=$STD_NUM_RICS; i++))
     do
-        api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i 2 120
+        pms_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i 2 120
     done
 
     # Check the schemas in STD
     for ((i=1; i<=$STD_NUM_RICS; i++))
     do
-        api_get_policy_type 200 STD_QOS_0_2_0 demo-testdata/STD2/qos-agent-modified.json
-        api_get_policy_type 200 'STD_QOS2_0.1.0' demo-testdata/STD2/qos2-agent-modified.json
+        pms_api_get_policy_type 200 STD_QOS_0_2_0 demo-testdata/STD2/qos-pms-modified.json
+        pms_api_get_policy_type 200 'STD_QOS2_0.1.0' demo-testdata/STD2/qos2-pms-modified.json
     done
 
     #Check the number of types
-    api_equal json:policy-types 5 120
+    pms_equal json:policy-types 5 120
 
     #################################################################
     ##  REQ: A1 Policy Type / Instance Operations
     #################################################################
 
     # Create policies
-    use_agent_rest_http
+    use_pms_rest_http
 
-    api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
+    pms_api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
 
     # Create policies in OSC
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
-        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT $notificationurl demo-testdata/OSC/piqos_template.json 1
-        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT $notificationurl demo-testdata/OSC/pitsa_template.json 1
+        pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT $notificationurl demo-testdata/OSC/piqos_template.json 1
+        pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT $notificationurl demo-testdata/OSC/pitsa_template.json 1
     done
 
 
@@ -243,9 +243,9 @@ for interface in $TESTED_VARIANTS ; do
     # Create policies in STD
     for ((i=1; i<=$STD_NUM_RICS; i++))
     do
-        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl demo-testdata/STD/pi1_template.json 1
-        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
-        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+        pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl demo-testdata/STD/pi1_template.json 1
+        pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+        pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
     done
 
 
@@ -263,24 +263,24 @@ for interface in $TESTED_VARIANTS ; do
     # Check status STD
     for ((i=1; i<=$STD_NUM_RICS; i++))
     do
-        api_get_policy_status 200 $((2100+$i)) STD "UNDEFINED"
-        api_get_policy_status 200 $((2300+$i)) STD2 EMPTY EMPTY
-        api_get_policy_status 200 $((2400+$i)) STD2 EMPTY EMPTY
+        pms_api_get_policy_status 200 $((2100+$i)) STD "UNDEFINED"
+        pms_api_get_policy_status 200 $((2300+$i)) STD2 EMPTY EMPTY
+        pms_api_get_policy_status 200 $((2400+$i)) STD2 EMPTY EMPTY
     done
 
     # Check status OSC
     VAL='NOT IN EFFECT'
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
-        api_get_policy_status 200 $((3000+$i)) OSC "$VAL" "false"
-        api_get_policy_status 200 $((4000+$i)) OSC "$VAL" "false"
+        pms_api_get_policy_status 200 $((3000+$i)) OSC "$VAL" "false"
+        pms_api_get_policy_status 200 $((4000+$i)) OSC "$VAL" "false"
     done
 
     # Note: Status callback is not tested since this callback (http POST) is made from the
     # ricsim directly to the receiver of the status, i.e. the status does NOT
     # pass through PMS
 
-    check_policy_agent_logs
+    check_pms_logs
 
     if [[ $interface = *"SDNC"* ]]; then
         check_sdnc_logs

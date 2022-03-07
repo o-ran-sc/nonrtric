@@ -402,7 +402,7 @@ start_stopped_ics() {
 			((RES_CONF_FAIL++))
 			return 1
 		else
-			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__ICS_WORKER_NODE to deployment for $ICS_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
+			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__ICS_WORKER_NODE to deployment for $ICS_APP_NAME. Pod will always run on this worker node: $__ICS_WORKER_NODE"$BOLD
 			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
 			tmp=$(kubectl $KUBECONF patch deployment $ICS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__ICS_WORKER_NODE'"}}}}}')
 			if [ $? -ne 0 ]; then
