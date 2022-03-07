@@ -316,7 +316,7 @@ __mr_set_protocoll() {
 		MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME":"$MR_ZOOKEEPER_PORT
 	fi
 
-	# For directing calls from script to e.g.PMS via message rounter
+	# For directing calls from script to e.g.A1PMS via message rounter
 	# These cases shall always go though the  mr-stub
 	MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME":"$2
 	MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME":"$4
@@ -345,7 +345,7 @@ __mr_set_protocoll() {
 			MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_ZOOKEEPER_PORT
 		fi
 
-		# For directing calls from script to e.g.PMS, via message rounter
+		# For directing calls from script to e.g.A1PMS, via message rounter
 		# These calls shall always go though the  mr-stub
 		MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME.$KUBE_ONAP_NAMESPACE":"$3
 		MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME.$KUBE_ONAP_NAMESPACE":"$5

@@ -18,4 +18,4 @@
 # Override file for running the e-release helm recipe including all components
 
 
-POLICY_AGENT_IMAGE_BASE="aegis-onap-docker-local.artifactory.est.tech/onap/ccsdk-oran-a1policymanagementservice"
+A1PMS_IMAGE_BASE="aegis-onap-docker-local.artifactory.est.tech/onap/ccsdk-oran-a1policymanagementservice"

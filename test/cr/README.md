@@ -1,8 +1,8 @@
 # callback receiver - a stub interface to receive callbacks
 
 The callback receiver is intended for function tests to simulate a RAPP.
-The callback receiver exposes the read and write urls, used by the agent, as configured in service.
-The callback receiver receives notifications from PMS when synchronization happens between PMS and RICs. However, the callback receiver can be uses to receive any json payload from any source.
+The callback receiver exposes the read and write urls, used by the a1pms, as configured in service.
+The callback receiver receives notifications from A1PMS when synchronization happens between A1PMS and RICs. However, the callback receiver can be uses to receive any json payload from any source.
 
 ## Ports and certificates
 
@@ -23,7 +23,7 @@ The control interface can be used by any test script.
 The following REST operations are available:
 
 >Send a message to CR<br>
-This method puts a request message from PMS to notify that sychronization between PMS and certain RIC happens.<br>
+This method puts a request message from A1PMS to notify that sychronization between A1PMS and certain RIC happens.<br>
 ```URI and payload, (PUT or POST): /callbacks/<id> <json messages>```<br>
 ```response: OK 200 or 500 for other errors```
 
@@ -77,7 +77,7 @@ eg:
 In 'docker-compose.yml', use field:
 >```volumes: - ./certificate:/usr/src/app/cert:ro```
 
-The script ```cr-build-start.sh``` do the above two steps in one go. This starts the callback-receiver container in stand-alone mode for basic test.<br>If the callback-receiver should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be aligned with the other components, i.e. the host named given in all callback urls).
+The script ```cr-build-start.sh``` do the above two steps in one go. This starts the callback-receiver container in stand-alone mode for basic test.<br>If the callback-receiver should be executed manually with the a1pms, replace docker run with this command to connect to the docker network with the correct service name (--name shall be aligned with the other components, i.e. the host named given in all callback urls).
 >```docker run --rm -it -p 8090:8090 -p 8091:8091 --network nonrtric-docker-net --name callback-receiver callback-receiver```
 
 >Start the image on http only<br>

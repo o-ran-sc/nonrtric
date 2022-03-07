@@ -17,15 +17,15 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains management and test functions for Policy Agent
+# This is a script that contains management and test functions for A1PMS
 
 ################ Test engine functions ################
 
 # Create the image var used during the test
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
-__PA_imagesetup() {
-	__check_and_create_image_var PA "POLICY_AGENT_IMAGE" "POLICY_AGENT_IMAGE_BASE" "POLICY_AGENT_IMAGE_TAG" $1 "$POLICY_AGENT_DISPLAY_NAME"
+__A1PMS_imagesetup() {
+	__check_and_create_image_var A1PMS "A1PMS_IMAGE" "A1PMS_IMAGE_BASE" "A1PMS_IMAGE_TAG" $1 "$A1PMS_DISPLAY_NAME"
 }
 
 # Pull image from remote repo or use locally built image
@@ -33,79 +33,79 @@ __PA_imagesetup() {
 # <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
-__PA_imagepull() {
-	__check_and_pull_image $1 "$POLICY_AGENT_DISPLAY_NAME" $POLICY_AGENT_APP_NAME POLICY_AGENT_IMAGE
+__A1PMS_imagepull() {
+	__check_and_pull_image $1 "$A1PMS_DISPLAY_NAME" $A1PMS_APP_NAME A1PMS_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
-__PA_imagebuild() {
-	echo -e $RED" Image for app PA shall never be built"$ERED
+__A1PMS_imagebuild() {
+	echo -e $RED" Image for app A1PMS shall never be built"$ERED
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
 # If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
-__PA_image_data() {
-	echo -e "$POLICY_AGENT_DISPLAY_NAME\t$(docker images --format $1 $POLICY_AGENT_IMAGE)" >>   $2
-	if [ ! -z "$POLICY_AGENT_IMAGE_SOURCE" ]; then
-		echo -e "-- source image --\t$(docker images --format $1 $POLICY_AGENT_IMAGE_SOURCE)" >>   $2
+__A1PMS_image_data() {
+	echo -e "$A1PMS_DISPLAY_NAME\t$(docker images --format $1 $A1PMS_IMAGE)" >>   $2
+	if [ ! -z "$A1PMS_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $A1PMS_IMAGE_SOURCE)" >>   $2
 	fi
 }
 
 # Scale kubernetes resources to zero
 # All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
 # This function is called for apps fully managed by the test script
-__PA_kube_scale_zero() {
-	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+__A1PMS_kube_scale_zero() {
+	__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest A1PMS
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
-__PA_kube_scale_zero_and_wait() {
+__A1PMS_kube_scale_zero_and_wait() {
 	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-policymanagementservice
 }
 
 # Delete all kube resouces for the app
 # This function is called for apps managed by the test script.
-__PA_kube_delete_all() {
-	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+__A1PMS_kube_delete_all() {
+	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest A1PMS
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
-__PA_store_docker_logs() {
+__A1PMS_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl $KUBECONF  logs -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_policy-agent.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=A1PMS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_a1pms.log 2>&1
 	else
-		docker logs $POLICY_AGENT_APP_NAME > $1$2_policy-agent.log 2>&1
+		docker logs $A1PMS_APP_NAME > $1$2_a1pms.log 2>&1
 	fi
 }
 
 # Initial setup of protocol, host and ports
 # This function is called for apps managed by the test script.
 # args: -
-__PA_initial_setup() {
-	use_agent_rest_http
+__A1PMS_initial_setup() {
+	use_a1pms_rest_http
 }
 
 # Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
 # For docker, the namespace shall be excluded
 # This function is called for apps managed by the test script as well as for prestarted apps.
 # args: -
-__PA_statisics_setup() {
+__A1PMS_statisics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
-		echo "PA $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
+		echo "A1PMS $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
 	else
-		echo "PA $POLICY_AGENT_APP_NAME"
+		echo "A1PMS $A1PMS_APP_NAME"
 	fi
 }
 
 # Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
 # args: -
-__PA_test_requirements() {
+__A1PMS_test_requirements() {
 	:
 }
 
@@ -113,227 +113,227 @@ __PA_test_requirements() {
 #######################################################
 
 ###########################
-### Policy Agents functions
+### A1PMSs functions
 ###########################
 
-# Set http as the protocol to use for all communication to the Policy Agent
+# Set http as the protocol to use for all communication to the A1PMS
 # args: -
 # (Function for test scripts)
-use_agent_rest_http() {
-	__agent_set_protocoll "http" $POLICY_AGENT_INTERNAL_PORT $POLICY_AGENT_EXTERNAL_PORT
+use_a1pms_rest_http() {
+	__a1pms_set_protocoll "http" $A1PMS_INTERNAL_PORT $A1PMS_EXTERNAL_PORT
 }
 
-# Set https as the protocol to use for all communication to the Policy Agent
+# Set https as the protocol to use for all communication to the A1PMS
 # args: -
 # (Function for test scripts)
-use_agent_rest_https() {
-	__agent_set_protocoll "https" $POLICY_AGENT_INTERNAL_SECURE_PORT $POLICY_AGENT_EXTERNAL_SECURE_PORT
+use_a1pms_rest_https() {
+	__a1pms_set_protocoll "https" $A1PMS_INTERNAL_SECURE_PORT $A1PMS_EXTERNAL_SECURE_PORT
 }
 
-# All calls to the agent will be directed to the agent dmaap interface over http from now on
+# All calls to the a1pms will be directed to the a1pms dmaap interface over http from now on
 # args: -
 # (Function for test scripts)
-use_agent_dmaap_http() {
-	echo -e $BOLD"$POLICY_AGENT_DISPLAY_NAME dmaap protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
-	PA_ADAPTER_TYPE="MR-HTTP"
+use_a1pms_dmaap_http() {
+	echo -e $BOLD"$A1PMS_DISPLAY_NAME dmaap protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the a1pms"
+	A1PMS_ADAPTER_TYPE="MR-HTTP"
 	echo ""
 }
 
-# All calls to the agent will be directed to the agent dmaap interface over https from now on
+# All calls to the a1pms will be directed to the a1pms dmaap interface over https from now on
 # args: -
 # (Function for test scripts)
-use_agent_dmaap_https() {
-	echo -e $BOLD"$POLICY_AGENT_DISPLAY_NAME dmaap protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
+use_a1pms_dmaap_https() {
+	echo -e $BOLD"$A1PMS_DISPLAY_NAME dmaap protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the a1pms"
 	echo -e $YELLOW" Setting http instead of https - MR only uses http"$EYELLOW
-	PA_ADAPTER_TYPE="MR-HTTPS"
+	A1PMS_ADAPTER_TYPE="MR-HTTPS"
 	echo ""
 }
 
 # Setup paths to svc/container for internal and external access
 # args: <protocol> <internal-port> <external-port>
-__agent_set_protocoll() {
-	echo -e $BOLD"$POLICY_AGENT_DISPLAY_NAME protocol setting"$EBOLD
-	echo -e " Using $BOLD $1 $EBOLD towards $POLICY_AGENT_DISPLAY_NAME"
+__a1pms_set_protocoll() {
+	echo -e $BOLD"$A1PMS_DISPLAY_NAME protocol setting"$EBOLD
+	echo -e " Using $BOLD $1 $EBOLD towards $A1PMS_DISPLAY_NAME"
 
 	## Access to Dmaap adapter
 
-	PA_SERVICE_PATH=$1"://"$POLICY_AGENT_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	A1PMS_SERVICE_PATH=$1"://"$A1PMS_APP_NAME":"$2  # docker access, container->container and script->container via proxy
 	if [ $RUNMODE == "KUBE" ]; then
-		PA_SERVICE_PATH=$1"://"$POLICY_AGENT_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		A1PMS_SERVICE_PATH=$1"://"$A1PMS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
 	fi
 
-	# PA_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
-	PA_ADAPTER_TYPE="REST"
-	PA_ADAPTER=$PA_SERVICE_PATH
+	# A1PMS_ADAPTER used for switching between REST and DMAAP (only REST supported currently)
+	A1PMS_ADAPTER_TYPE="REST"
+	A1PMS_ADAPTER=$A1PMS_SERVICE_PATH
 
 	echo ""
 }
 
-# Make curl retries towards the agent for http response codes set in this env var, space separated list of codes
-AGENT_RETRY_CODES=""
+# Make curl retries towards the a1pms for http response codes set in this env var, space separated list of codes
+A1PMS_RETRY_CODES=""
 
 #Save first worker node the pod is started on
-__PA_WORKER_NODE=""
+__A1PMS_WORKER_NODE=""
 
 # Export env vars for config files, docker compose and kube resources
 # args: PROXY|NOPROXY
-__export_agent_vars() {
+__export_a1pms_vars() {
 
-		export POLICY_AGENT_APP_NAME
-		export POLICY_AGENT_APP_NAME_ALIAS
-		export POLICY_AGENT_DISPLAY_NAME
+		export A1PMS_APP_NAME
+		export A1PMS_APP_NAME_ALIAS
+		export A1PMS_DISPLAY_NAME
 
 		export KUBE_NONRTRIC_NAMESPACE
-		export POLICY_AGENT_IMAGE
-		export POLICY_AGENT_INTERNAL_PORT
-		export POLICY_AGENT_INTERNAL_SECURE_PORT
-		export POLICY_AGENT_EXTERNAL_PORT
-		export POLICY_AGENT_EXTERNAL_SECURE_PORT
-		export POLICY_AGENT_CONFIG_MOUNT_PATH
-		export POLICY_AGENT_DATA_MOUNT_PATH
-		export POLICY_AGENT_CONFIG_CONFIGMAP_NAME=$POLICY_AGENT_APP_NAME"-config"
-		export POLICY_AGENT_DATA_CONFIGMAP_NAME=$POLICY_AGENT_APP_NAME"-data"
-		export POLICY_AGENT_PKG_NAME
+		export A1PMS_IMAGE
+		export A1PMS_INTERNAL_PORT
+		export A1PMS_INTERNAL_SECURE_PORT
+		export A1PMS_EXTERNAL_PORT
+		export A1PMS_EXTERNAL_SECURE_PORT
+		export A1PMS_CONFIG_MOUNT_PATH
+		export A1PMS_DATA_MOUNT_PATH
+		export A1PMS_CONFIG_CONFIGMAP_NAME=$A1PMS_APP_NAME"-config"
+		export A1PMS_DATA_CONFIGMAP_NAME=$A1PMS_APP_NAME"-data"
+		export A1PMS_PKG_NAME
 		export CONSUL_HOST
 		export CONSUL_INTERNAL_PORT
 		export CONFIG_BINDING_SERVICE
-		export POLICY_AGENT_CONFIG_KEY
+		export A1PMS_CONFIG_KEY
 		export DOCKER_SIM_NWNAME
-		export POLICY_AGENT_HOST_MNT_DIR
-		export POLICY_AGENT_CONFIG_FILE
+		export A1PMS_HOST_MNT_DIR
+		export A1PMS_CONFIG_FILE
 
-		export POLICY_AGENT_DATA_PV_NAME=$POLICY_AGENT_APP_NAME"-pv"
-		export POLICY_AGENT_DATA_PVC_NAME=$POLICY_AGENT_APP_NAME"-pvc"
+		export A1PMS_DATA_PV_NAME=$A1PMS_APP_NAME"-pv"
+		export A1PMS_DATA_PVC_NAME=$A1PMS_APP_NAME"-pvc"
 		##Create a unique path for the pv each time to prevent a previous volume to be reused
-		export POLICY_AGENT_PV_PATH="padata-"$(date +%s)
-		export POLICY_AGENT_CONTAINER_MNT_DIR
+		export A1PMS_PV_PATH="a1pmsdata-"$(date +%s)
+		export A1PMS_CONTAINER_MNT_DIR
 		export HOST_PATH_BASE_DIR
 
 		if [ $1 == "PROXY" ]; then
-			export AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
-			export AGENT_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
-			if [ $AGENT_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$AGENT_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
+			export A1PMS_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+			export A1PMS_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+			if [ $A1PMS_HTTP_PROXY_CONFIG_PORT -eq 0 ] || [ -z "$A1PMS_HTTP_PROXY_CONFIG_HOST_NAME" ]; then
 				echo -e $YELLOW" Warning: HTTP PROXY will not be configured, proxy app not started"$EYELLOW
 			else
 				echo " Configured with http proxy"
 			fi
 		else
-			export AGENT_HTTP_PROXY_CONFIG_PORT=0
-			export AGENT_HTTP_PROXY_CONFIG_HOST_NAME=""
+			export A1PMS_HTTP_PROXY_CONFIG_PORT=0
+			export A1PMS_HTTP_PROXY_CONFIG_HOST_NAME=""
 			echo " Configured without http proxy"
 		fi
 }
 
 
-# Start the policy agent
+# Start the ms
 # args: (docker) PROXY|NOPROXY <config-file>
 # args: (kube) PROXY|NOPROXY <config-file> [ <data-file>]
 # (Function for test scripts)
-start_policy_agent() {
-	echo -e $BOLD"Starting $POLICY_AGENT_DISPLAY_NAME"$EBOLD
+start_a1pms() {
+	echo -e $BOLD"Starting $A1PMS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
 
 		# Check if app shall be fully managed by the test script
-		__check_included_image "PA"
+		__check_included_image "A1PMS"
 		retcode_i=$?
 
 		# Check if app shall only be used by the testscipt
-		__check_prestarted_image "PA"
+		__check_prestarted_image "A1PMS"
 		retcode_p=$?
 
 		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
-			echo -e $RED"The $POLICY_AGENT_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
-			echo -e $RED"The $POLICY_AGENT_APP_NAME will not be started"$ERED
+			echo -e $RED"The $A1PMS_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $A1PMS_APP_NAME will not be started"$ERED
 			exit
 		fi
 		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
-			echo -e $RED"The $POLICY_AGENT_APP_NAME app is included both as managed and prestarted in this test script"$ERED
-			echo -e $RED"The $POLICY_AGENT_APP_NAME will not be started"$ERED
+			echo -e $RED"The $A1PMS_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $A1PMS_APP_NAME will not be started"$ERED
 			exit
 		fi
 
 		if [ $retcode_p -eq 0 ]; then
-			echo -e " Using existing $POLICY_AGENT_APP_NAME deployment and service"
-			echo " Setting $POLICY_AGENT_APP_NAME replicas=1"
-			res_type=$(__kube_get_resource_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-			__kube_scale $res_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			echo -e " Using existing $A1PMS_APP_NAME deployment and service"
+			echo " Setting $A1PMS_APP_NAME replicas=1"
+			res_type=$(__kube_get_resource_type $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 
 		if [ $retcode_i -eq 0 ]; then
 
-			echo -e " Creating $POLICY_AGENT_APP_NAME app and expose service"
+			echo -e " Creating $A1PMS_APP_NAME app and expose service"
 
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
 
-			__export_agent_vars $1
+			__export_a1pms_vars $1
 
 			# Create config map for config
-			configfile=$PWD/tmp/$POLICY_AGENT_CONFIG_FILE
+			configfile=$PWD/tmp/$A1PMS_CONFIG_FILE
 			cp $2 $configfile
-			output_yaml=$PWD/tmp/pa_cfc.yaml
-			__kube_create_configmap $POLICY_AGENT_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest PA $configfile $output_yaml
+			output_yaml=$PWD/tmp/a1pms-cfc.yaml
+			__kube_create_configmap $A1PMS_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest A1PMS $configfile $output_yaml
 
 			# Create config map for data
-			data_json=$PWD/tmp/$POLICY_AGENT_DATA_FILE
+			data_json=$PWD/tmp/$A1PMS_DATA_FILE
 			if [ $# -lt 3 ]; then
 				#create empty dummy file
 				echo "{}" > $data_json
 			else
 				cp $3 $data_json
 			fi
-			output_yaml=$PWD/tmp/pa_cfd.yaml
-			__kube_create_configmap $POLICY_AGENT_DATA_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest PA $data_json $output_yaml
+			output_yaml=$PWD/tmp/a1pms-cfd.yaml
+			__kube_create_configmap $A1PMS_DATA_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest A1PMS $data_json $output_yaml
 
 			## Create pv
-			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"pv.yaml
-			output_yaml=$PWD/tmp/pa_pv.yaml
-			__kube_create_instance pv $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$A1PMS_COMPOSE_DIR"/"pv.yaml
+			output_yaml=$PWD/tmp/a1pms-pv.yaml
+			__kube_create_instance pv $A1PMS_APP_NAME $input_yaml $output_yaml
 
 			## Create pvc
-			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"pvc.yaml
-			output_yaml=$PWD/tmp/pa_pvc.yaml
-			__kube_create_instance pvc $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$A1PMS_COMPOSE_DIR"/"pvc.yaml
+			output_yaml=$PWD/tmp/a1pms-pvc.yaml
+			__kube_create_instance pvc $A1PMS_APP_NAME $input_yaml $output_yaml
 
 			# Create service
-			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"svc.yaml
-			output_yaml=$PWD/tmp/pa_svc.yaml
-			__kube_create_instance service $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$A1PMS_COMPOSE_DIR"/"svc.yaml
+			output_yaml=$PWD/tmp/a1pmssvc.yaml
+			__kube_create_instance service $A1PMS_APP_NAME $input_yaml $output_yaml
 
 			# Create app
-			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"app.yaml
-			output_yaml=$PWD/tmp/pa_app.yaml
-			__kube_create_instance app $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+			input_yaml=$SIM_GROUP"/"$A1PMS_COMPOSE_DIR"/"app.yaml
+			output_yaml=$PWD/tmp/a1pmsapp.yaml
+			__kube_create_instance app $A1PMS_APP_NAME $input_yaml $output_yaml
 
 		fi
 
 		# Keep the initial worker node in case the pod need to be "restarted" - must be made to the same node due to a volume mounted on the host
 		if [ $retcode_i -eq 0 ]; then
-			__PA_WORKER_NODE=$(kubectl $KUBECONF get pod -l "autotest=PA" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
-			if [ -z "$__PA_WORKER_NODE" ]; then
-				echo -e $YELLOW" Cannot find worker node for pod for $POLICY_AGENT_APP_NAME, persistency may not work"$EYELLOW
+			__A1PMS_WORKER_NODE=$(kubectl $KUBECONF get pod -l "autotest=A1PMS" -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.items[*].spec.nodeName}')
+			if [ -z "$__A1PMS_WORKER_NODE" ]; then
+				echo -e $YELLOW" Cannot find worker node for pod for $A1PMS_APP_NAME, persistency may not work"$EYELLOW
 			fi
 		else
-			echo -e $YELLOW" Persistency may not work for app $POLICY_AGENT_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			echo -e $YELLOW" Persistency may not work for app $A1PMS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
 		fi
 
-		__check_service_start $POLICY_AGENT_APP_NAME $PA_SERVICE_PATH$POLICY_AGENT_ALIVE_URL
+		__check_service_start $A1PMS_APP_NAME $A1PMS_SERVICE_PATH$A1PMS_ALIVE_URL
 
 	else
-		__check_included_image 'PA'
+		__check_included_image 'A1PMS'
 		if [ $? -eq 1 ]; then
-			echo -e $RED"The Policy Agent app is not included in this test script"$ERED
-			echo -e $RED"The Policy Agent will not be started"$ERED
+			echo -e $RED"The A1PMS app is not included in this test script"$ERED
+			echo -e $RED"The A1PMS will not be started"$ERED
 			exit
 		fi
 
 		curdir=$PWD
 		cd $SIM_GROUP
-		cd policy_agent
-		cd $POLICY_AGENT_HOST_MNT_DIR
+		cd a1pms
+		cd $A1PMS_HOST_MNT_DIR
 		#cd ..
 		if [ -d db ]; then
 			if [ "$(ls -A $DIR)" ]; then
@@ -349,39 +349,39 @@ start_policy_agent() {
 		fi
 		cd $curdir
 
-		__export_agent_vars $1
+		__export_a1pms_vars $1
 
-		dest_file=$SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_HOST_MNT_DIR/application.yaml
+		dest_file=$SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_HOST_MNT_DIR/application.yaml
 
 		envsubst < $2 > $dest_file
 
-		__start_container $POLICY_AGENT_COMPOSE_DIR "" NODOCKERARGS 1 $POLICY_AGENT_APP_NAME
+		__start_container $A1PMS_COMPOSE_DIR "" NODOCKERARGS 1 $A1PMS_APP_NAME
 
-		__check_service_start $POLICY_AGENT_APP_NAME $PA_SERVICE_PATH$POLICY_AGENT_ALIVE_URL
+		__check_service_start $A1PMS_APP_NAME $A1PMS_SERVICE_PATH$A1PMS_ALIVE_URL
 	fi
 
-	__collect_endpoint_stats_image_info "PMS" $POLICY_AGENT_IMAGE
+	__collect_endpoint_stats_image_info "A1PMS" $A1PMS_IMAGE
 	echo ""
 	return 0
 }
 
-# Stop the policy agent
+# Stop the a1pms
 # args: -
 # args: -
 # (Function for test scripts)
-stop_policy_agent() {
-	echo -e $BOLD"Stopping $POLICY_AGENT_DISPLAY_NAME"$EBOLD
+stop_a1pms() {
+	echo -e $BOLD"Stopping $A1PMS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
 
-		__check_prestarted_image "PA"
+		__check_prestarted_image "A1PMS"
 		if [ $? -eq 0 ]; then
-			echo -e $YELLOW" Persistency may not work for app $POLICY_AGENT_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			res_type=$(__kube_get_resource_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-			__kube_scale $res_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
+			echo -e $YELLOW" Persistency may not work for app $A1PMS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			res_type=$(__kube_get_resource_type $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 0
 			return 0
 		fi
-		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest A1PMS
 		echo "  Deleting the replica set - a new will be started when the app is started"
 		tmp=$(kubectl $KUBECONF delete rs -n $KUBE_NONRTRIC_NAMESPACE -l "autotest=PA")
 		if [ $? -ne 0 ]; then
@@ -390,9 +390,9 @@ stop_policy_agent() {
 			return 1
 		fi
 	else
-		docker stop $POLICY_AGENT_APP_NAME &> ./tmp/.dockererr
+		docker stop $A1PMS_APP_NAME &> ./tmp/.dockererr
 		if [ $? -ne 0 ]; then
-			__print_err "Could not stop $POLICY_AGENT_APP_NAME" $@
+			__print_err "Could not stop $A1PMS_APP_NAME" $@
 			cat ./tmp/.dockererr
 			((RES_CONF_FAIL++))
 			return 1
@@ -403,48 +403,48 @@ stop_policy_agent() {
 	return 0
 }
 
-# Start a previously stopped policy agent
+# Start a previously stopped a1pms
 # args: -
 # (Function for test scripts)
-start_stopped_policy_agent() {
-	echo -e $BOLD"Starting (the previously stopped) $POLICY_AGENT_DISPLAY_NAME"$EBOLD
+start_stopped_a1pms() {
+	echo -e $BOLD"Starting (the previously stopped) $A1PMS_DISPLAY_NAME"$EBOLD
 
 	if [ $RUNMODE == "KUBE" ]; then
 
-		__check_prestarted_image "PA"
+		__check_prestarted_image "A1PMS"
 		if [ $? -eq 0 ]; then
-			echo -e $YELLOW" Persistency may not work for app $POLICY_AGENT_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
-			res_type=$(__kube_get_resource_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
-			__kube_scale $res_type $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
-			__check_service_start $POLICY_AGENT_APP_NAME $PA_SERVICE_PATH$POLICY_AGENT_ALIVE_URL
+			echo -e $YELLOW" Persistency may not work for app $A1PMS_APP_NAME in multi-worker node config when running it as a prestarted app"$EYELLOW
+			res_type=$(__kube_get_resource_type $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+			__kube_scale $res_type $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__check_service_start $A1PMS_APP_NAME $A1PMS_SERVICE_PATH$A1PMS_ALIVE_URL
 			return 0
 		fi
 
-		# Tie the PMS to the same worker node it was initially started on
-		# A PVC of type hostPath is mounted to PMS, for persistent storage, so the PMS must always be on the node which mounted the volume
-		if [ -z "$__PA_WORKER_NODE" ]; then
+		# Tie the A1PMS to the same worker node it was initially started on
+		# A PVC of type hostPath is mounted to A1PMS, for persistent storage, so the A1PMS must always be on the node which mounted the volume
+		if [ -z "$__A1PMS_WORKER_NODE" ]; then
 			echo -e $RED" No initial worker node found for pod "$RED
 			((RES_CONF_FAIL++))
 			return 1
 		else
-			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__PA_WORKER_NODE to deployment for $POLICY_AGENT_APP_NAME. Pod will always run on this worker node: $__PA_WORKER_NODE"$BOLD
+			echo -e $BOLD" Setting nodeSelector kubernetes.io/hostname=$__A1PMS_WORKER_NODE to deployment for $A1PMS_APP_NAME. Pod will always run on this worker node: $__A1PMS_WORKER_NODE"$BOLD
 			echo -e $BOLD" The mounted volume is mounted as hostPath and only available on that worker node."$BOLD
-			tmp=$(kubectl $KUBECONF patch deployment $POLICY_AGENT_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__PA_WORKER_NODE'"}}}}}')
+			tmp=$(kubectl $KUBECONF patch deployment $A1PMS_APP_NAME -n $KUBE_NONRTRIC_NAMESPACE --patch '{"spec": {"template": {"spec": {"nodeSelector": {"kubernetes.io/hostname": "'$__A1PMS_WORKER_NODE'"}}}}}')
 			if [ $? -ne 0 ]; then
-				echo -e $YELLOW" Cannot set nodeSelector to deployment for $POLICY_AGENT_APP_NAME, persistency may not work"$EYELLOW
+				echo -e $YELLOW" Cannot set nodeSelector to deployment for $A1PMS_APP_NAME, persistency may not work"$EYELLOW
 			fi
-			__kube_scale deployment $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+			__kube_scale deployment $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
 		fi
 	else
-		docker start $POLICY_AGENT_APP_NAME &> ./tmp/.dockererr
+		docker start $A1PMS_APP_NAME &> ./tmp/.dockererr
 		if [ $? -ne 0 ]; then
-			__print_err "Could not start (the stopped) $POLICY_AGENT_APP_NAME" $@
+			__print_err "Could not start (the stopped) $A1PMS_APP_NAME" $@
 			cat ./tmp/.dockererr
 			((RES_CONF_FAIL++))
 			return 1
 		fi
 	fi
-	__check_service_start $POLICY_AGENT_APP_NAME $PA_SERVICE_PATH$POLICY_AGENT_ALIVE_URL
+	__check_service_start $A1PMS_APP_NAME $A1PMS_SERVICE_PATH$A1PMS_ALIVE_URL
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
@@ -459,7 +459,7 @@ start_stopped_policy_agent() {
 prepare_consul_config() {
   	echo -e $BOLD"Prepare Consul config"$EBOLD
 
-	echo " Writing consul config for "$POLICY_AGENT_APP_NAME" to file: "$2
+	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
 
 	if [ $# != 2 ];  then
 		((RES_CONF_FAIL++))
@@ -574,23 +574,23 @@ prepare_consul_config() {
 	echo ""
 }
 
-# Load the the appl config for the agent into a config map
-agent_load_config() {
-	echo -e $BOLD"Agent - load config from "$EBOLD$1
-	data_json=$PWD/tmp/$POLICY_AGENT_DATA_FILE
+# Load the the appl config for the a1pms into a config map
+a1pms_load_config() {
+	echo -e $BOLD"A1PMS - load config from "$EBOLD$1
+	data_json=$PWD/tmp/$A1PMS_DATA_FILE
 	cp $1 $data_json
-	output_yaml=$PWD/tmp/pa_cfd.yaml
-	__kube_create_configmap $POLICY_AGENT_APP_NAME"-data" $KUBE_NONRTRIC_NAMESPACE autotest PA $data_json $output_yaml
+	output_yaml=$PWD/tmp/a1pms-cfd.yaml
+	__kube_create_configmap $A1PMS_APP_NAME"-data" $KUBE_NONRTRIC_NAMESPACE autotest A1PMS $data_json $output_yaml
 	echo ""
 }
 
 
-# Turn on debug level tracing in the agent
+# Turn on debug level tracing in the a1pms
 # args: -
 # (Function for test scripts)
-set_agent_debug() {
-	echo -e $BOLD"Setting agent debug logging"$EBOLD
-	curlString="$PA_SERVICE_PATH$POLICY_AGENT_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+set_a1pms_debug() {
+	echo -e $BOLD"Setting a1pms debug logging"$EBOLD
+	curlString="$A1PMS_SERVICE_PATH$A1PMS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set debug mode" $@
@@ -601,12 +601,12 @@ set_agent_debug() {
 	return 0
 }
 
-# Turn on trace level tracing in the agent
+# Turn on trace level tracing in the a1pms
 # args: -
 # (Function for test scripts)
-set_agent_trace() {
-	echo -e $BOLD"Setting agent trace logging"$EBOLD
-	curlString="$PA_SERVICE_PATH$POLICY_AGENT_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+set_a1pms_trace() {
+	echo -e $BOLD"Setting a1pms trace logging"$EBOLD
+	curlString="$A1PMS_SERVICE_PATH$A1PMS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set trace mode" $@
@@ -617,39 +617,39 @@ set_agent_trace() {
 	return 0
 }
 
-# Perform curl retries when making direct call to the agent for the specified http response codes
+# Perform curl retries when making direct call to the a1pms for the specified http response codes
 # Speace separated list of http response codes
 # args: [<response-code>]*
-use_agent_retries() {
-	echo -e $BOLD"Do curl retries to the agent REST inteface for these response codes:$@"$EBOLD
+use_a1pms_retries() {
+	echo -e $BOLD"Do curl retries to the a1pms REST inteface for these response codes:$@"$EBOLD
 	AGENT_RETRY_CODES=$@
 	echo ""
 	return
 }
 
-# Check the agent logs for WARNINGs and ERRORs
+# Check the a1pms logs for WARNINGs and ERRORs
 # args: -
 # (Function for test scripts)
-check_policy_agent_logs() {
-	__check_container_logs "Policy Agent" $POLICY_AGENT_APP_NAME $POLICY_AGENT_LOGPATH WARN ERR
+check_a1pms_logs() {
+	__check_container_logs "A1PMS" $A1PMS_APP_NAME $A1PMS_LOGPATH WARN ERR
 }
 
 #########################################################
 #### Test case functions A1 Policy management service
 #########################################################
 
-# This function compare the size, towards a target value, of a json array returned from <url> of the Policy Agent.
+# This function compare the size, towards a target value, of a json array returned from <url> of the A1PMS.
 # This is done immediately by setting PASS or FAIL or wait up to and optional timeout before setting PASS or FAIL
 # args: json:<url> <target-value> [<timeout-in-seconds]
 # (Function for test scripts)
-api_equal() {
+a1pms_equal() {
     echo "(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
 		if [[ $1 == "json:"* ]]; then
-			if [ "$PMS_VERSION" == "V2" ]; then
-				__var_test "Policy Agent" $PA_SERVICE_PATH$PMS_API_PREFIX"/v2/" $1 "=" $2 $3
+			if [ "$A1PMS_VERSION" == "V2" ]; then
+				__var_test "A1PMS" $A1PMS_SERVICE_PATH$A1PMS_API_PREFIX"/v2/" $1 "=" $2 $3
 			else
-				__var_test "Policy Agent" $PA_SERVICE_PATH"/" $1 "=" $2 $3
+				__var_test "A1PMS" $A1PMS_SERVICE_PATH"/" $1 "=" $2 $3
 			fi
 			return 0
 		fi
@@ -662,10 +662,10 @@ api_equal() {
 # args: <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <template-file>]*]
 # args(V2): <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <transient> <notification-url> <template-file>]*]
 # (Function for test scripts)
-api_get_policies() {
+a1pms_api_get_policies() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		paramError=0
 		variableParams=$(($#-4))
 		if [ $# -lt 4 ]; then
@@ -698,7 +698,7 @@ api_get_policies() {
 	fi
 
 	queryparams=""
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $2 != "NORIC" ]; then
 			queryparams="?ric_id="$2
 		fi
@@ -718,7 +718,7 @@ api_get_policies() {
 		fi
 
 		query="/v2/policy-instances"$queryparams
-		res="$(__do_curl_to_api PA GET $query)"
+		res="$(__do_curl_to_api A1PMS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
@@ -783,7 +783,7 @@ api_get_policies() {
 		fi
 
 		query="/policies"$queryparams
-		res="$(__do_curl_to_api PA GET $query)"
+		res="$(__do_curl_to_api A1PMS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
@@ -827,7 +827,7 @@ api_get_policies() {
 			fi
 		fi
 	fi
-	__collect_endpoint_stats "PMS" 00 "GET" $PMS_API_PREFIX"/v2/policy-instances" $status
+	__collect_endpoint_stats "A1PMS" 00 "GET" $A1PMS_API_PREFIX"/v2/policy-instances" $status
 	__log_test_pass
 	return 0
 
@@ -839,11 +839,11 @@ api_get_policies() {
 # args(V2): <response-code> <policy-id> [ <template-file> <service-name> <ric-id> <policytype-id>|NOTYPE <transient> <notification-url>|NOURL ]
 
 # (Function for test scripts)
-api_get_policy() {
+a1pms_api_get_policy() {
 	__log_test_start $@
 
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -ne 2 ] && [ $# -ne 8 ]; then
 			__print_err "<response-code> <policy-id> [ <template-file> <service-name> <ric-id> <policytype-id>|NOTYPE <transient> <notification-url>|NOURL ]" $@
 			return 1
@@ -856,7 +856,7 @@ api_get_policy() {
 		fi
 		query="/policy?id=$UUID$2"
 	fi
-	res="$(__do_curl_to_api PA GET $query)"
+	res="$(__do_curl_to_api A1PMS GET $query)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -864,7 +864,7 @@ api_get_policy() {
 		return 1
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -eq 8 ]; then
 
 			#Create a policy json to compare with
@@ -909,7 +909,7 @@ api_get_policy() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 01 "GET" $PMS_API_PREFIX"/v2/policies/{policy_id}" $status
+	__collect_endpoint_stats "A1PMS" 01 "GET" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $status
 	__log_test_pass
 	return 0
 }
@@ -918,10 +918,10 @@ api_get_policy() {
 # args: <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <template-file> [<count>]
 # args(V2): <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]
 # (Function for test scripts)
-api_put_policy() {
+a1pms_api_put_policy() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -lt 8 ] || [ $# -gt 9 ]; then
 			__print_err "<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]" $@
 			return 1
@@ -941,7 +941,7 @@ api_put_policy() {
 	pid=$5
 	trans=$6
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		noti=$7
 		temp=$8
 		if [ $# -eq 9 ]; then
@@ -955,7 +955,7 @@ api_put_policy() {
 	fi
 
 	while [ $count -lt $max ]; do
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 
 			query="/v2/policies"
 
@@ -990,7 +990,7 @@ api_put_policy() {
 			file="./tmp/.p.json"
 			sed 's/XXX/'${pid}'/g' $temp > $file
 		fi
-    	res="$(__do_curl_to_api PA PUT $query $file)"
+    	res="$(__do_curl_to_api A1PMS PUT $query $file)"
     	status=${res:${#res}-3}
 		echo -ne " Executing "$count"("$max")${SAMELINE}"
 		if [ $status -ne $1 ]; then
@@ -1002,7 +1002,7 @@ api_put_policy() {
 		let count=$count+1
 		echo -ne " Executed  "$count"("$max")${SAMELINE}"
 	done
-	__collect_endpoint_stats "PMS" 02 "PUT" $PMS_API_PREFIX"/v2/policies" $status $max
+	__collect_endpoint_stats "A1PMS" 02 "PUT" $A1PMS_API_PREFIX"/v2/policies" $status $max
 	echo ""
 
 	__log_test_pass
@@ -1014,10 +1014,10 @@ api_put_policy() {
 # args(V2): <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient> <notification-url>|NOURL <template-file> [<count>]
 # (Function for test scripts)
 
-api_put_policy_batch() {
+a1pms_api_put_policy_batch() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -lt 8 ] || [ $# -gt 9 ]; then
 			__print_err "<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient> <notification-url>|NOURL <template-file> [<count>]" $@
 			return 1
@@ -1036,7 +1036,7 @@ api_put_policy_batch() {
 	pt=$4
 	pid=$5
 	trans=$6
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		noti=$7
 		temp=$8
 		if [ $# -eq 9 ]; then
@@ -1051,7 +1051,7 @@ api_put_policy_batch() {
 
 	ARR=""
 	while [ $count -lt $max ]; do
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			query="/v2/policies"
 
 			inputJson="\"ric_id\":\"$ric\",\"policy_id\":\"$UUID$pid\",\"service_id\":\"$serv\""
@@ -1084,7 +1084,7 @@ api_put_policy_batch() {
 			file="./tmp/.p.json"
 			sed 's/XXX/'${pid}'/g' $temp > $file
 		fi
-    	res="$(__do_curl_to_api PA PUT_BATCH $query $file)"
+    	res="$(__do_curl_to_api A1PMS PUT_BATCH $query $file)"
     	status=${res:${#res}-3}
 		echo -ne " Requesting(batch) "$count"("$max")${SAMELINE}"
 
@@ -1104,7 +1104,7 @@ api_put_policy_batch() {
 	count=0
 	for cid in $ARR; do
 
-    	res="$(__do_curl_to_api PA RESPONSE $cid)"
+    	res="$(__do_curl_to_api A1PMS RESPONSE $cid)"
     	status=${res:${#res}-3}
 		echo -ne " Accepting(batch) "$count"("$max")${SAMELINE}"
 
@@ -1117,7 +1117,7 @@ api_put_policy_batch() {
 		let count=$count+1
 		echo -ne " Accepted(batch)  "$count"("$max")${SAMELINE}"
 	done
-	__collect_endpoint_stats "PMS" 02 "PUT" $PMS_API_PREFIX"/v2/policies" $1 $max
+	__collect_endpoint_stats "A1PMS" 02 "PUT" $A1PMS_API_PREFIX"/v2/policies" $1 $max
 
 	echo ""
 
@@ -1129,10 +1129,10 @@ api_put_policy_batch() {
 # args: <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <template-file> <count-per-ric> <number-of-threads>
 # args(V2): <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <notification-url>|NOURL <template-file> <count-per-ric> <number-of-threads>
 # (Function for test scripts)
-api_put_policy_parallel() {
+a1pms_api_put_policy_parallel() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -ne 11 ]; then
 			__print_err "<response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <notification-url>|NOURL <template-file> <count-per-ric> <number-of-threads>" $@
 			return 1
@@ -1150,7 +1150,7 @@ api_put_policy_parallel() {
 	type=$1; shift;
 	start_id=$1; shift;
 	transient=$1; shift;
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		noti=$1; shift;
 	else
 		noti=""
@@ -1159,16 +1159,16 @@ api_put_policy_parallel() {
 	count=$1; shift;
 	pids=$1; shift;
 
-	#if [ $PA_ADAPTER != $RESTBASE ] && [ $PA_ADAPTER != $RESTBASE_SECURE ]; then
-	if [ $PA_ADAPTER_TYPE != "REST" ]; then
-		echo " Info - api_put_policy_parallel uses only the agent REST interface - create over dmaap in parallel is not supported"
-		echo " Info - will execute over agent REST"
+	#if [ $A1PMS_ADAPTER != $RESTBASE ] && [ $A1PMS_ADAPTER != $RESTBASE_SECURE ]; then
+	if [ $A1PMS_ADAPTER_TYPE != "REST" ]; then
+		echo " Info - a1pms_api_put_policy_parallel uses only the a1pms REST interface - create over dmaap in parallel is not supported"
+		echo " Info - will execute over a1pms REST"
 	fi
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $serv == "NOSERVICE" ]; then
 			serv=""
 		fi
-		query="$PMS_API_PREFIX/v2/policies"
+		query="$A1PMS_API_PREFIX/v2/policies"
 	else
 		if [ $serv == "NOSERVICE" ]; then
 			serv=""
@@ -1184,7 +1184,7 @@ api_put_policy_parallel() {
 		fi
 	fi
 
-	urlbase=${PA_ADAPTER}${query}
+	urlbase=${A1PMS_ADAPTER}${query}
 
 	httpproxy="NOPROXY"
 	if [ ! -z "$KUBE_PROXY_PATH" ]; then
@@ -1198,7 +1198,7 @@ api_put_policy_parallel() {
 			uuid="NOUUID"
 		fi
 		echo "" > "./tmp/.pid${i}.res.txt"
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $serv $type $transient $noti $template $count $pids $i $httpproxy > "./tmp/.pid${i}.txt"
 		else
 			echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $template $count $pids $i $httpproxy > "./tmp/.pid${i}.txt"
@@ -1229,7 +1229,7 @@ api_put_policy_parallel() {
 		fi
 	done
 	if [ -z $msg ]; then
-		__collect_endpoint_stats "PMS" 02 "PUT" $PMS_API_PREFIX"/v2/policies" $resp_code $(($count*$num_rics))
+		__collect_endpoint_stats "A1PMS" 02 "PUT" $A1PMS_API_PREFIX"/v2/policies" $resp_code $(($count*$num_rics))
 		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
@@ -1241,7 +1241,7 @@ api_put_policy_parallel() {
 # API Test function: DELETE /policy and V2 DELETE /v2/policies/{policy_id}
 # args: <response-code> <policy-id> [count]
 # (Function for test scripts)
-api_delete_policy() {
+a1pms_api_delete_policy() {
 	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
@@ -1259,12 +1259,12 @@ api_delete_policy() {
 	pid=$2
 
 	while [ $count -lt $max ]; do
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			query="/v2/policies/"$UUID$pid
 		else
 			query="/policy?id="$UUID$pid
 		fi
-		res="$(__do_curl_to_api PA DELETE $query)"
+		res="$(__do_curl_to_api A1PMS DELETE $query)"
 		status=${res:${#res}-3}
 		echo -ne " Executing "$count"("$max")${SAMELINE}"
 
@@ -1278,7 +1278,7 @@ api_delete_policy() {
 		let count=$count+1
 		echo -ne " Executed  "$count"("$max")${SAMELINE}"
 	done
-	__collect_endpoint_stats "PMS" 03 "DELETE" $PMS_API_PREFIX"/v2/policies/{policy_id}" $status $max
+	__collect_endpoint_stats "A1PMS" 03 "DELETE" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $status $max
 	echo ""
 
 	__log_test_pass
@@ -1288,7 +1288,7 @@ api_delete_policy() {
 # API Test function: DELETE /policy and V2 DELETE /v2/policies/{policy_id}, to run in batch
 # args: <response-code> <policy-id> [count]
 # (Function for test scripts)
-api_delete_policy_batch() {
+a1pms_api_delete_policy_batch() {
 	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
@@ -1306,12 +1306,12 @@ api_delete_policy_batch() {
 	pid=$2
 	ARR=""
 	while [ $count -lt $max ]; do
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			query="/v2/policies/"$UUID$pid
 		else
 			query="/policy?id="$UUID$pid
 		fi
-		res="$(__do_curl_to_api PA DELETE_BATCH $query)"
+		res="$(__do_curl_to_api A1PMS DELETE_BATCH $query)"
 		status=${res:${#res}-3}
 		echo -ne " Requesting(batch) "$count"("$max")${SAMELINE}"
 
@@ -1332,7 +1332,7 @@ api_delete_policy_batch() {
 	count=0
 	for cid in $ARR; do
 
-    	res="$(__do_curl_to_api PA RESPONSE $cid)"
+    	res="$(__do_curl_to_api A1PMS RESPONSE $cid)"
     	status=${res:${#res}-3}
 		echo -ne " Deleting(batch) "$count"("$max")${SAMELINE}"
 
@@ -1345,7 +1345,7 @@ api_delete_policy_batch() {
 		let count=$count+1
 		echo -ne " Deleted(batch)  "$count"("$max")${SAMELINE}"
 	done
-	__collect_endpoint_stats "PMS" 03 "DELETE" $PMS_API_PREFIX"/v2/policies/{policy_id}" $1 $max
+	__collect_endpoint_stats "A1PMS" 03 "DELETE" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $1 $max
 
 	echo ""
 
@@ -1356,7 +1356,7 @@ api_delete_policy_batch() {
 # API Test function: DELETE /policy and V2 DELETE /v2/policies/{policy_id}, to run in i parallel for a number of rics
 # args: <response-code> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>
 # (Function for test scripts)
-api_delete_policy_parallel() {
+a1pms_api_delete_policy_parallel() {
 	__log_test_start $@
 
     if [ $# -ne 5 ]; then
@@ -1369,19 +1369,19 @@ api_delete_policy_parallel() {
 	count=$1; shift;
 	pids=$1; shift;
 
-	#if [ $PA_ADAPTER != $RESTBASE ] && [ $PA_ADAPTER != $RESTBASE_SECURE ]; then
-	if [ $PA_ADAPTER_TYPE != "REST" ]; then
-		echo " Info - api_delete_policy_parallel uses only the agent REST interface - create over dmaap in parallel is not supported"
-		echo " Info - will execute over agent REST"
+	#if [ $A1PMS_ADAPTER != $RESTBASE ] && [ $A1PMS_ADAPTER != $RESTBASE_SECURE ]; then
+	if [ $A1PMS_ADAPTER_TYPE != "REST" ]; then
+		echo " Info - a1pms_api_delete_policy_parallel uses only the a1pms REST interface - create over dmaap in parallel is not supported"
+		echo " Info - will execute over a1pms REST"
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
-		query="$PMS_API_PREFIX/v2/policies/"
+	if [ "$A1PMS_VERSION" == "V2" ]; then
+		query="$A1PMS_API_PREFIX/v2/policies/"
 	else
 		query="/policy"
 	fi
 
-	urlbase=${PA_ADAPTER}${query}
+	urlbase=${A1PMS_ADAPTER}${query}
 
 	httpproxy="NOPROXY"
 	if [ ! -z "$KUBE_PROXY_PATH" ]; then
@@ -1422,7 +1422,7 @@ api_delete_policy_parallel() {
 		fi
 	done
 	if [ -z $msg ]; then
-		__collect_endpoint_stats "PMS" 03 "DELETE" $PMS_API_PREFIX"/v2/policies/{policy_id}" $resp_code $(($count*$num_rics))
+		__collect_endpoint_stats "A1PMS" 03 "DELETE" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $resp_code $(($count*$num_rics))
 		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
@@ -1434,7 +1434,7 @@ api_delete_policy_parallel() {
 # API Test function: GET /policy_ids and V2 GET /v2/policies
 # args: <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)
 # (Function for test scripts)
-api_get_policy_ids() {
+a1pms_api_get_policy_ids() {
 	__log_test_start $@
 
     if [ $# -lt 4 ]; then
@@ -1444,7 +1444,7 @@ api_get_policy_ids() {
 
 	queryparams=""
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $2 != "NORIC" ]; then
 			queryparams="?ric_id="$2
 		fi
@@ -1488,7 +1488,7 @@ api_get_policy_ids() {
 		query="/policy_ids"$queryparams
 	fi
 
-    res="$(__do_curl_to_api PA GET $query)"
+    res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1510,7 +1510,7 @@ api_get_policy_ids() {
 		done
 
 		targetJson=$targetJson"]"
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			targetJson="{\"policy_ids\": $targetJson}"
 		fi
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -1522,7 +1522,7 @@ api_get_policy_ids() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 04 "GET" $PMS_API_PREFIX"/v2/policies" $status
+	__collect_endpoint_stats "A1PMS" 04 "GET" $A1PMS_API_PREFIX"/v2/policies" $status
 	__log_test_pass
 	return 0
 }
@@ -1530,10 +1530,10 @@ api_get_policy_ids() {
 # API Test function: V2 GET /v2/policy-types/{policyTypeId}
 # args(V2): <response-code> <policy-type-id> [<schema-file>]
 # (Function for test scripts)
-api_get_policy_type() {
+a1pms_api_get_policy_type() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" != "V2" ]; then
+	if [ "$A1PMS_VERSION" != "V2" ]; then
 		__log_test_fail_not_supported
 		return 1
 	fi
@@ -1544,7 +1544,7 @@ api_get_policy_type() {
     fi
 	query="/v2/policy-types/$2"
 
-	res="$(__do_curl_to_api PA GET $query)"
+	res="$(__do_curl_to_api A1PMS GET $query)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1567,7 +1567,7 @@ api_get_policy_type() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 05 "GET" $PMS_API_PREFIX"/v2/policy-types/{policyTypeId}" $status
+	__collect_endpoint_stats "A1PMS" 05 "GET" $A1PMS_API_PREFIX"/v2/policy-types/{policyTypeId}" $status
 	__log_test_pass
 	return 0
 }
@@ -1575,10 +1575,10 @@ api_get_policy_type() {
 # API Test function: GET /policy_schema
 # args: <response-code> <policy-type-id> [<schema-file>]
 # (Function for test scripts)
-api_get_policy_schema() {
+a1pms_api_get_policy_schema() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		__log_test_fail_not_supported
 		return 1
 	fi
@@ -1588,7 +1588,7 @@ api_get_policy_schema() {
         return 1
     fi
 	query="/policy_schema?id=$2"
-	res="$(__do_curl_to_api PA GET $query)"
+	res="$(__do_curl_to_api A1PMS GET $query)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1611,7 +1611,7 @@ api_get_policy_schema() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 06 "GET" $PMS_API_PREFIX"/v2/policy_schema" $status
+	__collect_endpoint_stats "A1PMS" 06 "GET" $A1PMS_API_PREFIX"/v2/policy_schema" $status
 	__log_test_pass
 	return 0
 }
@@ -1620,10 +1620,10 @@ api_get_policy_schema() {
 # args: <response-code>  <ric-id>|NORIC [<schema-file>|NOFILE]*
 # args(V2): <response-code>
 # (Function for test scripts)
-api_get_policy_schemas() {
+a1pms_api_get_policy_schemas() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -ne 1 ]; then
 			__print_err "<response-code>" $@
 			return 1
@@ -1634,7 +1634,7 @@ api_get_policy_schemas() {
 			return 1
 		fi
 	fi
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/policy-schemas"
 	else
 		query="/policy_schemas"
@@ -1643,7 +1643,7 @@ api_get_policy_schemas() {
 		fi
 	fi
 
-	res="$(__do_curl_to_api PA GET $query)"
+	res="$(__do_curl_to_api A1PMS GET $query)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1667,7 +1667,7 @@ api_get_policy_schemas() {
 		done
 
 		targetJson=$targetJson"]"
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			targetJson="{\"policy_schemas\": $targetJson }"
 		fi
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -1679,7 +1679,7 @@ api_get_policy_schemas() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 07 "GET" $PMS_API_PREFIX"/v2/policy-schemas" $status
+	__collect_endpoint_stats "A1PMS" 07 "GET" $A1PMS_API_PREFIX"/v2/policy-schemas" $status
 	__log_test_pass
 	return 0
 }
@@ -1687,7 +1687,7 @@ api_get_policy_schemas() {
 # API Test function: GET /policy_status and V2 GET /policies/{policy_id}/status
 # arg: <response-code> <policy-id> [ (STD|STD2 <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>) ]
 # (Function for test scripts)
-api_get_policy_status() {
+a1pms_api_get_policy_status() {
 	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 5 ]; then
@@ -1729,14 +1729,14 @@ api_get_policy_status() {
 		return 1
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/policies/$UUID$2/status"
 		targetJson="{\"last_modified\":\"????\",\"status\":$targetJson}"
 	else
 		query="/policy_status?id="$UUID$2
 	fi
 
-	res="$(__do_curl_to_api PA GET $query)"
+	res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1753,7 +1753,7 @@ api_get_policy_status() {
 			return 1
 		fi
 	fi
-	__collect_endpoint_stats "PMS" 08 "GET" $PMS_API_PREFIX"/v2/policies/{policy_id}/status" $status
+	__collect_endpoint_stats "A1PMS" 08 "GET" $A1PMS_API_PREFIX"/v2/policies/{policy_id}/status" $status
 	__log_test_pass
 	return 0
 }
@@ -1761,7 +1761,7 @@ api_get_policy_status() {
 # API Test function: GET /policy_types and V2 GET /v2/policy-types
 # args: <response-code> [<ric-id>|NORIC [<policy-type-id>|EMPTY [<policy-type-id>]*]]
 # (Function for test scripts)
-api_get_policy_types() {
+a1pms_api_get_policy_types() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
@@ -1769,7 +1769,7 @@ api_get_policy_types() {
 		return 1
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -eq 1 ]; then
 			query="/v2/policy-types"
 		elif [ $2 == "NORIC" ]; then
@@ -1787,7 +1787,7 @@ api_get_policy_types() {
 		fi
 	fi
 
-    res="$(__do_curl_to_api PA GET $query)"
+    res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1810,7 +1810,7 @@ api_get_policy_types() {
 		done
 
 		targetJson=$targetJson"]"
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			targetJson="{\"policytype_ids\": $targetJson }"
 		fi
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -1822,7 +1822,7 @@ api_get_policy_types() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 09 "GET" $PMS_API_PREFIX"/v2/policy-types" $status
+	__collect_endpoint_stats "A1PMS" 09 "GET" $A1PMS_API_PREFIX"/v2/policy-types" $status
 	__log_test_pass
 	return 0
 }
@@ -1834,18 +1834,18 @@ api_get_policy_types() {
 # API Test function: GET /status and V2 GET /status
 # args: <response-code>
 # (Function for test scripts)
-api_get_status() {
+a1pms_api_get_status() {
 	__log_test_start $@
     if [ $# -ne 1 ]; then
 		__print_err "<response-code>" $@
 		return 1
 	fi
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/status"
 	else
 		query="/status"
 	fi
-    res="$(__do_curl_to_api PA GET $query)"
+    res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1853,7 +1853,7 @@ api_get_status() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 10 "GET" $PMS_API_PREFIX"/v2/status" $status
+	__collect_endpoint_stats "A1PMS" 10 "GET" $A1PMS_API_PREFIX"/v2/status" $status
 	__log_test_pass
 	return 0
 }
@@ -1861,17 +1861,17 @@ api_get_status() {
 # API Test function: GET /status (root) without api prefix
 # args: <response-code>
 # (Function for test scripts)
-api_get_status_root() {
+a1pms_api_get_status_root() {
 	__log_test_start $@
     if [ $# -ne 1 ]; then
 		__print_err "<response-code>" $@
 		return 1
 	fi
 	query="/status"
-	TMP_PREFIX=$PMS_API_PREFIX
-	PMS_API_PREFIX=""
-    res="$(__do_curl_to_api PA GET $query)"
-	PMS_API_PREFIX=$TMP_PREFIX
+	TMP_PREFIX=$A1PMS_API_PREFIX
+	A1PMS_API_PREFIX=""
+    res="$(__do_curl_to_api A1PMS GET $query)"
+	A1PMS_API_PREFIX=$TMP_PREFIX
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -1879,7 +1879,7 @@ api_get_status_root() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 19 "GET" "/status" $status
+	__collect_endpoint_stats "A1PMS" 19 "GET" "/status" $status
 	__log_test_pass
 	return 0
 }
@@ -1896,10 +1896,10 @@ api_get_status_root() {
 
 
 # (Function for test scripts)
-api_get_ric() {
+a1pms_api_get_ric() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		if [ $# -lt 3 ]; then
 			__print_err "<reponse-code> <management-element-id>|NOME <ric-id>|<NORIC> [string-of-ricinfo>]" $@
 			return 1
@@ -1917,7 +1917,7 @@ api_get_ric() {
 		fi
 		query="/v2/rics/ric"$search
 
-		res="$(__do_curl_to_api PA GET $query)"
+		res="$(__do_curl_to_api A1PMS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
@@ -1950,7 +1950,7 @@ api_get_ric() {
 
 		query="/ric?managedElementId="$2
 
-		res="$(__do_curl_to_api PA GET $query)"
+		res="$(__do_curl_to_api A1PMS GET $query)"
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
@@ -1967,7 +1967,7 @@ api_get_ric() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 11 "GET" $PMS_API_PREFIX"/v2/rics/ric" $status
+	__collect_endpoint_stats "A1PMS" 11 "GET" $A1PMS_API_PREFIX"/v2/rics/ric" $status
 	__log_test_pass
 	return 0
 }
@@ -1977,7 +1977,7 @@ api_get_ric() {
 # example of <space-separate-string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2,4 ricsim_g1_1:me2_........."
 # format of ric-info:  <ric-id>:<list-of-mes>:<list-of-policy-type-ids>
 # (Function for test scripts)
-api_get_rics() {
+a1pms_api_get_rics() {
 	__log_test_start $@
 
     if [ $# -lt 2 ]; then
@@ -1985,7 +1985,7 @@ api_get_rics() {
 		return 1
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/rics"
 		if [ $2 != "NOTYPE" ]; then
 			query="/v2/rics?policytype_id="$2
@@ -1997,7 +1997,7 @@ api_get_rics() {
 		fi
 	fi
 
-    res="$(__do_curl_to_api PA GET $query)"
+    res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2007,7 +2007,7 @@ api_get_rics() {
 
 	if [ $# -gt 2 ]; then
 		body=${res:0:${#res}-3}
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "V2" "$3" )
 		else
 			res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "V1" "$3" )
@@ -2018,7 +2018,7 @@ api_get_rics() {
 		fi
 
 		targetJson=$(<./tmp/.tmp_rics.json)
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			targetJson="{\"rics\": $targetJson }"
 		fi
     	echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -2029,7 +2029,7 @@ api_get_rics() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 12 "GET" $PMS_API_PREFIX"/v2/rics" $status
+	__collect_endpoint_stats "A1PMS" 12 "GET" $A1PMS_API_PREFIX"/v2/rics" $status
 	__log_test_pass
 	return 0
 }
@@ -2041,14 +2041,14 @@ api_get_rics() {
 # API test function: PUT /service and V2 PUT /service
 # args: <response-code>  <service-name> <keepalive-timeout> <callbackurl>
 # (Function for test scripts)
-api_put_service() {
+a1pms_api_put_service() {
 	__log_test_start $@
     if [ $# -ne 4 ]; then
         __print_err "<response-code>  <service-name> <keepalive-timeout> <callbackurl>" $@
         return 1
     fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/services"
 		json="{\"callback_url\": \""$4"\",\"keep_alive_interval_seconds\": \""$3"\",\"service_id\": \""$2"\"}"
 	else
@@ -2058,7 +2058,7 @@ api_put_service() {
     file="./tmp/.tmp.json"
 	echo "$json" > $file
 
-    res="$(__do_curl_to_api PA PUT $query $file)"
+    res="$(__do_curl_to_api A1PMS PUT $query $file)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2066,7 +2066,7 @@ api_put_service() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 13 "PUT" $PMS_API_PREFIX"/v2/service" $status
+	__collect_endpoint_stats "A1PMS" 13 "PUT" $A1PMS_API_PREFIX"/v2/service" $status
 	__log_test_pass
 	return 0
 }
@@ -2074,7 +2074,7 @@ api_put_service() {
 # API test function: GET /services and V2 GET /v2/services
 #args: <response-code> [ (<query-service-name> <target-service-name> <keepalive-timeout> <callbackurl>) | (NOSERVICE <target-service-name> <keepalive-timeout> <callbackurl> [<target-service-name> <keepalive-timeout> <callbackurl>]* )]
 # (Function for test scripts)
-api_get_services() {
+a1pms_api_get_services() {
 	__log_test_start $@
 	#Number of accepted parameters: 1, 2, 4, 7, 10, 13,...
 	paramError=1
@@ -2096,7 +2096,7 @@ api_get_services() {
 		return 1
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/services"
 
 		if [ $# -gt 1 ] && [ $2 != "NOSERVICE" ]; then
@@ -2109,7 +2109,7 @@ api_get_services() {
 			query="/services?name="$2
 		fi
 	fi
-    res="$(__do_curl_to_api PA GET $query)"
+    res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2131,7 +2131,7 @@ api_get_services() {
 				targetJson=$targetJson","
 			fi
 			# timeSinceLastActivitySeconds value cannot be checked since value varies
-			if [ "$PMS_VERSION" == "V2" ]; then
+			if [ "$A1PMS_VERSION" == "V2" ]; then
 				targetJson=$targetJson"{\"service_id\": \""$servicename"\",\"keep_alive_interval_seconds\": "$timeout",\"time_since_last_activity_seconds\":\"????\",\"callback_url\": \""$callback"\"}"
 			else
 				targetJson=$targetJson"{\"serviceName\": \""$servicename"\",\"keepAliveIntervalSeconds\": "$timeout",\"timeSinceLastActivitySeconds\":\"????\",\"callbackUrl\": \""$callback"\"}"
@@ -2139,7 +2139,7 @@ api_get_services() {
 			let cntr=cntr+3
 		done
 		targetJson=$targetJson"]"
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			targetJson="{\"service_list\": $targetJson }"
 		fi
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -2150,7 +2150,7 @@ api_get_services() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 14 "GET" $PMS_API_PREFIX"/v2/services" $status
+	__collect_endpoint_stats "A1PMS" 14 "GET" $A1PMS_API_PREFIX"/v2/services" $status
 	__log_test_pass
 	return 0
 }
@@ -2158,7 +2158,7 @@ api_get_services() {
 # API test function: GET /services V2 GET /v2/services -  (only checking service names)
 # args: <response-code> [<service-name>]*"
 # (Function for test scripts)
-api_get_service_ids() {
+a1pms_api_get_service_ids() {
 	__log_test_start $@
 
     if [ $# -lt 1 ]; then
@@ -2166,12 +2166,12 @@ api_get_service_ids() {
 		return 1
 	fi
 
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 	    query="/v2/services"
 	else
     	query="/services"
 	fi
-    res="$(__do_curl_to_api PA GET $query)"
+    res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2185,7 +2185,7 @@ api_get_service_ids() {
 		if [ "$targetJson" != "[" ]; then
 			targetJson=$targetJson","
 		fi
-		if [ "$PMS_VERSION" == "V2" ]; then
+		if [ "$A1PMS_VERSION" == "V2" ]; then
 			targetJson=$targetJson"{\"callback_url\":\"????\",\"keep_alive_interval_seconds\":\"????\",\"service_id\":\""$rapp"\",\"time_since_last_activity_seconds\":\"????\"}"
 		else
 			targetJson=$targetJson"{\"callbackUrl\":\"????\",\"keepAliveIntervalSeconds\":\"????\",\"serviceName\":\""$rapp"\",\"timeSinceLastActivitySeconds\":\"????\"}"
@@ -2193,7 +2193,7 @@ api_get_service_ids() {
 	done
 
 	targetJson=$targetJson"]"
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		targetJson="{\"service_list\": $targetJson }"
 	fi
 	echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -2204,7 +2204,7 @@ api_get_service_ids() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 14 "GET" $PMS_API_PREFIX"/v2/services" $status
+	__collect_endpoint_stats "A1PMS" 14 "GET" $A1PMS_API_PREFIX"/v2/services" $status
 	__log_test_pass
 	return 0
 }
@@ -2212,19 +2212,19 @@ api_get_service_ids() {
 # API test function: DELETE /services and V2 DELETE /v2/services/{serviceId}
 # args: <response-code> <service-name>
 # (Function for test scripts)
-api_delete_services() {
+a1pms_api_delete_services() {
 	__log_test_start $@
 
     if [ $# -ne 2 ]; then
 		__print_err "<response-code> <service-name>" $@
 		return 1
 	fi
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/services/"$2
 	else
 		query="/services?name="$2
 	fi
-    res="$(__do_curl_to_api PA DELETE $query)"
+    res="$(__do_curl_to_api A1PMS DELETE $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2232,7 +2232,7 @@ api_delete_services() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 15 "DELETE" $PMS_API_PREFIX"/v2/services/{serviceId}" $status
+	__collect_endpoint_stats "A1PMS" 15 "DELETE" $A1PMS_API_PREFIX"/v2/services/{serviceId}" $status
 	__log_test_pass
 	return 0
 }
@@ -2240,20 +2240,20 @@ api_delete_services() {
 # API test function: PUT /services/keepalive and V2 PUT /v2/services/{service_id}/keepalive
 # args: <response-code> <service-name>
 # (Function for test scripts)
-api_put_services_keepalive() {
+a1pms_api_put_services_keepalive() {
 	__log_test_start $@
 
     if [ $# -ne 2 ]; then
 		__print_err "<response-code> <service-name>" $@
 		return 1
 	fi
-	if [ "$PMS_VERSION" == "V2" ]; then
+	if [ "$A1PMS_VERSION" == "V2" ]; then
 		query="/v2/services/$2/keepalive"
 	else
     	query="/services/keepalive?name="$2
 	fi
 
-    res="$(__do_curl_to_api PA PUT $query)"
+    res="$(__do_curl_to_api A1PMS PUT $query)"
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2261,7 +2261,7 @@ api_put_services_keepalive() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 16 "PUT" $PMS_API_PREFIX"/v2/services/{service_id}/keepalive" $status
+	__collect_endpoint_stats "A1PMS" 16 "PUT" $A1PMS_API_PREFIX"/v2/services/{service_id}/keepalive" $status
 	__log_test_pass
 	return 0
 }
@@ -2273,10 +2273,10 @@ api_put_services_keepalive() {
 # API Test function: PUT /v2/configuration
 # args: <response-code> <config-file>
 # (Function for test scripts)
-api_put_configuration() {
+a1pms_api_put_configuration() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" != "V2" ]; then
+	if [ "$A1PMS_VERSION" != "V2" ]; then
 		__log_test_fail_not_supported
 		return 1
 	fi
@@ -2296,7 +2296,7 @@ api_put_configuration() {
 	file="./tmp/.config.json"
 	echo $inputJson > $file
 	query="/v2/configuration"
-	res="$(__do_curl_to_api PA PUT $query $file)"
+	res="$(__do_curl_to_api A1PMS PUT $query $file)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2304,7 +2304,7 @@ api_put_configuration() {
 		return 1
 	fi
 
-	__collect_endpoint_stats "PMS" 17 "PUT" $PMS_API_PREFIX"/v2/configuration" $status
+	__collect_endpoint_stats "A1PMS" 17 "PUT" $A1PMS_API_PREFIX"/v2/configuration" $status
 	__log_test_pass
 	return 0
 }
@@ -2312,10 +2312,10 @@ api_put_configuration() {
 # API Test function: GET /v2/configuration
 # args: <response-code> [<config-file>]
 # (Function for test scripts)
-api_get_configuration() {
+a1pms_api_get_configuration() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" != "V2" ]; then
+	if [ "$A1PMS_VERSION" != "V2" ]; then
 		__log_test_fail_not_supported
 		return 1
 	fi
@@ -2330,7 +2330,7 @@ api_get_configuration() {
 	fi
 
 	query="/v2/configuration"
-	res="$(__do_curl_to_api PA GET $query)"
+	res="$(__do_curl_to_api A1PMS GET $query)"
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
@@ -2353,7 +2353,7 @@ api_get_configuration() {
 		fi
 	fi
 
-	__collect_endpoint_stats "PMS" 18 "GET" $PMS_API_PREFIX"/v2/configuration" $status
+	__collect_endpoint_stats "A1PMS" 18 "GET" $A1PMS_API_PREFIX"/v2/configuration" $status
 	__log_test_pass
 	return 0
 }
@@ -2368,7 +2368,7 @@ api_get_configuration() {
 # args: -
 # (Function for test scripts)
 
-pms_kube_pvc_reset() {
+a1pms_kube_pvc_reset() {
 	__log_test_start $@
 
 	pvc_name=$(kubectl $KUBECONF get pvc -n $KUBE_NONRTRIC_NAMESPACE  --no-headers -o custom-columns=":metadata.name" | grep policy)
@@ -2376,7 +2376,7 @@ pms_kube_pvc_reset() {
 		pvc_name=policymanagementservice-vardata-pvc
 	fi
 	echo " Trying to reset pvc: "$pvc_name
-	__kube_clean_pvc $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE $pvc_name $POLICY_AGENT_CONTAINER_MNT_DIR
+	__kube_clean_pvc $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE $pvc_name $A1PMS_CONTAINER_MNT_DIR
 
 	__log_test_pass
 	return 0

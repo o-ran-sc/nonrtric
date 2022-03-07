@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="Preparation demo setup  - policy management and information information"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ICS PRODSTUB RC HTTPPROXY KUBEPROXY NGW"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC ICS PRODSTUB RC HTTPPROXY KUBEPROXY NGW"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES=" MR CR PA RC PRODSTUB RICSIM CP ICS SDNC HTTPPROXY KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES=" MR CR A1PMS RC PRODSTUB RICSIM CP ICS SDNC HTTPPROXY KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -47,7 +47,7 @@ setup_testenvironment
 ##########################
 
 use_cr_https
-use_agent_rest_https
+use_a1pms_rest_https
 use_sdnc_https
 use_simulator_https
 use_ics_rest_https
@@ -59,10 +59,10 @@ else
 fi
 
 
-if [ "$PMS_VERSION" == "V2" ]; then
+if [ "$A1PMS_VERSION" == "V2" ]; then
     notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
-   echo "PMS VERSION 2 (V2) is required"
+   echo "A1PMS VERSION 2 (V2) is required"
    exit 1
 fi
 
@@ -76,7 +76,7 @@ STD_NUM_RICS=2
 
 start_ric_simulators $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
 
-start_mr #Just to prevent errors in the agent log...
+start_mr #Just to prevent errors in the a1pms log...
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -84,17 +84,17 @@ if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
     start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
 fi
 
-start_sdnc    # Comment this line to run PMS with proxy
+start_sdnc    # Comment this line to run A1PMS with proxy
 
-start_policy_agent PROXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+start_a1pms PROXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-prepare_consul_config      SDNC  ".consul_config.json"   #Change to NOSDNC if running PMS with  proxy
+prepare_consul_config      SDNC  ".consul_config.json"   #Change to NOSDNC if running A1PMS with  proxy
 
 if [ $RUNMODE == "KUBE" ]; then
-    agent_load_config                       ".consul_config.json"
+    a1pms_load_config                       ".consul_config.json"
 else
-    if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        api_put_configuration 200 ".consul_config.json"
+    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+        a1pms_api_put_configuration 200 ".consul_config.json"
     else
         start_consul_cbs
         consul_config_app                   ".consul_config.json"
@@ -109,7 +109,7 @@ start_ics PROXY $SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_CONFIG_FILE
 
 start_rapp_catalogue
 
-set_agent_trace
+set_a1pms_trace
 
 set_ics_trace
 
@@ -124,7 +124,7 @@ rapp_cat_api_put_service 201 "Emergency-response-app" v1 "Emergency-response-app
 
 rapp_cat_api_get_services 200 "Emergency-response-app" v1 "Emergency-response-app" "Emergency-response-app"
 
-api_get_status 200
+a1pms_api_get_status 200
 
 # Print the A1 version for STD 2.X
 for ((i=1; i<=$STD_NUM_RICS; i++))
@@ -139,32 +139,32 @@ do
 done
 
 #Check the number of schemas and the individual schemas in STD
-api_equal json:policy-types 2 120
+a1pms_equal json:policy-types 2 120
 
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
-    api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i 2 120
+    a1pms_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i 2 120
 done
 
 # Check the schemas in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
-    api_get_policy_type 200 STD_QOS_0_2_0 demo-testdata/STD2/qos-agent-modified.json
-    api_get_policy_type 200 'STD_QOS2_0.1.0' demo-testdata/STD2/qos2-agent-modified.json
+    a1pms_api_get_policy_type 200 STD_QOS_0_2_0 demo-testdata/STD2/qos-a1pms-modified.json
+    a1pms_api_get_policy_type 200 'STD_QOS2_0.1.0' demo-testdata/STD2/qos2-a1pms-modified.json
 done
 
 #Check the number of types
-api_equal json:policy-types 2 300
+a1pms_equal json:policy-types 2 300
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
+a1pms_api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+    a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+    a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
 done
 
 
@@ -259,7 +259,7 @@ else
     fi
 fi
 
-check_policy_agent_logs
+check_a1pms_logs
 check_ics_logs
 check_sdnc_logs
 

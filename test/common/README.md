@@ -6,7 +6,7 @@ Some of the scripts can also be used for other kinds of tests, for example basic
 ## Overview for common test scripts and files ##
 
 `api_curl.sh` \
-A common curl based function for the agent and ics apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
+A common curl based function for the a1pms and ics apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
 
 `cbs_api_function.sh` \
 All functions are implemented in `consul_api_function.sh`.
@@ -89,8 +89,8 @@ Contains functions for managing the MR Stub and the Dmaap Message Router
 `ngw_api_functions.sh` \
 Contains functions for managing the Non-RT RIC Gateway
 
-`pa_api_functions.sh` \
-Contains functions for adapting towards the Policy Management Service (PMS) API, also via dmaap (using a message-router stub interface)
+`a1pms_api_functions.sh` \
+Contains functions for adapting towards the Policy Management Service (A1PMS) API, also via dmaap (using a message-router stub interface)
 
 `prodstub_api_functions.sh` \
 Contains functions for adapting towards the Producer stub interface - simulates a producer.
@@ -333,7 +333,7 @@ Delete a chart in chartmusem
 
 ## Function: consul_config_app ##
 
-Function to load a json config from a file into consul for the Policy Agent
+Function to load a json config from a file into consul for the A1PMS
 
 | arg list |
 |--|
@@ -1990,9 +1990,9 @@ Start the the gateway container in docker or kube depending on start mode
 |--|
 | None |
 
-## Function: gateway_pms_get_status ##
+## Function: gateway_a1pms_get_status ##
 
-Sample test of pms api (status)
+Sample test of a1pms api (status)
 Only response code tested - not payload
 | arg list |
 |--|
@@ -2014,44 +2014,44 @@ Only response code tested - not payload
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 
-# Description of functions in pa_api_functions.sh #
+# Description of functions in a1pms_api_functions.sh #
 
 ## General ##
 
-Both PMS version 1 and 2 are supported. The version is controlled by the env variable `$PMS_VERSION` set in the test env file.
+Both A1PMS version 1 and 2 are supported. The version is controlled by the env variable `$A1PMS_VERSION` set in the test env file.
 For api function in version 2, an url prefix is added if configured.
 
-## Function: use_agent_rest_http ##
+## Function: use_a1pms_rest_http ##
 
-Use http for all API calls to the Policy Agent. This is the default.
+Use http for all API calls to the A1PMS. This is the default.
 | arg list |
 |--|
 | None |
 
-## Function: use_agent_rest_https ##
+## Function: use_a1pms_rest_https ##
 
-Use https for all API calls to the Policy Agent.
+Use https for all API calls to the A1PMS.
 | arg list |
 |--|
 | None |
 
-## Function: use_agent_dmaap_http ##
+## Function: use_a1pms_dmaap_http ##
 
-Send and recieve all API calls to the Policy Agent over Dmaap via the MR over http.
+Send and recieve all API calls to the A1PMS over Dmaap via the MR over http.
 | arg list |
 |--|
 | None |
 
-## Function: use_agent_dmaap_https ##
+## Function: use_a1pms_dmaap_https ##
 
-Send and recieve all API callss to the Policy Agent over Dmaap via the MR over https.
+Send and recieve all API callss to the A1PMS over Dmaap via the MR over https.
 | arg list |
 |--|
 | None |
 
-## Function: start_policy_agent ##
+## Function: start_a1pms ##
 
-Start the Policy Agent container or corresponding kube resources depending on docker/kube mode.
+Start the A1PMS container or corresponding kube resources depending on docker/kube mode.
 | arg list |
 |--|
 | `<logfile-prefix>` |
@@ -2065,16 +2065,16 @@ Start the Policy Agent container or corresponding kube resources depending on do
 | `<config-file>`| Path to application.yaml  |
 | `<data-file>` | Optional path to application_configuration.json  |
 
-## Function: stop_policy_agent ##
+## Function: stop_a1pms ##
 
-Stop the pms container (docker) or scale it to zero (kubernetes).
+Stop the a1pms container (docker) or scale it to zero (kubernetes).
 | arg list |
 |--|
 |  None |
 
-## Function: start_stopped_policy_agent ##
+## Function: start_stopped_a1pms ##
 
-Start a previousely stopped pms container (docker) or scale it to 1 (kubernetes).
+Start a previousely stopped a1pms container (docker) or scale it to 1 (kubernetes).
 | arg list |
 |--|
 |  None |
@@ -2092,7 +2092,7 @@ Function to prepare a Consul config based on the previously configured (and star
 | `NOSDNC` | Configure without controller |
 | `<output-file>` | The path to the json output file containing the prepared config. This file is used in 'consul_config_app'  |
 
-## Function: agent_load_config ##
+## Function: a1pms_load_config ##
 
 Load the config into a config map (kubernetes only).
 | arg list |
@@ -2103,37 +2103,37 @@ Load the config into a config map (kubernetes only).
 | --------- | ----------- |
 |  `<data-file>` | Path to application_configuration.json  |
 
-## Function: set_agent_debug ##
+## Function: set_a1pms_debug ##
 
-Configure the Policy Agent log on debug level. The Policy Agent must be running.
+Configure the A1PMS log on debug level. The A1PMS must be running.
 | arg list |
 |--|
 | None |
 
-## Function: set_agent_trace ##
+## Function: set_a1pms_trace ##
 
-Configure the Policy Agent log on trace level. The Policy Agent must be running.
+Configure the A1PMS log on trace level. The A1PMS must be running.
 | arg list |
 |--|
 | None |
 
-## Function: use_agent_retries ##
+## Function: use_a1pms_retries ##
 
-Configure the Policy Agent to make upto 5 retries if an API calls return any of the specified http return codes.
+Configure the A1PMS to make upto 5 retries if an API calls return any of the specified http return codes.
 | arg list |
 |--|
 | `[<response-code>]*` |
 
-## Function: check_policy_agent_logs ##
+## Function: check_a1pms_logs ##
 
-Check the Policy Agent log for any warnings and errors and print the count of each.
+Check the A1PMS log for any warnings and errors and print the count of each.
 | arg list |
 |--|
 | None |
 
-## Function: api_equal ##
+## Function: a1pms_equal ##
 
-Tests if the array length of a json array in the Policy Agent simulator is equal to a target value.
+Tests if the array length of a json array in the A1PMS simulator is equal to a target value.
 Without the timeout, the test sets pass or fail immediately depending on if the array length is equal to the target or not.
 With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the array length becomes equal to the target value or not.
 See the 'cr' dir for more details.
@@ -2148,7 +2148,7 @@ See the 'cr' dir for more details.
 | `<target-value>` | Target value for the length  |
 | `<timeout-in-sec>` | Max time to wait for the length to reach the target value  |
 
-## Function: api_get_policies ##
+## Function: a1pms_api_get_policies ##
 
 Test of GET '/policies' or V2 GET '/v2/policy-instances' and optional check of the array of returned policies.
 To test the response code only, provide the response code parameter as well as the following three parameters.
@@ -2178,7 +2178,7 @@ To also test the response payload add the 'NOID' for an expected empty array or 
 | `notification-url` |  Url for notifications |
 | `<template-file>` |  Path to the template file for the policy (same template used when creating the policy) |
 
-## Function: api_get_policy ##
+## Function: a1pms_api_get_policy ##
 
 Test of GET '/policy' or V2 GET '/v2/policies/{policy_id}' and optional check of the returned json payload.
 To test the the response code only, provide the expected response code and policy id.
@@ -2204,7 +2204,7 @@ To test the contents of the returned json payload, add a path to the template fi
 | `transient` |  Transient, true or false |
 | `notification-url` |  Url for notifications |
 
-## Function: api_put_policy ##
+## Function: a1pms_api_put_policy ##
 
 Test of PUT '/policy' or V2 PUT '/policies'.
 If more than one policy shall be created, add a count value to indicate the number of policies to create. Note that if more than one policy shall be created the provided policy-id must be numerical (will be used as the starting id).
@@ -2230,15 +2230,15 @@ If more than one policy shall be created, add a count value to indicate the numb
 | `<template-file>` |  Path to the template file for the policy |
 | `<count>` |  An optional count (default is 1). If a value greater than 1 is given, the policy ids will use the given policy id as the first id and add 1 to that id for each new policy |
 
-## Function: api_put_policy_batch ##
+## Function: a1pms_api_put_policy_batch ##
 
-This tests the same as function 'api_put_policy' except that all put requests are sent to dmaap in one go and then the responses are polled one by one.
-If the agent api is not configured to use dmaap (see 'use_agent_dmaap', 'use_agent_rest_http' and 'use_agent_rest_https'), an error message is printed.
-For arg list and parameters, see 'api_put_policy'.
+This tests the same as function 'a1pms_api_put_policy' except that all put requests are sent to dmaap in one go and then the responses are polled one by one.
+If the a1pms api is not configured to use dmaap (see 'use_a1pms_dmaap', 'use_a1pms_rest_http' and 'use_a1pms_rest_https'), an error message is printed.
+For arg list and parameters, see 'a1pms_api_put_policy'.
 
-## Function: api_put_policy_parallel ##
+## Function: a1pms_api_put_policy_parallel ##
 
-This tests the same as function 'api_put_policy' except that the policy create is spread out over a number of processes and it only uses the agent rest API. The total number of policies created is determined by the product of the parameters 'number-of-rics' and 'count'. The parameter 'number-of-threads' shall be selected to be not evenly divisible by the product of the parameters 'number-of-rics' and 'count' - this is to ensure that one process does not handle the creation of all the policies in one ric.
+This tests the same as function 'a1pms_api_put_policy' except that the policy create is spread out over a number of processes and it only uses the a1pms rest API. The total number of policies created is determined by the product of the parameters 'number-of-rics' and 'count'. The parameter 'number-of-threads' shall be selected to be not evenly divisible by the product of the parameters 'number-of-rics' and 'count' - this is to ensure that one process does not handle the creation of all the policies in one ric.
 
 | arg list |
 |--|
@@ -2262,7 +2262,7 @@ This tests the same as function 'api_put_policy' except that the policy create i
 | `<count-per-ric>` |  Number of policies per ric |
 | `<number-of-threads>` |  Number of threads (processes) to run in parallel |
 
-## Function: api_delete_policy ##
+## Function: a1pms_api_delete_policy ##
 
 This tests the DELETE '/policy' or V2 DELETE '/v2/policies/{policy_id}'. Removes the indicated policy or a 'count' number of policies starting with 'policy-id' as the first id.
 
@@ -2276,15 +2276,15 @@ This tests the DELETE '/policy' or V2 DELETE '/v2/policies/{policy_id}'. Removes
 | `<policy-id>` |  Id of the policy |
 | `<count>` |  An optional count of policies to delete. The 'policy-id' will be the first id to be deleted. |
 
-## Function: api_delete_policy_batch ##
+## Function: a1pms_api_delete_policy_batch ##
 
-This tests the same as function 'api_delete_policy' except that all delete requests are sent to dmaap in one go and then the responses are polled one by one.
-If the agent api is not configured to used dmaap (see 'use_agent_dmaap', 'use_agent_rest_http' and 'use_agent_rest_https'), an error message is printed.
-For arg list and parameters, see 'api_delete_policy'.
+This tests the same as function 'a1pms_api_delete_policy' except that all delete requests are sent to dmaap in one go and then the responses are polled one by one.
+If the a1pms api is not configured to used dmaap (see 'use_a1pms_dmaap', 'use_a1pms_rest_http' and 'use_a1pms_rest_https'), an error message is printed.
+For arg list and parameters, see 'a1pms_api_delete_policy'.
 
-## Function: api_delete_policy_parallel ##
+## Function: a1pms_api_delete_policy_parallel ##
 
-This tests the same as function 'api_delete_policy' except that the policy delete is spread out over a number of processes and it only uses the agent rest API. The total number of policies deleted is determined by the product of the parameters 'number-of-rics' and 'count'. The parameter 'number-of-threads' shall be selected to be not evenly divisible by the product of the parameters 'number-of-rics' and 'count' - this is to ensure that one process does not handle the deletion of all the policies in one ric.
+This tests the same as function 'a1pms_api_delete_policy' except that the policy delete is spread out over a number of processes and it only uses the a1pms rest API. The total number of policies deleted is determined by the product of the parameters 'number-of-rics' and 'count'. The parameter 'number-of-threads' shall be selected to be not evenly divisible by the product of the parameters 'number-of-rics' and 'count' - this is to ensure that one process does not handle the deletion of all the policies in one ric.
 
 | arg list |
 |--|
@@ -2299,7 +2299,7 @@ This tests the same as function 'api_delete_policy' except that the policy delet
 | `<count-per-ric>` |  Number of policies per ric |
 | `<number-of-threads>` |  Number of threads (processes) to run in parallel |
 
-## Function: api_get_policy_ids ##
+## Function: a1pms_api_get_policy_ids ##
 
 Test of GET '/policy_ids' or V2 GET '/v2/policies'.
 To test response code only, provide the response code parameter as well as the following three parameters.
@@ -2321,7 +2321,7 @@ To also test the response payload add the 'NOID' for an expected empty array or 
 | `NOID` |  Indicator that no policy id is provided - indicate empty list of policies|
 | `<policy-instance-id>` |  Id of the policy |
 
-## Function: api_get_policy_schema ##
+## Function: a1pms_api_get_policy_schema ##
 
 Test of V2 GET '/v2/policy-types/{policyTypeId}' and optional check of the returned json schema.
 To test the response code only, provide the expected response code and policy type id.
@@ -2337,7 +2337,7 @@ To test the contents of the returned json schema, add a path to a schema file to
 | `<policy-type-id>` |  Id of the policy type |
 | `<schema-file>` |  Path to the schema file for the policy type |
 
-## Function: api_get_policy_schema ##
+## Function: a1pms_api_get_policy_schema ##
 
 Test of GET '/policy_schema' and optional check of the returned json schema.
 To test the response code only, provide the expected response code and policy type id.
@@ -2353,7 +2353,7 @@ To test the contents of the returned json schema, add a path to a schema file to
 | `<policy-type-id>` |  Id of the policy type |
 | `<schema-file>` |  Path to the schema file for the policy type |
 
-## Function: api_get_policy_schemas ##
+## Function: a1pms_api_get_policy_schemas ##
 
 Test of GET '/policy_schemas' and optional check of the returned json schemas.
 To test the response code only, provide the expected response code and ric id (or NORIC if no ric is given).
@@ -2371,7 +2371,7 @@ To test the contents of the returned json schema, add a path to a schema file to
 | `<schema-file>` |  Path to the schema file for the policy type |
 | `NOFILE` |  Indicate the template for an empty type |
 
-## Function: api_get_policy_status ##
+## Function: a1pms_api_get_policy_status ##
 
 Test of GET '/policy_status' or V2 GET '/policies/{policy_id}/status'.
 
@@ -2392,7 +2392,7 @@ Test of GET '/policy_status' or V2 GET '/policies/{policy_id}/status'.
 | `<instance-status>` |  Instance status |
 | `<has-been-deleted>` |  Deleted status, true or false |
 
-## Function: api_get_policy_types ##
+## Function: a1pms_api_get_policy_types ##
 
 Test of GET '/policy_types' or  V2 GET '/v2/policy-types' and optional check of the returned ids.
 To test the response code only, provide the expected response code and ric id (or NORIC if no ric is given).
@@ -2410,7 +2410,7 @@ To test the contents of the returned json payload, add the list of expected poli
 | `<policy-type-id>` |  Id of the policy type |
 | `EMPTY` |  Indicate the empty type |
 
-## Function: api_get_status ##
+## Function: a1pms_api_get_status ##
 
 Test of GET /status or V2 GET /status
 
@@ -2422,7 +2422,7 @@ Test of GET /status or V2 GET /status
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 
-## Function: api_get_ric ##
+## Function: a1pms_api_get_ric ##
 
 Test of GET '/ric' or V2 GET '/v2/rics/ric'
 To test the response code only, provide the expected response code and managed element id.
@@ -2445,7 +2445,7 @@ To test the returned ric id, provide the expected ric id.
 | `NORIC` |  Indicator no RIC |
 | `string-of-ricinfo` |  String of ric info |
 
-## Function: api_get_rics ##
+## Function: a1pms_api_get_rics ##
 
 Test of GET '/rics' or V2 GET '/v2/rics' and optional check of the returned json payload (ricinfo).
 To test the response code only, provide the expected response code and policy type id (or NOTYPE if no type is given).
@@ -2464,7 +2464,7 @@ Example <br>`<space-separate-string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,m
 | `NOTYPE>` |  No type given |
 | `<space-separate-string-of-ricinfo>` |  A space separated string of ric info - needs to be quoted |
 
-## Function: api_put_service ##
+## Function: a1pms_api_put_service ##
 
 Test of PUT '/service' or V2 PUT '/service'.
 | arg list |
@@ -2478,7 +2478,7 @@ Test of PUT '/service' or V2 PUT '/service'.
 | `<keepalive-timeout>` |  Timeout value |
 | `<callbackurl>` |  Callback url |
 
-## Function: api_get_services ##
+## Function: a1pms_api_get_services ##
 
 Test of GET '/service' or V2 GET '/v2/services' and optional check of the returned json payload.
 To test only the response code, omit all parameters except the expected response code.
@@ -2497,7 +2497,7 @@ To test the returned json, provide the parameters after the response code.
 | `<callbackurl>` |  Callback url |
 | `NOSERVICE` |  Indicator of no target service name |
 
-## Function: api_get_service_ids ##
+## Function: a1pms_api_get_service_ids ##
 
 Test of GET '/services' or V2 GET /'v2/services'. Only check of service ids.
 
@@ -2510,7 +2510,7 @@ Test of GET '/services' or V2 GET /'v2/services'. Only check of service ids.
 | `<response-code>` | Expected http response code |
 | `<service-name>` |  Service name |
 
-## Function: api_delete_services ##
+## Function: a1pms_api_delete_services ##
 
 Test of DELETE '/services' or V2 DELETE '/v2/services/{serviceId}'
 
@@ -2523,7 +2523,7 @@ Test of DELETE '/services' or V2 DELETE '/v2/services/{serviceId}'
 | `<response-code>` | Expected http response code |
 | `<service-name>` |  Service name |
 
-## Function: api_put_services_keepalive ##
+## Function: a1pms_api_put_services_keepalive ##
 
 Test of PUT '/services/keepalive' or V2 PUT '/v2/services/{service_id}/keepalive'
 
@@ -2536,7 +2536,7 @@ Test of PUT '/services/keepalive' or V2 PUT '/v2/services/{service_id}/keepalive
 | `<response-code>` | Expected http response code |
 | `<service-name>` |  Service name |
 
-## Function: api_put_configuration ##
+## Function: a1pms_api_put_configuration ##
 
 Test of PUT '/v2/configuration'
 
@@ -2549,7 +2549,7 @@ Test of PUT '/v2/configuration'
 | `<response-code>` | Expected http response code |
 | `<config-file>` |  Path json config file |
 
-## Function: api_get_configuration ##
+## Function: a1pms_api_get_configuration ##
 
 Test of GET '/v2/configuration'
 
@@ -2562,7 +2562,7 @@ Test of GET '/v2/configuration'
 | `<response-code>` | Expected http response code |
 | `<config-file>` |  Path json config file to compare the retrieved config with |
 
-## Function: pms_kube_pvc_reset ##
+## Function: a1pms_kube_pvc_reset ##
 Admin reset to remove all policies and services
 All types and instances etc are removed - types and instances in a1 sims need to be removed separately
 NOTE - only works in kubernetes and the pod should not be running

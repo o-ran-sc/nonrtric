@@ -17,12 +17,12 @@
 #
 */
 
-// Sim mon server - query the agent and the simulators for counters and other data
+// Sim mon server - query the a1pms and the simulators for counters and other data
 // Presents a web page on localhost:9999/mon
 
 var LOCALHOST="http://127.0.0.1:"
 var MRSTUB_PORT="3905"
-var AGENT_PORT="8081"
+var A1PMS_PORT="8081"
 var CR_PORT="8090"
 var ICS_PORT="8083"
 var PRODSTUB_PORT="8092"
@@ -161,7 +161,7 @@ function clearFlag(flag) {
 //Status variables, for parameters values fetched from other simulators
 var mr1="", mr2="", mr3="", mr4="", mr5="", mr6="";
 
-//Status variables for agent
+//Status variables for a1pms
 var ag1=""
 var ag2=""
 var ag3=""
@@ -219,7 +219,7 @@ var ricbasename="ricsim"
 
 var rc_services=""
 
-var pmsprefix=""
+var a1pmsprefix=""
 
 function fetchAllMetrics_pol() {
 
@@ -354,15 +354,15 @@ function fetchAllMetrics_pol() {
                 clearFlag("cr3")
             });
         }
-        //Agent - more get metrics from the agent
+        //A1PMS - more get metrics from the a1pms
         if (checkFunctionFlag("ag1")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/status", 0, function(data, idx) {
+            getSimCtr(LOCALHOST+A1PMS_PORT+"/status", 0, function(data, idx) {
                 ag1 = data;
                 clearFlag("ag1")
             });
         }
         if (checkFunctionFlag("ag2")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/services", 0, function(data, idx) {
+            getSimCtr(LOCALHOST+A1PMS_PORT+"/services", 0, function(data, idx) {
                 ag2="";
                 try {
                     var jd=JSON.parse(data);
@@ -380,7 +380,7 @@ function fetchAllMetrics_pol() {
             });
         }
         if (checkFunctionFlag("ag3")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_types", 0, function(data, idx) {
+            getSimCtr(LOCALHOST+A1PMS_PORT+"/policy_types", 0, function(data, idx) {
                 ag3="";
                 try {
                     var jd=JSON.parse(data);
@@ -399,7 +399,7 @@ function fetchAllMetrics_pol() {
         }
 
         if (checkFunctionFlag("ag4")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_ids", 0, function(data, idx) {
+            getSimCtr(LOCALHOST+A1PMS_PORT+"/policy_ids", 0, function(data, idx) {
                 try {
                     var jd=JSON.parse(data);
                     ag4=""+jd.length
@@ -412,7 +412,7 @@ function fetchAllMetrics_pol() {
         }
 
         if (checkFunctionFlag("ag5")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/rics", 0, function(data, idx) {
+            getSimCtr(LOCALHOST+A1PMS_PORT+"/rics", 0, function(data, idx) {
                 try {
                     var jd=JSON.parse(data);
                     ag5=""+jd.length
@@ -926,12 +926,12 @@ app.get("/mon",function(req, res){
     refreshCount_rc=5
 
     var bn=req.query.basename
-    pmsprefix=req.query.pmsprefix
+    a1pmsprefix=req.query.a1pmsprefix
 
-    console.log("PMS"+pmsprefix)
-    if ((bn == undefined) || (pmsprefix == undefined)) {
+    console.log("A1PMS"+a1pmsprefix)
+    if ((bn == undefined) || (a1pmsprefix == undefined)) {
         getCtr=0
-        return res.redirect('/mon?basename=ricsim&pmsprefix=/a1-policy/v2');
+        return res.redirect('/mon?basename=ricsim&a1pmsprefix=/a1-policy/v2');
     } else {
         ricbasename=bn
     }
@@ -947,7 +947,7 @@ app.get("/mon",function(req, res){
             "<body>" +
             "<font size=\"-3\" face=\"monospace\">" +
             "<p>Change basename in url if other ric sim prefix is used</p>" +
-            "<p>Change pmsprefix in url if pms with other prefix is used</p>" +
+            "<p>Change a1pmsprefix in url if a1pms with other prefix is used</p>" +
             "</font>" +
             "<h3>Policy Management Service</h3>" +
             "<font face=\"monospace\">" +

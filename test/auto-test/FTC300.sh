@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="Resync 10000 policies using OSC and STD interface"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -47,7 +47,7 @@ generate_policy_uuid
 
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
-#Test agent and simulator protocol versions (others are http only)
+#Test a1pms and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
 
 for __httpx in $TESTED_PROTOCOLS ; do
@@ -55,7 +55,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         echo "#####################################################################"
         echo "#####################################################################"
-        echo "### Testing agent: "$interface" and "$__httpx
+        echo "### Testing a1pms: "$interface" and "$__httpx
         echo "#####################################################################"
         echo "#####################################################################"
 
@@ -67,9 +67,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_sdnc_https
             fi
             if [[ $interface = *"DMAAP"* ]]; then
-                use_agent_dmaap_https
+                use_a1pms_dmaap_https
             else
-                use_agent_rest_https
+                use_a1pms_rest_https
             fi
         else
             use_cr_http
@@ -79,9 +79,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_sdnc_http
             fi
             if [[ $interface = *"DMAAP"* ]]; then
-                use_agent_dmaap_http
+                use_a1pms_dmaap_http
             else
-                use_agent_rest_http
+                use_a1pms_rest_http
             fi
         fi
 
@@ -94,7 +94,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g2 4 STD_1.1.3
 
-        if [ "$PMS_VERSION" == "V2" ]; then
+        if [ "$A1PMS_VERSION" == "V2" ]; then
             start_ric_simulators ricsim_g3 4  STD_2.0.0
         fi
 
@@ -108,9 +108,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
         fi
 
-        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+        start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-        set_agent_debug
+        set_a1pms_debug
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
@@ -120,27 +120,27 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
-            agent_load_config                       ".consul_config.json"
+            a1pms_load_config                       ".consul_config.json"
         else
-            if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
                 #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
                 if [ $__httpx == "HTTPS" ]; then
-                    use_agent_rest_https
+                    use_a1pms_rest_https
                 else
-                    use_agent_rest_http
+                    use_a1pms_rest_http
                 fi
-                api_put_configuration 200 ".consul_config.json"
+                a1pms_api_put_configuration 200 ".consul_config.json"
                 if [ $__httpx == "HTTPS" ]; then
                     if [[ $interface = *"DMAAP"* ]]; then
-                        use_agent_dmaap_https
+                        use_a1pms_dmaap_https
                     else
-                        use_agent_rest_https
+                        use_a1pms_rest_https
                     fi
                 else
                     if [[ $interface = *"DMAAP"* ]]; then
-                        use_agent_dmaap_http
+                        use_a1pms_dmaap_http
                     else
-                        use_agent_rest_http
+                        use_a1pms_rest_http
                     fi
                 fi
             else
@@ -149,39 +149,39 @@ for __httpx in $TESTED_PROTOCOLS ; do
             fi
         fi
 
-        api_get_status 200
+        a1pms_api_get_status 200
 
         sim_print ricsim_g1_1 interface
 
         sim_print ricsim_g2_1 interface
 
-        if [ "$PMS_VERSION" == "V2" ]; then
+        if [ "$A1PMS_VERSION" == "V2" ]; then
             sim_print ricsim_g3_1 interface
         fi
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-        if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-types 2 120  #Wait for the agent to refresh types from the simulator
+        if [ "$A1PMS_VERSION" == "V2" ]; then
+            a1pms_equal json:policy-types 2 120  #Wait for the a1pms to refresh types from the simulator
         else
-            api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulator
+            a1pms_equal json:policy_types 2 120  #Wait for the a1pms to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH_0/1"
+        a1pms_api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
         START_ID=2000
         NUM_POLICIES=10000  # Must be at least 100
 
-        if [ "$PMS_VERSION" == "V2" ]; then
+        if [ "$A1PMS_VERSION" == "V2" ]; then
             notificationurl=$CR_SERVICE_APP_PATH_0"/test"
         else
             notificationurl=""
         fi
 
         if [[ $interface == *"BATCH"* ]]; then
-            api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
+            a1pms_api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
         else
-            api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
+            a1pms_api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
         fi
 
         sim_equal ricsim_g1_1 num_instances $NUM_POLICIES
@@ -200,9 +200,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID2=$(($START_ID+$NUM_POLICIES))
 
         if [[ $interface == *"BATCH"* ]]; then
-            api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID2 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
+            a1pms_api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID2 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         else
-            api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID2 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
+            a1pms_api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID2 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         fi
         sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
 
@@ -216,9 +216,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g2_1 num_instances $NUM_POLICIES 300
         fi
 
-        api_delete_policy 204 $(($START_ID+47))
+        a1pms_api_delete_policy 204 $(($START_ID+47))
 
-        api_delete_policy 204 $(($START_ID+$NUM_POLICIES-39))
+        a1pms_api_delete_policy 204 $(($START_ID+$NUM_POLICIES-39))
 
         sim_post_delete_instances 200 ricsim_g1_1
 
@@ -229,11 +229,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
         fi
 
-        api_delete_policy 204 $(($START_ID2+37))
+        a1pms_api_delete_policy 204 $(($START_ID2+37))
 
-        api_delete_policy 204 $(($START_ID2+$NUM_POLICIES-93))
+        a1pms_api_delete_policy 204 $(($START_ID2+$NUM_POLICIES-93))
 
-        api_delete_policy 204 $(($START_ID2+$NUM_POLICIES-91))
+        a1pms_api_delete_policy 204 $(($START_ID2+$NUM_POLICIES-91))
 
         sim_post_delete_instances 200 ricsim_g2_1
 
@@ -248,14 +248,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g2_1 num_instances $(($NUM_POLICIES-3)) 300
         fi
 
-        api_equal json:policies $(($NUM_POLICIES-2+$NUM_POLICIES-3))
+        a1pms_equal json:policies $(($NUM_POLICIES-2+$NUM_POLICIES-3))
 
 
         if [[ $interface = *"SDNC"* ]]; then
             check_sdnc_logs
         fi
 
-        check_policy_agent_logs
+        check_a1pms_logs
         check_sdnc_logs
         store_logs          "${__httpx}__${interface}"
 

@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: $POLICY_AGENT_DATA_PVC_NAME
+  name: $A1PMS_DATA_PVC_NAME
   namespace: $KUBE_NONRTRIC_NAMESPACE
   labels:
-    run: $POLICY_AGENT_APP_NAME
-    autotest: PA
+    run: $A1PMS_APP_NAME
+    autotest: A1PMS
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
       storage: 1Mi
-  storageClassName: pa-standard
+  storageClassName: a1pms-standard
   volumeMode: Filesystem

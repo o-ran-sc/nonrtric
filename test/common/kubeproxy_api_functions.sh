@@ -247,47 +247,86 @@ start_kube_proxy() {
 
 		echo " Retrieving host and ports for service..."
 
-		#Finding host of the proxy
+		# #Keeping this old code for reference
+		# #Finding host of the proxy
+		# echo "  Trying to find svc hostname..."
+		# CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].hostname}")
+
+
+		# if [ "$CLUSTER_KUBE_PROXY_HOST" == "localhost" ]; then
+		# 	#Local host found
+		# 	echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME host is: $CLUSTER_KUBE_PROXY_HOST"$EYELLOW
+		# 	CLUSTER_KUBE_PROXY_HOST="127.0.0.1"
+		# else
+		# 	if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
+		# 		#Host of proxy not found, trying to find the ip....
+		# 		echo "  Trying to find svc ip..."
+		# 		CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].ip}")
+		# 		if [ ! -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
+		# 			#Host ip found
+		# 			echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
+		# 		fi
+		# 	else
+		# 		#Host or ip of proxy found
+		# 		echo -e $YELLOW" The test environment host/ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
+		# 	fi
+		# fi
+
+		# PORT_KEY_PREFIX=""
+		# if [ $KUBE_PROXY_HTTPX == "https" ]; then
+		# 	PORT_KEY_PREFIX="s"  #add suffix to port key name to get https ports
+		# fi
+		# if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
+		# 	#Host/ip of proxy not found, try to use the cluster and the nodeports of the proxy
+		# 	CLUSTER_KUBE_PROXY_HOST=$(kubectl $KUBECONF config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
+		# 	echo -e $YELLOW" The test environment cluster ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
+		# 	CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
+		# 	KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test
+		# 	echo " Cluster ip/host, cluster http$PORT_KEY_PREFIX nodeport, cluster web$PORT_KEY_PREFIX nodeport: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
+		# else
+		# 	#Find the service ports of the proxy
+		# 	CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
+		# 	KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test
+		# 	echo " Proxy ip/host, proxy http$PORT_KEY_PREFIX port, proxy web$PORT_KEY_PREFIX port: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
+		# fi
+		# #End of old code
+
+		########### New method to find host/ip to cluster/proxy
+		# Basic principle if the ip/host of the svc for the proxy is found - use the proxy service ports towards that ip/host of the proxy.
+		# If proxy ip/host is not found then find the cluster ip/host and use the proxy nodeports towards that ip/host of the cluster
+
+		#Finding host/ip of the proxy
 		echo "  Trying to find svc hostname..."
 		CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].hostname}")
-
-
-		if [ "$CLUSTER_KUBE_PROXY_HOST" == "localhost" ]; then
-			#Local host found
-			echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME host is: $CLUSTER_KUBE_PROXY_HOST"$EYELLOW
-			CLUSTER_KUBE_PROXY_HOST="127.0.0.1"
-		else
-			if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
-				#Host of proxy not found, trying to find the ip....
-				echo "  Trying to find svc ip..."
-				CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].ip}")
-				if [ ! -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
-					#Host ip found
-					echo -e $YELLOW" The test environment svc $KUBE_PROXY_APP_NAME ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
-				fi
-			else
-				#Host or ip of proxy found
-				echo -e $YELLOW" The test environment host/ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
-			fi
+		if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
+			#Host of proxy not found, trying to find the ip....
+			echo "  Svc hostname not found, trying to find svc ip..."
+			CLUSTER_KUBE_PROXY_HOST=$(__kube_cmd_with_timeout "kubectl $KUBECONF get svc $KUBE_PROXY_APP_NAME -n $KUBE_SIM_NAMESPACE  -o jsonpath={.status.loadBalancer.ingress[0].ip}")
 		fi
-
 		PORT_KEY_PREFIX=""
 		if [ $KUBE_PROXY_HTTPX == "https" ]; then
 			PORT_KEY_PREFIX="s"  #add suffix to port key name to get https ports
 		fi
+
 		if [ -z "$CLUSTER_KUBE_PROXY_HOST" ]; then
-			#Host/ip of proxy not found, try to use the cluster and the nodeports of the proxy
-			CLUSTER_KUBE_PROXY_HOST=$(kubectl $KUBECONF config view -o jsonpath={.clusters[0].cluster.server} | awk -F[/:] '{print $4}')
-			echo -e $YELLOW" The test environment cluster ip is: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
+			#Finding host/ip of the cluster
+			echo "  Nor svc hostname or ip found, trying to find cluster host/ip from context..."
+			__current_context=$(kubectl $KUBECONF config current-context)
+			__cluster_name=$(kubectl $KUBECONF config view -o "jsonpath={.contexts[?(@.name=='"$__current_context"')].context.cluster}")
+			__cluster_server=$(kubectl $KUBECONF config view -o "jsonpath={.clusters[?(@.name=='"$__cluster_name"')].cluster.server}")
+			CLUSTER_KUBE_PROXY_HOST=$(echo $__cluster_server | awk -F[/:] '{print $4}')
+
+			echo -e $YELLOW" The test environment cluster: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
 			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
 			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_nodeport $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test
 			echo " Cluster ip/host, cluster http$PORT_KEY_PREFIX nodeport, cluster web$PORT_KEY_PREFIX nodeport: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
 		else
-			#Find the service ports of the proxy
+			echo -e $YELLOW" The test environment proxy: $CLUSTER_KUBE_PROXY_HOST."$EYELLOW
 			CLUSTER_KUBE_PROXY_PORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "http$PORT_KEY_PREFIX")  # port for proxy access
 			KUBE_PROXY_WEB_NODEPORT=$(__kube_get_service_port $KUBE_PROXY_APP_NAME $KUBE_SIM_NAMESPACE "web$PORT_KEY_PREFIX")  # web port, only for alive test
 			echo " Proxy ip/host, proxy http$PORT_KEY_PREFIX port, proxy web$PORT_KEY_PREFIX port: $CLUSTER_KUBE_PROXY_HOST $CLUSTER_KUBE_PROXY_PORT $KUBE_PROXY_WEB_NODEPORT"
 		fi
+		########### End of new method
 
 		KUBE_PROXY_WEB_PATH=$KUBE_PROXY_HTTPX"://"$CLUSTER_KUBE_PROXY_HOST":"$KUBE_PROXY_WEB_NODEPORT
 

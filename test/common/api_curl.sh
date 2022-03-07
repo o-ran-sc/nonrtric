@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-# Generic function to query the agent/ICS via the REST or DMAAP interface.
-# Used by all other agent/ICS api test functions
+# Generic function to query the A1PMS/ICS via the REST or DMAAP interface.
+# Used by all other A1PMS/ICS api test functions
 # If operation sufffix is '_BATCH' the the send and get response is split in two sequences,
 # one for sending the requests and one for receiving the response
 # but only when using the DMAAP interface
 # REST or DMAAP is controlled of the base url of $XX_ADAPTER
-# arg: (PA|ICS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file> [mime-type]]) | (PA|ICS RESPONSE <correlation-id>)
+# arg: (A1PMS|ICS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url>|<correlation-id> [<file> [mime-type]]) | (A1PMS|ICS RESPONSE <correlation-id>)
 # Default mime type for file is application/json unless specified in parameter mime-type
 # (Not for test scripts)
 __do_curl_to_api() {
@@ -42,12 +42,12 @@ __do_curl_to_api() {
 	input_url=$3
 	fname=$4
     if [ $# -gt 0 ]; then
-        if [ $1 == "PA" ]; then
-			__ADAPTER=$PA_ADAPTER
-			__ADAPTER_TYPE=$PA_ADAPTER_TYPE
-            __RETRY_CODES=$AGENT_RETRY_CODES
-			if [ $PMS_VERSION != "V1" ]; then
-				input_url=$PMS_API_PREFIX$3
+        if [ $1 == "A1PMS" ]; then
+			__ADAPTER=$A1PMS_ADAPTER
+			__ADAPTER_TYPE=$A1PMS_ADAPTER_TYPE
+            __RETRY_CODES=$A1PMS_RETRY_CODES
+			if [ $A1PMS_VERSION != "V1" ]; then
+				input_url=$A1PMS_API_PREFIX$3
 			fi
         elif [ $1 == "ICS" ]; then
 			__ADAPTER=$ICS_ADAPTER
@@ -154,7 +154,7 @@ __do_curl_to_api() {
     if [ $paramError -eq 1 ]; then
 		((RES_CONF_FAIL++))
         echo "-Incorrect number of parameters to __do_curl_to_api " $@ >> $HTTPLOG
-        echo "-Expected: (PA|ICS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file> [mime-type]]) | (PA|ICS RESPONSE <correlation-id>)" >> $HTTPLOG
+        echo "-Expected: (A1PMS|ICS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file> [mime-type]]) | (A1PMS|ICS RESPONSE <correlation-id>)" >> $HTTPLOG
         echo "-Returning response 000" >> $HTTPLOG
         echo "-000"
         return 1
@@ -250,7 +250,7 @@ __do_curl_to_api() {
 			echo " RESP: "$res >> $HTTPLOG
 			status=${res:${#res}-3}
 			TS=$SECONDS
-			# wait of the reply from the agent/ICS...
+			# wait of the reply from the A1PMS/ICS...
 			while [ $status -eq 204 ]; do
 				if [ $(($SECONDS - $TS)) -gt 90 ]; then
 					echo " RETCODE: (timeout after 90s)" >> $HTTPLOG
