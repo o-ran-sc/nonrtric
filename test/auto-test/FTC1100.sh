@@ -76,7 +76,7 @@ if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
     start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
 fi
 
-if [ "$PMS_VERSION" == "V2" ]; then
+if [ "$A1PMS_VERSION" == "V2" ]; then
     start_ric_simulators ricsim_g3 4  STD_2.0.0
 fi
 

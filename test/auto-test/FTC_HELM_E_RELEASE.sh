@@ -27,7 +27,7 @@ DOCKER_INCLUDED_IMAGES="" # Not used -  KUBE only test script
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR DMAAPMR CR  PRODSTUB KUBEPROXY KAFKAPC"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
-KUBE_PRESTARTED_IMAGES=" PA RICSIM CP ICS RC SDNC DMAAPMED DMAAPADP"
+KUBE_PRESTARTED_IMAGES=" A1PMS RICSIM CP ICS RC SDNC DMAAPMED DMAAPADP"
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
@@ -47,7 +47,7 @@ setup_testenvironment
 
 use_mr_https
 use_cr_https
-use_agent_rest_https
+use_a1pms_rest_https
 use_sdnc_https
 use_simulator_https
 use_ics_rest_https
@@ -66,8 +66,8 @@ echo -e "$RED CHECK WHY RC HTTPS DOES NOT WORK $ERED"
 ###############################use_control_panel_https
 use_control_panel_http
 
-if [ "$PMS_VERSION" == "V1" ]; then
-   echo "PMS VERSION 2 (V2) is required"
+if [ "$A1PMS_VERSION" == "V1" ]; then
+   echo "A1PMS VERSION 2 (V2) is required"
    exit 1
 fi
 
@@ -75,7 +75,7 @@ clean_environment
 
 ics_kube_pvc_reset
 
-pms_kube_pvc_reset
+a1pms_kube_pvc_reset
 
 start_kube_proxy
 
@@ -109,7 +109,7 @@ start_control_panel
 
 start_sdnc
 
-start_policy_agent
+start_a1pms
 
 start_cr 1
 
@@ -121,7 +121,7 @@ set_ics_trace
 
 start_rapp_catalogue
 
-set_agent_trace
+set_a1pms_trace
 
 #### Test RAPP Catalogue ####
 
@@ -134,7 +134,7 @@ rapp_cat_api_get_services 200 "Emergency-response-app" v1 "Emergency-response-ap
 #Check the number of services
 rc_equal json:services 1
 
-api_get_status 200
+a1_a1pms_api_get_status 200
 
 #### Test Policy Management Service ####
 
@@ -170,7 +170,7 @@ do
 done
 
 #Check the number of schemas
-api_equal json:policy-types 1
+a1pms_equal json:policy-types 1
 
 # Load the polictypes in STD 2
 for ((i=0; i<$STD_NUM_RICS; i++))
@@ -187,72 +187,72 @@ do
 done
 
 # Check that all rics are synced in
-api_equal json:rics 6 300
+a1pms_equal json:rics 6 300
 
 #Check the number of schemas and the individual schemas
-api_equal json:policy-types 5 300
+a1pms_equal json:policy-types 5 300
 
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
     ricid=$((3+$i))
-    api_equal json:policy-types?ric_id=ric$ricid 1 120
+    a1pms_equal json:policy-types?ric_id=ric$ricid 1 120
 done
 
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
    ricid=$((5+$i))
-   api_equal json:policy-types?ric_id=ric$ricid 2 120
+   a1pms_equal json:policy-types?ric_id=ric$ricid 2 120
 done
 
 for ((i=0; i<$OSC_NUM_RICS; i++))
 do
     ricid=$((1+$i))
-    api_equal json:policy-types?ric_id=ric$ricid 2 120
+    a1pms_equal json:policy-types?ric_id=ric$ricid 2 120
 done
 
 #Check the schemas in STD 2
 for ((i=0; i<$OSC_NUM_RICS; i++))
 do
    ricid=$((5+$i))
-   api_get_policy_type 200 STD_QOS_0_2_0 testdata/STD2/qos-agent-modified.json
-   api_get_policy_type 200 STD_QOS2_0.1.0 testdata/STD2/qos2-agent-modified.json
+   a1_a1pms_api_get_policy_type 200 STD_QOS_0_2_0 testdata/STD2/qos-a1pms-modified.json
+   a1_a1pms_api_get_policy_type 200 STD_QOS2_0.1.0 testdata/STD2/qos2-a1pms-modified.json
 done
 
 # Check the schemas in OSC
 for ((i=0; i<$OSC_NUM_RICS; i++))
 do
-    api_get_policy_type 200 1 testdata/OSC/1-agent-modified.json
-    api_get_policy_type 200 2 testdata/OSC/2-agent-modified.json
+    a1_a1pms_api_get_policy_type 200 1 testdata/OSC/1-a1pms-modified.json
+    a1_a1pms_api_get_policy_type 200 2 testdata/OSC/2-a1pms-modified.json
 done
 
-if [ "$PMS_VERSION" == "V2" ]; then
+if [ "$A1PMS_VERSION" == "V2" ]; then
 
-    api_equal json:policy-types 5 120
+    a1pms_equal json:policy-types 5 120
 
-    api_equal json:policies 0
+    a1pms_equal json:policies 0
 
-    api_equal json:policy-instances 0
+    a1pms_equal json:policy-instances 0
 else
 
-    api_equal json:policy_schemas 5 120
+    a1pms_equal json:policy_schemas 5 120
 
-    api_equal json:policy_types 5
+    a1pms_equal json:policy_types 5
 
-    api_equal json:policies 0
+    a1pms_equal json:policies 0
 
-    api_equal json:policy_ids 0
+    a1pms_equal json:policy_ids 0
 fi
 
-api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/ER-app"
+a1pms_api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/ER-app"
 
 # Create policies in STD
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
     ricid=$((3+$i))
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
+    a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
+    a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
 done
 
 #Create policies in STD 2
@@ -260,9 +260,9 @@ for ((i=0; i<$STD_NUM_RICS; i++))
 do
    ricid=$((5+$i))
    generate_policy_uuid
-   api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS_0_2_0 $((2100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos_template.json 1
+   a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS_0_2_0 $((2100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos_template.json 1
    generate_policy_uuid
-   api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS2_0.1.0 $((2200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos2_template.json 1
+   a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS2_0.1.0 $((2200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos2_template.json 1
 done
 
 # Create policies in OSC
@@ -270,9 +270,9 @@ for ((i=0; i<$OSC_NUM_RICS; i++))
 do
     ricid=$((1+$i))
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid 1 $((3100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi1_template.json 1
+    a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid 1 $((3100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi1_template.json 1
     generate_policy_uuid
-    api_put_policy 201 "Emergency-response-app" ric$ricid 2 $((3200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi2_template.json 1
+    a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid 2 $((3200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi2_template.json 1
 done
 
 
@@ -289,30 +289,30 @@ do
     sim_equal "a1-sim-osc-"$i num_instances 2
 done
 
-stop_policy_agent
+stop_a1pms
 
-start_stopped_policy_agent
+start_stopped_a1pms
 
-# Check PMS state after restart
+# Check A1PMS state after restart
 
 sleep_wait 200
 
-if [ "$PMS_VERSION" == "V2" ]; then
+if [ "$A1PMS_VERSION" == "V2" ]; then
 
-    api_equal json:policy-types 5 120
+    a1pms_equal json:policy-types 5 120
 
-    api_equal json:policies 12
+    a1pms_equal json:policies 12
 
-    api_equal json:policy-instances 12
+    a1pms_equal json:policy-instances 12
 else
 
-    api_equal json:policy_schemas 5 120
+    a1pms_equal json:policy_schemas 5 120
 
-    api_equal json:policy_types 5
+    a1pms_equal json:policy_types 5
 
-    api_equal json:policies 12
+    a1pms_equal json:policies 12
 
-    api_equal json:policy_ids 12
+    a1pms_equal json:policy_ids 12
 fi
 
 # Check the number of policies in STD and STD2
@@ -486,7 +486,7 @@ else
     ics_api_a1_get_job_status 200 job2 DISABLED
 fi
 
-check_policy_agent_logs
+check_a1pms_logs
 check_ics_logs
 check_sdnc_logs
 

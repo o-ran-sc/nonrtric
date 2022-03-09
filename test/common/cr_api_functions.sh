@@ -454,13 +454,13 @@ cr_delay_callback() {
 	return 0
 }
 
-# CR API: Check the contents of all current ric sync events for one id from PMS
+# CR API: Check the contents of all current ric sync events for one id from A1PMS
 # <response-code> <cr-path-id> <id> [ EMPTY | ( <ric-id> )+ ]
 # (Function for test scripts)
 cr_api_check_all_sync_events() {
 	__log_test_start $@
 
-	if [ "$PMS_VERSION" != "V2" ]; then
+	if [ "$A1PMS_VERSION" != "V2" ]; then
 		__log_test_fail_not_supported
 		return 1
 	fi

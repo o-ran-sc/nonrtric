@@ -204,12 +204,12 @@ __gateway_export_vars() {
 	export NRT_GATEWAY_COMPOSE_DIR
 
 	if [ $RUNMODE == "KUBE" ]; then
-		export POLICY_AGENT_EXTERNAL_SECURE_PORT
+		export A1PMS_EXTERNAL_SECURE_PORT
 		export ICS_EXTERNAL_SECURE_PORT
-		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
+		export A1PMS_DOMAIN_NAME=$A1PMS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
 		export ICS_DOMAIN_NAME=$ICS_APP_NAME.$KUBE_NONRTRIC_NAMESPACE
 	else
-		export POLICY_AGENT_DOMAIN_NAME=$POLICY_AGENT_APP_NAME
+		export A1PMS_DOMAIN_NAME=$A1PMS_APP_NAME
 		export ICS_DOMAIN_NAME=$ICS_APP_NAME
 	fi
 }
@@ -303,16 +303,16 @@ start_gateway() {
 }
 
 
-# API Test function: V2 GET /status towards PMS
+# API Test function: V2 GET /status towards A1PMS
 # args: <response-code>
 # (Function for test scripts)
-gateway_pms_get_status() {
+gateway_a1pms_get_status() {
 	__log_test_start $@
     if [ $# -ne 1 ]; then
 		__print_err "<response-code>" $@
 		return 1
 	fi
-	query=$PMS_API_PREFIX"/v2/status"
+	query=$A1PMS_API_PREFIX"/v2/status"
     res="$(__do_curl_to_api NGW GET $query)"
     status=${res:${#res}-3}
 

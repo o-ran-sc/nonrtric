@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="PMS Create 10000 policies and restart, test polices persistency"
+TC_ONELINE_DESCR="A1PMS Create 10000 policies and restart, test polices persistency"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR PA RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR PA RICSIM SDNC KUBEPROXY NGW"
+KUBE_INCLUDED_IMAGES="CP CR A1PMS RICSIM SDNC KUBEPROXY NGW"
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -49,7 +49,7 @@ setup_testenvironment
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST"
 
-#Test agent and simulator protocol versions (others are http only)
+#Test a1pms and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP"
 
 NUM_RICS=5
@@ -58,7 +58,7 @@ NUM_POLICIES_PER_RIC=2000
 
 generate_policy_uuid
 
-if [ "$PMS_VERSION" == "V2" ]; then
+if [ "$A1PMS_VERSION" == "V2" ]; then
     notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 else
     notificationurl=""
@@ -69,7 +69,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         echo "#####################################################################"
         echo "#####################################################################"
-        echo "### Testing agent: "$interface" and "$__httpx
+        echo "### Testing a1pms: "$interface" and "$__httpx
         echo "#####################################################################"
         echo "#####################################################################"
 
@@ -79,14 +79,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_https
             fi
-            use_agent_rest_https
+            use_a1pms_rest_https
         else
             use_cr_http
             use_simulator_http
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_http
             fi
-            use_agent_rest_http
+            use_a1pms_rest_http
         fi
 
         # Clean container and start all needed containers #
@@ -102,9 +102,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
         fi
 
-        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_CONFIG_FILE
+        start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-        set_agent_debug
+        set_a1pms_debug
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
@@ -114,10 +114,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
-            agent_load_config                       ".consul_config.json"
+            a1pms_load_config                       ".consul_config.json"
         else
-            if [[ "$PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-                api_put_configuration 200 ".consul_config.json"
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+                a1pms_api_put_configuration 200 ".consul_config.json"
             else
                 start_consul_cbs
                 consul_config_app                   ".consul_config.json"
@@ -126,7 +126,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr 1
 
-        api_get_status 200
+        a1pms_api_get_status 200
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
@@ -139,21 +139,21 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_put_policy_type 201 ricsim_g1_$i STD_QOS_0_2_0 testdata/STD2/sim_qos.json
         done
 
-        if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-types 1 300  #Wait for the agent to refresh types from the simulator
+        if [ "$A1PMS_VERSION" == "V2" ]; then
+            a1pms_equal json:policy-types 1 300  #Wait for the a1pms to refresh types from the simulator
         else
-            api_equal json:policy_types 1 300  #Wait for the agent to refresh types from the simulator
+            a1pms_equal json:policy_types 1 300  #Wait for the a1pms to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
+        a1pms_api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
-        echo "Check the number of types in the agent for each ric is 1"
+        echo "Check the number of types in the a1pms for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))
         do
-            if [ "$PMS_VERSION" == "V2" ]; then
-                api_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+            if [ "$A1PMS_VERSION" == "V2" ]; then
+                a1pms_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
             else
-                api_equal json:policy_types?ric=ricsim_g1_$i 1 120
+                a1pms_equal json:policy_types?ric=ricsim_g1_$i 1 120
             fi
         done
 
@@ -161,29 +161,29 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS STD_QOS_0_2_0 $START_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES_PER_RIC 7
+        a1pms_api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS STD_QOS_0_2_0 $START_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES_PER_RIC 7
 
         print_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
         INSTANCES=$(($NUM_RICS*$NUM_POLICIES_PER_RIC))
-        api_equal json:policies $INSTANCES
+        a1pms_equal json:policies $INSTANCES
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
             sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
         done
 
-        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
+        a1pms_api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
-        stop_policy_agent
+        stop_a1pms
 
-        start_stopped_policy_agent
+        start_stopped_a1pms
 
-        set_agent_debug
+        set_a1pms_debug
 
-        api_equal json:policies $INSTANCES 500
+        a1pms_equal json:policies $INSTANCES 500
 
-        stop_policy_agent
+        stop_a1pms
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
@@ -195,13 +195,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g1_$i num_instances 0
         done
 
-        start_stopped_policy_agent
+        start_stopped_a1pms
 
-        set_agent_debug
+        set_a1pms_debug
 
         start_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
 
-        api_equal json:policies $INSTANCES 500
+        a1pms_equal json:policies $INSTANCES 500
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
@@ -210,28 +210,28 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         print_timer "Restore $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices after restart over $interface using "$__httpx
 
-        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
+        a1pms_api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
         start_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        api_delete_policy_parallel 204 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+        a1pms_api_delete_policy_parallel 204 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
 
         print_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        api_equal json:policies 0
+        a1pms_equal json:policies 0
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
             sim_equal ricsim_g1_$i num_instances 0
         done
 
-        stop_policy_agent
+        stop_a1pms
 
-        start_stopped_policy_agent
+        start_stopped_a1pms
 
-        set_agent_debug
+        set_a1pms_debug
 
-        api_equal json:policies 0
+        a1pms_equal json:policies 0
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
@@ -240,9 +240,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sleep_wait 200
 
-        api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
+        a1pms_api_get_services 200 "serv1" "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
-        api_equal json:policies 0
+        a1pms_equal json:policies 0
 
         for ((i=1; i<=$NUM_RICS; i++))
         do
@@ -254,11 +254,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             if [ $interface == "REST+SDNC" ]; then
                 sim_contains_str ricsim_g1_$i remote_hosts $SDNC_APP_NAME
             else
-                sim_contains_str ricsim_g1_$i remote_hosts $POLICY_AGENT_APP_NAME
+                sim_contains_str ricsim_g1_$i remote_hosts $A1PMS_APP_NAME
             fi
         done
 
-        check_policy_agent_logs
+        check_a1pms_logs
         if [[ $interface = *"SDNC"* ]]; then
             check_sdnc_logs
         fi

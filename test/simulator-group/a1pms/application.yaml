@@ -35,7 +35,7 @@ logging:
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
-    ${POLICY_AGENT_PKG_NAME}: INFO
+    ${A1PMS_PKG_NAME}: INFO
   file: /var/log/policy-agent/application.log
 
 server:
@@ -66,6 +66,6 @@ app:
     trust-store: /opt/app/policy-agent/etc/cert/truststore.jks
     # Configuration of usage of HTTP Proxy for the southbound accesses.
     # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
-    http.proxy-host: $AGENT_HTTP_PROXY_CONFIG_HOST_NAME
-    http.proxy-port: $AGENT_HTTP_PROXY_CONFIG_PORT
+    http.proxy-host: $A1PMS_HTTP_PROXY_CONFIG_HOST_NAME
+    http.proxy-port: $A1PMS_HTTP_PROXY_CONFIG_PORT
     http.proxy-type: HTTP

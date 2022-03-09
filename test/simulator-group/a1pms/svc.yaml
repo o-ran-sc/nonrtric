@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $A1PMS_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $A1PMS_APP_NAME
+    autotest: A1PMS
+spec:
+  type: ClusterIP
+  ports:
+  - port: $A1PMS_EXTERNAL_PORT
+    targetPort: $A1PMS_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $A1PMS_EXTERNAL_SECURE_PORT
+    targetPort: $A1PMS_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $A1PMS_APP_NAME

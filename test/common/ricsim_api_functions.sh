@@ -241,7 +241,7 @@ start_ric_simulators() {
 			export RIC_SIM_INTERNAL_PORT
 			export RIC_SIM_INTERNAL_SECURE_PORT
 
-			echo -e " Creating $POLICY_AGENT_APP_NAME app and expose service"
+			echo -e " Creating $A1PMS_APP_NAME app and expose service"
 
 			#Check if nonrtric namespace exists, if not create it
 			__kube_create_namespace $KUBE_A1SIM_NAMESPACE

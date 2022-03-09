@@ -41,7 +41,7 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 # NOTE: One environment variable containing the image name and tag is create by the test script
 # for each image from the env variables below.
 # The variable is created by removing the suffix "_BASE" from the base image variable name.
-# Example: POLICY_AGENT_IMAGE_BASE -> POLICY_AGENT_IMAGE
+# Example: A1PMS_IMAGE_BASE -> A1PMS_IMAGE
 # This var will point to the local or remote image depending on cmd line arguments.
 # In addition, the repo and the image tag version are selected from the list of image tags based on the cmd line argurment.
 # For images built by the script, only tag #1 shall be specified
@@ -59,7 +59,7 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 #############################################################################
 # Note:
-# The imgage tags for pms and sdnc are updated AFTER the release.
+# The imgage tags for a1pms and sdnc are updated AFTER the release.
 # This means that the latest staging/snapshot images for these two components have
 # version one step (0.0.1 - bug-level) higher than the
 # latest release image version.
@@ -67,12 +67,12 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 # This is only applicable for ONAP images
 #############################################################################
 
-# Policy Agent image and tags
-POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-POLICY_AGENT_IMAGE_TAG_LOCAL="1.1.2-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.2-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="1.1.2-STAGING-latest" #Will use snapshot repo
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
+# A1PMS image and tags
+A1PMS_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
+A1PMS_IMAGE_TAG_LOCAL="1.1.2-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.2-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="1.1.2-STAGING-latest" #Will use snapshot repo
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
@@ -167,7 +167,7 @@ PVC_CLEANER_IMAGE_TAG_REMOTE_PROXY="20.10"
 #No local image for pvc cleaner, remote image always used
 
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="PA SDNC"
+PROJECT_IMAGES_APP_NAMES="A1PMS SDNC"
 
 # List of app short names which images pulled from ORAN
 ORAN_IMAGES_APP_NAMES="CP ICS RICSIM RC"
@@ -189,30 +189,30 @@ KUBE_A1SIM_NAMESPACE="a1-sim"                            # Namespace for a1-p si
 KUBE_ONAP_NAMESPACE="onap"                               # Namespace for onap (only message router)
 KUBE_SDNC_NAMESPACE="onap"                               # Namespace for sdnc
 
-POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
-POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
-POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
-POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
-POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
-PMS_VERSION="V2"                                         # Tested version of northbound API
-PMS_API_PREFIX="/a1-policy"                               # api url prefix, only for V2. Shall contain leading "/"
+A1PMS_EXTERNAL_PORT=8081                                   # A1PMS container external port (host -> container)
+A1PMS_INTERNAL_PORT=8081                                   # A1PMS container internal port (container -> container)
+A1PMS_EXTERNAL_SECURE_PORT=8433                            # A1PMS container external secure port (host -> container)
+A1PMS_INTERNAL_SECURE_PORT=8433                            # A1PMS container internal secure port (container -> container)
+A1PMS_APIS="V1 V2"                                         # Supported northbound api versions
+A1PMS_VERSION="V2"                                         # Tested version of northbound API
+A1PMS_API_PREFIX="/a1-policy"                              # api url prefix, only for V2. Shall contain leading "/"
 
-POLICY_AGENT_APP_NAME="policymanagementservice"          # Name for Policy Agent container
-POLICY_AGENT_DISPLAY_NAME="Policy Management Service"
-POLICY_AGENT_HOST_MNT_DIR="./mnt"                        # Mounted dir, relative to compose file, on the host
-POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log" # Path the application log in the Policy Agent container
-POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
-POLICY_AGENT_CONFIG_KEY="policy-agent"                   # Key for consul config
-POLICY_AGENT_PKG_NAME="org.onap.ccsdk.oran.a1policymanagementservice"  # Java base package name
-POLICY_AGENT_ACTUATOR="/actuator/loggers/$POLICY_AGENT_PKG_NAME" # Url for trace/debug
-POLICY_AGENT_ALIVE_URL="$PMS_API_PREFIX/v2/status"       # Base path for alive check
-POLICY_AGENT_COMPOSE_DIR="policy_agent"                  # Dir in simulator_group for docker-compose
-POLICY_AGENT_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config" # Path in container for config file
-POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container for data file
-POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
-POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
-POLICY_AGENT_CONTAINER_MNT_DIR="/var/policy-management-service" # Mounted dir in the container
-PMS_FEATURE_LEVEL=""                                     # Space separated list of features
+A1PMS_APP_NAME="policymanagementservice"                   # Name for A1PMS container
+A1PMS_DISPLAY_NAME="Policy Management Service"
+A1PMS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
+A1PMS_LOGPATH="/var/log/policy-agent/application.log"      # Path the application log in the A1PMS container
+A1PMS_APP_NAME_ALIAS="policy-agent-container"              # Alias name, name used by the control panel
+A1PMS_CONFIG_KEY="policy-agent"                            # Key for consul config
+A1PMS_PKG_NAME="org.onap.ccsdk.oran.a1policymanagementservice"  # Java base package name
+A1PMS_ACTUATOR="/actuator/loggers/$A1PMS_PKG_NAME"           # Url for trace/debug
+A1PMS_ALIVE_URL="$A1PMS_API_PREFIX/v2/status"                # Base path for alive check
+A1PMS_COMPOSE_DIR="a1pms"                                    # Dir in simulator_group for docker-compose
+A1PMS_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config"     # Path in container for config file
+A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container for data file
+A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
+A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
+A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
+A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container

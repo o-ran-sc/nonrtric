@@ -33,7 +33,7 @@ clean_docker(){
 # Run auto-test scripts
 cd ../auto-test/
 clean_docker
-bash FTC10.sh remote auto-clean --env-file ../common/test_env-oran-master.sh --use-local-image PA SDNC
+bash FTC10.sh remote auto-clean --env-file ../common/test_env-oran-master.sh --use-local-image A1PMS SDNC
 
 echo "--> run_integration.sh END"
 

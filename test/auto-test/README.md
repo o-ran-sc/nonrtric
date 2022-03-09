@@ -88,15 +88,15 @@ ONAP ISTANBUL
 The test script are number using these basic categories where 0-999 are releated to the policy managment and 1000-1999 are related to information management. 2000-2999 are for southbound http proxy. There are also demo test cases that test more or less all components. These test scripts does not use the numbering scheme below.
 
 The numbering in each series corresponds to the following groupings
-1-99 - Basic sanity tests, PMS
+1-99 - Basic sanity tests, A1PMS
 
-100-199 - API tests, PMS
+100-199 - API tests, A1PMS
 
-300-399 - Config changes and sync, PMS
+300-399 - Config changes and sync, A1PMS
 
-800-899 - Stability and capacity test, PMS
+800-899 - Stability and capacity test, A1PMS
 
-900-999 - Misc test, PMS
+900-999 - Misc test, A1PMS
 
 11XX - ICS API Tests
 

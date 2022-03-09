@@ -86,7 +86,7 @@ __kube_wait_for_zero_count() {
 __kube_delete_all_resources() {
 	echo " Delete all in namespace $1 ..."
 	namespace=$1
-	resources="deployments replicaset statefulset services pods configmaps pvc serviceaccounts"
+	resources="deployments replicaset statefulset services pods configmaps pvc serviceaccounts secrets"
 	for restype in $resources; do
 		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
@@ -115,7 +115,7 @@ __kube_delete_all_pv() {
 __kube_wait_for_delete() {
 	echo " Wait for delete in namespace $1 ..."
 	namespace=$1
-	resources="deployments replicaset statefulset services pods configmaps pvc "
+	resources="deployments replicaset statefulset services pods configmaps pvc secrets"
 	for restype in $resources; do
 		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
@@ -173,7 +173,7 @@ __kube_wait_for_delete_pv() {
 echo "Will remove all kube resources marked with label 'autotest'"
 
 print_usage() {
-    echo "Usage: clean_kube.sh [--kubeconfig <kube-config-file>]"
+    echo "Usage: clean_kube.sh [--kubeconfig <kube-config-file>] | [--kubecontext <context name>]"
 }
 
 if [ $# -eq 0 ]; then
@@ -189,6 +189,13 @@ elif [ $# -eq 2 ]; then
             exit
         fi
         KUBECONF="--kubeconfig $2"
+    elif [ $1 == "--kubecontext" ]; then
+        if [ -z $2 ]; then
+            echo "No context found for --kubecontext"
+            print_usage
+            exit
+        fi
+        KUBECONF="--context $2"
     else
         print_usage
         exit
