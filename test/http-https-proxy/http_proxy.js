@@ -38,6 +38,8 @@ const aliveporthttps = 8434;
 // Default https destination port
 const defaulthttpsport = "443";
 
+var debug = false;
+
 // Certs etc for https
 const httpsoptions = {
   key: fs.readFileSync('cert/key.crt'),
@@ -56,13 +58,34 @@ const stats = {
 function httpclientrequest(clientrequest, clientresponse) {
   stats['http-requests-initiated']++;
 
-  if (clientrequest.url == "/" ) {
-    console.log("Catch bad url in http request: "+clientrequest.url)
+  // Extract destination information
+  var crurl=clientrequest.url;
+  var crhost=clientrequest.headers['host'];
+  var crproto=clientrequest.headers['x-forwarded-proto'];
+
+  if (debug) {
+    console.log("crurl: "+crurl)
+    console.log("crhost: "+crhost)
+    console.log("crproto: "+crproto)
+  }
+
+  // If this server is running behind a proxy (like istio envoy proxy) then the 'clientrequest.url'
+  // only contains the path component (i.e /test ). The host name and port is included in the
+  // 'host' header and the protocol (http/https) is in the header 'x-forwarded-proto'.
+  // In case of istio - https to a pod over mTLS does not seem to work. Only http.
+  // Othewise, if no front proxy, the full url is included in the 'clientrequest.url'
+  if (crproto != undefined) {
+    crurl=crproto+"://"+crhost+crurl
+    if (debug) {
+      console.log(" Constructed ulr: "+crurl)
+    }
+  } else if (crurl.startsWith('/')) {
+    console.log("Catched bad url in http request: "+crurl)
     clientresponse.end();
     return;
   }
-  // Extract destination information
-  const clientrequesturl = new URL(clientrequest.url);
+
+  const clientrequesturl = new URL(crurl);
 
   var proxyrequestoptions = {
     'host': clientrequesturl.hostname,
@@ -111,7 +134,9 @@ function addhttpsconnect(httpserver) {
     'connect',
     function (request, socketrequest, bodyhead) {
 
-
+      if (debug) {
+        console.log("Received 'connect' for: "+request['url'])
+      }
       stats['https-requests-initiated']++;
       // Extract destination information
       var res = request['url'].split(":")
@@ -166,8 +191,28 @@ function addhttpsconnect(httpserver) {
 function main() {
 
   // -------------------- Alive server ----------------------------------
-  // Responde with '200' and statistics for any path on the alive address
+  // Responde with '200' and statistics for any path (except for GET|PUT|DELETE on /debug) on the alive address
   const alivelistener = function (req, res) {
+    if (req.url == "/debug") {
+      if (req.method == "GET") {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write(""+debug)
+        res.end()
+        return
+      } else if (req.method == "PUT") {
+        debug=true
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write("OK")
+        res.end()
+        return
+      } else if (req.method == "DELETE") {
+        debug=false
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write("OK")
+        res.end()
+        return
+      }
+    }
     console.log(stats)
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stats))
@@ -206,7 +251,7 @@ function main() {
   const proxyserverhttps = https.createServer(httpsoptions, httpclientrequest).listen(proxyporthttps);
   console.log('http/https proxy for https proxy calls on port ' + proxyporthttps);
   console.log(' example: curl --proxy-insecure --proxy https://localhost:8433 http://100.110.120.130:1234')
-  console.log(' example: curl --proxy-insecure --proxy https://localhost:8433 https://100.110.120.130:5678')
+  console.log(' example: curl -k --proxy-insecure --proxy https://localhost:8433 https://100.110.120.130:5678')
 
   // handle a https proxy request - https listener
   addhttpsconnect(proxyserverhttps);

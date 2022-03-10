@@ -2996,6 +2996,7 @@ store_logs() {
 ## Generic curl
 ###############
 # Generic curl function, assumes all 200-codes are ok
+# Used proxy, set
 # args: <valid-curl-args-including full url>
 # returns: <returned response (without respose code)>  or "<no-response-from-server>" or "<not found, <http-code>>""
 # returns: The return code is 0 for ok and 1 for not ok
@@ -3036,6 +3037,46 @@ __do_curl() {
   			echo "${res:0:${#res}-3}" | xargs
 		else
   			echo "${res:0:${#res}-3}"
+		fi
+
+		return 0
+	fi
+}
+
+# Generic curl function, assumes all 200-codes are ok
+# Uses no proxy, even if it is set
+# args: <valid-curl-args-including full url>
+# returns: <returned response (without respose code)>  or "<no-response-from-server>" or "<not found, <http-code>>""
+# returns: The return code is 0 for ok and 1 for not ok
+__do_curl_no_proxy() {
+	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
+	curlString="curl -skw %{http_code} $@"
+	echo " CMD: $curlString" >> $HTTPLOG
+	res=$($curlString)
+	retcode=$?
+	echo " RESP: $res" >> $HTTPLOG
+	echo " RETCODE: $retcode" >> $HTTPLOG
+	if [ $retcode -ne 0 ]; then
+		echo "<no-response-from-server>"
+		return 1
+	fi
+	http_code="${res:${#res}-3}"
+	if [ ${#res} -eq 3 ]; then
+		if [ $http_code -lt 200 ] || [ $http_code -gt 299 ]; then
+			echo "<no-response-from-server>"
+			return 1
+		else
+			return 0
+		fi
+	else
+		if [ $http_code -lt 200 ] || [ $http_code -gt 299 ]; then
+			echo "<not found, resp:${http_code}>"
+			return 1
+		fi
+		if [ $# -eq 2 ]; then
+			echo "${res:0:${#res}-3}" | xargs
+		else
+			echo "${res:0:${#res}-3}"
 		fi
 
 		return 0

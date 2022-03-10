@@ -378,3 +378,18 @@ start_kube_proxy() {
 
 }
 
+# Turn on debug logging in kubeproxy
+# args: -
+# (Function for test scripts)
+set_kubeproxy_debug() {
+	echo -e $BOLD"Setting kubeproxy debug logging"$EBOLD
+	curlString="$KUBE_PROXY_WEB_PATH/debug -X PUT"
+	result=$(__do_curl_no_proxy "$curlString")
+	if [ $? -ne 0 ]; then
+		__print_err "could not set debug logging" $@
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	echo ""
+	return 0
+}

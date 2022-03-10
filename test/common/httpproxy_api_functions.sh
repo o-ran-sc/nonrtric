@@ -130,14 +130,14 @@ __HTTPPROXY_test_requirements() {
 # args: -
 # (Function for test scripts)
 use_http_proxy_http() {
-	__http_proxy_set_protocoll "http" $HTTP_PROXY_INTERNAL_PORT $HTTP_PROXY_EXTERNAL_PORT
+	__http_proxy_set_protocoll "http" $HTTP_PROXY_INTERNAL_PORT $HTTP_PROXY_EXTERNAL_PORT $HTTP_PROXY_WEB_INTERNAL_PORT $HTTP_PROXY_WEB_EXTERNAL_PORT
 }
 
 # Set https as the protocol to use for all communication to the http proxy
 # args: -
 # (Function for test scripts)
 use_http_proxy_https() {
-	__http_proxy_set_protocoll "https" $HTTP_PROXY_INTERNAL_SECURE_PORT $HTTP_PROXY_EXTERNAL_SECURE_PORT
+	__http_proxy_set_protocoll "https" $HTTP_PROXY_INTERNAL_SECURE_PORT $HTTP_PROXY_EXTERNAL_SECURE_PORT $HTTP_PROXY_WEB_INTERNAL_SECURE_PORT $HTTP_PROXY_WEB_EXTERNAL_SECURE_PORT
 }
 
 # Setup paths to svc/container for internal and external access
@@ -150,12 +150,14 @@ __http_proxy_set_protocoll() {
 	## HTTP_PROXY_CONFIG_HOST_NAME and HTTP_PROXY_CONFIG_PORT used by apps as config for proxy host and port
 
 	HTTP_PROXY_SERVICE_PATH=$1"://"$HTTP_PROXY_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	HTTP_PROXY_WEB_PATH=$1"://"$HTTP_PROXY_APP_NAME":"$4
 	HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME
 	HTTP_PROXY_CONFIG_PORT=$2
 	if [ $RUNMODE == "KUBE" ]; then
 		HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_APP_NAME"."$KUBE_SIM_NAMESPACE
 		HTTP_PROXY_CONFIG_PORT=$3
 		HTTP_PROXY_SERVICE_PATH=$1"://"$HTTP_PROXY_APP_NAME.$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		HTTP_PROXY_WEB_PATH=$1"://"$HTTP_PROXY_APP_NAME.$KUBE_SIM_NAMESPACE":"$5
 	fi
 
 	echo ""
@@ -237,7 +239,7 @@ start_http_proxy() {
 
 		fi
 
-		__check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_SERVICE_PATH$HTTP_PROXY_ALIVE_URL
+		__check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_WEB_PATH$HTTP_PROXY_ALIVE_URL
 
 	else
 		# Check if docker app shall be fully managed by the test script
@@ -252,7 +254,23 @@ start_http_proxy() {
 
 		__start_container $HTTP_PROXY_COMPOSE_DIR "" NODOCKERARGS 1 $HTTP_PROXY_APP_NAME
 
-        __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_SERVICE_PATH$HTTP_PROXY_ALIVE_URL
+        __check_service_start $HTTP_PROXY_APP_NAME $HTTP_PROXY_WEB_PATH$HTTP_PROXY_ALIVE_URL
 	fi
 	echo ""
+}
+
+# Turn on debug logging in httpproxy
+# args: -
+# (Function for test scripts)
+set_httpproxy_debug() {
+	echo -e $BOLD"Setting httpproxy debug logging"$EBOLD
+	curlString="$HTTP_PROXY_WEB_PATH/debug -X PUT"
+	result=$(__do_curl "$curlString")
+	if [ $? -ne 0 ]; then
+		__print_err "could not set debug logging" $@
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	echo ""
+	return 0
 }
