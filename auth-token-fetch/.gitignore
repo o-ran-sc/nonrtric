@@ -1,0 +1,5 @@
+.history
+.vscode
+coverage.*
+__debug_bin*
+
