@@ -68,6 +68,7 @@ func TestFetchAndStoreToken(t *testing.T) {
 	configuration.AuthTokenOutputFileName = "/tmp/authToken" + fmt.Sprint(time.Now().UnixNano())
 	configuration.ClientId = "testClientId"
 	configuration.ClientSecret = "testClientSecret"
+	configuration.RefreshMarginSeconds = 1
 	context := NewContext(configuration)
 
 	t.Cleanup(func() {
@@ -75,7 +76,7 @@ func TestFetchAndStoreToken(t *testing.T) {
 	})
 
 	accessToken := "Access_token" + fmt.Sprint(time.Now().UnixNano())
-	token := JwtToken{Access_token: accessToken, Expires_in: 10, Token_type: "Token_type"}
+	token := JwtToken{Access_token: accessToken, Expires_in: 7, Token_type: "Token_type"}
 
 	wg := sync.WaitGroup{}
 	wg.Add(2) // Get token two times
@@ -83,7 +84,7 @@ func TestFetchAndStoreToken(t *testing.T) {
 
 	go periodicRefreshIwtToken(clientMock, context)
 
-	if waitTimeout(&wg, 7*time.Second) {
+	if waitTimeout(&wg, 12*time.Second) {
 		t.Error("Not all calls to server were made")
 		t.Fail()
 	}
