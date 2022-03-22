@@ -18,7 +18,7 @@
 
 # Script to clean all docker containers having the label 'nrttest_app', i.e started by autotest
 
-echo "Will stop and remove all docker containers with label 'nrttest_app'"
+echo "Stopping and removing all docker containers with label 'nrttest_app'"
 echo " Stopping containers..."
 docker stop $(docker ps -qa  --filter "label=nrttest_app") 2> /dev/null
 echo " Removing stopped containers..."

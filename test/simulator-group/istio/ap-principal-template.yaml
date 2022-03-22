@@ -1,0 +1,17 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: $ISTIO_TEMPLATE_REPLACE_AP_NAME
+  namespace: $ISTIO_TEMPLATE_REPLACE_AP_NS
+  labels:
+    autotest: ISTIO
+spec:
+  selector:
+    matchLabels:
+      run: $ISTIO_TEMPLATE_REPLACE_AP_APP_NAME
+  action: ALLOW
+  rules:
+    - from:
+      - source:
+          requestPrincipals: ["$ISTIO_TEMPLATE_REPLACE_AP_PRINCIPAL"]
+

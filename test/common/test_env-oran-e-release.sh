@@ -214,7 +214,7 @@ KAFKAPC_IMAGE_BASE="kafka-procon"
 KAFKAPC_IMAGE_TAG_LOCAL="latest"
 #No local image for pvc cleaner, remote image always used
 
-#PVC Cleaner remote image and tag
+#Chartmusem remote image and tag
 CHART_MUS_IMAGE_BASE="ghcr.io/helm/chartmuseum"
 CHART_MUS_IMAGE_TAG_REMOTE_OTHER="v0.13.1"
 #No local image for chart museum, remote image always used
@@ -290,7 +290,7 @@ ICS_LOGPATH="/var/log/information-coordinator-service/application.log" # Path th
 ICS_APP_NAME_ALIAS="information-service-container"       # Alias name, name used by the control panel
 ICS_HOST_MNT_DIR="./mnt"                                 # Mounted db dir, relative to compose file, on the host
 ICS_CONTAINER_MNT_DIR="/var/information-coordinator-service" # Mounted dir in the container
-ICS_ACTUATOR="/actuator/loggers/org.oransc.information"  # Url for trace/debug
+ICS_ACTUATOR="/actuator/loggers/org.oransc.ics"          # Url for trace/debug
 ICS_CERT_MOUNT_DIR="./cert"
 ICS_ALIVE_URL="/status"                                  # Base path for alive check
 ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose

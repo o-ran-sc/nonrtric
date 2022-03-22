@@ -150,6 +150,13 @@ HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE="1.2.0"
 HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
+# Auth sidecar
+AUTHSIDECAR_IMAGE_BASE="o-ran-sc/nonrtric-auth-token-fetch"
+AUTHSIDECAR_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
+AUTHSIDECAR_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
+AUTHSIDECAR_IMAGE_TAG_REMOTE="1.0.0"
+AUTHSIDECAR_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
 MRSTUB_IMAGE_TAG_LOCAL="latest"
@@ -202,13 +209,18 @@ KAFKAPC_IMAGE_BASE="kafka-procon"
 KAFKAPC_IMAGE_TAG_LOCAL="latest"
 #No local image for pvc cleaner, remote image always used
 
-#PVC Cleaner remote image and tag
+#Chartmusem remote image and tag
 CHART_MUS_IMAGE_BASE="ghcr.io/helm/chartmuseum"
 CHART_MUS_IMAGE_TAG_REMOTE_OTHER="v0.13.1"
 #No local image for chart museum, remote image always used
 
+#Keycloak remote image and tag
+KEYCLOAK_IMAGE_BASE="quay.io/keycloak/keycloak"
+KEYCLOAK_IMAGE_TAG_REMOTE_OTHER="17.0.0"
+#No local image for chart museum, remote image always used
+
 # List of app short names produced by the project
-PROJECT_IMAGES_APP_NAMES="A1PMS ICS CP RC RICSIM NGW DMAAPADP DMAAPMED HELMMANAGER"  # Add SDNC here if oran image is used
+PROJECT_IMAGES_APP_NAMES="A1PMS ICS CP RC RICSIM NGW DMAAPADP DMAAPMED HELMMANAGER AUTHSIDECAR"  # Add SDNC here if oran image is used
 
 # List of app short names which images pulled from ORAN
 ORAN_IMAGES_APP_NAMES=""  # Not used
@@ -241,6 +253,7 @@ KUBE_SIM_NAMESPACE="nonrtric-ft"                         # Namespace for simulat
 KUBE_A1SIM_NAMESPACE="a1-sim"                            # Namespace for a1-p simulators (RICSIM)
 KUBE_ONAP_NAMESPACE="onap"                               # Namespace for onap (only message router)
 KUBE_SDNC_NAMESPACE="onap"                               # Namespace for sdnc
+KUBE_KEYCLOAK_NAMESPACE="keycloak"                       # Namespace for keycloak
 
 A1PMS_EXTERNAL_PORT=8081                                   # A1PMS container external port (host -> container)
 A1PMS_INTERNAL_PORT=8081                                   # A1PMS container internal port (container -> container)
@@ -278,7 +291,7 @@ ICS_LOGPATH="/var/log/information-coordinator-service/application.log" # Path th
 ICS_APP_NAME_ALIAS="information-service-container"       # Alias name, name used by the control panel
 ICS_HOST_MNT_DIR="./mnt"                                 # Mounted db dir, relative to compose file, on the host
 ICS_CONTAINER_MNT_DIR="/var/information-coordinator-service" # Mounted dir in the container
-ICS_ACTUATOR="/actuator/loggers/org.oransc.information"  # Url for trace/debug
+ICS_ACTUATOR="/actuator/loggers/org.oransc.ics"          # Url for trace/debug
 ICS_CERT_MOUNT_DIR="./cert"
 ICS_ALIVE_URL="/status"                                  # Base path for alive check
 ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
@@ -547,6 +560,29 @@ HELM_MANAGER_ALIVE_URL="/helm/charts"                    # Base path for alive c
 HELM_MANAGER_COMPOSE_DIR="helmmanager"                   # Dir in simulator_group for docker-compose
 HELM_MANAGER_USER="helmadmin"
 HELM_MANAGER_PWD="itisasecret"
+
+KEYCLOAK_APP_NAME="keycloak"                             # Name for the keycloak app
+KEYCLOAK_DISPLAY_NAME="Keycloak"
+KEYCLOAK_EXTERNAL_PORT=80                                # keycloak container external port (host -> container)
+KEYCLOAK_INTERNAL_PORT=8080                              # keycloak container internal port (container -> container)
+KEYCLOAK_ADMIN_URL_PREFIX="/realms/master"
+KEYCLOAK_REALM_URL_PREFIX="/admin/realms"
+KEYCLOAK_TOKEN_URL_PREFIX="/realms"
+KEYCLOAK_ALIVE_URL="/realms/master"                      # Base path for alive check
+KEYCLOAK_COMPOSE_DIR="keycloak"
+KEYCLOAK_ADMIN_USER="admin"
+KEYCLOAK_ADMIN_PWD="admin"
+KEYCLOAK_ADMIN_CLIENT="admin-cli"
+KEYCLOAK_KC_PROXY="edge"
+
+ISTIO_COMPOSE_DIR="istio"
+
+# See jwt-info.txt in simulator-group/kubeproxy for detailed info
+ISTIO_GENERIC_JWKS_KEY='{ "keys":[{"kty":"RSA","e":"AQAB","kid":"dc1b272d-124e-417f-b6e3-eda9c0e29509","n":"u1SU1LfVLPHCozMxH2Mo4lgOEePzNm0tRgeLezV6ffAt0gunVTLw7onLRnrq0_IzW7yWR7QkrmBL7jTKEn5u-qKhbwKfBstIs-bMY2Zkp18gnTxKLxoS2tFczGkPLPgizskuemMghRniWaoLcyehkd3qqGElvW_VDL5AaWTg0nLVkjRo9z-40RQzuVaE8AkAFmxZzow3x-VJYKdjykkJ0iT9wCS0DRTXu269V264Vf_3jvredZiKRkgwlL9xNAwxXFg0x_XFw005UWVRIkdgcKWTjpBP2dPwVZ4WWC-9aGVd-Gyn1o0CLelf4rEjGoXbAAEgAqeGUxrcIlbjXfbcmw"}]}'
+ISTIO_GENERIC_JWT="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdWJkb21haW4iLCJpc3MiOiJLVUJFUFJPWFkifQ.T5p9ip8yBRAYpArajFGhUlpfnV0HAbA7dPsSojYx1BNo6nwt_cpt6xJ8x66XwV-KqHud_S8hlnixLBYRtUiU8v7lWdk8RhBwW7w4CJs6n8ByvKsjJU8se18RWbSqsi-IQRsdkMiHz5fKosfCGVj6hI214S_yY988ICV7kl9anQhaD8zUPQQvso2zaAkT1qTgC5pxpZc3lB5526DvzsmYr_gaeE-GcbKW9hFoYppOhItL74IRVqRBs_pbaAauUg-9v_bRaJc5yOo3UMFDNiI2HCB6mdgJTLNb8bsT5qExgcbCRpUnOCF0I6PrvVlGft4zZkvz7I0I-8emVn4m-PV-BA"
+
+AUTHSIDECAR_APP_NAME="authsidecar"
+AUTHSIDECAR_DISPLAY_NAME="Authentication Token Fetcher"
 ########################################
 # Setting for common curl-base function
 ########################################

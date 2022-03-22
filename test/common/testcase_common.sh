@@ -30,7 +30,7 @@ __print_args() {
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
 	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>] [--host-path-dir <local-host-dir>]"
-	echo "      [--kubecontext <context-name>]"
+	echo "      [--kubecontext <context-name>] [--docker-host <docker-host-url>] [--docker-proxy <host-or-ip>]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -68,6 +68,8 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--kubeconfig          -  Configure kubectl to use cluster specific cluster config file"
 	echo "--host-path-dir       -  (Base-)path on local-hostmounted to all VMs (nodes), for hostpath volumes in kube"
 	echo "--kubecontext         -  Configure kubectl to use a certain context, e.g 'minikube'"
+	echo "--docker-host         -  Configure docker to use docker in e.g. a VM"
+	echo "--docker-proxy        -  Configure ip/host to docker when docker is running in a VM"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -267,6 +269,14 @@ DELETE_CONTAINERS=0
 
 #Var to configure kubectl from a config file or context
 KUBECONF=""
+
+#Localhost, may be set to another host/ip by cmd parameter
+LOCALHOST_NAME="localhost"
+
+#Reseting vars related to token/keys used by kubeproxy when istio is enabled
+#The vars are populated if istio is used in the testcase
+KUBE_PROXY_CURL_JWT=""
+KUBE_PROXY_ISTIO_JWKS_KEYS=""
 
 #Var pointing to dir mounted to each kubernetes node (master and workers)
 #Persistent volumes using "hostpath" are allocated beneath the point.
@@ -883,6 +893,55 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 				fi
 			else
 				HOST_PATH_BASE_DIR=$1
+				echo "Option set - Host path for kube set to: "$1
+				shift
+				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--docker-host" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No url found for : '--docker-host'"
+				fi
+			else
+				export DOCKER_HOST="$1"
+				echo "Option set - DOCKER_HOST set to: "$1
+				shift
+				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--docker-host" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No url found for : '--docker-host'"
+				fi
+			else
+				export DOCKER_HOST="$1"
+				echo "Option set - DOCKER_HOST set to: "$1
+				shift
+				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--docker-proxy" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No ip/host found for : '--docker-proxy'"
+				fi
+			else
+				export LOCALHOST_NAME=$1
+				echo "Option set - docker proxy set to: "$1
 				shift
 				foundparm=0
 			fi
@@ -905,11 +964,6 @@ if [ $paramerror -eq 1 ]; then
 	exit 1
 fi
 
-#Localhost constants
-LOCALHOST_NAME="localhost"
-# if [ ! -z "$DOCKER_HOST" ]; then
-# 	LOCALHOST_NAME=$(echo $DOCKER_HOST | awk -F[/:] '{print $4}' )
-# fi
 LOCALHOST_HTTP="http://$LOCALHOST_NAME"
 LOCALHOST_HTTPS="https://$LOCALHOST_NAME"
 
@@ -2293,7 +2347,7 @@ __kube_delete_all_resources() {
 	namespace=$1
 	labelname=$2
 	labelid=$3
-	resources="deployments replicaset statefulset services pods configmaps persistentvolumeclaims persistentvolumes serviceaccounts clusterrolebindings secrets"
+	resources="deployments replicaset statefulset services pods configmaps persistentvolumeclaims persistentvolumes serviceaccounts clusterrolebindings secrets authorizationpolicies requestauthentications"
 	deleted_resourcetypes=""
 	for restype in $resources; do
 		ns_flag="-n $namespace"
@@ -2409,7 +2463,7 @@ __kube_delete_namespace() {
 	return 0
 }
 
-# Removes a namespace
+# Removes and re-create a namespace
 # args: <namespace>
 # (Not for test scripts)
 clean_and_create_namespace() {
@@ -2427,7 +2481,22 @@ clean_and_create_namespace() {
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
+}
 
+# Add/remove label on non-namespaced kube object
+# args: <api> <instance> <label>
+# (Not for test scripts)
+__kube_label_non_ns_instance() {
+	kubectl $KUBECONF label $1 $2 "$3" 1> /dev/null 2> ./tmp/kubeerr
+	return $?
+}
+
+# Add/remove label on namespaced kube object
+# args: <api> <instance> <namespace> <label>
+# (Not for test scripts)
+__kube_label_ns_instance() {
+	kubectl $KUBECONF label $1 $2 -n $3 "$4" 1> /dev/null 2> ./tmp/kubeerr
+	return $?
 }
 
 # Find the host ip of an app (using the service resource)
@@ -3010,10 +3079,19 @@ __do_curl() {
 			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
-	curlString="curl -skw %{http_code} $proxyflag $@"
-	echo " CMD: $curlString" >> $HTTPLOG
-	res=$($curlString)
-	retcode=$?
+
+	if [ ! -z "$KUBE_PROXY_CURL_JWT" ]; then
+		jwt="-H "\""Authorization: Bearer $KUBE_PROXY_CURL_JWT"\"
+		curlString="curl -skw %{http_code} $proxyflag $@"
+		echo " CMD: $curlString $jwt" >> $HTTPLOG
+		res=$($curlString -H "Authorization: Bearer $KUBE_PROXY_CURL_JWT")
+		retcode=$?
+	else
+		curlString="curl -skw %{http_code} $proxyflag $@"
+		echo " CMD: $curlString" >> $HTTPLOG
+		res=$($curlString)
+		retcode=$?
+	fi
 	echo " RESP: $res" >> $HTTPLOG
 	echo " RETCODE: $retcode" >> $HTTPLOG
 	if [ $retcode -ne 0 ]; then
@@ -3041,6 +3119,7 @@ __do_curl() {
 
 		return 0
 	fi
+
 }
 
 # Generic curl function, assumes all 200-codes are ok

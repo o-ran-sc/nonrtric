@@ -201,7 +201,7 @@ start_chart_museum() {
 
 		if [ $retcode_p -eq 0 ]; then
 			echo -e " Using existing $CHART_MUS_APP_NAME deployment and service"
-			echo " Setting RC replicas=1"
+			echo " Setting CHARTMUS replicas=1"
 			__kube_scale deployment $CHART_MUS_APP_NAME $KUBE_SIM_NAMESPACE 1
 		fi
 

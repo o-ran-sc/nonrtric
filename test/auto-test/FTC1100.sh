@@ -18,13 +18,19 @@
 #
 
 
-TC_ONELINE_DESCR="ICS full interfaces walkthrough"
+TC_ONELINE_DESCR="ICS full interfaces walkthrough - with or without istio enabled"
+
+USE_ISTIO=1
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="ICS PRODSTUB CR RICSIM CP HTTPPROXY NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="PRODSTUB CR ICS RICSIM CP HTTPPROXY KUBEPROXY NGW"
+if [ $USE_ISTIO -eq 0 ]; then
+    KUBE_INCLUDED_IMAGES="PRODSTUB CR ICS RICSIM CP HTTPPROXY KUBEPROXY NGW"
+else
+    KUBE_INCLUDED_IMAGES="PRODSTUB CR ICS RICSIM CP HTTPPROXY KUBEPROXY NGW KEYCLOAK ISTIO AUTHSIDECAR"
+fi
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -48,17 +54,76 @@ FLAT_A1_EI="1"
 
 clean_environment
 
+if [ $USE_ISTIO -eq 1 ]; then
+    echo -e $RED"#########################################"$ERED
+    echo -e $RED"# Work around istio jwks cache"$ERED
+    echo -e $RED"# Cycle istiod down and up to clear cache"$ERED
+    echo ""
+    __kube_scale deployment istiod istio-system 0
+    __kube_scale deployment istiod istio-system 1
+    echo -e $RED"# Cycle istiod done"
+    echo -e $RED"#########################################"$ERED
+
+    istio_enable_istio_namespace $KUBE_SIM_NAMESPACE
+    istio_enable_istio_namespace $KUBE_NONRTRIC_NAMESPACE
+fi
+
 start_kube_proxy
+set_kubeproxy_debug
 
-use_ics_rest_https
+if [ $USE_ISTIO -eq 1 ]; then
+    use_ics_rest_http
 
-use_prod_stub_https
+    use_prod_stub_http
 
-use_simulator_https
+    use_simulator_http
 
-use_cr_https
+    use_cr_http
+else
+    use_ics_rest_https
+
+    use_prod_stub_https
+
+    use_simulator_https
+
+    use_cr_https
+fi
 
 start_http_proxy
+
+if [ $USE_ISTIO -eq 1 ]; then
+    start_keycloak
+
+    keycloak_api_obtain_admin_token
+
+    keycloak_api_create_realm                   nrtrealm   true   60
+    keycloak_api_create_confidential_client     nrtrealm   icsc
+    keycloak_api_generate_client_secret         nrtrealm   icsc
+    keycloak_api_get_client_secret              nrtrealm   icsc
+
+    keycloak_api_get_client_token               nrtrealm   icsc
+
+    CLIENT_TOKEN=$(keycloak_api_read_client_token nrtrealm   icsc)
+    echo "CLIENT_TOKEN: "$CLIENT_TOKEN
+
+    ICS_SEC=$(keycloak_api_read_client_secret nrtrealm   icsc)
+    echo "ICS_SEC: "$ICS_SEC
+
+    istio_req_auth_by_jwks              $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
+    istio_auth_policy_by_issuer         $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY
+
+    istio_req_auth_by_jwksuri           $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+    istio_auth_policy_by_realm          $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+
+    istio_req_auth_by_jwks              $CR_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
+    istio_auth_policy_by_issuer         $CR_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY
+
+    istio_req_auth_by_jwksuri           $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+    istio_auth_policy_by_realm          $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+
+    ics_configure_sec nrtrealm icsc $ICS_SEC
+
+fi
 
 start_ics NOPROXY $SIM_GROUP/$ICS_COMPOSE_DIR/$ICS_CONFIG_FILE  #Change NOPROXY to PROXY to run with http proxy
 
@@ -85,11 +150,19 @@ start_cr 1
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
 CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
 #Targets for ei jobs
-TARGET1="$RIC_SIM_HTTPX://ricsim_g3_1:$RIC_SIM_PORT/datadelivery"
-TARGET2="$RIC_SIM_HTTPX://ricsim_g3_2:$RIC_SIM_PORT/datadelivery"
-TARGET3="$RIC_SIM_HTTPX://ricsim_g3_3:$RIC_SIM_PORT/datadelivery"
-TARGET8="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
-TARGET10="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
+if [ $RUNMODE == "KUBE" ]; then
+    TARGET1="$RIC_SIM_HTTPX://ricsim-g3-1.ricsim-g3.$KUBE_A1SIM_NAMESPACE:$RIC_SIM_PORT/datadelivery"
+    TARGET2="$RIC_SIM_HTTPX://ricsim-g3-2.ricsim-g3.$KUBE_A1SIM_NAMESPACE:$RIC_SIM_PORT/datadelivery"
+    TARGET3="$RIC_SIM_HTTPX://ricsim-g3-3.ricsim-g3.$KUBE_A1SIM_NAMESPACE:$RIC_SIM_PORT/datadelivery"
+    TARGET8="$RIC_SIM_HTTPX://ricsim-g3-4.ricsim-g3.$KUBE_A1SIM_NAMESPACE:$RIC_SIM_PORT/datadelivery"
+    TARGET10="$RIC_SIM_HTTPX://ricsim-g3-4.ricsim-g3.$KUBE_A1SIM_NAMESPACE:$RIC_SIM_PORT/datadelivery"
+else
+    TARGET1="$RIC_SIM_HTTPX://ricsim_g3_1:$RIC_SIM_PORT/datadelivery"
+    TARGET2="$RIC_SIM_HTTPX://ricsim_g3_2:$RIC_SIM_PORT/datadelivery"
+    TARGET3="$RIC_SIM_HTTPX://ricsim_g3_3:$RIC_SIM_PORT/datadelivery"
+    TARGET8="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
+    TARGET10="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
+fi
 
 #Targets for info jobs
 TARGET101="http://localhost:80/target"  # Dummy target, no target for info data in this env...

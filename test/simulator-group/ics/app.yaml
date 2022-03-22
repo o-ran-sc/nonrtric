@@ -35,6 +35,29 @@ spec:
           name: ics-conf-name
         - mountPath: $ICS_CONTAINER_MNT_DIR
           name: ics-data-name
+#ICS_JWT_START
+        - mountPath: $ICS_SIDECAR_MOUNT
+          name: token-cache-volume
+#ICS_JWT_STOP
+#ICS_JWT_START
+      - name: $AUTHSIDECAR_APP_NAME
+        image: $AUTHSIDECAR_IMAGE
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
+        env:
+        - name: CREDS_GRANT_TYPE
+          value: $ICS_CREDS_GRANT_TYPE
+        - name: CREDS_CLIENT_SECRET
+          value: $ICS_CREDS_CLIENT_SECRET
+        - name: CREDS_CLIENT_ID
+          value: $ICS_CREDS_CLIENT_ID
+        - name: OUTPUT_FILE
+          value: $ICS_SIDECAR_JWT_FILE
+        - name: AUTH_SERVICE_URL
+          value: $ICS_AUTH_SERVICE_URL
+        volumeMounts:
+        - mountPath: $ICS_SIDECAR_MOUNT
+          name: token-cache-volume
+#ICS_JWT_STOP
       volumes:
       - configMap:
           defaultMode: 420
@@ -43,6 +66,11 @@ spec:
       - persistentVolumeClaim:
           claimName: $ICS_DATA_PVC_NAME
         name: ics-data-name
+#ICS_JWT_START
+      - name: token-cache-volume
+        emptyDir: {}
+#ICS_JWT_STOP
+
 # Selector will be set when pod is started first time
       nodeSelector:
 
