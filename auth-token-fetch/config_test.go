@@ -39,6 +39,7 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 	os.Setenv("OUTPUT_FILE", "OUTPUT_FILE")
 	os.Setenv("AUTH_SERVICE_URL", "AUTH_SERVICE_URL")
 	os.Setenv("REFRESH_MARGIN_SECONDS", "33")
+	os.Setenv("ROOT_CA_CERTS_PATH", "ROOT_CA_CERTS_PATH")
 
 	t.Cleanup(func() {
 		os.Clearenv()
@@ -52,9 +53,11 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 		ClientSecret:            "CREDS_CLIENT_SECRET",
 		ClientId:                "CREDS_CLIENT_ID",
 		AuthTokenOutputFileName: "OUTPUT_FILE",
+		CACertsPath:             "ROOT_CA_CERTS_PATH",
 		RefreshMarginSeconds:    33,
 	}
 	got := NewConfig()
+	assertions.Equal(nil, validateConfiguration(got))
 
 	assertions.Equal(&wantConfig, got)
 }

@@ -23,6 +23,7 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 
@@ -38,10 +39,10 @@ type HTTPClient interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-func CreateHttpClient(cert tls.Certificate, timeout time.Duration) *http.Client {
+func CreateHttpClient(cert tls.Certificate, caCerts *x509.CertPool, timeout time.Duration) *http.Client {
 	return &http.Client{
 		Timeout:   timeout,
-		Transport: createTransport(cert),
+		Transport: createTransport(cert, caCerts),
 	}
 }
 
@@ -89,9 +90,11 @@ func getRequestError(response *http.Response) RequestError {
 	return putError
 }
 
-func createTransport(cert tls.Certificate) *http.Transport {
+func createTransport(cert tls.Certificate, caCerts *x509.CertPool) *http.Transport {
 	return &http.Transport{
 		TLSClientConfig: &tls.Config{
+			ClientCAs: caCerts,
+			RootCAs:   caCerts,
 			Certificates: []tls.Certificate{
 				cert,
 			},
