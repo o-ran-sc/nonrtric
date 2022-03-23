@@ -103,6 +103,7 @@ func TestStart(t *testing.T) {
 
 	configuration := NewConfig()
 	configuration.AuthTokenOutputFileName = "/tmp/authToken" + fmt.Sprint(time.Now().UnixNano())
+	configuration.CACertsPath = configuration.CertPath
 	context := NewContext(configuration)
 
 	start(context)

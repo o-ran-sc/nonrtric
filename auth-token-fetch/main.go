@@ -22,8 +22,8 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -74,14 +74,10 @@ func start(context *Context) {
 		log.Fatalf("Stopping due to error: %v", err)
 	}
 
-	var cert tls.Certificate
-	if c, err := loadCertificate(context.Config.CertPath, context.Config.KeyPath); err == nil {
-		cert = c
-	} else {
-		log.Fatalf("Stopping due to error: %v", err)
-	}
+	cert := loadCertificate(context.Config.CertPath, context.Config.KeyPath)
+	caCerts := loadCaCerts(context.Config.CACertsPath)
 
-	webClient := CreateHttpClient(cert, 10*time.Second)
+	webClient := CreateHttpClient(cert, caCerts, 10*time.Second)
 
 	go periodicRefreshIwtToken(webClient, context)
 }
@@ -142,13 +138,27 @@ func fetchJwtToken(webClient *http.Client, configuration *Config) (JwtToken, err
 	return jwt, err
 }
 
-func loadCertificate(certPath string, keyPath string) (tls.Certificate, error) {
+func loadCertificate(certPath string, keyPath string) tls.Certificate {
 	log.WithFields(log.Fields{"certPath": certPath, "keyPath": keyPath}).Debug("Loading cert")
-	if cert, err := tls.LoadX509KeyPair(certPath, keyPath); err == nil {
-		return cert, nil
+	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	if check(err) {
+		return cert
 	} else {
-		return tls.Certificate{}, fmt.Errorf("cannot create x509 keypair from cert file %s and key file %s due to: %v", certPath, keyPath, err)
+		log.Fatalf("cannot create x509 keypair from cert file %s and key file %s due to: %v", certPath, keyPath, err)
+		return tls.Certificate{}
 	}
+}
+
+func loadCaCerts(caCertsPath string) *x509.CertPool {
+	var err error
+	if caCertsPath == "" {
+		return nil
+	}
+	caCert, err := ioutil.ReadFile(caCertsPath)
+	check(err)
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+	return caCertPool
 }
 
 func keepAlive() {

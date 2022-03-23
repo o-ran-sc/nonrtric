@@ -43,7 +43,7 @@ func TestRequestError_Error(t *testing.T) {
 func Test_CreateClient(t *testing.T) {
 	assertions := require.New(t)
 
-	client := CreateHttpClient(tls.Certificate{}, 5*time.Second)
+	client := CreateHttpClient(tls.Certificate{}, nil, 5*time.Second)
 
 	transport := client.Transport
 	assertions.Equal("*http.Transport", reflect.TypeOf(transport).String())

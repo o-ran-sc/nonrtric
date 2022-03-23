@@ -33,6 +33,7 @@ import (
 type Config struct {
 	LogLevel                log.Level
 	CertPath                string
+	CACertsPath             string
 	KeyPath                 string
 	AuthServiceUrl          string
 	GrantType               string
@@ -44,14 +45,15 @@ type Config struct {
 
 func NewConfig() *Config {
 	return &Config{
-		CertPath:                getEnv("CERT_PATH", "security/tls.crt"),
-		KeyPath:                 getEnv("CERT_KEY_PATH", "security/tls.key"),
+		CertPath:                getEnv("CERT_PATH", "security/tls.crt", false),
+		KeyPath:                 getEnv("CERT_KEY_PATH", "security/tls.key", false),
+		CACertsPath:             getEnv("ROOT_CA_CERTS_PATH", "", false),
 		LogLevel:                getLogLevel(),
-		GrantType:               getEnv("CREDS_GRANT_TYPE", ""),
-		ClientSecret:            getEnv("CREDS_CLIENT_SECRET", ""),
-		ClientId:                getEnv("CREDS_CLIENT_ID", ""),
-		AuthTokenOutputFileName: getEnv("OUTPUT_FILE", "/tmp/authToken.txt"),
-		AuthServiceUrl:          getEnv("AUTH_SERVICE_URL", "https://localhost:39687/example-singlelogin-sever/login"),
+		GrantType:               getEnv("CREDS_GRANT_TYPE", "", false),
+		ClientSecret:            getEnv("CREDS_CLIENT_SECRET", "", true),
+		ClientId:                getEnv("CREDS_CLIENT_ID", "", false),
+		AuthTokenOutputFileName: getEnv("OUTPUT_FILE", "/tmp/authToken.txt", false),
+		AuthServiceUrl:          getEnv("AUTH_SERVICE_URL", "https://localhost:39687/example-singlelogin-sever/login", false),
 		RefreshMarginSeconds:    getEnvAsInt("REFRESH_MARGIN_SECONDS", 5, 1, 3600),
 	}
 }
@@ -61,21 +63,29 @@ func validateConfiguration(configuration *Config) error {
 		return fmt.Errorf("missing CERT_PATH and/or CERT_KEY_PATH")
 	}
 
+	if configuration.CACertsPath == "" {
+		log.Warn("No Root CA certs loaded, no trust validation may be performed")
+	}
+
 	return nil
 }
 
-func getEnv(key string, defaultVal string) string {
+func getEnv(key string, defaultVal string, secret bool) string {
 	if value, exists := os.LookupEnv(key); exists {
-		log.Debugf("Using value: '%v' for '%v'", value, key)
+		if !secret {
+			log.Debugf("Using value: '%v' for '%v'", value, key)
+		}
 		return value
 	} else {
-		log.Debugf("Using default value: '%v' for '%v'", defaultVal, key)
+		if !secret {
+			log.Debugf("Using default value: '%v' for '%v'", defaultVal, key)
+		}
 		return defaultVal
 	}
 }
 
 func getEnvAsInt(name string, defaultVal int, min int, max int) int {
-	valueStr := getEnv(name, "")
+	valueStr := getEnv(name, fmt.Sprint(defaultVal), false)
 	if value, err := strconv.Atoi(valueStr); err == nil {
 		if value < min || value > max {
 			log.Warnf("Value out of range: '%v' for variable: '%v'. Default value: '%v' will be used", valueStr, name, defaultVal)
@@ -90,7 +100,7 @@ func getEnvAsInt(name string, defaultVal int, min int, max int) int {
 }
 
 func getLogLevel() log.Level {
-	logLevelStr := getEnv("LOG_LEVEL", "Info")
+	logLevelStr := getEnv("LOG_LEVEL", "Info", false)
 	if loglevel, err := log.ParseLevel(logLevelStr); err == nil {
 		return loglevel
 	} else {
