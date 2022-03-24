@@ -36,7 +36,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createHttpClientMock(t *testing.T, configuration *Config, wg *sync.WaitGroup, token JwtToken) *http.Client {
+func createHttpClientMock(t *testing.T, configuration *Config, token JwtToken) *http.Client {
 	assertions := require.New(t)
 	clientMock := NewTestClient(func(req *http.Request) *http.Response {
 		if req.URL.String() == configuration.AuthServiceUrl {
@@ -47,7 +47,7 @@ func createHttpClientMock(t *testing.T, configuration *Config, wg *sync.WaitGrou
 			assertions.Contains(body, "grant_type="+configuration.GrantType)
 			contentType := req.Header.Get("content-type")
 			assertions.Equal("application/x-www-form-urlencoded", contentType)
-			wg.Done()
+
 			return &http.Response{
 				StatusCode: 200,
 				Body:       ioutil.NopCloser(bytes.NewBuffer(toBody(token))),
@@ -78,16 +78,11 @@ func TestFetchAndStoreToken(t *testing.T) {
 	accessToken := "Access_token" + fmt.Sprint(time.Now().UnixNano())
 	token := JwtToken{Access_token: accessToken, Expires_in: 7, Token_type: "Token_type"}
 
-	wg := sync.WaitGroup{}
-	wg.Add(2) // Get token two times
-	clientMock := createHttpClientMock(t, configuration, &wg, token)
+	clientMock := createHttpClientMock(t, configuration, token)
 
 	go periodicRefreshIwtToken(clientMock, context)
 
-	if waitTimeout(&wg, 12*time.Second) {
-		t.Error("Not all calls to server were made")
-		t.Fail()
-	}
+	waitForFile(configuration.AuthTokenOutputFileName, 30, t)
 
 	tokenFileContent, err := ioutil.ReadFile(configuration.AuthTokenOutputFileName)
 	check(err)
@@ -95,6 +90,18 @@ func TestFetchAndStoreToken(t *testing.T) {
 	assertions.Equal(accessToken, string(tokenFileContent))
 
 	context.Running = false
+}
+
+func waitForFile(fileName string, maxTimeSeconds int, t *testing.T) bool {
+	for i := 1; i < maxTimeSeconds; i++ {
+		if _, err := os.Stat(fileName); err == nil {
+			return true
+		}
+		time.Sleep(time.Second)
+	}
+	t.Error("File not created: " + fileName)
+	t.Fail()
+	return false
 }
 
 func TestStart(t *testing.T) {
@@ -105,6 +112,9 @@ func TestStart(t *testing.T) {
 	configuration.AuthTokenOutputFileName = "/tmp/authToken" + fmt.Sprint(time.Now().UnixNano())
 	configuration.CACertsPath = configuration.CertPath
 	context := NewContext(configuration)
+	t.Cleanup(func() {
+		os.Remove(configuration.AuthTokenOutputFileName)
+	})
 
 	start(context)
 
