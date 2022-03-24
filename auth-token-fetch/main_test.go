@@ -28,7 +28,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"sync"
 	"testing"
 	"time"
 
@@ -82,7 +81,7 @@ func TestFetchAndStoreToken(t *testing.T) {
 
 	go periodicRefreshIwtToken(clientMock, context)
 
-	waitForFile(configuration.AuthTokenOutputFileName, 30, t)
+	await(func() bool { return fileExists(configuration.AuthTokenOutputFileName) }, t)
 
 	tokenFileContent, err := ioutil.ReadFile(configuration.AuthTokenOutputFileName)
 	check(err)
@@ -92,16 +91,24 @@ func TestFetchAndStoreToken(t *testing.T) {
 	context.Running = false
 }
 
-func waitForFile(fileName string, maxTimeSeconds int, t *testing.T) bool {
-	for i := 1; i < maxTimeSeconds; i++ {
-		if _, err := os.Stat(fileName); err == nil {
-			return true
+func fileExists(fileName string) bool {
+	if _, err := os.Stat(fileName); err == nil {
+		return true
+	}
+	log.Debug("Waiting for file: " + fileName)
+	return false
+}
+
+func await(predicate func() bool, t *testing.T) {
+	MAX_TIME_SECONDS := 30
+	for i := 1; i < MAX_TIME_SECONDS; i++ {
+		if predicate() {
+			return
 		}
 		time.Sleep(time.Second)
 	}
-	t.Error("File not created: " + fileName)
+	t.Error("Predicate not fulfilled")
 	t.Fail()
-	return false
 }
 
 func TestStart(t *testing.T) {
@@ -142,22 +149,6 @@ func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 func NewTestClient(fn RoundTripFunc) *http.Client {
 	return &http.Client{
 		Transport: RoundTripFunc(fn),
-	}
-}
-
-// waitTimeout waits for the waitgroup for the specified max timeout.
-// Returns true if waiting timed out.
-func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
-	c := make(chan struct{})
-	go func() {
-		defer close(c)
-		wg.Wait()
-	}()
-	select {
-	case <-c:
-		return false // completed normally
-	case <-time.After(timeout):
-		return true // timed out
 	}
 }
 
