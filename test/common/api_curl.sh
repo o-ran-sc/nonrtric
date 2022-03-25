@@ -159,12 +159,15 @@ __do_curl_to_api() {
         echo "-000"
         return 1
     fi
-
+	jwt=""
+	if [ ! -z "$KUBE_PROXY_CURL_JWT" ]; then
+		jwt=" -H "\""Authorization: Bearer $KUBE_PROXY_CURL_JWT"\"
+	fi
 	if [ $__ADAPTER_TYPE == "REST" ]; then
         url=" "${__ADAPTER}${input_url}
         oper=" -X "$oper
         curlString="curl -k $proxyflag "${oper}${timeout}${httpcode}${accept}${content}${url}${file}
-        echo " CMD: "$curlString >> $HTTPLOG
+        echo " CMD: $curlString $jwt" >> $HTTPLOG
 		if [ $# -gt 3 ]; then
 			echo " FILE: $(<$fname)" >> $HTTPLOG
 		fi
@@ -174,7 +177,11 @@ __do_curl_to_api() {
 		while [ $maxretries -ge 0 ]; do
 
 			let maxretries=maxretries-1
-			res=$($curlString)
+			if [ ! -z "$KUBE_PROXY_CURL_JWT" ]; then
+				res=$($curlString -H "Authorization: Bearer $KUBE_PROXY_CURL_JWT")
+			else
+				res=$($curlString)
+			fi
 			retcode=$?
 			if [ $retcode -ne 0 ]; then
 				echo " RETCODE: "$retcode >> $HTTPLOG

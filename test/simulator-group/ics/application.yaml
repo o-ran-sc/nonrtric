@@ -63,3 +63,5 @@ app:
     http.proxy-host: $ICS_HTTP_PROXY_CONFIG_HOST_NAME
     http.proxy-port: $ICS_HTTP_PROXY_CONFIG_PORT
   vardata-directory: $ICS_CONTAINER_MNT_DIR
+  # If the file name is empty, no authorzation token is sent
+  auth-token-file: $ICS_SIDECAR_JWT_FILE

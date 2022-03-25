@@ -274,8 +274,14 @@ __execute_curl_to_prodstub() {
 			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
-	echo " CMD: $3 $proxyflag" >> $HTTPLOG
-	res="$($3 $proxyflag)"
+	if [ ! -z "$KUBE_PROXY_CURL_JWT" ]; then
+		jwt="-H "\""Authorization: Bearer $KUBE_PROXY_CURL_JWT"\"
+		echo " CMD: $3 $proxyflag $jwt" >> $HTTPLOG
+		res=$($3 $proxyflag -H "Authorization: Bearer $KUBE_PROXY_CURL_JWT")
+	else
+		echo " CMD: $3 $proxyflag" >> $HTTPLOG
+		res="$($3 $proxyflag)"
+	fi
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then

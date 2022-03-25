@@ -89,6 +89,7 @@ __ICS_store_docker_logs() {
 # args: -
 __ICS_initial_setup() {
 	use_ics_rest_http
+	export ICS_SIDECAR_JWT_FILE=""
 }
 
 # Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
@@ -278,6 +279,10 @@ start_ics() {
 			# Create app
 			input_yaml=$SIM_GROUP"/"$ICS_COMPOSE_DIR"/"app.yaml
 			output_yaml=$PWD/tmp/ics_app.yaml
+			if [ -z "$ICS_SIDECAR_JWT_FILE" ]; then
+				cat $input_yaml | sed  '/#ICS_JWT_START/,/#ICS_JWT_STOP/d' > $PWD/tmp/ics_app_tmp.yaml
+				input_yaml=$PWD/tmp/ics_app_tmp.yaml
+			fi
 			__kube_create_instance app $ICS_APP_NAME $input_yaml $output_yaml
 		fi
 
@@ -448,7 +453,7 @@ set_ics_debug() {
 # (Function for test scripts)
 set_ics_trace() {
 	echo -e $BOLD"Setting ics trace logging"$EBOLD
-	curlString="$ICS_SERVICE_PATH/actuator/loggers/org.oransc.information -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	curlString="$ICS_SERVICE_PATH$ICS_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "Could not set trace mode" $@
@@ -2461,4 +2466,17 @@ ics_kube_pvc_reset() {
 
 	__log_test_pass
 	return 0
+}
+
+# args: <realm> <client-name> <client-secret>
+ics_configure_sec() {
+	export ICS_CREDS_GRANT_TYPE="client_credentials"
+	export ICS_CREDS_CLIENT_SECRET=$3
+	export ICS_CREDS_CLIENT_ID=$2
+	export ICS_AUTH_SERVICE_URL=$KEYCLOAK_SERVICE_PATH$KEYCLOAK_TOKEN_URL_PREFIX/$1/protocol/openid-connect/token
+	export ICS_SIDECAR_MOUNT="/token-cache"
+	export ICS_SIDECAR_JWT_FILE=$ICS_SIDECAR_MOUNT"/jwt.txt"
+
+	export AUTHSIDECAR_APP_NAME
+	export AUTHSIDECAR_DISPLAY_NAME
 }

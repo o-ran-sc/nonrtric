@@ -18,15 +18,15 @@
 #
 
 # This is a script that contains container/service management functions
-# for PVCCLEANER
+# for AUTHSIDECAR
 
 ################ Test engine functions ################
 
 # Create the image var used during the test
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
-__PVCCLEANER_imagesetup() {
-	__check_and_create_image_var PVCCLEANER "PVC_CLEANER_IMAGE" "PVC_CLEANER_IMAGE_BASE" "PVC_CLEANER_IMAGE_TAG" REMOTE_PROXY "$PVC_CLEANER_DISPLAY_NAME"
+__AUTHSIDECAR_imagesetup() {
+	__check_and_create_image_var AUTHSIDECAR "AUTHSIDECAR_IMAGE" "AUTHSIDECAR_IMAGE_BASE" "AUTHSIDECAR_IMAGE_TAG" $1 "$AUTHSIDECAR_DISPLAY_NAME"
 }
 
 # Pull image from remote repo or use locally built image
@@ -34,59 +34,59 @@ __PVCCLEANER_imagesetup() {
 # <pull-policy-override> Shall be used for images allowing overriding. For example use a local image when test is started to use released images
 # <pull-policy-original> Shall be used for images that does not allow overriding
 # Both var may contain: 'remote', 'remote-remove' or 'local'
-__PVCCLEANER_imagepull() {
-	__check_and_pull_image $1 "$PVC_CLEANER_DISPLAY_NAME" $PVC_CLEANER_APP_NAME PVC_CLEANER_IMAGE
+__AUTHSIDECAR_imagepull() {
+	__check_and_pull_image $1 "$AUTHSIDECAR_DISPLAY_NAME" $AUTHSIDECAR_APP_NAME AUTHSIDECAR_IMAGE
 }
 
 # Build image (only for simulator or interfaces stubs owned by the test environment)
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
-__PVCCLEANER_imagebuild() {
-	echo -e $RED"Image for app PVCCLEANER shall never be built"$ERED
+__AUTHSIDECAR_imagebuild() {
+	echo -e $RED"Image for app AUTHSIDECAR shall never be built"$ERED
 }
 
 # Generate a string for each included image using the app display name and a docker images format string
 # If a custom image repo is used then also the source image from the local repo is listed
 # arg: <docker-images-format-string> <file-to-append>
-__PVCCLEANER_image_data() {
-	echo -e "$PVC_CLEANER_DISPLAY_NAME\t$(docker images --format $1 $PVC_CLEANER_IMAGE)" >>   $2
-	if [ ! -z "$PVC_CLEANER_IMAGE_SOURCE" ]; then
-		echo -e "-- source image --\t$(docker images --format $1 $PVC_CLEANER_IMAGE_SOURCE)" >>   $2
+__AUTHSIDECAR_image_data() {
+	echo -e "$AUTHSIDECAR_DISPLAY_NAME\t$(docker images --format $1 $AUTHSIDECAR_IMAGE)" >>   $2
+	if [ ! -z "$AUTHSIDECAR_IMAGE_SOURCE" ]; then
+		echo -e "-- source image --\t$(docker images --format $1 $AUTHSIDECAR_IMAGE_SOURCE)" >>   $2
 	fi
 }
 
 # Scale kubernetes resources to zero
 # All resources shall be ordered to be scaled to 0, if relevant. If not relevant to scale, then do no action.
 # This function is called for apps fully managed by the test script
-__PVCCLEANER_kube_scale_zero() {
+__AUTHSIDECAR_kube_scale_zero() {
 	:
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
 # This function is called for prestarted apps not managed by the test script.
-__PVCCLEANER_kube_scale_zero_and_wait() {
+__AUTHSIDECAR_kube_scale_zero_and_wait() {
 	:
 }
 
 # Delete all kube resouces for the app
 # This function is called for apps managed by the test script.
-__PVCCLEANER_kube_delete_all() {
+__AUTHSIDECAR_kube_delete_all() {
 	:
 }
 
 # Store docker logs
 # This function is called for apps managed by the test script.
 # args: <log-dir> <file-prexix>
-__PVCCLEANER_store_docker_logs() {
+__AUTHSIDECAR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
-		kubectl $KUBECONF  logs -l "autotest=PVCCLEANER" -A --tail=-1 > $1$2_pvs_cleaner.log 2>&1
+		kubectl $KUBECONF  logs -l "autotest=AUTHSIDECAR" -A --tail=-1 > $1$2_authsidecar.log 2>&1
 	fi
 }
 
 # Initial setup of protocol, host and ports
 # This function is called for apps managed by the test script.
 # args: -
-__PVCCLEANER_initial_setup() {
+__AUTHSIDECAR_initial_setup() {
 	:
 }
 
@@ -94,16 +94,16 @@ __PVCCLEANER_initial_setup() {
 # For docker, the namespace shall be excluded
 # This function is called for apps managed by the test script as well as for prestarted apps.
 # args: -
-__PVCCLEANER_statisics_setup() {
+__AUTHSIDECAR_statisics_setup() {
 	echo ""
 }
 
 # Check application requirements, e.g. helm, the the test needs. Exit 1 if req not satisfied
 # args: -
-__PVCCLEANER_test_requirements() {
+__AUTHSIDECAR_test_requirements() {
 	:
 }
 
 #######################################################
 
-# This is a system app, all usage in testcase_common.sh
+# This app is intended as a sidecard container - no specific test functions

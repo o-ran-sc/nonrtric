@@ -1,0 +1,15 @@
+apiVersion: "security.istio.io/v1beta1"
+kind: RequestAuthentication
+metadata:
+  name: $ISTIO_TEMPLATE_REPLACE_RA_NAME
+  namespace: $ISTIO_TEMPLATE_REPLACE_RA_NS
+  labels:
+    autotest: ISTIO
+spec:
+  selector:
+    matchLabels:
+      run: $ISTIO_TEMPLATE_REPLACE_RA_APP_NAME
+  jwtRules:
+  - issuer: "$ISTIO_TEMPLATE_REPLACE_RA_ISSUER"
+    jwks: |
+           $ISTIO_TEMPLATE_REPLACE_RA_JWKS
