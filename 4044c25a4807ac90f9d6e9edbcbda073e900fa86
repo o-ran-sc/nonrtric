@@ -16,6 +16,23 @@
       "message": "I just moved this code to the new repo for this product. Can you please do this in the new repo, nonrtric/plt/dmaapadapter?",
       "revId": "4044c25a4807ac90f9d6e9edbcbda073e900fa86",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab5e2647_d5d7a932",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2022-03-28T13:11:13Z",
+      "side": 1,
+      "message": "OK",
+      "revId": "4044c25a4807ac90f9d6e9edbcbda073e900fa86",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
