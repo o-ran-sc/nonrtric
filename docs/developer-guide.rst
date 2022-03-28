@@ -58,16 +58,6 @@ Then start the container by running the following command:
     | docker run nonrtric-information-coordinator-service                |
     +--------------------------------------------------------------------+
 
-DMaaP Adaptor Service
----------------------
-
-This Java implementation is run in the same way as the Information Coordinator Service.
-
-The following properties in the application.yaml file have to be modified:
-* server.ssl.key-store=./config/keystore.jks
-* app.webclient.trust-store=./config/truststore.jks
-* app.configuration-filepath=./src/test/resources/test_application_configuration.json
-
 O-DU & O-RU fronthaul recovery
 ------------------------------
 

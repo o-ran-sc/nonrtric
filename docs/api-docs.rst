@@ -21,7 +21,6 @@ The core Non-RT RIC consists of several parts, with available APIs described in 
 
 * The A1 Policy Management Service
 * The Information Coordinator Service
-* DMaaP Adaptor
 * K8S Helm Chart LCM Manager (Initial) **<ToDo>**
 
 A1 Policy Management Service
@@ -41,22 +40,6 @@ The API is also described in Swagger-JSON and YAML:
    :widths: 10,5,5
 
    "A1 Information Coordination Service API", ":download:`link <../information-coordinator-service/api/ics-api.json>`", ":download:`link <../information-coordinator-service/api/ics-api.yaml>`"
-
-DMaaP Adaptor
-=============
-
-The DMaaP Adaptor provides support for push delivery of any data received from DMaaP or Kafka.
-
-See `DMaaP Adaptor API <./dmaap-adaptor-api.html>`_ for full details of the API.
-
-The API is also described in Swagger-JSON and YAML:
-
-
-.. csv-table::
-   :header: "API name", "|swagger-icon|", "|yaml-icon|"
-   :widths: 10,5, 5
-
-   "DMaaP Adaptor API", ":download:`link <../dmaap-adaptor-java/api/api.json>`", ":download:`link <../dmaap-adaptor-java/api/api.yaml>`"
 
 K8S Helm Chart LCM Manager (Initial)
 ====================================

@@ -184,7 +184,7 @@ Information jobs defined using ICS then allow information consumers to retrieve 
 
 There are two alternative implementations to allow Information Consumers to consume DMaaP or Kafka events as coordinated Information Jobs.
 
-1. A version implemented in Java Spring (DMaaP Adaptor Service).
+1. A version implemented in Java Spring (DMaaP Adaptor Service), see `DMaaP Adapter documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapadapter/en/latest/>`_.
 2. A version implemented in Go (DMaaP Mediator Producer), see `DMaaP Mediator Producer documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapmediatorproducer>`_.
 
 Initial Non-RT-RIC App Catalogue
