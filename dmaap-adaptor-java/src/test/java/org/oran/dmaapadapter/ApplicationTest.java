@@ -77,6 +77,7 @@ import reactor.test.StepVerifier;
 @TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
+        "app.webclient.trust-store-used=true", //
         "app.configuration-filepath=./src/test/resources/test_application_configuration.json"//
 })
 class ApplicationTest {
@@ -269,7 +270,7 @@ class ApplicationTest {
         kafkaConsumer.start(Flux.just("data"));
 
         ConsumerController.TestResults consumer = this.consumerController.testResults;
-        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(1));
+        await().untilAsserted(() -> assertThat(consumer.receivedBodies).hasSize(1));
         assertThat(consumer.receivedBodies.get(0)).isEqualTo("[\"data\"]");
 
         // Test send an exception
@@ -304,7 +305,7 @@ class ApplicationTest {
         DmaapSimulatorController.dmaapResponses.add("DmaapResponse1");
         DmaapSimulatorController.dmaapResponses.add("DmaapResponse2");
         ConsumerController.TestResults consumer = this.consumerController.testResults;
-        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(consumer.receivedBodies).hasSize(2));
         assertThat(consumer.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
 
         String jobUrl = baseUrl() + ProducerCallbacksController.JOB_URL;

@@ -82,8 +82,7 @@ public class AsyncRestClientFactory {
                 return new AsyncRestClient(baseUrl, this.sslContextFactory.createSslContext(),
                         useHttpProxy ? httpProxyConfig : null);
             } catch (Exception e) {
-                String exceptionString = e.toString();
-                logger.error("Could not init SSL context, reason: {}", exceptionString);
+                logger.error("Could not init SSL context, reason: {}", e.toString());
             }
         }
         return new AsyncRestClient(baseUrl, null, httpProxyConfig);

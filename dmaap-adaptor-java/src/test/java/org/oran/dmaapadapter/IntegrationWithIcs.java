@@ -38,7 +38,6 @@ import org.oran.dmaapadapter.configuration.ImmutableWebClientConfig;
 import org.oran.dmaapadapter.configuration.WebClientConfig;
 import org.oran.dmaapadapter.configuration.WebClientConfig.HttpProxyConfig;
 import org.oran.dmaapadapter.r1.ConsumerJobInfo;
-import org.oran.dmaapadapter.repository.InfoTypes;
 import org.oran.dmaapadapter.repository.Job;
 import org.oran.dmaapadapter.repository.Jobs;
 import org.oran.dmaapadapter.tasks.ProducerRegstrationTask;
@@ -52,7 +51,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 
 @SuppressWarnings("java:S3577") // Rename class
 @ExtendWith(SpringExtension.class)
@@ -76,9 +74,6 @@ class IntegrationWithIcs {
 
     @Autowired
     private Jobs jobs;
-
-    @Autowired
-    private InfoTypes types;
 
     @Autowired
     private ConsumerController consumerController;
@@ -262,7 +257,7 @@ class IntegrationWithIcs {
         DmaapSimulatorController.dmaapResponses.add("Junk");
 
         ConsumerController.TestResults results = this.consumerController.testResults;
-        await().untilAsserted(() -> assertThat(results.receivedBodies.size()).isEqualTo(2));
+        await().untilAsserted(() -> assertThat(results.receivedBodies).hasSize(2));
         assertThat(results.receivedBodies.get(0)).isEqualTo("DmaapResponse1");
 
         deleteInformationJobInIcs(DMAAP_JOB_ID);

@@ -242,10 +242,15 @@ class IntegrationWithKafka {
 
     private void verifiedReceivedByConsumer(String... strings) {
         ConsumerController.TestResults consumer = this.consumerController.testResults;
-        await().untilAsserted(() -> assertThat(consumer.receivedBodies.size()).isEqualTo(strings.length));
+        await().untilAsserted(() -> assertThat(consumer.receivedBodies).hasSize(strings.length));
         for (String s : strings) {
             assertTrue(consumer.hasReceived(s));
         }
+    }
+
+    @SuppressWarnings("squid:S2925") // "Thread.sleep" should not be used in tests.
+    private static void sleep(long millis) throws InterruptedException {
+        Thread.sleep(millis);
     }
 
     @Test
@@ -259,7 +264,7 @@ class IntegrationWithKafka {
         this.icsSimulatorController.addJob(consumerJobInfo(null, Duration.ZERO, 0, 1), JOB_ID, restClient());
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(1));
 
-        Thread.sleep(4000);
+        sleep(4000);
         var dataToSend = Flux.just(senderRecord("Message"));
         sendDataToStream(dataToSend);
 
@@ -287,7 +292,7 @@ class IntegrationWithKafka {
 
         await().untilAsserted(() -> assertThat(this.jobs.size()).isEqualTo(2));
 
-        Thread.sleep(2000);
+        sleep(2000);
         var dataToSend = Flux.range(1, 3).map(i -> senderRecord("Message_" + i)); // Message_1, Message_2 etc.
         sendDataToStream(dataToSend);
 
@@ -326,7 +331,7 @@ class IntegrationWithKafka {
 
         this.icsSimulatorController.deleteJob(JOB_ID2, restClient()); // Delete one job
         kafkaTopicConsumers.restartNonRunningTopics();
-        Thread.sleep(1000); // Restarting the input seems to take some asynch time
+        sleep(1000); // Restarting the input seems to take some asynch time
 
         dataToSend = Flux.just(senderRecord("Howdy\""));
         sendDataToStream(dataToSend);
