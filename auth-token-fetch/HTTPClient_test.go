@@ -23,22 +23,12 @@ package main
 import (
 	"crypto/tls"
 
-	"net/http"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 )
-
-func TestRequestError_Error(t *testing.T) {
-	assertions := require.New(t)
-	actualError := RequestError{
-		StatusCode: http.StatusBadRequest,
-		Body:       []byte("error"),
-	}
-	assertions.Equal("Request failed due to error response with status: 400 and body: error", actualError.Error())
-}
 
 func Test_CreateClient(t *testing.T) {
 	assertions := require.New(t)
@@ -48,12 +38,4 @@ func Test_CreateClient(t *testing.T) {
 	transport := client.Transport
 	assertions.Equal("*http.Transport", reflect.TypeOf(transport).String())
 	assertions.Equal(5*time.Second, client.Timeout)
-}
-
-func TestIsUrlSecured(t *testing.T) {
-	assertions := require.New(t)
-
-	assertions.True(IsUrlSecure("https://url"))
-
-	assertions.False(IsUrlSecure("http://url"))
 }

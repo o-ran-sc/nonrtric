@@ -61,3 +61,38 @@ func TestNew_envVarsSetConfigContainSetValues(t *testing.T) {
 
 	assertions.Equal(&wantConfig, got)
 }
+
+func TestNew_defaultValues(t *testing.T) {
+	assertions := require.New(t)
+
+	wantConfig := Config{
+		LogLevel:                log.InfoLevel,
+		CertPath:                "security/tls.crt",
+		KeyPath:                 "security/tls.key",
+		AuthServiceUrl:          "https://localhost:39687/example-singlelogin-sever/login",
+		GrantType:               "",
+		ClientSecret:            "",
+		ClientId:                "",
+		AuthTokenOutputFileName: "/tmp/authToken.txt",
+		CACertsPath:             "",
+		RefreshMarginSeconds:    5,
+	}
+	got := NewConfig()
+	assertions.Equal(nil, validateConfiguration(got))
+
+	assertions.Equal(&wantConfig, got)
+}
+
+func TestNew_invalidValues(t *testing.T) {
+	assertions := require.New(t)
+
+	os.Setenv("LOG_LEVEL", "Junk")
+	os.Setenv("REFRESH_MARGIN_SECONDS", "Junk")
+	t.Cleanup(func() {
+		os.Clearenv()
+	})
+
+	got := NewConfig()
+	assertions.Equal(log.InfoLevel, got.LogLevel)
+	assertions.Equal(5, got.RefreshMarginSeconds)
+}
