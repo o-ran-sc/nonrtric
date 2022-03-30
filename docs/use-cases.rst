@@ -3,18 +3,18 @@
 .. Copyright (C) 2021 Nordix
 
 Use Cases
----------
+#########
 
-To support the use cases defined for the Non-RT RIC, there are implementations provided in the nonrtric repo, see:
-  nonrtric/test/usecases
+To support the use cases defined for the Non-RT RIC, there are implementations provided in the Non RT-RIC project.
 
 Health Check
 ------------
+
 The Health Check use case for the Non-RT RIC is a python script that regularly creates, reads, updates, and deletes a
 policy in all Near-RT RICs that support the type used by the script. A self refreshing web page provides a view of
 statistics for these regular checks.
 
-For more information about it, see the README file in the use case's folder.
+For more information about it, see the README file in `repo <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric%2Frapp%2Fhealthcheck.git;a=summary>`_.
 
 .. image:: ./images/healthcheck.png
 
