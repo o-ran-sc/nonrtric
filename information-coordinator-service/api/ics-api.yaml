@@ -65,6 +65,19 @@ paths:
                 type: array
                 items:
                   type: string
+  /actuator/threaddump:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'threaddump'
+      operationId: threaddump_2
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /A1-EI/v1/eitypes/{eiTypeId}:
     get:
       tags:
@@ -92,19 +105,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /actuator/threaddump:
-    get:
-      tags:
-      - Actuator
-      summary: Actuator web endpoint 'threaddump'
-      operationId: threaddump_4
-      responses:
-        200:
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /data-producer/v1/info-types/{infoTypeId}:
     get:
       tags:
@@ -321,7 +321,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'loggers'
-      operationId: loggers_2
+      operationId: loggers
       responses:
         200:
           description: OK
@@ -334,7 +334,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'health-path'
-      operationId: health-path_2
+      operationId: health-path
       responses:
         200:
           description: OK
@@ -384,7 +384,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'metrics-requiredMetricName'
-      operationId: metrics-requiredMetricName_2
+      operationId: metrics-requiredMetricName
       parameters:
       - name: requiredMetricName
         in: path
@@ -405,7 +405,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator root web endpoint
-      operationId: links_1
+      operationId: links
       responses:
         200:
           description: OK
@@ -461,7 +461,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'loggers-name'
-      operationId: loggers-name_4
+      operationId: loggers-name_2
       parameters:
       - name: name
         in: path
@@ -481,7 +481,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'loggers-name'
-      operationId: loggers-name_3
+      operationId: loggers-name
       parameters:
       - name: name
         in: path
@@ -627,7 +627,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'metrics'
-      operationId: metrics_2
+      operationId: metrics
       responses:
         200:
           description: OK
@@ -669,7 +669,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'info'
-      operationId: info_2
+      operationId: info
       responses:
         200:
           description: OK
@@ -947,7 +947,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'logfile'
-      operationId: logfile_2
+      operationId: logfile
       responses:
         200:
           description: OK
@@ -1131,7 +1131,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'health'
-      operationId: health_2
+      operationId: health
       responses:
         200:
           description: OK
@@ -1213,7 +1213,7 @@ paths:
       tags:
       - Actuator
       summary: Actuator web endpoint 'heapdump'
-      operationId: heapdump_2
+      operationId: heapdump
       responses:
         200:
           description: OK

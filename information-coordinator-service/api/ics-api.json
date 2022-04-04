@@ -339,6 +339,15 @@
             }},
             "tags": ["Data producer (registration)"]
         }},
+        "/actuator/threaddump": {"get": {
+            "summary": "Actuator web endpoint 'threaddump'",
+            "operationId": "threaddump_2",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
         "/A1-EI/v1/eitypes/{eiTypeId}": {"get": {
             "summary": "Individual EI type",
             "operationId": "getEiType",
@@ -359,15 +368,6 @@
                 "required": true
             }],
             "tags": ["A1-EI (registration)"]
-        }},
-        "/actuator/threaddump": {"get": {
-            "summary": "Actuator web endpoint 'threaddump'",
-            "operationId": "threaddump_4",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"*/*": {"schema": {"type": "object"}}}
-            }},
-            "tags": ["Actuator"]
         }},
         "/data-producer/v1/info-types/{infoTypeId}": {
             "get": {
@@ -536,7 +536,7 @@
         }},
         "/actuator/loggers": {"get": {
             "summary": "Actuator web endpoint 'loggers'",
-            "operationId": "loggers_2",
+            "operationId": "loggers",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -545,7 +545,7 @@
         }},
         "/actuator/health/**": {"get": {
             "summary": "Actuator web endpoint 'health-path'",
-            "operationId": "health-path_2",
+            "operationId": "health-path",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -580,7 +580,7 @@
         }},
         "/actuator/metrics/{requiredMetricName}": {"get": {
             "summary": "Actuator web endpoint 'metrics-requiredMetricName'",
-            "operationId": "metrics-requiredMetricName_2",
+            "operationId": "metrics-requiredMetricName",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -595,7 +595,7 @@
         }},
         "/actuator": {"get": {
             "summary": "Actuator root web endpoint",
-            "operationId": "links_1",
+            "operationId": "links",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {
@@ -646,7 +646,7 @@
         "/actuator/loggers/{name}": {
             "post": {
                 "summary": "Actuator web endpoint 'loggers-name'",
-                "operationId": "loggers-name_3",
+                "operationId": "loggers-name",
                 "responses": {"200": {
                     "description": "OK",
                     "content": {"*/*": {"schema": {"type": "object"}}}
@@ -661,7 +661,7 @@
             },
             "get": {
                 "summary": "Actuator web endpoint 'loggers-name'",
-                "operationId": "loggers-name_4",
+                "operationId": "loggers-name_2",
                 "responses": {"200": {
                     "description": "OK",
                     "content": {"*/*": {"schema": {"type": "object"}}}
@@ -770,7 +770,7 @@
         }},
         "/actuator/metrics": {"get": {
             "summary": "Actuator web endpoint 'metrics'",
-            "operationId": "metrics_2",
+            "operationId": "metrics",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -799,7 +799,7 @@
         }},
         "/actuator/info": {"get": {
             "summary": "Actuator web endpoint 'info'",
-            "operationId": "info_2",
+            "operationId": "info",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -1015,7 +1015,7 @@
         },
         "/actuator/logfile": {"get": {
             "summary": "Actuator web endpoint 'logfile'",
-            "operationId": "logfile_2",
+            "operationId": "logfile",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -1162,7 +1162,7 @@
         }},
         "/actuator/health": {"get": {
             "summary": "Actuator web endpoint 'health'",
-            "operationId": "health_2",
+            "operationId": "health",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -1231,7 +1231,7 @@
         }},
         "/actuator/heapdump": {"get": {
             "summary": "Actuator web endpoint 'heapdump'",
-            "operationId": "heapdump_2",
+            "operationId": "heapdump",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
