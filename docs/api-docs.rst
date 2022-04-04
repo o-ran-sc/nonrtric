@@ -19,14 +19,8 @@ Here we describe the APIs to access the Non-RT RIC functions.
 
 The core Non-RT RIC consists of several parts, with available APIs described in the sections below:
 
-* The A1 Policy Management Service
 * The Information Coordinator Service
 * K8S Helm Chart LCM Manager (Initial) **<ToDo>**
-
-A1 Policy Management Service
-============================
-
-For information about the A1 Policy Management Service that is implemented in ONAP, see `ONAP docs <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_ and `wiki <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_.
 
 Information Coordinator Service
 ===============================
