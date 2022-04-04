@@ -85,6 +85,9 @@ The service is not involved in data delivery and hence does not put restrictions
 Implementation:
 
 * Implemented as a Java Spring Boot application.
+* Repo: *nonrtric/plt/informationcoordinatorservice*.
+
+More details available at the `Information Coordination Service site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-informationcoordinatorservice/en/latest/>`_
 
 A1 Policy Management Service (from ONAP CCSDK)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

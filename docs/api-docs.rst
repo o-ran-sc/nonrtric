@@ -4,12 +4,6 @@
 
 .. _api_docs:
 
-.. |swagger-icon| image:: ./images/swagger.png
-                  :width: 40px
-
-.. |yaml-icon| image:: ./images/yaml_logo.png
-                  :width: 40px
-
 
 ========
 API-Docs
@@ -19,21 +13,7 @@ Here we describe the APIs to access the Non-RT RIC functions.
 
 The core Non-RT RIC consists of several parts, with available APIs described in the sections below:
 
-* The Information Coordinator Service
 * K8S Helm Chart LCM Manager (Initial) **<ToDo>**
-
-Information Coordinator Service
-===============================
-
-See `A1 Information Information Coordination Service API <./ics-api.html>`_ for full details of the API.
-
-The API is also described in Swagger-JSON and YAML:
-
-.. csv-table::
-   :header: "API name", "|swagger-icon|", "|yaml-icon|"
-   :widths: 10,5,5
-
-   "A1 Information Coordination Service API", ":download:`link <../information-coordinator-service/api/ics-api.json>`", ":download:`link <../information-coordinator-service/api/ics-api.yaml>`"
 
 K8S Helm Chart LCM Manager (Initial)
 ====================================
