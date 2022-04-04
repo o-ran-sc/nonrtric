@@ -33,7 +33,6 @@
     <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
     </properties>
     <modules>
-        <module>information-coordinator-service</module>
         <module>helm-manager</module>
     </modules>
     <build>

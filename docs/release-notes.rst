@@ -14,30 +14,6 @@ This document provides the release notes for the release of the different parts 
    :local:
 
 
-Version history Information Coordinator Service
-===============================================
-
-+------------+----------+------------------+--------------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**        |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2020-12-03 | 1.0.0    | Henrik Andersson | Cherry Release     |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2021-06-23 | 1.1.0    | Henrik Andersson | D Release          |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2021-12-13 | 1.2.0    | Henrik Andersson | E Release          |
-|            |          |                  | Renamed and minor  |
-|            |          |                  | improvements       |
-+------------+----------+------------------+--------------------+
-| 2022-02-07 | 1.2.1    | Henrik Andersson | E Maintenance      |
-|            |          |                  | Release            |
-|            |          |                  | Non root user in   |
-|            |          |                  | Docker             |
-+------------+----------+------------------+--------------------+
-
-
 Version history Helm Manager
 ============================
 
