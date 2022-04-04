@@ -14,44 +14,6 @@ This document provides the release notes for the release of the different parts 
    :local:
 
 
-Version history A1 Policy Management Service (A1 Policy Agent) 
-==============================================================
-
-+------------+----------+------------------+--------------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**        |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2020-02-03 | 1.0.0    | Henrik Andersson | First version      |
-|            |          |                  | Amber Maintenance  |
-|            |          |                  | Release            |
-+------------+----------+------------------+--------------------+
-| 2020-06-18 | 2.0.0    | Henrik Andersson | Bronze Release     |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2020-07-29 | 2.0.1    | Henrik Andersson | Bronze Maintenance |
-|            |          |                  | Release            |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2020-12-03 | 2.1.0    | Henrik Andersson | Cherry Release     |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2021-06-23 | 2.2.0    | Henrik Andersson | D Release          |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2021-08-10 | 2.2.1    | Henrik Andersson | D Maintenance      |
-|            |          |                  | Release            |
-|            |          |                  |                    |
-+------------+----------+------------------+--------------------+
-| 2021-12-13 | 2.3.0    | Henrik Andersson | E Release          |
-|            |          |                  | Renamed and minor  |
-|            |          |                  | improvements       |
-+------------+----------+------------------+--------------------+
-| 2022-02-07 | 2.3.1    | Henrik Andersson | E Maintenance      |
-|            |          |                  | Release            |
-|            |          |                  | Non root user in   |
-|            |          |                  | Docker             |
-+------------+----------+------------------+--------------------+
-
 Version history Information Coordinator Service
 ===============================================
 
