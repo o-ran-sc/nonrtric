@@ -69,9 +69,9 @@ More details available at the `NONRTRIC-Portal documentation site <https://docs.
 Information Coordination Service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Coordinate/Register Information Types, Producers, Consumers, and Jobs.
+The ICS is a data subscription service which decouples data producers from data consumers. A data consumer can create a data subscription (Information Job) without any knowledge of its data producers (one subscription may involve several data producers). A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers.
 
-Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs (A1 Enrichment Information Job Coordination).
+A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters, which may be different for different data types. These parameters are not defined or limited by this service.
 
 * Maintains a registry of:
 
@@ -80,10 +80,7 @@ Coordinate/Register A1-EI Types, Producers, Consumers, and Jobs (A1 Enrichment I
   + Information Consumers
   + Information Jobs
 
-* Information Query API (e.g. per producer, per consumer, per types).
-* Query status of Information jobs.
-* After Information-type/Producer/Consumer/Job is successfully registered delivery/flow can happen directly between Information Producers and Information Consumers.
-* The Information Coordinator Service natively supports the O-RAN A1 Enrichment Information (A1-EI) interface, supporting coordination A1-EI Jobs where information (A1-EI)flow from the SMO/Non-RT-RIC/rApps to near-RT-RICs over the A1 interface.
+The service is not involved in data delivery and hence does not put restrictions on this. 
 
 Implementation:
 

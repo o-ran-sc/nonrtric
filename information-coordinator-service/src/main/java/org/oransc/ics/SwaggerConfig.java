@@ -47,7 +47,16 @@ public class SwaggerConfig {
     static final String DESCRIPTION = "<h1>API documentation</h1>" //
         + "<h2>General</h2>" //
         + "<p>" //
-        + "  The service is mainly a broker between data producers and data consumers. A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers. <br /><br />A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters for filtering of the data. These parameters are different for different data types." //
+        + "  The ICS is a data subscription service which decouples data producers from data consumers."
+        + "  A data consumer can create a data subscription (Information Job) without any knowledge of its data producers (one subscription may involve several data producers)."
+        + "  A data producer has the ability to produce one or several types of data (Information Type)."
+        + "  One type of data can be produced by zero to many producers." + "  <br /><br />"
+        + "  A data consumer can have several active data subscriptions (Information Job)."
+        + "  One Information Job consists of the type of data to produce and additional parameters, which may be different for different data types." //
+        + "  These parameters are not defined or limited by this service and may for instance include:" + "  <ul>" //
+        + "   <li>Parameters related to delivery (Kafka stream, callback URL etc.). These are different for different delivery protocols.</li>"
+        + "   <li>Filtering information (scope, filter or other discriminators).</li>" + "   <li>Periodicy</li>"
+        + "   <li>Other info used for aggregation</li>" + "   <ul>" //
         + "</p>" //
         + "<h2>APIs provided by the service</h2>" //
         + "<h4>A1-EI</h4>" //
