@@ -14,11 +14,6 @@ O-DU & O-RU fronthaul recovery
 
 See the page in Wiki: `O-RU Fronthaul Recovery usecase <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_.
 
-Helm Manager
-------------
-
-See the page in Wiki: `Release E <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
-
 Kubernetes deployment
 ---------------------
 

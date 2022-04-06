@@ -127,6 +127,10 @@ Mediation point for A1 interface termination in SMO/NONRTRIC.
 * SLI Mapping logic supported.
 * Can be included in an any controller based on ONAP CCSDK.
 
+Implementation:
+
+* Repo: *nonrtric/plt/sdnca1controller*
+
 See also: `A1 Adapter/Controller Functions in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ .
 
 A1 Interface / Near-RT-RIC Simulator
@@ -184,8 +188,8 @@ Information jobs defined using ICS then allow information consumers to retrieve 
 
 There are two alternative implementations to allow Information Consumers to consume DMaaP or Kafka events as coordinated Information Jobs.
 
-1. A version implemented in Java Spring (DMaaP Adaptor Service), see `DMaaP Adapter documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapadapter/en/latest/>`_.
-2. A version implemented in Go (DMaaP Mediator Producer), see `DMaaP Mediator Producer documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapmediatorproducer>`_.
+1. A version implemented in Java Spring (DMaaP Adaptor Service), repo: *nonrtric/plt/dmaapadapter*, see `DMaaP Adapter documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapadapter/en/latest/>`_.
+2. A version implemented in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see `DMaaP Mediator Producer documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapmediatorproducer>`_.
 
 Initial Non-RT-RIC App Catalogue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,9 +199,12 @@ Register for Non-RT-RIC Apps.
 * Non-RT-RIC Apps can be registered / queried.
 * Limited functionality/integration for now.
 * *More work required in coming releases as the rApp concept matures*.
-* Repo: *portal/nonrtric-plt-rappcatalogue*
 
-More details available at the `documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-rappcatalogue>`_.
+Implementation:
+
+* Repo: *nonrtric/plt/rappcatalogue*
+
+More details available at the `rApp Catalogue documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-rappcatalogue>`_.
 
 Initial K8S Helm Chart LCM Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -210,6 +217,13 @@ Onboard, start, stop, and modify Non-RT-RIC App µServices as Helm Charts.
 * Onboard, Start, Stop, Modify, Monitor.
 * Initial version co-developed with v. similar functions in ONAP.
 * *Limited functionality/integration for now*.
+
+Implementation:
+
+* Implemented as a Java Spring Boot application.
+* Repo: *nonrtric/plt/helmmanager*
+
+More details available at the `Helm Manager documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-helmmanager>`_.
 
 Test Framework
 ~~~~~~~~~~~~~~

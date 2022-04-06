@@ -1,6 +1,0 @@
-{
-  "address" : "chartrepo.nonrtric",
-  "repoName": "cm",
-  "protocol": "http",
-  "port": "8080"
-}

@@ -14,26 +14,6 @@ This document provides the release notes for the release of the different parts 
    :local:
 
 
-Version history Helm Manager
-============================
-
-+------------+----------+------------------+-----------------------------+
-| **Date**   | **Ver.** | **Author**       | **Comment**                 |
-|            |          |                  |                             |
-+------------+----------+------------------+-----------------------------+
-| 2021-06-23 | 1.0.0    | Henrik Andersson | Initial version             |
-|            |          |                  | D Release                   |
-+------------+----------+------------------+-----------------------------+
-| 2021-12-14 | 1.1.0    | Henrik Andersson | E Release                   |
-|            |          |                  | Update to match ONAP Policy |
-|            |          |                  | helm participant            |
-+------------+----------+------------------+-----------------------------+
-| 2022-02-07 | 1.1.1    | Henrik Andersson | E Maintenance Release       |
-|            |          |                  | Non root user in Docker     |
-|            |          |                  |                             |
-+------------+----------+------------------+-----------------------------+
-
-
 Version history SDNC A1 Controller
 ==================================
 

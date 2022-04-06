@@ -9,16 +9,7 @@
 API-Docs
 ========
 
-Here we describe the APIs to access the Non-RT RIC functions.
-
-The core Non-RT RIC consists of several parts, with available APIs described in the sections below:
-
-* K8S Helm Chart LCM Manager (Initial) **<ToDo>**
-
-K8S Helm Chart LCM Manager (Initial)
-====================================
-
-**<ToDo>**
+Descriptions of the APIs to the Non-RT RIC functions can be found in the repos for the functions.
 
 See Also: Non-RT RIC Control Panel
 ==================================
