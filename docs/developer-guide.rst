@@ -9,12 +9,6 @@ This document provides a quickstart for developers of the Non-RT RIC parts.
 
 Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
 
-A1 Policy Management Service & SDNC/A1 Controller & A1 Adapter
---------------------------------------------------------------
-
-The A1 Policy Management Service is implemented in ONAP. For documentation see `ONAP CCSDK documentation <https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html>`_.
-and `wiki <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_.
-
 Information Coordinator Service
 -------------------------------
 The Information Coordinator Service is a Java 11 web application built using the Spring Framework. Using Spring Boot
@@ -69,7 +63,7 @@ Helm Manager
 See the page in Wiki: `Release E <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
 
 Kubernetes deployment
-=====================
+---------------------
 
 Non-RT RIC can be also deployed in a Kubernetes cluster, `it/dep repository <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_.
 hosts deployment and integration artifacts. Instructions and helm charts to deploy the Non-RT-RIC functions in the
