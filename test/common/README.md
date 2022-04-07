@@ -48,7 +48,7 @@ A python script to create a json file from a formatted string of ric info. Helpe
 A python script to delete a batch of policies. The script is intended to run in a number of processes to delete policies in parallel.
 
 `dmaapadp_api_function.sh`
-Contains funnctions for managing the Dmaap Adaptor Service.
+Contains funnctions for managing the Dmaap Adapter.
 
 `dmaapmed_api_function.sh`
 Contains funnctions for managing the Dmaap Mediator Service.

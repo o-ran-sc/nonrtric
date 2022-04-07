@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Testing southbound proxy for Dmaap Adaptor"
+TC_ONELINE_DESCR="Testing southbound proxy for Dmaap Adapter"
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="CR MR ICS HTTPPROXY KUBEPROXY DMAAPADP"
