@@ -16,6 +16,23 @@
       "message": "Verification will fail until https://gerrit.o-ran-sc.org/r/c/ci-management/+/8045 has been committed.",
       "revId": "b2ef1d832b94af02c7a3acefb4c8c5e4db03242b",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbe80d72_3a904bba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-04-07T05:35:47Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "b2ef1d832b94af02c7a3acefb4c8c5e4db03242b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
