@@ -9,11 +9,6 @@ This document provides a quickstart for developers of the Non-RT RIC parts.
 
 Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
 
-O-DU & O-RU fronthaul recovery
-------------------------------
-
-See the page in Wiki: `O-RU Fronthaul Recovery usecase <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_.
-
 Kubernetes deployment
 ---------------------
 

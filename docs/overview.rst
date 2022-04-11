@@ -232,10 +232,18 @@ Use Cases
 
 A very simplified closed-loop rApp use case to re-establish front-haul connections between O-DUs and O-RUs if they fail. Not intended to to be 'real-world'.
 
+Implementation:
+
+- One version implemented in Python, one in Go as an Information Coordination Service Consumer, and one as an apex policy.
+- Repo: *nonrtric/rapp/orufhrecovery*
+
 "Helloworld" O-DU Slice Assurance use case
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A very simplified closed-loop rApp use case to re-prioritize a RAN slice's radio resource allocation priority if sufficient throughput cannot be maintained. Not intended to to be 'real-world'.
-* Repo: *nonrtric/rapp/ransliceassurance*
 
-More details available at the `documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-ransliceassurance>`__.
+Implementation:
+
+- One version implemented in Go as a micro service, one in Go as an Information Coordination Service Consumer.
+- Repo: *nonrtric/rapp/ransliceassurance*
+- Documentation at the `O-DU Slice Assurance site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-ransliceassurance>`__.
