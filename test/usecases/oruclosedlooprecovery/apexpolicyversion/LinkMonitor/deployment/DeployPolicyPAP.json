@@ -1,8 +1,0 @@
-{
-  "policies": [
-    {
-      "policy-id": "onap.policies.native.apex.LinkMonitor",
-      "policy-version": "1.0.0"
-    }
-  ]
-}
