@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "790a968b_a3d5eb1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-04-12T07:41:31Z",
+      "side": 1,
+      "message": "Will fail verification until the following commit has been merged:\nhttps://gerrit.o-ran-sc.org/r/c/ci-management/+/8062",
+      "revId": "cc2606cc13f53ea9390a3e9b8b1f4ffc30a51de3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
