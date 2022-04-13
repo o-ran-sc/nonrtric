@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94ff60d4_dd3d5e79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-04-13T13:59:18Z",
+      "side": 1,
+      "message": "+1 just to make it disappear from my review list....",
+      "revId": "7563539a5df0cd16fee4dd2d2110ba390c8dda6f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
