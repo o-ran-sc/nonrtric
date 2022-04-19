@@ -244,7 +244,7 @@ def sendrequest():
             print(APP_WRITE_URL+" operation="+oper+" url="+url)
             correlation_id=str(time.time_ns())
             payload=None
-            if (oper == "PUT") and (request.json is not None):
+            if (oper == "PUT") and len(request.data) > 0:
                 payload=json.dumps(request.json)
 
             msg=create_message(oper, correlation_id, payload, url)

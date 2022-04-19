@@ -15,7 +15,11 @@
 #   limitations under the License.                                             #
 ################################################################################
 
-# Override file for running the e-release helm recipe including all components
+# Override file for running the latest aegis a1 pms image
 
+# NOTE: This image is located in a different image repo (other than oran and onap)
+# NOTE: Begin with manually pulling the image and then run the testcase
+# NOTE: using the flags "--use-local-image A1PMS --override override_aegis_a1pms.sh"
 
 A1PMS_IMAGE_BASE="aegis-onap-docker-local.artifactory.est.tech/onap/ccsdk-oran-a1policymanagementservice"
+A1PMS_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
