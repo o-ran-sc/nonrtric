@@ -59,14 +59,14 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 
 # A1PMS base image and tags
-A1PMS_IMAGE_BASE="o-ran-sc/nonrtric-a1-policy-management-service"
+A1PMS_IMAGE_BASE="o-ran-sc/nonrtric-plt-a1policymanagementservice"
 A1PMS_IMAGE_TAG_LOCAL="2.4.0-SNAPSHOT"
 A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.0-SNAPSHOT"
 A1PMS_IMAGE_TAG_REMOTE="2.4.0"
 A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.4.0"
 
 # ICS image and tags
-ICS_IMAGE_BASE="o-ran-sc/nonrtric-information-coordinator-service"
+ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
 ICS_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
 ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.0-SNAPSHOT"
 ICS_IMAGE_TAG_REMOTE="1.3.0"
@@ -115,7 +115,7 @@ SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
 
 # RAPP Catalogue image and tags
-RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
+RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
 RAPP_CAT_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
 RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
 RAPP_CAT_IMAGE_TAG_REMOTE="1.1.0"
@@ -130,21 +130,21 @@ RIC_SIM_IMAGE_TAG_REMOTE="2.3.0"
 RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
 
 # DMAAP Mediator Service
-DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-dmaap-mediator-producer"
+DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapmediatorproducer"
 DMAAP_MED_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
 DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
 DMAAP_MED_IMAGE_TAG_REMOTE="1.1.0"
 DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 # DMAAP Adapter Service
-DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-dmaap-adaptor"
+DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapadapter"
 DMAAP_ADP_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
 DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
 DMAAP_ADP_IMAGE_TAG_REMOTE="1.1.0"
 DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 # Helm Manager
-HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-helm-manager"
+HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-plt-helmmanager"
 HELM_MANAGER_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE="1.2.0"
@@ -386,7 +386,7 @@ RIC_SIM_COMMON_SVC_NAME=""                               # Name of svc if one co
 # SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 # SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
 
-# For ONAP sdan
+# For ONAP sdnc
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
 SDNC_DISPLAY_NAME="SDNC A1 Controller"
 SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
@@ -498,17 +498,15 @@ DMAAP_ADP_INTERNAL_PORT=8084                             # Dmaap Adapter contain
 DMAAP_ADP_EXTERNAL_SECURE_PORT=9088                      # Dmaap Adapter container external secure port (host -> container)
 DMAAP_ADP_INTERNAL_SECURE_PORT=8435                      # Dmaap Adapter container internal secure port (container -> container)
 
-#DMAAP_ADP_LOGPATH="/var/log/dmaap-adaptor-service/application.log" # Path the application log in the Dmaap Adapter container
 DMAAP_ADP_HOST_MNT_DIR="./mnt"                           # Mounted db dir, relative to compose file, on the host
-#MAAP_ADP_CONTAINER_MNT_DIR="/var/dmaap-adaptor-service" # Mounted dir in the container
 DMAAP_ADP_ACTUATOR="/actuator/loggers/org.oran.dmaapadapter"   # Url for trace/debug
-#DMAAP_ADP_CERT_MOUNT_DIR="./cert"
 DMAAP_ADP_ALIVE_URL="/actuator/info"                     # Base path for alive check
 DMAAP_ADP_COMPOSE_DIR="dmaapadp"                         # Dir in simulator_group for docker-compose
-DMAAP_ADP_CONFIG_MOUNT_PATH="/opt/app/dmaap-adaptor-service/config" # Internal container path for configuration
-DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adaptor-service/data" # Path in container for data file
+DMAAP_ADP_CONFIG_MOUNT_PATH="/opt/app/dmaap-adapter-service/config" # Internal container path for configuration
+DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adapter-service/data" # Path in container for data file
 DMAAP_ADP_DATA_FILE="application_configuration.json"  # Container data file name
 DMAAP_ADP_CONFIG_FILE=application.yaml                   # Config file name
+DMAAP_ADP_CONFIG_FILE_TEMPLATE=application1.yaml         # Template config file name
 
 DMAAP_MED_APP_NAME="dmaapmediatorservice"                # Name for Dmaap Mediator container
 DMAAP_MED_DISPLAY_NAME="Dmaap Mediator Service"          # Display name for Dmaap Mediator container
@@ -517,14 +515,9 @@ DMAAP_MED_INTERNAL_PORT=8085                             # Dmaap Mediator contai
 DMAAP_MED_EXTERNAL_SECURE_PORT=8185                      # Dmaap Mediator container external secure port (host -> container)
 DMAAP_MED_INTERNAL_SECURE_PORT=8185                      # Dmaap Mediator container internal secure port (container -> container)
 
-DMAAP_MED_LOGPATH="/var/log/dmaap-adaptor-service/application.log" # Path the application log in the Dmaap Mediator container
 DMAAP_MED_HOST_MNT_DIR="./mnt"                          # Mounted db dir, relative to compose file, on the host
-#MAAP_ADP_CONTAINER_MNT_DIR="/var/dmaap-adaptor-service" # Mounted dir in the container
-#DMAAP_MED_ACTUATOR="/actuator/loggers/org.oransc.information"   # Url for trace/debug
-#DMAAP_MED_CERT_MOUNT_DIR="./cert"
 DMAAP_MED_ALIVE_URL="/health_check"                      # Base path for alive check
 DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_group for docker-compose
-#MAAP_MED_CONFIG_MOUNT_PATH="/app"                       # Internal container path for configuration
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
 DMAAP_MED_HOST_DATA_FILE="type_config_1.json"            # Host data file name
 DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name

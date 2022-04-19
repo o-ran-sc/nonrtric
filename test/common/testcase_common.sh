@@ -1117,7 +1117,7 @@ if [ $RUNMODE == "DOCKER" ]; then
 		echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
 		exit 1
 	else
-		tmp=$(docker-compose version --short)
+		tmp=$(docker-compose version)
 		echo " docker-compose installed and using version $tmp"
 		if [[ "$tmp" == *'v2'* ]]; then
 			DOCKER_COMPOSE_VERION="V2"
@@ -2360,7 +2360,7 @@ __kube_delete_all_resources() {
 			ns_flag=""
 			ns_text=""
 		fi
-		result=$(kubectl $KUBECONF get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype $ns_flag -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}' 2> /dev/null)
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			deleted_resourcetypes=$deleted_resourcetypes" "$restype
 			for resid in $result; do

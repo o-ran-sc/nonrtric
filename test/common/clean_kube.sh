@@ -88,7 +88,7 @@ __kube_delete_all_resources() {
 	namespace=$1
 	resources="deployments replicaset statefulset services pods configmaps pvc serviceaccounts secrets authorizationpolicies requestauthentications"
 	for restype in $resources; do
-		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}' 2> /dev/null)
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
 				echo  "  Deleting $restype $resid in namespace $namespace with label autotest "

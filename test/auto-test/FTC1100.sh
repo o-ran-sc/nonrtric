@@ -54,6 +54,11 @@ FLAT_A1_EI="1"
 
 clean_environment
 
+if [ $RUNMODE != "KUBE" ]; then
+    USE_ISTIO=0
+    echo "ISTIO not supported by docker - setting USE-ISTIO=0"
+fi
+
 if [ $USE_ISTIO -eq 1 ]; then
     echo -e $RED"#########################################"$ERED
     echo -e $RED"# Work around istio jwks cache"$ERED
@@ -66,6 +71,7 @@ if [ $USE_ISTIO -eq 1 ]; then
 
     istio_enable_istio_namespace $KUBE_SIM_NAMESPACE
     istio_enable_istio_namespace $KUBE_NONRTRIC_NAMESPACE
+    istio_enable_istio_namespace $KUBE_A1SIM_NAMESPACE
 fi
 
 start_kube_proxy
