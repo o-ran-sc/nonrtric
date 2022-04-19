@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - A1PMS endpoint aegis image testing. a1pms REST, DMAAP and SNDC controller resconf"
+TS_ONELINE_DESCR="Test suite - alternative A1PMS endpoint image testing. a1pms REST, DMAAP and SNDC controller resconf"
 
 . ../common/testsuite_common.sh
 

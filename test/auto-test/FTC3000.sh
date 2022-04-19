@@ -80,7 +80,7 @@ kafkapc_api_create_topic 201 "unauthenticated.dmaapadp_kafka.text" "text/plain"
 
 kafkapc_api_start_sending 200 "unauthenticated.dmaapadp_kafka.text"
 
-start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_DATA_FILE
+start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE_TEMPLATE $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_DATA_FILE
 
 set_dmaapadp_trace
 

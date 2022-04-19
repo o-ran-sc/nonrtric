@@ -95,7 +95,7 @@ done
 adp_config_data=$adp_config_data']}'
 echo $adp_config_data > tmp/adp_config_data.json
 
-start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE tmp/adp_config_data.json
+start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE_TEMPLATE tmp/adp_config_data.json
 
 set_dmaapadp_trace
 
