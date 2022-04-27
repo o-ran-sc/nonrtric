@@ -189,11 +189,11 @@ istio_req_auth_by_jwks() {
 }
 
 # Authorization policy - by realm
-# args: <app> <namespace> <realam>
+# args: <app> <namespace> <realam> [<client-id> <client-role>]
 istio_auth_policy_by_realm() {
 	__log_conf_start $@
-    if [ $# -ne 3 ]; then
-        __print_err "<app> <namespace> <realam>" $@
+    if [ $# -ne 3 ] && [ $# -ne 5 ]; then
+        __print_err "<app> <namespace> <realam> [<client-id> <client-role>]" $@
         return 1
     fi
 	name="ap-realm-"$3"-"$1"-"$2
@@ -208,6 +208,17 @@ istio_auth_policy_by_realm() {
 		__log_conf_fail_general "Cannot substitute yaml: $inputfile"
 		return 1
 	fi
+	if [ $# -gt 3 ]; then
+		export  ISTIO_TEMPLATE_REPLACE_AP_CLIENT=$4
+		export  ISTIO_TEMPLATE_REPLACE_AP_ROLE=$5
+		inputfile=$SIM_GROUP/$ISTIO_COMPOSE_DIR/ap-role-snippet.yaml
+		envsubst < $inputfile >> $outputfile
+		if [ $? -ne 0 ]; then
+			__log_conf_fail_general "Cannot substitute yaml: $inputfile"
+			return 1
+		fi
+	fi
+
 	kubectl $KUBECONF apply -f $outputfile &> tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		__log_conf_fail_general "Cannot apply yaml: $outputfile"

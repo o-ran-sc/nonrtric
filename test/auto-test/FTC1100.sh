@@ -106,6 +106,8 @@ if [ $USE_ISTIO -eq 1 ]; then
     keycloak_api_create_confidential_client     nrtrealm   icsc
     keycloak_api_generate_client_secret         nrtrealm   icsc
     keycloak_api_get_client_secret              nrtrealm   icsc
+    keycloak_api_create_client_roles            nrtrealm   icsc nrtrole
+    keycloak_api_map_client_roles               nrtrealm   icsc nrtrole
 
     keycloak_api_get_client_token               nrtrealm   icsc
 
@@ -119,13 +121,13 @@ if [ $USE_ISTIO -eq 1 ]; then
     istio_auth_policy_by_issuer         $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY
 
     istio_req_auth_by_jwksuri           $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
-    istio_auth_policy_by_realm          $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+    istio_auth_policy_by_realm          $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm icsc nrtrole
 
     istio_req_auth_by_jwks              $CR_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
     istio_auth_policy_by_issuer         $CR_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY
 
     istio_req_auth_by_jwksuri           $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
-    istio_auth_policy_by_realm          $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+    istio_auth_policy_by_realm          $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm icsc nrtrole
 
     ics_configure_sec nrtrealm icsc $ICS_SEC
 

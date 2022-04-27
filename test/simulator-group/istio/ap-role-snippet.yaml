@@ -1,0 +1,3 @@
+      when:
+      - key: request.auth.claims[resource_access][${ISTIO_TEMPLATE_REPLACE_AP_CLIENT}][roles]
+        values: ["${ISTIO_TEMPLATE_REPLACE_AP_ROLE}"]
