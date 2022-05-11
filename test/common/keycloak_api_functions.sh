@@ -280,41 +280,6 @@ __execute_curl_to_keycloak() {
 	return 0
 }
 
-# # Excute a curl cmd towards the keycloak and check the response code is 2XX.
-# # args: <command-file>
-# # resp: <returned-payload> if return code is 0 otherwise <error-info>
-# __execute_curl_to_keycloak2() {
-
-#     # TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
-#     # echo "(${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
-# 	proxyflag=""
-# 	if [ ! -z "$KUBE_PROXY_PATH" ]; then
-# 		if [ $KUBE_PROXY_HTTPX == "http" ]; then
-# 			proxyflag=" --proxy $KUBE_PROXY_PATH"
-# 		else
-# 			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
-# 		fi
-# 	fi
-# 	__cmd="curl -skw %{http_code} $proxyflag "$(< $1)
-# 	echo " CMD: $__cmd" >> $HTTPLOG
-# 	res=$(curl -skw %{http_code} $proxyflag $(< $1))
-# 	echo " RESP: $res" >> $HTTPLOG
-# 	retcode=$?
-#     if [ $retcode -ne 0 ]; then
-#         __log_conf_fail_general " Fatal error when executing curl, response: "$retcode
-#         echo "$res"
-# 		return 1
-#     fi
-#     status=${res:${#res}-3}
-# 	if [ $status -lt 200 ] && [ $status -gt 299 ]; then
-# 		__log_conf_fail_status_code "2XX" $status
-# 		echo "$res"
-# 		return 1
-# 	fi
-# 	echo ${res:0:${#res}-3}
-# 	return 0
-# }
-
 # Excute a curl cmd towards the keycloak and check the response code is 2XX.
 # args: <operation> <url> <token> <json>
 # resp: <returned-payload> if return code is 0 otherwise <error-info>
@@ -464,11 +429,11 @@ __keycloak_api_get_service_account_id() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 	echo "(${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 
-	res=$(__execute_curl_to_keycloak2 GET "$KEYCLOAK_SERVICE_PATH$KEYCLOAK_REALM_URL_PREFIX/$1/clients$2/service-account-user" "$__KEYCLOAK_ADMIN_TOKEN")
+	res=$(__execute_curl_to_keycloak2 GET "$KEYCLOAK_SERVICE_PATH$KEYCLOAK_REALM_URL_PREFIX/$1/clients/$2/service-account-user" "$__KEYCLOAK_ADMIN_TOKEN")
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
-	echo $res | jq -r '.[0].id'
+	echo $res | jq -r '.id'
 	return 0
 }
 
@@ -539,6 +504,75 @@ keycloak_api_create_client_roles() {
 		fi
 		shift
 	done
+	__log_conf_ok
+	return 0
+}
+
+# Get client role id
+# args: <realm-name> <service-account-name> <client-name> <role-name>
+__get_client_available_role_id() {
+	res=$(__execute_curl_to_keycloak2 GET "$KEYCLOAK_SERVICE_PATH$KEYCLOAK_REALM_URL_PREFIX/$1/users/$2/role-mappings/clients/$3/available" "$__KEYCLOAK_ADMIN_TOKEN")
+	if [ $? -ne 0 ]; then
+		__log_conf_fail_general " Fatal error when getting availiable client role id, response: "$?
+		return 1
+	fi
+    __client_role_id=$(echo $res | jq  -r '.[] | select(.name=="'$4'") | .id ')
+    echo $__client_role_id
+    return 0
+}
+
+# Map roles to a client
+# args: <realm-name> <client-name> <role>+
+keycloak_api_map_client_roles() {
+	__log_conf_start $@
+	__c_id=$(__keycloak_api_get_client_id $1 $2)
+	if [ $? -ne 0 ]; then
+		__log_conf_fail_general " Fatal error when getting client id, response: "$?
+		return 1
+	fi
+	__sa_id=$(__keycloak_api_get_service_account_id $1 $__c_id)
+	if [ $? -ne 0 ]; then
+		__log_conf_fail_general " Fatal error when getting service account id, response: "$?
+		return 1
+	fi
+	__realm=$1
+	shift; shift;
+	__json="["
+	__cntr=0
+    while [ $# -gt 0 ]; do
+        __client_role_id=$(__get_client_available_role_id $__realm $__sa_id $__c_id $1)
+        if [ $? -ne 0 ]; then
+			__log_conf_fail_general " Fatal error when getting client role id, response: "$?
+			return 1
+        fi
+        __role='{"name":"'$1'","id":"'$__client_role_id'","composite": false,"clientRole": true}'
+        if [ $__cntr -gt 0 ]; then
+            __json=$__json","
+        fi
+        __json=$__json$__role
+        let __cntr=__cntr+1
+        shift
+    done
+    __json=$__json"]"
+
+	res=$(__execute_curl_to_keycloak2 POST "$KEYCLOAK_SERVICE_PATH$KEYCLOAK_REALM_URL_PREFIX/$__realm/users/$__sa_id/role-mappings/clients/$__c_id" "$__KEYCLOAK_ADMIN_TOKEN" "$__json")
+	if [ $? -ne 0 ]; then
+		__log_conf_fail_general " Fatal error when mapping client roles, response: "$?
+		return 1
+	fi
+
+
+
+
+    # while [ $# -gt 0 ]; do
+	# 	__json='{"name":"'$1'"}'
+	# 	res=$(__execute_curl_to_keycloak2 POST "$KEYCLOAK_SERVICE_PATH$KEYCLOAK_REALM_URL_PREFIX/$__realm/clients/$__c_id/roles" "$__KEYCLOAK_ADMIN_TOKEN" "$__json")
+	# 	if [ $? -ne 0 ]; then
+	# 		__log_conf_fail_general " Fatal error when adding client role, response: "$?
+	# 		return 1
+	# 	fi
+	# 	shift
+	# done
 	__log_conf_ok
 	return 0
 }

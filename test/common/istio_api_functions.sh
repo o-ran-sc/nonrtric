@@ -69,6 +69,11 @@ __ISTIO_kube_scale_zero_and_wait() {
 # This function is called for apps managed by the test script.
 __ISTIO_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_A1SIM_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_KEYCLOAK_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_SDNC_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest ISTIO
 }
 
 # Store docker logs
@@ -189,11 +194,11 @@ istio_req_auth_by_jwks() {
 }
 
 # Authorization policy - by realm
-# args: <app> <namespace> <realam>
+# args: <app> <namespace> <realam> [<client-id> <client-role>]
 istio_auth_policy_by_realm() {
 	__log_conf_start $@
-    if [ $# -ne 3 ]; then
-        __print_err "<app> <namespace> <realam>" $@
+    if [ $# -ne 3 ] && [ $# -ne 5 ]; then
+        __print_err "<app> <namespace> <realam> [<client-id> <client-role>]" $@
         return 1
     fi
 	name="ap-realm-"$3"-"$1"-"$2
@@ -208,6 +213,17 @@ istio_auth_policy_by_realm() {
 		__log_conf_fail_general "Cannot substitute yaml: $inputfile"
 		return 1
 	fi
+	if [ $# -gt 3 ]; then
+		export  ISTIO_TEMPLATE_REPLACE_AP_CLIENT=$4
+		export  ISTIO_TEMPLATE_REPLACE_AP_ROLE=$5
+		inputfile=$SIM_GROUP/$ISTIO_COMPOSE_DIR/ap-role-snippet.yaml
+		envsubst < $inputfile >> $outputfile
+		if [ $? -ne 0 ]; then
+			__log_conf_fail_general "Cannot substitute yaml: $inputfile"
+			return 1
+		fi
+	fi
+
 	kubectl $KUBECONF apply -f $outputfile &> tmp/kubeerr
 	if [ $? -ne 0 ]; then
 		__log_conf_fail_general "Cannot apply yaml: $outputfile"

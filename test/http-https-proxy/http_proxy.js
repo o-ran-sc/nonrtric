@@ -77,7 +77,7 @@ function httpclientrequest(clientrequest, clientresponse) {
   if (crproto != undefined) {
     crurl=crproto+"://"+crhost+crurl
     if (debug) {
-      console.log(" Constructed ulr: "+crurl)
+      console.log(" Constructed url: "+crurl)
     }
   } else if (crurl.startsWith('/')) {
     console.log("Catched bad url in http request: "+crurl)

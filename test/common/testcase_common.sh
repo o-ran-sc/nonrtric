@@ -135,7 +135,7 @@ IMAGE_CATEGORY="DEV"
 #Var to indicate docker-compose version, V1 or V2
 #V1 names replicated containers <proj-name>_<service-name>_<index>
 #V2 names replicated containers <proj-name>-<service-name>-<index>
-DOCKER_COMPOSE_VERION="V1"
+DOCKER_COMPOSE_VERSION="V1"
 
 # Function to indent cmd output with one space
 indent1() { sed 's/^/ /'; }
@@ -1120,7 +1120,7 @@ if [ $RUNMODE == "DOCKER" ]; then
 		tmp=$(docker-compose version)
 		echo " docker-compose installed and using version $tmp"
 		if [[ "$tmp" == *'v2'* ]]; then
-			DOCKER_COMPOSE_VERION="V2"
+			DOCKER_COMPOSE_VERSION="V2"
 		fi
 	fi
 fi
@@ -2731,6 +2731,17 @@ __clean_kube() {
 		fi
 	done
 
+	# Remove istio label on namespaces
+	test_env_namespaces=$(kubectl $KUBECONF get ns  --no-headers -o custom-columns=":metadata.name" -l autotest=engine -l istio-injection=enabled) #Get list of ns created by the test env
+	if [ $? -ne 0 ]; then
+		echo " Cannot get list of namespaces...continues.."
+	else
+		for test_env_ns in $test_env_namespaces; do
+			echo " Removing istio label on ns: "$test_env_ns
+			__kube_label_non_ns_instance ns $test_env_ns "istio-injection-"
+		done
+	fi
+
 	echo ""
 }
 
@@ -2853,7 +2864,7 @@ __start_container() {
 
 	envsubst < $compose_file > "gen_"$compose_file
 	compose_file="gen_"$compose_file
-	if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+	if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
 		docker_compose_cmd="docker-compose"
 	else
 		docker_compose_cmd="docker compose"

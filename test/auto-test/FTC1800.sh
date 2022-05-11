@@ -359,7 +359,7 @@ fi
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
 
-    ics_equal json:/data-consumer/v1/info-type-subscription 2 200
+    ics_equal json:data-consumer/v1/info-type-subscription 2 200
 
     ics_api_idc_get_subscription_ids 200 owner1 subscription-id-1
     ics_api_idc_get_subscription_ids 200 owner2 subscription-id-2
@@ -382,7 +382,7 @@ set_ics_trace
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
 
-    ics_equal json:/data-consumer/v1/info-type-subscription 2 200
+    ics_equal json:data-consumer/v1/info-type-subscription 2 200
 
     ics_api_idc_get_subscription_ids 200 owner1 subscription-id-1
     ics_api_idc_get_subscription_ids 200 owner2 subscription-id-2

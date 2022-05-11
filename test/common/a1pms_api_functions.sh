@@ -89,6 +89,7 @@ __A1PMS_store_docker_logs() {
 # args: -
 __A1PMS_initial_setup() {
 	use_a1pms_rest_http
+	export A1PMS_SIDECAR_JWT_FILE=""
 }
 
 # Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
@@ -306,6 +307,10 @@ start_a1pms() {
 			# Create app
 			input_yaml=$SIM_GROUP"/"$A1PMS_COMPOSE_DIR"/"app.yaml
 			output_yaml=$PWD/tmp/a1pmsapp.yaml
+			if [ -z "$A1PMS_SIDECAR_JWT_FILE" ]; then
+				cat $input_yaml | sed  '/#A1PMS_JWT_START/,/#A1PMS_JWT_STOP/d' > $PWD/tmp/a1pmsapp_tmp.yaml
+				input_yaml=$PWD/tmp/a1pmsapp_tmp.yaml
+			fi
 			__kube_create_instance app $A1PMS_APP_NAME $input_yaml $output_yaml
 
 		fi
@@ -346,6 +351,7 @@ start_a1pms() {
 			fi
 		else
 			echo " No files in mounted dir or dir does not exists"
+			mkdir db
 		fi
 		cd $curdir
 
@@ -542,7 +548,7 @@ prepare_consul_config() {
 			ric_id=${ric%.*.*} #extract pod id from full hosthame
 			ric_id=$(echo "$ric_id" | tr '-' '_')
 		else
-			if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
 				ric_id=$ric
 			else
 				ric_id=$(echo "$ric" | tr '-' '_')  #ric id still needs underscore as it is different from the container name
@@ -2380,4 +2386,17 @@ a1pms_kube_pvc_reset() {
 
 	__log_test_pass
 	return 0
+}
+
+# args: <realm> <client-name> <client-secret>
+a1pms_configure_sec() {
+	export A1PMS_CREDS_GRANT_TYPE="client_credentials"
+	export A1PMS_CREDS_CLIENT_SECRET=$3
+	export A1PMS_CREDS_CLIENT_ID=$2
+	export A1PMS_AUTH_SERVICE_URL=$KEYCLOAK_SERVICE_PATH$KEYCLOAK_TOKEN_URL_PREFIX/$1/protocol/openid-connect/token
+	export A1PMS_SIDECAR_MOUNT="/token-cache"
+	export A1PMS_SIDECAR_JWT_FILE=$A1PMS_SIDECAR_MOUNT"/jwt.txt"
+
+	export AUTHSIDECAR_APP_NAME
+	export AUTHSIDECAR_DISPLAY_NAME
 }
