@@ -18,6 +18,23 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7617a27a_55ba189b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-05-11T14:38:03Z",
+      "side": 1,
+      "message": "Seems changes in /test do not trigger the verify job ... so manually verify+1",
+      "revId": "cd93844db2fd8a9901fbf4df3b597b138af6e042",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8301e1fc_6b78f76e",
