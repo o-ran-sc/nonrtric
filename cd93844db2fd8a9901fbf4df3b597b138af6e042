@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdd0efb9_51f1cdb6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-05-11T13:19:48Z",
+      "side": 1,
+      "message": "Added a comment",
+      "revId": "cd93844db2fd8a9901fbf4df3b597b138af6e042",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8301e1fc_6b78f76e",
+        "filename": "test/common/a1pms_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-05-11T13:19:48Z",
+      "side": 1,
+      "message": "Not sure if this applies here but you can also use: sed -i \u0027s/old-text/new-text/g\u0027 input.txt",
+      "range": {
+        "startLine": 310,
+        "startChar": 3,
+        "endLine": 313,
+        "endChar": 5
+      },
+      "revId": "cd93844db2fd8a9901fbf4df3b597b138af6e042",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
