@@ -36,6 +36,29 @@ spec:
           name: a1pms-pv-data-name
         - mountPath: $A1PMS_DATA_MOUNT_PATH
           name: a1pms-data-name
+#A1PMS_JWT_START
+        - mountPath: $A1PMS_SIDECAR_MOUNT
+          name: token-cache-volume
+#A1PMS_JWT_STOP
+#A1PMS_JWT_START
+      - name: $AUTHSIDECAR_APP_NAME
+        image: $AUTHSIDECAR_IMAGE
+        imagePullPolicy: $KUBE_IMAGE_PULL_POLICY
+        env:
+        - name: CREDS_GRANT_TYPE
+          value: $A1PMS_CREDS_GRANT_TYPE
+        - name: CREDS_CLIENT_SECRET
+          value: $A1PMS_CREDS_CLIENT_SECRET
+        - name: CREDS_CLIENT_ID
+          value: $A1PMS_CREDS_CLIENT_ID
+        - name: OUTPUT_FILE
+          value: $A1PMS_SIDECAR_JWT_FILE
+        - name: AUTH_SERVICE_URL
+          value: $A1PMS_AUTH_SERVICE_URL
+        volumeMounts:
+        - mountPath: $A1PMS_SIDECAR_MOUNT
+          name: token-cache-volume
+#A1PMS_JWT_STOP
       volumes:
       - configMap:
           defaultMode: 420
@@ -48,6 +71,10 @@ spec:
       - persistentVolumeClaim:
           claimName: $A1PMS_DATA_PVC_NAME
         name: a1pms-pv-data-name
+#A1PMS_JWT_START
+      - name: token-cache-volume
+        emptyDir: {}
+#A1PMS_JWT_STOP
 # Selector will be set when pod is started first time
       nodeSelector:
 

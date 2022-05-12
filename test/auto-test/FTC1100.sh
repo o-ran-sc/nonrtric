@@ -68,6 +68,7 @@ if [ $USE_ISTIO -eq 1 ]; then
     __kube_scale deployment istiod istio-system 1
     echo -e $RED"# Cycle istiod done"
     echo -e $RED"#########################################"$ERED
+    echo ""
 
     istio_enable_istio_namespace $KUBE_SIM_NAMESPACE
     istio_enable_istio_namespace $KUBE_NONRTRIC_NAMESPACE
@@ -154,6 +155,11 @@ if [ "$A1PMS_VERSION" == "V2" ]; then
 fi
 
 start_cr 1
+
+if [ $USE_ISTIO -eq 1 ]; then
+    echo "Sleep 120 to let istio settle - enabling istio on workloads may cause initial dns disturbances - temporary unavailable dns names"
+    sleep 120
+fi
 
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
 CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
@@ -1448,7 +1454,7 @@ ics_api_edp_get_type_2 200 type101 testdata/ics/info-type-1.json
 ics_api_edp_put_producer_2 201 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
 ics_api_edp_put_producer_2 200 prod-ia $CB_JOB/prod-ia $CB_SV/prod-ia type101
 
-if [[ "$ICS_FEATURE_LEVEL" == *"RESP_CODE_CHANGE_1" ]]; then
+if [[ "$ICS_FEATURE_LEVEL" == *"RESP_CODE_CHANGE_1"* ]]; then
     ics_api_edp_delete_type_2 409 type101
 else
     ics_api_edp_delete_type_2 406 type101
@@ -1968,25 +1974,44 @@ else
     cr_equal 0 received_callbacks 12
 fi
 ### Test of pre and post validation
+if [[ "$ICS_FEATURE_LEVEL" != *"DEFAULT_TYPE_VALIDATION"* ]]; then
+    ics_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106
+    ics_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ics/job-template.json VALIDATE
+    ics_api_idc_put_job 201 job160 type160 $TARGET160 info-owner-1 $INFOSTATUS160 testdata/ics/job-template.json
 
-ics_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106
-ics_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ics/job-template.json VALIDATE
-ics_api_idc_put_job 201 job160 type160 $TARGET160 info-owner-1 $INFOSTATUS160 testdata/ics/job-template.json
 
-ics_api_idc_get_job_status2 404 job150
-ics_api_idc_get_job_status2 200 job160 DISABLED EMPTYPROD 60
+    ics_api_idc_get_job_status2 404 job150
+    ics_api_idc_get_job_status2 200 job160 DISABLED EMPTYPROD 60
 
-prodstub_arm_producer 200 prod-ig
-prodstub_arm_job_create 200 prod-ig job150
-prodstub_arm_job_create 200 prod-ig job160
+    prodstub_arm_producer 200 prod-ig
+    prodstub_arm_job_create 200 prod-ig job150
+    prodstub_arm_job_create 200 prod-ig job160
 
-ics_api_edp_put_producer_2 201 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig NOTYPE
-ics_api_edp_get_producer_status 200 prod-ig ENABLED 360
+    ics_api_edp_put_producer_2 201 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig NOTYPE
+    ics_api_edp_get_producer_status 200 prod-ig ENABLED 360
 
-ics_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig EMPTY
+    ics_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig EMPTY
 
-ics_api_idc_get_job_status2 404 job150
-ics_api_idc_get_job_status2 200 job160 DISABLED EMPTYPROD 60
+    ics_api_idc_get_job_status2 404 job150
+    ics_api_idc_get_job_status2 200 job160 DISABLED EMPTYPROD 60
+else
+    ics_api_idc_get_type_ids 200 type1 type2 type4 type6 type101 type102 type104 type106
+    ics_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ics/job-template.json VALIDATE
+
+    ics_api_idc_get_job_status2 404 job150
+
+    prodstub_arm_producer 200 prod-ig
+    prodstub_arm_job_create 200 prod-ig job150
+    prodstub_arm_job_create 200 prod-ig job160
+
+    ics_api_edp_put_producer_2 201 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig NOTYPE
+    ics_api_edp_get_producer_status 200 prod-ig ENABLED 360
+
+    ics_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig EMPTY
+
+    ics_api_idc_get_job_status2 404 job150
+    #ics_api_idc_get_job_status2 200 job160 DISABLED EMPTYPROD 60
+fi
 
 prodstub_arm_type 200 prod-ig type160
 
@@ -2000,12 +2025,14 @@ ics_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160
 ics_api_idc_put_job 404 job150 type150 $TARGET150 info-owner-1 $INFOSTATUS150 testdata/ics/job-template.json VALIDATE
 
 ics_api_idc_get_job_status2 404 job150
-ics_api_idc_get_job_status2 200 job160 ENABLED 1 prod-ig 60
+if [[ "$ICS_FEATURE_LEVEL" != *"DEFAULT_TYPE_VALIDATION"* ]]; then
+    ics_api_idc_get_job_status2 200 job160 ENABLED 1 prod-ig 60
 
-prodstub_check_jobdata_3 200 prod-ig job160 type160 $TARGET160 info-owner-1 testdata/ics/job-template.json
+    prodstub_check_jobdata_3 200 prod-ig job160 type160 $TARGET160 info-owner-1 testdata/ics/job-template.json
 
-prodstub_equal create/prod-ig/job160 1
-prodstub_equal delete/prod-ig/job160 0
+    prodstub_equal create/prod-ig/job160 1
+    prodstub_equal delete/prod-ig/job160 0
+fi
 
 prodstub_arm_type 200 prod-ig type150
 
@@ -2024,6 +2051,10 @@ ics_api_edp_put_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160 ty
 ics_api_edp_get_producer_status 200 prod-ig ENABLED 360
 
 ics_api_edp_get_producer_2 200 prod-ig $CB_JOB/prod-ig $CB_SV/prod-ig type160 type150
+
+if [[ "$ICS_FEATURE_LEVEL" == *"DEFAULT_TYPE_VALIDATION"* ]]; then
+    ics_api_idc_put_job 201 job160 type160 $TARGET160 info-owner-1 $INFOSTATUS160 testdata/ics/job-template.json
+fi
 
 ics_api_idc_get_job_status2 404 job150
 ics_api_idc_get_job_status2 200 job160 ENABLED  1 prod-ig
@@ -2044,7 +2075,7 @@ fi
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
 
-    if [[ "$ICS_FEATURE_LEVEL" == *"RESP_CODE_CHANGE_1" ]]; then
+    if [[ "$ICS_FEATURE_LEVEL" == *"RESP_CODE_CHANGE_1"* ]]; then
         ics_api_edp_delete_type_2 409 type104
     else
         ics_api_edp_delete_type_2 406 type104

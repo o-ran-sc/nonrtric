@@ -103,7 +103,7 @@ __RICSIM_statisics_setup() {
 			echo -n " RICSIM_G2_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
 			echo -n " RICSIM_G3_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
 		else
-			if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
 				echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g1_$RICSIM_INSTANCE "
 				echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g2_$RICSIM_INSTANCE "
 				echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g3_$RICSIM_INSTANCE "
@@ -294,7 +294,7 @@ start_ric_simulators() {
 		# <ricsim-prefix>-<service-name>-<index>
 		app_data=""
 		cntr=1
-		if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+		if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
 			app_name_prefix=$RIC_SIM_PREFIX"_"$RICSIM_COMPOSE_SERVICE_NAME"_"
 		else
 			app_name_prefix=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"
@@ -309,7 +309,7 @@ start_ric_simulators() {
 
 		cntr=1
 		while [ $cntr -le $2 ]; do
-			if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
 				app=$RIC_SIM_PREFIX"_"$RICSIM_COMPOSE_SERVICE_NAME"_"$cntr
 			else
 				app=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"$cntr
@@ -347,7 +347,7 @@ __find_sim_host() {
 		fi
 		echo $RIC_SIM_HTTPX"://"$ricname.$ric_setname.$KUBE_A1SIM_NAMESPACE":"$RIC_SIM_PORT
 	else
-		if [ $DOCKER_COMPOSE_VERION == "V1" ]; then
+		if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
 			echo $RIC_SIM_HTTPX"://"$1":"$RIC_SIM_PORT
 		else
 			ricname=$(echo "$1" | tr '_' '-')
@@ -376,8 +376,14 @@ __execute_curl_to_sim() {
 			proxyflag=" --proxy-insecure --proxy $KUBE_PROXY_PATH"
 		fi
 	fi
-	echo " CMD: $2 $proxyflag" >> $HTTPLOG
-	res="$($2 $proxyflag)"
+	if [ -z "$KUBE_PROXY_CURL_JWT" ]; then
+		echo " CMD: $2 $proxyflag" >> $HTTPLOG
+		res="$($2 $proxyflag)"
+	else
+		echo " CMD: $2 $proxyflag -H Authorization: Bearer $KUBE_PROXY_CURL_JWT" >> $HTTPLOG
+		res=$($2 $proxyflag -H 'Authorization: Bearer '$KUBE_PROXY_CURL_JWT)
+	fi
+
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then

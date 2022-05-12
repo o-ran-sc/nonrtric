@@ -69,6 +69,11 @@ __ISTIO_kube_scale_zero_and_wait() {
 # This function is called for apps managed by the test script.
 __ISTIO_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_A1SIM_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_KEYCLOAK_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_SDNC_NAMESPACE autotest ISTIO
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest ISTIO
 }
 
 # Store docker logs

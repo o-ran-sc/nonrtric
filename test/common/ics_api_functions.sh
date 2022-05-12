@@ -326,6 +326,7 @@ start_ics() {
 			fi
 		else
 			echo " No files in mounted dir or dir does not exists"
+			mkdir db
 		fi
 
 		cd $curdir

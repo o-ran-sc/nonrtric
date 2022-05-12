@@ -20,11 +20,17 @@
 
 TC_ONELINE_DESCR="Full a1pms API walkthrough using a1pms REST/DMAAP and with/without SDNC A1 Controller"
 
+USE_ISTIO=1
+
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
+if [ $USE_ISTIO -eq 0 ]; then
+    KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
+else
+    KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW KEYCLOAK ISTIO AUTHSIDECAR"
+fi
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -46,11 +52,25 @@ setup_testenvironment
 
 generate_policy_uuid
 
-# Tested variants of REST/DMAAP/SDNC config
-TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC"
+if [ $USE_ISTIO -eq 0 ]; then
+    # Tested variants of REST/DMAAP/SDNC config
+    TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC"
 
-#Test a1pms and simulator protocol versions (others are http only)
-TESTED_PROTOCOLS="HTTP HTTPS"
+    #Test a1pms and simulator protocol versions (others are http only)
+    TESTED_PROTOCOLS="HTTP HTTPS"
+else
+    if [ $USE_ISTIO -eq 1 ]; then
+        echo -e $RED"#########################################"$ERED
+        echo -e $RED"# No test of https when running with istio"$ERED
+        echo -e $RED"# No test of SDNC when running with istio"$ERED
+        echo -e $RED"#########################################"$ERED
+    fi
+    # Tested variants of REST/DMAAP/SDNC config
+    TESTED_VARIANTS="REST   DMAAP"
+
+    #Test a1pms and simulator protocol versions (others are http only)
+    TESTED_PROTOCOLS="HTTP"
+fi
 
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
@@ -64,7 +84,79 @@ for __httpx in $TESTED_PROTOCOLS ; do
         # Clean container and start all needed containers #
         clean_environment
 
+        if [ $RUNMODE != "KUBE" ]; then
+            USE_ISTIO=0
+            echo "ISTIO not supported by docker - setting USE-ISTIO=0"
+        fi
+
+        if [ $USE_ISTIO -eq 1 ]; then
+            echo -e $RED"#########################################"$ERED
+            echo -e $RED"# Work around istio jwks cache"$ERED
+            echo -e $RED"# Cycle istiod down and up to clear cache"$ERED
+            echo ""
+            __kube_scale deployment istiod istio-system 0
+            __kube_scale deployment istiod istio-system 1
+            echo -e $RED"# Cycle istiod done"
+            echo -e $RED"#########################################"$ERED
+
+            istio_enable_istio_namespace $KUBE_SIM_NAMESPACE
+            istio_enable_istio_namespace $KUBE_NONRTRIC_NAMESPACE
+            istio_enable_istio_namespace $KUBE_A1SIM_NAMESPACE
+        fi
+
+
         start_kube_proxy
+
+        if [ $USE_ISTIO -eq 1 ]; then
+            start_keycloak
+
+            keycloak_api_obtain_admin_token
+
+            keycloak_api_create_realm                   nrtrealm   true   60
+            keycloak_api_create_confidential_client     nrtrealm   a1pmsc
+            keycloak_api_generate_client_secret         nrtrealm   a1pmsc
+            keycloak_api_get_client_secret              nrtrealm   a1pmsc
+            keycloak_api_create_client_roles            nrtrealm   a1pmsc nrtrole
+            keycloak_api_map_client_roles               nrtrealm   a1pmsc nrtrole
+
+            keycloak_api_get_client_token               nrtrealm   a1pmsc
+
+            CLIENT_TOKEN=$(keycloak_api_read_client_token nrtrealm   a1pmsc)
+            echo "CLIENT_TOKEN: "$CLIENT_TOKEN
+
+            A1PMS_SEC=$(keycloak_api_read_client_secret nrtrealm   a1pmsc)
+            echo "A1PMS_SEC: "$A1PMS_SEC
+
+            # Protect ricsim-g3
+            istio_req_auth_by_jwks              ricsim-g1 $KUBE_A1SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
+            istio_auth_policy_by_issuer         ricsim-g1 $KUBE_A1SIM_NAMESPACE KUBEPROXY
+
+            istio_req_auth_by_jwksuri           ricsim-g1 $KUBE_A1SIM_NAMESPACE nrtrealm
+            istio_auth_policy_by_realm          ricsim-g1 $KUBE_A1SIM_NAMESPACE nrtrealm a1pmsc nrtrole
+
+            # Protect ricsim-g2
+            istio_req_auth_by_jwks              ricsim-g2 $KUBE_A1SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
+            istio_auth_policy_by_issuer         ricsim-g2 $KUBE_A1SIM_NAMESPACE KUBEPROXY
+
+            istio_req_auth_by_jwksuri           ricsim-g2 $KUBE_A1SIM_NAMESPACE nrtrealm
+            istio_auth_policy_by_realm          ricsim-g2 $KUBE_A1SIM_NAMESPACE nrtrealm a1pmsc nrtrole
+
+            # Protect ricsim-g3
+            istio_req_auth_by_jwks              ricsim-g3 $KUBE_A1SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
+            istio_auth_policy_by_issuer         ricsim-g3 $KUBE_A1SIM_NAMESPACE KUBEPROXY
+
+            istio_req_auth_by_jwksuri           ricsim-g3 $KUBE_A1SIM_NAMESPACE nrtrealm
+            istio_auth_policy_by_realm          ricsim-g3 $KUBE_A1SIM_NAMESPACE nrtrealm a1pmsc nrtrole
+
+            # Protect CR
+            istio_req_auth_by_jwks              $CR_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY "$KUBE_PROXY_ISTIO_JWKS_KEYS"
+            istio_auth_policy_by_issuer         $CR_APP_NAME $KUBE_SIM_NAMESPACE KUBEPROXY
+
+            istio_req_auth_by_jwksuri           $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm
+            istio_auth_policy_by_realm          $CR_APP_NAME $KUBE_SIM_NAMESPACE nrtrealm a1pmsc nrtrole
+
+            a1pms_configure_sec nrtrealm a1pmsc $A1PMS_SEC
+        fi
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -585,18 +677,19 @@ for __httpx in $TESTED_PROTOCOLS ; do
         else
             mr_equal requests_submitted 0
         fi
-
-        if [[ $interface = *"SDNC"* ]]; then
-            sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
-            sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
-            if [ "$A1PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
-            fi
-        else
-            sim_contains_str ricsim_g1_1 remote_hosts $A1PMS_APP_NAME
-            sim_contains_str ricsim_g2_1 remote_hosts $A1PMS_APP_NAME
-            if [ "$A1PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
+        if [ $USE_ISTIO -eq 0 ]; then
+            if [[ $interface = *"SDNC"* ]]; then
+                sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
+                sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
+                if [ "$A1PMS_VERSION" == "V2" ]; then
+                    sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
+                fi
+            else
+                sim_contains_str ricsim_g1_1 remote_hosts $A1PMS_APP_NAME
+                sim_contains_str ricsim_g2_1 remote_hosts $A1PMS_APP_NAME
+                if [ "$A1PMS_VERSION" == "V2" ]; then
+                    sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
+                fi
             fi
         fi
 

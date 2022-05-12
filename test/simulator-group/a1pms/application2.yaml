@@ -69,3 +69,4 @@ app:
     http.proxy-host: $A1PMS_HTTP_PROXY_CONFIG_HOST_NAME
     http.proxy-port: $A1PMS_HTTP_PROXY_CONFIG_PORT
     http.proxy-type: HTTP
+  auth-token-file: $A1PMS_SIDECAR_JWT_FILE
