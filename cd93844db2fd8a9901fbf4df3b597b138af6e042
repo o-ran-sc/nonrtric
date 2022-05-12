@@ -74,6 +74,30 @@
       },
       "revId": "cd93844db2fd8a9901fbf4df3b597b138af6e042",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdb5da69_e0a778d6",
+        "filename": "test/common/a1pms_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-05-12T07:21:42Z",
+      "side": 1,
+      "message": "Cannot do in-place edit of the file since input is the template (app.yaml) and must be kept as is. kubectl apply is made on the output file.",
+      "parentUuid": "8301e1fc_6b78f76e",
+      "range": {
+        "startLine": 310,
+        "startChar": 3,
+        "endLine": 313,
+        "endChar": 5
+      },
+      "revId": "cd93844db2fd8a9901fbf4df3b597b138af6e042",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
