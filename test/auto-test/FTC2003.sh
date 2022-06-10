@@ -79,14 +79,14 @@ else
 fi
 
 ics_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
-ics_api_idc_get_type_ids 200 ExampleInformationType
+ics_api_idc_get_type_ids 200 ExampleInformationType ExampleInformationTypeKafka
 
 
 ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template1.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))

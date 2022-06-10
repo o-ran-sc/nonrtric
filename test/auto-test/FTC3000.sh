@@ -111,7 +111,7 @@ do
     cr_index=$(($i%$NUM_CR))
     service_mr="CR_SERVICE_MR_PATH_"$cr_index
     service_app="CR_SERVICE_APP_PATH_"$cr_index
-    ics_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template1.json
 
 done
 print_timer

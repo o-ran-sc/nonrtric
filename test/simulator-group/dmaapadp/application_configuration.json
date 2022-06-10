@@ -4,6 +4,8 @@
         "id": "ExampleInformationType",
         "dmaapTopicUrl": "/events/unauthenticated.dmaapadp.json/dmaapadapterproducer/msgs?timeout=15000&limit=100",
         "useHttpProxy": ${DMMAAP_ADP_PROXY_FLAG}
+
+,"isJson": false
      },
      {
       "id": "ExampleInformationTypeKafka",
