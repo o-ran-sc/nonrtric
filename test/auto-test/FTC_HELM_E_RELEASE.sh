@@ -427,12 +427,12 @@ NUM_JOBS=1
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ics_api_idc_put_job 201 jobx$i STD_Fault_Messages $CR_SERVICE_MR_PATH_0/jobx-data$i info-ownerx$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerx$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 jobx$i STD_Fault_Messages $CR_SERVICE_MR_PATH_0/jobx-data$i info-ownerx$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerx$i testdata/dmaap-adapter/job-template1.json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template.json
+    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template1.json
     ics_api_idc_put_job 201 jobz$i ExampleInformationTypeKafka $CR_SERVICE_MR_PATH_0/jobz-data$i info-ownerz$i $CR_SERVICE_MR_PATH_0/job_status_info-ownerz$i testdata/dmaap-adapter/job-template-1-kafka.json
 done
 
