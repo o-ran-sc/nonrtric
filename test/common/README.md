@@ -173,7 +173,7 @@ The script can be started with these arguments
 
 | arg list |
 |--|
-| `remote\|remote-remove docker\|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address>] [--repo-policy local\|remote] [--cluster-timeout <timeout-in-seconds>]  [--print-stats]` |
+| `remote\|remote-remove docker\|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+] [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--use-external-image <app-nam>+] [--image-repo <repo-address>] [--repo-policy local\|remote] [--cluster-timeout <timeout-in-seconds>]  [--print-stats]` |
 
 | parameter | description |
 |-|-|
@@ -190,6 +190,7 @@ The script can be started with these arguments
 | `--use-snapshot-image` | The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names |
 | `--use-staging-image` | The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names |
 | `--use-release-image` | The script will use images from the nexus release repo for the supplied apps, space separated list of app short names |
+| `--use-external-image` | The script will use images from an external repo for the supplied apps, space separated list of app short names |
 | `--image-repo` |  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo |
 | `-repo-policy` |  Policy controlling which images to re-tag and push to image repo in param --image-repo. Can be set to 'local' (push only locally built images) or 'remote' (push locally built images and images from nexus repo). Default is 'local' |
 | `--cluster-timeout` |  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds |
