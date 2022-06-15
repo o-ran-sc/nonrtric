@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95bae3ba_40ff75dd",
+        "filename": "test/auto-test/override_external_a1pms.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-06-15T12:12:56Z",
+      "side": 1,
+      "message": "assumed",
+      "range": {
+        "startLine": 20,
+        "startChar": 22,
+        "endLine": 20,
+        "endChar": 29
+      },
+      "revId": "a80f0493ace3224c9bbf83d826bc33f8db8ec36e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ca84671_ae12dc4a",
+        "filename": "test/auto-test/override_external_a1pms.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-06-15T12:12:56Z",
+      "side": 1,
+      "message": "Should this \"path\" relly be here?",
+      "range": {
+        "startLine": 21,
+        "startChar": 103,
+        "endLine": 21,
+        "endChar": 107
+      },
+      "revId": "a80f0493ace3224c9bbf83d826bc33f8db8ec36e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
