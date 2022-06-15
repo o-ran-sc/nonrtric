@@ -26,7 +26,7 @@
 __print_args() {
 	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
-	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--image-repo <repo-address>]"
+	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+] [--use-external-image <app-nam>+] [--image-repo <repo-address>]"
 	echo "      [--repo-policy local|remote] [--cluster-timeout <timeout-in seconds>] [--print-stats]"
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
 	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>] [--host-path-dir <local-host-dir>]"
@@ -55,6 +55,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--use-snapshot-image  -  The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names"
 	echo "--use-staging-image   -  The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names"
 	echo "--use-release-image   -  The script will use images from the nexus release repo for the supplied apps, space separated list of app short names"
+	echo "--use-external-image   - The script will use images from the external (non oran/onap) repo for the supplied apps, space separated list of app short names"
 	echo "--image-repo          -  Url to optional image repo. Only locally built images will be re-tagged and pushed to this repo"
 	echo "--repo-policy         -  Policy controlling which images to re-tag and push if param --image-repo is set. Default is 'local'"
 	echo "--cluster-timeout     -  Optional timeout for cluster where it takes time to obtain external ip/host-name. Timeout in seconds. "
@@ -123,6 +124,8 @@ USE_STAGING_IMAGES=""
 # Var to hold the app names to use remote release images for
 USE_RELEASE_IMAGES=""
 
+# Var to hold the app names to use external release images for
+USE_EXTERNAL_IMAGES=""
 
 # Use this var (STOP_AT_ERROR=1 in the test script) for debugging/trouble shooting to take all logs and exit at first FAIL test case
 STOP_AT_ERROR=0
@@ -678,6 +681,31 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 				fi
 			else
 				echo "Option set - Overriding with release images for app(s):"$USE_RELEASE_IMAGES
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--use-external-image" ]; then
+			USE_EXTERNAL_IMAGES=""
+			shift
+			while [ $# -gt 0 ] && [[ "$1" != "--"* ]]; do
+				USE_EXTERNAL_IMAGES=$USE_EXTERNAL_IMAGES" "$1
+				if [[ "$AVAILABLE_IMAGES_OVERRIDE" != *"$1"* ]]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="App name $1 is not available for release override for flag: '--use-external-image'"
+					fi
+				fi
+				shift;
+			done
+			foundparm=0
+			if [ -z "$USE_EXTERNAL_IMAGES" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No app name found for flag: '--use-use-external-image'"
+				fi
+			else
+				echo "Option set - Overriding with external images for app(s):"$USE_EXTERNAL_IMAGES
 			fi
 		fi
 	fi
@@ -1249,7 +1277,7 @@ __check_and_create_image_var() {
 		if [ "$5" == "REMOTE_RELEASE_ORAN" ]; then
 			image=$NEXUS_RELEASE_REPO_ORAN$image
 		fi
-		#No nexus repo added for local images, tag: LOCAL
+		#No nexus repo added for local images, tag: LOCAL and other tags
 		tmp=$tmp$image"\t"
 	fi
 	if [ -z $tag ]; then
@@ -1426,6 +1454,12 @@ __check_image_override() {
 	for im in $USE_LOCAL_IMAGES; do
 		if [ "$1" == "$im" ]; then
 			suffix="LOCAL"
+			((CTR++))
+		fi
+	done
+	for im in $USE_EXTERNAL_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			suffix="EXTERNAL"
 			((CTR++))
 		fi
 	done

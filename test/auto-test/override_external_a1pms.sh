@@ -1,6 +1,6 @@
 #!/bin/bash
 ################################################################################
-#   Copyright (c) 2021 Nordix Foundation.                                      #
+#   Copyright (c) 2022 Nordix Foundation.                                      #
 #                                                                              #
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
@@ -15,12 +15,10 @@
 #   limitations under the License.                                             #
 ################################################################################
 
-# Override file for running the latest alternative a1 pms image
+# Override file for running external a1 pms image
 
-# NOTE: This image is aussmed to be located in a different image repo (other than oran and onap)
-# NOTE: Begin with manually pulling the image to your local docker image reqistry
-# NOTE: Re-tag the image to: alternative-a1pms:<image-tag>     (use same tage is specified in var A1PMS_IMAGE_TAG_LOCAL below)
-# NOTE: Run the test using the flags "--use-local-image A1PMS --override override_alternative_a1pms.sh"
+# NOTE: This image is asumed to be located in a different image repo (other than oran and onap)
+# NOTE: The image tag "EXTERNAL" indicate that the IMAGE_BASE var contains the full path to image repo path
 
-A1PMS_IMAGE_BASE="alternative-a1pms"
-A1PMS_IMAGE_TAG_LOCAL="1.4.0-SNAPSHOT"
+A1PMS_IMAGE_BASE="<full image repo path - except the image tag>"
+A1PMS_IMAGE_TAG_EXTERNAL="<tag>"
