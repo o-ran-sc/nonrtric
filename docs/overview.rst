@@ -28,23 +28,21 @@ NONRTRIC components
 
 These are the components that make up the Non-RT-RIC:
 
-- Non-RT-RIC Control Panel
-- Information Coordinator Service
-- A1 Policy Management Service
-- A1 Policy Controller / Adapter
-- Near-RT RIC A1 Simulator
-- Non-RT-RIC (Spring Cloud) Service Gateway
-- Non-RT-RIC (Kong) Service Exposure Prototyping
-- DMaaP/Kafka Information Producer Adapters
-- Initial Non-RT-RIC App Catalogue
-- Initial K8S Helm Chart LCM Manager
-- Test Framework
-- Use Cases
+* `Non-RT-RIC Control Panel <#non-rt-ric-control-panel-nonrtric-dashboard>`_. :doc:`Documentation site <controlpanel:index>`.
+* `Information Coordinator Service <#information-coordination-service>`_. :doc:`Documentation site <informationcoordinatorservice:index>`.
+* `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. :doc:`Documentation site <a1policymanagementservice:index>`.
+* `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_.
+* `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_. :doc:`Documentation site <simulator:index>`.
+* `Non-RT-RIC (Spring Cloud) Service Gateway <#non-rt-ric-spring-cloud-service-gateway>`_.
+* `Non-RT-RIC (Kong) Service Exposure Prototyping <#non-rt-ric-kong-service-exposure-prototyping>`_.
+* `DMaaP/Kafka Information Producer Adapters <#dmaap-kafka-information-producer-adapters>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
+* `Initial Non-RT-RIC App Catalogue <#initial-non-rt-ric-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
+* `Initial K8S Helm Chart LCM Manager <#id5>`_. :doc:`Documentation site <helmmanager:index>`.
+* `Test Framework <#id1>`_.
+* `Use Cases: <#non-rt-ric-use-cases>`_:
 
-  + "Helloworld" O-RU Fronthaul Recovery use case
-  + "Helloworld" O-DU Slice Assurance use case
-
-The source code for "E" Release is in the `NONRTRIC <https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric>`_, `NONRTRIC-ControlPanel <https://gerrit.o-ran-sc.org/r/admin/repos/portal/nonrtric-controlpanel>`_, and `Near-RT-RIC A1-Simulator <https://gerrit.o-ran-sc.org/r/admin/repos/sim/a1-interface>`_ Gerrit source repositories (E-Release Branch).
+  * "Helloworld" O-RU Fronthaul Recovery use case. :doc:`Documentation site <orufhrecovery:index>`.
+  * "Helloworld" O-DU Slice Assurance use case. :doc:`Documentation site <ransliceassurance:index>`.
 
 Non-RT-RIC Control Panel / NONRTRIC Dashboard
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +60,7 @@ Implementation:
 - Frontend: Angular framework
 - Repo: *portal/nonrtric-controlpanel*
 - `Wiki <https://wiki.o-ran-sc.org/display/RICNR/>`_ to set up in your local environment.
-- Documentation at the `NONRTRIC-Portal documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-portal-nonrtric-controlpanel>`_.
+- Documentation at the :doc:`NONRTRIC-Portal documentation site <controlpanel:index>`.
 
 Information Coordination Service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,7 +81,7 @@ Implementation:
 
 - Implemented as a Java Spring Boot application.
 - Repo: *nonrtric/plt/informationcoordinatorservice*.
-- Documentation at the `Information Coordination Service site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-informationcoordinatorservice/en/latest/>`_
+- Documentation at the :doc:`Information Coordination Service site <informationcoordinatorservice:index>`.
 
 A1 Policy Management Service (from ONAP CCSDK)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,6 +108,8 @@ Implementation:
 
 - Implemented as a Java Spring Boot application.
 - Wiki: `A1 Policy Management Service in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ .
+- Repo: *nonrtric/plt/a1policymanagementservice*.
+- Documentation at the :doc:`A1 Policy Management Service documentation site <a1policymanagementservice:index>`.
 
 A1/SDNC Controller & A1 Adapter (Controller plugin)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,7 +141,7 @@ Implementation:
 
 - Implemented as a Python application.
 - Repo: *sim/a1-interface*.
-- Documentation at the `A1 Simulator documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-sim-a1-interface>`_
+- Documentation at the :doc:`A1 Simulator documentation site <simulator:index>`.
 
 Non-RT-RIC (Spring Cloud) Service Gateway
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -183,8 +183,8 @@ There are two alternative implementations to allow Information Consumers to cons
 
 Implementation:
 
-- Implementation in Java Spring (DMaaP Adapter), repo: *nonrtric/plt/dmaapadapter*, see `DMaaP Adapter documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapadapter/en/latest/>`_.
-- Implemention in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see `DMaaP Mediator Producer documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapmediatorproducer>`_.
+- Implementation in Java Spring (DMaaP Adapter), repo: *nonrtric/plt/dmaapadapter*, see :doc:`DMaaP Adapter documentation site <dmaapadapter:index>`.
+- Implemention in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see :doc:`DMaaP Mediator Producer documentation site <dmaapmediatorproducer:index>`.
 
 Initial Non-RT-RIC App Catalogue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,7 +199,7 @@ Implementation:
 
 - Implemented as a Java Spring Boot application.
 - Repo: *nonrtric/plt/rappcatalogue*
-- Documentation at the `rApp Catalogue documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-rappcatalogue>`_.
+- Documentation at the :doc:`rApp Catalogue documentation site <rappcatalogue:index>`.
 
 Initial K8S Helm Chart LCM Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,15 +217,15 @@ Implementation:
 
 - Implemented as a Java Spring Boot application.
 - Repo: *nonrtric/plt/helmmanager*
-- Documentation at the `Helm Manager documentation site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-helmmanager>`_.
+- Documentation at the :doc:`Helm Manager documentation site <helmmanager:index>`.
 
 Test Framework
 ~~~~~~~~~~~~~~
 
 A full test environment with extensive test cases/scripts can be found in the ``test`` directory in the *nonrtric* source code.
 
-Use Cases
-~~~~~~~~~
+Non-RT-RIC Use Cases
+~~~~~~~~~~~~~~~~~~~~
 
 "Helloworld" O-RU Fronthaul Recovery use case
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -236,6 +236,7 @@ Implementation:
 
 - One version implemented in Python, one in Go as an Information Coordination Service Consumer, and one as an apex policy.
 - Repo: *nonrtric/rapp/orufhrecovery*
+- Documentation at the :doc:`O-RU Fronthaul Recovery documentation site <orufhrecovery:index>`.
 
 "Helloworld" O-DU Slice Assurance use case
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -246,4 +247,4 @@ Implementation:
 
 - One version implemented in Go as a micro service, one in Go as an Information Coordination Service Consumer.
 - Repo: *nonrtric/rapp/ransliceassurance*
-- Documentation at the `O-DU Slice Assurance site <https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-ransliceassurance>`__.
+- Documentation at the :doc:`O-DU Slice Assurance documentation site <ransliceassurance:index>`.
