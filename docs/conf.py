@@ -2,8 +2,8 @@ from docs_conf.conf import *
 
 #branch configuration
 
-branch = 'latest'
-onapbranch = 'latest'
+branch = 'f-release'
+onapbranch = 'jakarta'
 
 linkcheck_ignore = [
     'http://localhost.*',

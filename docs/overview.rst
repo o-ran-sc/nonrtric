@@ -39,7 +39,7 @@ These are the components that make up the Non-RT-RIC:
 * `Initial Non-RT-RIC App Catalogue <#initial-non-rt-ric-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
 * `Initial K8S Helm Chart LCM Manager <#id5>`_. :doc:`Documentation site <helmmanager:index>`.
 * `Test Framework <#id1>`_.
-* `Use Cases: <#non-rt-ric-use-cases>`_:
+* `Use Cases: <#non-rt-ric-use-cases>`_
 
   * "Helloworld" O-RU Fronthaul Recovery use case. :doc:`Documentation site <orufhrecovery:index>`.
   * "Helloworld" O-DU Slice Assurance use case. :doc:`Documentation site <ransliceassurance:index>`.
