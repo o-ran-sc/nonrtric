@@ -7,7 +7,7 @@ Developer Guide
 
 This document provides a quickstart for developers of the Non-RT RIC parts.
 
-Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+E>`_.
+Additional developer guides are available on the `O-RAN SC NONRTRIC Developer wiki <https://wiki.o-ran-sc.org/display/RICNR/Release+F>`_.
 
 Kubernetes deployment
 ---------------------
@@ -18,5 +18,5 @@ OSC NONRTRIC integrated test environment can be found in the *./nonrtric* direct
 
 For more information on installation of NonRT-RIC in Kubernetes, see `Deploy NONRTRIC in Kubernetes <https://wiki.o-ran-sc.org/display/RICNR/Deploy+NONRTRIC+in+Kubernetes>`_.
 
-For more information see `Integration and Testing documentation on the O-RAN-SC wiki <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_.
+For more information see `Integration and Testing documentation in the O-RAN-SC <https://docs.o-ran-sc.org/projects/o-ran-sc-it-dep/en/latest/index.html>`_.
 
