@@ -2,8 +2,8 @@ from docs_conf.conf import *
 
 #branch configuration
 
-branch = 'latest'
-onapbranch = 'latest'
+branch = 'f-release'
+onapbranch = 'jakarta'
 
 linkcheck_ignore = [
     'http://localhost.*',
@@ -19,7 +19,7 @@ extensions = [
 #intershpinx mapping with other projects
 intersphinx_mapping = {}
 
-intersphinx_mapping['controlpanel'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-portal-nonrtric-controlpanel/en/%s' % branch, None)
+intersphinx_mapping['controlpanel'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-portal-nonrtric-controlpanel/en/e-release', None)
 intersphinx_mapping['simulator'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-sim-a1-interface/en/%s' % branch, None)
 intersphinx_mapping['dmaapmediatorproducer'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapmediatorproducer/en/%s' % branch, None)
 intersphinx_mapping['dmaapadapter'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapadapter/en/%s' % branch, None)
