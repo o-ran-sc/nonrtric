@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: CC-BY-4.0
 .. Copyright (C) 2021 Nordix
 
-.. |archpic| image:: ./images/nonrtric-architecture-E.png
+.. |archpic| image:: ./images/nonrtric-architecture-F.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
 
 Summary
