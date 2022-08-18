@@ -38,8 +38,9 @@ These are the components that make up the Non-RT-RIC:
 * `DMaaP/Kafka Information Producer Adapters <#dmaap-kafka-information-producer-adapters>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
 * `Initial Non-RT-RIC App Catalogue <#initial-non-rt-ric-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
 * `Initial K8S Helm Chart LCM Manager <#id5>`_. :doc:`Documentation site <helmmanager:index>`.
-* `Test Framework <#id1>`_.
-* `Use Cases: <#non-rt-ric-use-cases>`_:
+* `Auth Token Fetch <#id6>`_.
+* `Test Framework <#id7>`_.
+* `Use Cases: <#non-rt-ric-use-cases>`_
 
   * "Helloworld" O-RU Fronthaul Recovery use case. :doc:`Documentation site <orufhrecovery:index>`.
   * "Helloworld" O-DU Slice Assurance use case. :doc:`Documentation site <ransliceassurance:index>`.
@@ -75,7 +76,7 @@ Maintains a registry of:
 - Information Consumers
 - Information Jobs
 
-The service is not involved in data delivery and hence does not put restrictions on this. 
+The service is not involved in data delivery and hence does not put restrictions on this.
 
 Implementation:
 
@@ -218,6 +219,11 @@ Implementation:
 - Implemented as a Java Spring Boot application.
 - Repo: *nonrtric/plt/helmmanager*
 - Documentation at the :doc:`Helm Manager documentation site <helmmanager:index>`.
+
+Auth Token Fetch
+~~~~~~~~~~~~~~~~
+
+Work in progress.
 
 Test Framework
 ~~~~~~~~~~~~~~
