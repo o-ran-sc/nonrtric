@@ -53,7 +53,7 @@ func NewContext(config *Config) *Context {
 }
 
 // @title Auth token fetcher
-// @version 0.0.0
+// @version 1.0.0
 
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
