@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56986da7_43fef676",
+        "filename": ".readthedocs.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-08-19T14:18:24Z",
+      "side": 1,
+      "message": "i think this sets the documentation license - which is configured somewhere else to be Creative Commons (c) O-RAN SC",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 51
+      },
+      "revId": "38ea1ae1874b6c65a9199cbdc9bcc46e807a0dec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}

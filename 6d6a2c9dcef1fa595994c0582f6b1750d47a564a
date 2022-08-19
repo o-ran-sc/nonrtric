@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da604b11_c56b09d5",
+        "filename": "test/simulator-group/a1pms/app.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-08-19T14:18:24Z",
+      "side": 1,
+      "message": "We don\u0027t want to define a license for the object - rather a license for this file",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 51
+      },
+      "revId": "6d6a2c9dcef1fa595994c0582f6b1750d47a564a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
