@@ -110,11 +110,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ "$A1PMS_VERSION" == "V2" ]; then
             sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
         fi
+
+        __CONFIG_HEADER="NOHEADER"
+        if [ $RUNMODE == "KUBE" ]; then
+            __CONFIG_HEADER="HEADER"
+        else
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            __CONFIG_HEADER="HEADER"
+            fi
+        fi
         if [[ $interface == "SDNC" ]]; then
             start_sdnc
-            prepare_consul_config      SDNC    ".consul_config.json"
+            prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
         else
-            prepare_consul_config      NOSDNC  ".consul_config.json"
+            prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
         fi
 
         if [ $RUNMODE == "KUBE" ]; then

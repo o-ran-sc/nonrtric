@@ -20,7 +20,7 @@
 
 TC_ONELINE_DESCR="ICS full interfaces walkthrough - with or without istio enabled"
 
-USE_ISTIO=1
+USE_ISTIO=0
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="ICS PRODSTUB CR RICSIM CP HTTPPROXY NGW KUBEPROXY"

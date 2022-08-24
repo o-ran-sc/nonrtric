@@ -524,6 +524,7 @@ DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adaptor-service/data" # Path in contai
 DMAAP_ADP_DATA_FILE="application_configuration.json"  # Container data file name
 DMAAP_ADP_CONFIG_FILE=application.yaml                   # Config file name
 DMAAP_ADP_CONFIG_FILE_TEMPLATE=application.yaml          # Template config file name
+DMAAP_ADP_FEATURE_LEVEL="GENERATED_PROD_NAME"            # Space separated list of features
 
 DMAAP_MED_APP_NAME="dmaapmediatorservice"                # Name for Dmaap Mediator container
 DMAAP_MED_DISPLAY_NAME="Dmaap Mediator Service"          # Display name for Dmaap Mediator container

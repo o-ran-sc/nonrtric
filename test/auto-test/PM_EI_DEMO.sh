@@ -88,7 +88,16 @@ start_sdnc    # Comment this line to run A1PMS with proxy
 
 start_a1pms PROXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-prepare_consul_config      SDNC  ".consul_config.json"   #Change to NOSDNC if running A1PMS with  proxy
+__CONFIG_HEADER="NOHEADER"
+if [ $RUNMODE == "KUBE" ]; then
+    __CONFIG_HEADER="HEADER"
+else
+    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+    __CONFIG_HEADER="HEADER"
+    fi
+fi
+
+prepare_consul_config      SDNC  ".consul_config.json" $__CONFIG_HEADER  #Change to NOSDNC if running A1PMS with  proxy
 
 if [ $RUNMODE == "KUBE" ]; then
     a1pms_load_config                       ".consul_config.json"
