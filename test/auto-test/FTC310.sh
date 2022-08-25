@@ -81,7 +81,15 @@ for consul_conf in $TESTED_VARIANTS ; do
         start_consul_cbs
     fi
 
-    prepare_consul_config      NOSDNC  ".consul_config.json"
+    __CONFIG_HEADER="NOHEADER"
+    if [ $RUNMODE == "KUBE" ]; then
+        __CONFIG_HEADER="HEADER"
+    else
+        if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+            __CONFIG_HEADER="HEADER"
+        fi
+    fi
+    prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
 
     if [ "$A1PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
         a1pms_api_put_configuration 200 ".consul_config.json"
@@ -103,7 +111,7 @@ for consul_conf in $TESTED_VARIANTS ; do
     # Add an STD RIC and check
     start_ric_simulators ricsim_g2 2  STD_1.1.3
 
-    prepare_consul_config      NOSDNC  ".consul_config.json"
+    prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
     if [ "$A1PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
         a1pms_api_put_configuration 200 ".consul_config.json"
         a1pms_api_get_configuration 200 ".consul_config.json"
@@ -127,7 +135,7 @@ for consul_conf in $TESTED_VARIANTS ; do
     # Remove one RIC RIC and check
     start_ric_simulators ricsim_g2 1  STD_1.1.3
 
-    prepare_consul_config      NOSDNC  ".consul_config.json"
+    prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
     if [ "$A1PMS_VERSION" == "V2" ] && [ $consul_conf == "NOCONSUL" ]; then
         a1pms_api_put_configuration 200 ".consul_config.json"
         a1pms_api_get_configuration 200 ".consul_config.json"

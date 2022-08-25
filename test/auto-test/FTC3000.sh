@@ -96,7 +96,17 @@ ics_equal json:data-producer/v1/info-producers 2 60
 
 # Check producers
 ics_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
-ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
+if [[ "$DMAAP_ADP_FEATURE_LEVEL" == *"GENERATED_PROD_NAME"* ]]; then
+    if [ $RUNMODE == "KUBE" ]; then
+        __NAME="https:__$DMAAP_ADP_APP_NAME.$KUBE_NONRTRIC_NAMESPACE:$DMAAP_ADP_EXTERNAL_SECURE_PORT"
+    else
+        __NAME="https:__$DMAAP_ADP_APP_NAME:$DMAAP_ADP_INTERNAL_SECURE_PORT"
+    fi
+    ics_api_edp_get_producer_ids_2 200 NOTYPE $__NAME DMaaP_Mediator_Producer
+else
+    ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer DMaaP_Mediator_Producer
+fi
+
 if [[ "$DMAAP_MED_FEATURE_LEVEL" != *"KAFKATYPES"* ]]; then
     ics_api_idc_get_type_ids 200 ExampleInformationType STD_Fault_Messages ExampleInformationTypeKafka
 else

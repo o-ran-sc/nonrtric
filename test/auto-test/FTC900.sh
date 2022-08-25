@@ -70,7 +70,16 @@ start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
 use_a1pms_rest_http
 
-prepare_consul_config      NOSDNC  ".consul_config.json"
+__CONFIG_HEADER="NOHEADER"
+if [ $RUNMODE == "KUBE" ]; then
+    __CONFIG_HEADER="HEADER"
+else
+    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+    __CONFIG_HEADER="HEADER"
+    fi
+fi
+
+prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
 
 if [ $RUNMODE == "KUBE" ]; then
     a1pms_load_config                       ".consul_config.json"

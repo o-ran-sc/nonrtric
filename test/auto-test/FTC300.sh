@@ -112,11 +112,19 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         set_a1pms_debug
 
+        __CONFIG_HEADER="NOHEADER"
+        if [ $RUNMODE == "KUBE" ]; then
+            __CONFIG_HEADER="HEADER"
+        else
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+                __CONFIG_HEADER="HEADER"
+            fi
+        fi
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
-            prepare_consul_config      SDNC    ".consul_config.json"
+            prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
         else
-            prepare_consul_config      NOSDNC  ".consul_config.json"
+            prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
         fi
 
         if [ $RUNMODE == "KUBE" ]; then

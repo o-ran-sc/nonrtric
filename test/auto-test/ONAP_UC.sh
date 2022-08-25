@@ -99,11 +99,20 @@ for interface in $TESTED_VARIANTS ; do
         start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
     fi
 
+    __CONFIG_HEADER="NOHEADER"
+    if [ $RUNMODE == "KUBE" ]; then
+        __CONFIG_HEADER="HEADER"
+    else
+        if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
+        __CONFIG_HEADER="HEADER"
+        fi
+    fi
+
     if [[ $interface = *"SDNC"* ]]; then
         start_sdnc
-        prepare_consul_config      SDNC    ".consul_config.json"
+        prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
     else
-        prepare_consul_config      NOSDNC  ".consul_config.json"
+        prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
     fi
 
     start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE

@@ -460,16 +460,16 @@ start_stopped_a1pms() {
 
 
 # Function to perpare the consul configuration according to the current simulator configuration
-# args: SDNC|NOSDNC <output-file>
+# args: SDNC|NOSDNC <output-file> HEADER|NOHEADER
 # (Function for test scripts)
 prepare_consul_config() {
   	echo -e $BOLD"Prepare Consul config"$EBOLD
 
 	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
 
-	if [ $# != 2 ];  then
+	if [ $# != 3 ];  then
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
+    	__print_err "need two args,  SDNC|NOSDNC <output-file> HEADER|NOHEADER" $@
 		exit 1
 	fi
 
@@ -479,7 +479,7 @@ prepare_consul_config() {
 		echo -e " Config$BOLD excluding SDNC$EBOLD configuration"
 	else
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
+    	__print_err "need three args,  SDNC|NOSDNC <output-file> HEADER|NOHEADER" $@
 		exit 1
 	fi
 
@@ -571,7 +571,7 @@ prepare_consul_config() {
 	config_json=$config_json"\n           ]"
 	config_json=$config_json"\n}"
 
-	if [ $RUNMODE == "KUBE" ]; then
+	if [ $3 == "HEADER" ]; then
 		config_json="{\"config\":"$config_json"}"
 	fi
 
@@ -2296,9 +2296,9 @@ a1pms_api_put_configuration() {
 		return 1
 	fi
 	inputJson=$(< $2)
-	if [ $RUNMODE == "DOCKER" ]; then  #In kube the file already has a header
-		inputJson="{\"config\":"$inputJson"}"
-	fi
+	# if [ $RUNMODE == "DOCKER" ]; then  #In kube the file already has a header
+	# 	inputJson="{\"config\":"$inputJson"}"
+	# fi
 	file="./tmp/.config.json"
 	echo $inputJson > $file
 	query="/v2/configuration"
@@ -2349,7 +2349,9 @@ a1pms_api_get_configuration() {
 		body=${res:0:${#res}-3}
 
 		targetJson=$(< $2)
-		targetJson="{\"config\":"$targetJson"}"
+		# if [ $RUNMODE == "DOCKER" ]; then  #In kube the file already has a header
+		# 	inputJson="{\"config\":"$inputJson"}"
+		# fi
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
