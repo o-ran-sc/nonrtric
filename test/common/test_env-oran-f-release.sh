@@ -60,17 +60,17 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 # A1PMS base image and tags
 A1PMS_IMAGE_BASE="o-ran-sc/nonrtric-plt-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="2.4.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="2.4.0"
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.4.0"
+A1PMS_IMAGE_TAG_LOCAL="2.4.1-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.1-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="2.4.1"
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.4.1"
 
 # ICS image and tags
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
-ICS_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.0-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE="1.3.0"
-ICS_IMAGE_TAG_REMOTE_RELEASE="1.3.0"
+ICS_IMAGE_TAG_LOCAL="1.3.2-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.2-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE="1.3.2"
+ICS_IMAGE_TAG_REMOTE_RELEASE="1.3.1"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 #Control Panel image and tags
@@ -89,9 +89,9 @@ NRT_GATEWAY_IMAGE_TAG_REMOTE="1.1.0"
 NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
 
 
-# SDNC A1 Controller image and tags - Note using released honolulu ONAP image
+# SDNC A1 Controller image and tags - Note using released ONAP image
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.1.6"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.2.5"
 #No local image for ONAP SDNC, remote release image always used
 
 # ORAN SDNC adapter kept as reference
@@ -125,9 +125,9 @@ RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 # Near RT RIC Simulator image and tags - same version as cherry
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
 RIC_SIM_IMAGE_TAG_LOCAL="latest"
-RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.0-SNAPSHOT"
-RIC_SIM_IMAGE_TAG_REMOTE="2.3.0"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
+RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.2-SNAPSHOT"
+RIC_SIM_IMAGE_TAG_REMOTE="2.3.2"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.3.1"
 
 # DMAAP Mediator Service
 DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapmediatorproducer"
@@ -138,10 +138,10 @@ DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
 
 # DMAAP Adapter Service
 DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapadapter"
-DMAAP_ADP_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE="1.1.0"
-DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+DMAAP_ADP_IMAGE_TAG_LOCAL="1.1.1-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.1-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE="1.1.1"
+DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
 
 # Helm Manager
 HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-plt-helmmanager"
@@ -507,7 +507,7 @@ DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adapter-service/data" # Path in contai
 DMAAP_ADP_DATA_FILE="application_configuration.json"  # Container data file name
 DMAAP_ADP_CONFIG_FILE=application.yaml                   # Config file name
 DMAAP_ADP_CONFIG_FILE_TEMPLATE=application1.yaml         # Template config file name
-DMAAP_ADP_FEATURE_LEVEL=""                               # Space separated list of features
+DMAAP_ADP_FEATURE_LEVEL="GENERATED_PROD_NAME"            # Space separated list of features
 
 DMAAP_MED_APP_NAME="dmaapmediatorservice"                # Name for Dmaap Mediator container
 DMAAP_MED_DISPLAY_NAME="Dmaap Mediator Service"          # Display name for Dmaap Mediator container
