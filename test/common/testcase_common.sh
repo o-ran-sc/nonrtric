@@ -1945,27 +1945,31 @@ print_result() {
 		echo "Runtime statistics collected in file: "$TESTLOGS/$ATC/stat_data.csv
 		echo ""
 	fi
-
+	TMP_FLAG_FAIL_PASS=0
 	total=$((RES_PASS+RES_FAIL))
 	if [ $RES_TEST -eq 0 ]; then
+		TMP_FLAG_FAIL_PASS=1
 		echo -e "\033[1mNo tests seem to have been executed. Check the script....\033[0m"
  		echo -e "\033[31m\033[1m ___  ___ ___ ___ ___ _____   ___ _   ___ _   _   _ ___ ___ \033[0m"
  		echo -e "\033[31m\033[1m/ __|/ __| _ \_ _| _ \_   _| | __/_\ |_ _| | | | | | _ \ __|\033[0m"
 		echo -e "\033[31m\033[1m\__ \ (__|   /| ||  _/ | |   | _/ _ \ | || |_| |_| |   / _| \033[0m"
  		echo -e "\033[31m\033[1m|___/\___|_|_\___|_|   |_|   |_/_/ \_\___|____\___/|_|_\___|\033[0m"
 	elif [ $total != $RES_TEST ]; then
+		TMP_FLAG_FAIL_PASS=1
 		echo -e "\033[1mTotal number of tests does not match the sum of passed and failed tests. Check the script....\033[0m"
 		echo -e "\033[31m\033[1m ___  ___ ___ ___ ___ _____   ___ _   ___ _   _   _ ___ ___ \033[0m"
 		echo -e "\033[31m\033[1m/ __|/ __| _ \_ _| _ \_   _| | __/_\ |_ _| | | | | | _ \ __|\033[0m"
 		echo -e "\033[31m\033[1m\__ \ (__|   /| ||  _/ | |   | _/ _ \ | || |_| |_| |   / _| \033[0m"
  		echo -e "\033[31m\033[1m|___/\___|_|_\___|_|   |_|   |_/_/ \_\___|____\___/|_|_\___|\033[0m"
 	elif [ $RES_CONF_FAIL -ne 0 ]; then
+		TMP_FLAG_FAIL_PASS=1
 		echo -e "\033[1mOne or more configurations has failed. Check the script log....\033[0m"
 		echo -e "\033[31m\033[1m ___  ___ ___ ___ ___ _____   ___ _   ___ _   _   _ ___ ___ \033[0m"
 		echo -e "\033[31m\033[1m/ __|/ __| _ \_ _| _ \_   _| | __/_\ |_ _| | | | | | _ \ __|\033[0m"
 		echo -e "\033[31m\033[1m\__ \ (__|   /| ||  _/ | |   | _/ _ \ | || |_| |_| |   / _| \033[0m"
  		echo -e "\033[31m\033[1m|___/\___|_|_\___|_|   |_|   |_/_/ \_\___|____\___/|_|_\___|\033[0m"
 	elif [ $RES_PASS = $RES_TEST ]; then
+		TMP_FLAG_FAIL_PASS=0
 		echo -e "All tests \033[32m\033[1mPASS\033[0m"
 		echo -e "\033[32m\033[1m  ___  _   ___ ___ \033[0m"
 		echo -e "\033[32m\033[1m | _ \/_\ / __/ __| \033[0m"
@@ -1986,12 +1990,16 @@ print_result() {
 		echo "0" > "$AUTOTEST_HOME/.result$ATC.txt"
 		echo "0" > "$TESTLOGS/$ATC/.result$ATC.txt"
 	else
+		TMP_FLAG_FAIL_PASS=1
 		echo -e "One or more tests with status  \033[31m\033[1mFAIL\033[0m "
 		echo -e "\033[31m\033[1m  ___ _   ___ _    \033[0m"
 		echo -e "\033[31m\033[1m | __/_\ |_ _| |   \033[0m"
 		echo -e "\033[31m\033[1m | _/ _ \ | || |__ \033[0m"
 		echo -e "\033[31m\033[1m |_/_/ \_\___|____|\033[0m"
 		echo ""
+	fi
+
+	if [ $TMP_FLAG_FAIL_PASS -ne 0 ]; then
 		# Update test suite counter
 		if [ -f .tmp_tcsuite_fail_ctr ]; then
 			tmpval=$(< .tmp_tcsuite_fail_ctr)

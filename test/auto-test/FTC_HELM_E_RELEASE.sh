@@ -134,6 +134,8 @@ rapp_cat_api_get_services 200 "Emergency-response-app" v1 "Emergency-response-ap
 #Check the number of services
 rc_equal json:services 1
 
+sleep_wait 120 "Let A1PMS cofiguration take effect"
+
 a1_a1pms_api_get_status 200
 
 #### Test Policy Management Service ####
