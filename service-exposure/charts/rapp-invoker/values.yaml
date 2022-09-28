@@ -1,4 +1,3 @@
-{{/*
 #
 # ============LICENSE_START=======================================================
 #  Copyright (C) 2022 Nordix Foundation.
@@ -18,7 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-*/}}
+
 # Default values for rapp-invoker.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
