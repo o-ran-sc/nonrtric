@@ -20,7 +20,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: keycloak 
+  name: keycloak
   namespace: default
 ---
 apiVersion: v1
@@ -31,12 +31,12 @@ metadata:
     app: keycloak
 spec:
   type: ExternalName
-  externalName: keycloak.local 
+  externalName: keycloak.local
   ports:
   - name: http
     port: 8080
     targetPort: 8080
-    nodePort: 31560 
+    nodePort: 31560
   - name: https
     port: 8443
     targetPort: 8443
@@ -65,20 +65,20 @@ spec:
       initContainers:
       - name: init-postgres
         image: busybox
-        imagePullPolicy: IfNotPresent 
+        imagePullPolicy: IfNotPresent
         command: ['sh', '-c', 'until nc -vz postgres 5432; do echo waiting for postgres db; sleep 2; done;']
-      serviceAccountName: keycloak 
+      serviceAccountName: keycloak
       containers:
       - name: keycloak
-        image: quay.io/keycloak/keycloak:latest
-        imagePullPolicy: IfNotPresent 
+        image: quay.io/keycloak/keycloak:16.1.1
+        imagePullPolicy: IfNotPresent
         env:
         - name: KEYCLOAK_USER
           value: "admin"
         - name: KEYCLOAK_PASSWORD
           value: "admin"
         - name: KEYCLOAK_HTTPS_PORT
-          value: "8443" 
+          value: "8443"
         - name: PROXY_ADDRESS_FORWARDING
           value: "true"
         - name: MANAGEMENT_USER
@@ -89,18 +89,18 @@ spec:
           value: "false"
         - name: DB_VENDOR
           value: "postgres"
-        - name: DB_ADDR 
+        - name: DB_ADDR
           value: "postgres"
-        - name: DB_PORT 
+        - name: DB_PORT
           value: "5432"
         - name: DB_DATABASE
           value: "keycloak"
         - name: DB_USER
-          value: "keycloak" 
+          value: "keycloak"
         - name : DB_PASSWORD
-          value: "keycloak" 
-        - name : X509_CA_BUNDLE 
-          value: /etc/x509/https/rootCA.crt 
+          value: "keycloak"
+        - name : X509_CA_BUNDLE
+          value: /etc/x509/https/rootCA.crt
         ports:
         - name: http
           containerPort: 8080
@@ -111,12 +111,12 @@ spec:
             path: /auth/realms/master
             port: 8080
         volumeMounts:
-        - name: keycloak-certs 
-          mountPath: /etc/x509/https 
+        - name: keycloak-certs
+          mountPath: /etc/x509/https
       volumes:
-      - name: keycloak-certs 
+      - name: keycloak-certs
         hostPath:
-           path: /var/keycloak/certs 
+           path: /var/keycloak/certs
            type: Directory
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -134,7 +134,7 @@ spec:
     tls:
       mode: PASSTHROUGH
     hosts:
-    - keycloak.est.tech
+    - keycloak.oran.org
   - port:
       number: 80
       name: http
@@ -148,14 +148,14 @@ metadata:
   name: keycloak-tls-vs
 spec:
   hosts:
-  - keycloak.est.tech
+  - keycloak.oran.org
   gateways:
   - kcgateway
   tls:
   - match:
     - port: 443
       sniHosts:
-      - keycloak.est.tech
+      - keycloak.oran.org
     route:
     - destination:
         host: keycloak.default.svc.cluster.local
@@ -170,7 +170,7 @@ spec:
   hosts:
   - "*"
   gateways:
-  - kcgateway 
+  - kcgateway
   http:
   - name: "keycloak-routes"
     match:

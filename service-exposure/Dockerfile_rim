@@ -17,9 +17,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-FROM golang:latest 
-RUN mkdir /app 
+FROM golang:latest
+RUN mkdir /app
 COPY ./rapps-istio-mgr /app
+RUN mkdir /app/templates
+ADD templates /app/templates
 RUN chmod +x /app/rapps-istio-mgr
-WORKDIR /app 
+WORKDIR /app
 ENTRYPOINT ["/app/rapps-istio-mgr"]

@@ -1,0 +1,44 @@
+#
+# ============LICENSE_START=======================================================
+#  Copyright (C) 2022 Nordix Foundation.
+# ================================================================================
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+# ============LICENSE_END=========================================================
+#
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: jwt-proxy-webhook
+  namespace: default
+webhooks:
+  - name: rapps-webhook.default.svc.cluster.local
+    admissionReviewVersions:
+      - "v1beta1"
+    sideEffects: "None"
+    timeoutSeconds: 30
+    objectSelector:
+      matchLabels:
+        app.kubernetes.io/name: rapp-helloworld-invoker1
+    clientConfig:
+      service:
+        name: jwt-proxy-admission-controller
+        namespace: default
+        path: "/inject-sidecar"
+      caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURhakNDQWxLZ0F3SUJBZ0lVTlZFcUZwSUJMUEZUOGd2L3hQK245L2ZvTy80d0RRWUpLb1pJaHZjTkFRRUwKQlFBd1RURUxNQWtHQTFVRUJoTUNTVVV4RURBT0JnTlZCQWdUQjFkbFltaHZiMnN4RHpBTkJnTlZCQWNUQmtSMQpZbXhwYmpFTU1Bb0dBMVVFQ2hNRFJWTlVNUTB3Q3dZRFZRUUxFd1JQY21GdU1CNFhEVEl5TURreU1EQTRNRGN3Ck1Gb1hEVEkzTURreE9UQTRNRGN3TUZvd1RURUxNQWtHQTFVRUJoTUNTVVV4RURBT0JnTlZCQWdUQjFkbFltaHYKYjJzeER6QU5CZ05WQkFjVEJrUjFZbXhwYmpFTU1Bb0dBMVVFQ2hNRFJWTlVNUTB3Q3dZRFZRUUxFd1JQY21GdQpNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXArM3lhc2VHUVpOS1VCakVJcFF6CktUZFI5bEVFTDhGeitGRGIrM0YwalQ2cWtoMko5cmJYdUx0V0dWZm5RQWpXb1JpaHlUV3F3RlR6V2lMNHVtK0gKNzVYSm1ucHlqbkRJRStaUGZpcFR0SW40cHhSZ3Z3WXl5a0pjeGI4blN3a21IM2NVRkVLMHJnbEEvLzVMV0RuWgpIQkl2VkhFUzlGYktwVFBEZFlNRFJ2K3dNNGk1ZWVOM1djOCtnZ0hYZW1tc3pkRG9mc0dMTU1iNkpXQlY0MEs0ClhHRDdheEYwelBIT3RHblhlU21zL1lVTlB4R3Z5WWpmZHJqSW1kL2xKUCtDQysvMlhuaEZYYUYzSzJxbE9uQU4KUGVoOGRPNzdNZzVjU01JQkhwbll1RTVqUy95YmZ0RGRSWDcxRm9ZUmJ0MXZsOXNuVC9zNFhxTDB2bHBCRmVyMApSd0lEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FRWXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WCkhRNEVGZ1FVcDQyM3B4NnUxbTYwZnhCNEJWYmFWR2gxaGwwd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFHaHYKc25jc1g0dUl2S1lZRUdCNitEYmNmdlViS1o2clQ1Ykx3OUV1aFpDSUJiS0xTOFRLMHFqV2dyM0JZWUsyRFA2UgpTcmhzOHRSbkQ2VCtPL1dMdWpPOXM4SUpBbGQvRkQzenJyZWs1YW16RndQb1JiWVZ6OXY4SG1HblRRY2JZWEFYCmlzcjg5Z1QzRFRLbkRxTHEyUTU2WnBiN2dLbFZWNXZKNjVaVFRzYUwxc2oxK1d0bDB0emcrektMNHdrckRqK0wKRzd4blYrNDY3eEUwSnora3JOaFYzaHJEYmhpOUVsRVNRTnVHeURsTUVuY2dvSEFqMmh4WnVINEVUTXJyYWxSWgphQTI3c1ZDNGlMYmJsQWZ0THRWb1YycGpVdTdDVWwrQ1pOZ2tFRGl1d05weWQvZzdlVmYvVk0vakt5TTFiODQ4Ck5nYlZmcjNhelFlOUIyc3kvQnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]

@@ -23,26 +23,26 @@ metadata:
   name: chartmuseum-deployment
   namespace: default
   labels:
-    app: chartmuseum 
+    app: chartmuseum
 spec:
   selector:
     matchLabels:
-      app: chartmuseum 
+      app: chartmuseum
   template:
     metadata:
       labels:
-        app: chartmuseum 
+        app: chartmuseum
         version: v1
     spec:
       containers:
-      - name: chartmuseum 
-        image: chartmuseum/chartmuseum:latest 
+      - name: chartmuseum
+        image: chartmuseum/chartmuseum:latest
         imagePullPolicy: IfNotPresent
         env:
-        - name: STORAGE 
-          value: local 
-        - name: STORAGE_LOCAL_ROOTDIR 
-          value: /charts 
+        - name: STORAGE
+          value: local
+        - name: STORAGE_LOCAL_ROOTDIR
+          value: /charts
         ports:
         - name: http
           containerPort: 8080
@@ -58,24 +58,24 @@ spec:
           mountPath: /charts
           readOnly: true
       volumes:
-      - name: chartdir 
+      - name: chartdir
         hostPath:
           # Ensure the file directory is created.
-           path: /var/chartmuseum/charts 
+           path: /var/chartmuseum/charts
            type: DirectoryOrCreate
-  replicas: 1 
+  replicas: 1
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: chartmuseum 
+  name: chartmuseum
   namespace: default
 spec:
   selector:
-    app: chartmuseum 
+    app: chartmuseum
   ports:
   - name: http
     port: 8080
     targetPort: 8080
-    nodePort: 31580
-  type: LoadBalancer
+    nodePort: 31581
+  type: NodePort
