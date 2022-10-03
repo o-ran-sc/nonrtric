@@ -30,23 +30,14 @@ REFRESH_TOKEN=""
 
 function get_token
 {
-    local prefix="${1}" 
+    local prefix="${1}"
     url="http://192.168.49.2:31560/auth/realms"
-    #     echo $url
          TOKEN=$(curl -s -X POST $url/provider/protocol/openid-connect/token -H \
 		 "Content-Type: application/x-www-form-urlencoded" -d client_secret=OwTCeahULA21G5TfEVMLG1iMloGiyH3i \
-		 -d 'grant_type=client_credentials' -d client_id=provider-cli) 
+		 -d 'grant_type=client_credentials' -d client_id=provider-cli)
 	echo "TOKEN: $TOKEN"
         ACCESS_TOKEN=$(echo $TOKEN | jq -r '.access_token')
-	#echo "ACCESS_TOKEN: $ACCESS_TOKEN"
         REFRESH_TOKEN=$(echo $TOKEN | jq -r '.refresh_token')
-	#echo "REFRESH_TOKEN: $REFRESH_TOKEN"
-        # TOKEN2=$(curl -s -X POST $url/provider/protocol/openid-connect/token -H \
-	#	 "Content-Type: application/x-www-form-urlencoded" -d client_secret= \
-	#	 -d refresh_token=$REFRESH_TOKEN \
-	#	 -d 'grant_type=refresh_token' -d client_id=provider-cli) 
-       #echo "TOKEN2 = $TOKEN2"
-	 #ACCESS_TOKEN=""
     echo $ACCESS_TOKEN
 }
 
