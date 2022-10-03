@@ -18,8 +18,31 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
+export host=$(minikube ip)
 
-kubectl create -f chartmuseum.yaml 
+echo "Deploying applications..."
+echo "-------------------------"
+kubectl create -f chartmuseum.yaml
 kubectl create -f rapps-keycloak-mgr.yaml
 kubectl create -f  rapps-istio-mgr.yaml
 kubectl create -f  rapps-helm-installer.yaml
+kubectl create -f rapps-webhook.yaml
+
+echo ""
+echo "Waiting for pods to start..."
+echo "----------------------------"
+kubectl wait deployment -n default chartmuseum-deployment --for=condition=available --timeout=90s
+kubectl wait deployment -n default rapps-keycloak-mgr-deployment --for=condition=available --timeout=90s
+kubectl wait deployment -n default rapps-istio-mgr-deployment --for=condition=available --timeout=90s
+kubectl wait deployment -n default rapps-helm-installer-deployment --for=condition=available --timeout=90s
+kubectl wait deployment -n default jwt-proxy-admission-controller-deployment --for=condition=available --timeout=90s
+
+echo ""
+echo "Configure sidecar injection..."
+echo "----------------------------"
+kubectl create -f MutatingWebhookConfiguration.yaml
+
+echo ""
+echo "Checking pod status..."
+echo "----------------------"
+kubectl get pods -n default

@@ -17,9 +17,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-FROM golang:latest 
-RUN mkdir /app 
+FROM golang:latest
+RUN mkdir /app
 COPY ./rapps-helm-installer /app
 RUN chmod +x /app/rapps-helm-installer
-WORKDIR /app 
+WORKDIR /app
 ENTRYPOINT ["/app/rapps-helm-installer"]

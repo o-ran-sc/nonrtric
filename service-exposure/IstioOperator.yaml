@@ -1,0 +1,82 @@
+#
+# ============LICENSE_START=======================================================
+#  Copyright (C) 2022 Nordix Foundation.
+# ================================================================================
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+# ============LICENSE_END=========================================================
+#
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  profile: demo
+  meshConfig:
+    extensionProviders:
+    - name: "opa-default-grpc"
+      envoyExtAuthzGrpc:
+        service: "opa.default.svc.cluster.local"
+        port: "9191"
+        includeRequestBodyInCheck:
+          maxRequestBytes: 1000000
+    - name: "opa-default-http"
+      envoyExtAuthzHttp:
+        service: "opa.default.svc.cluster.local"
+        port: "8181"
+        includeRequestHeadersInCheck: ["authorization", "path"]
+        includeRequestBodyInCheck:
+          maxRequestBytes: 1000000
+    - name: "opa-local"
+      envoyExtAuthzGrpc:
+        service: "local-opa-grpc.local"
+        port: "9191"
+    accessLogEncoding: TEXT
+    accessLogFile: "/dev/stdout"
+    accessLogFormat: ""
+    outboundTrafficPolicy:
+      mode: REGISTRY_ONLY
+  values:
+    pilot:
+      jwksResolverExtraRootCA: |
+        -----BEGIN CERTIFICATE-----
+        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
+        CruKkw029sEv
+        -----END CERTIFICATE-----

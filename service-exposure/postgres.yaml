@@ -60,7 +60,7 @@ data:
     DO $$
     BEGIN
       IF NOT EXISTS (SELECT FROM pg_user WHERE  usename = 'capif') THEN
-         CREATE USER capif WITH PASSWORD 'capif'; 
+         CREATE USER capif WITH PASSWORD 'capif';
          GRANT ALL PRIVILEGES ON DATABASE capif TO capif;
       END IF;
     END
@@ -77,11 +77,11 @@ spec:
     app: postgres
   ports:
     - protocol: TCP
-      port: 5432 
+      port: 5432
       nodePort: 30032
-      targetPort: 5432 
+      targetPort: 5432
 ---
-apiVersion: apps/v1 
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
@@ -101,17 +101,17 @@ spec:
       containers:
       - image: nexus3.onap.org:10001/postgres
         name: postgres
-        imagePullPolicy: IfNotPresent 
+        imagePullPolicy: IfNotPresent
         env:
         - name: POSTGRES_DB
-          value: keycloak 
+          value: keycloak
         - name: POSTGRES_USER
-          value: keycloak 
+          value: keycloak
         - name: POSTGRES_PASSWORD
-          value: keycloak 
+          value: keycloak
         - name: PGDATA
-          value: /var/lib/pgsql/data 
-        lifecycle:  
+          value: /var/lib/pgsql/data
+        lifecycle:
           postStart:
             exec:
               command: [ "/bin/sh", "-c", "sleep 10 && psql -U $POSTGRES_USER -f /init.sql" ]
@@ -130,16 +130,16 @@ spec:
           initialDelaySeconds: 15
           timeoutSeconds: 2
         ports:
-        - containerPort: 5432 
+        - containerPort: 5432
           name: postgres
         volumeMounts:
         - name: postgres-persistent-storage
-          mountPath: /var/lib/pgsql/data 
-        - name : tmp-dir  
+          mountPath: /var/lib/pgsql/data
+        - name : tmp-dir
           mountPath: /tmp
         - name: db-init
-          mountPath: /init.sql 
-          subPath: init.sql 
+          mountPath: /init.sql
+          subPath: init.sql
       volumes:
       - name: postgres-persistent-storage
         persistentVolumeClaim:
@@ -147,7 +147,7 @@ spec:
       - name: tmp-dir
         hostPath:
           path: /tmp
-          type: Directory 
+          type: Directory
       - name: db-init
         configMap:
           name: db-init
