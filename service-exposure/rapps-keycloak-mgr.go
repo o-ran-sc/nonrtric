@@ -17,7 +17,6 @@
 //   limitations under the License.
 //   ========================LICENSE_END===================================
 //
-
 package main
 
 import (
@@ -29,7 +28,6 @@ import (
 	kubernetes "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"net/http"
-	"strings"
 	"rapps/utils/pemtojwks"
 )
 
@@ -42,12 +40,13 @@ func createClient(res http.ResponseWriter, req *http.Request) {
 	realmName := query.Get("realm")
 	clientName := query.Get("name")
 	role := query.Get("role")
+	authType := query.Get("authType")
 	var msg string
-	msg, err := create(realmName, clientName, role)
+	msg, err := create(realmName, clientName, role, authType)
 	if err != nil {
 		msg = err.Error()
 	}
-	if realmName != "x509" && realmName != "jwt" {
+	if authType == "client-secret" {
 		createSecret(msg, clientName, realmName, role, namespace)
 	}
 	// create response binary data
@@ -61,12 +60,13 @@ func removeClient(res http.ResponseWriter, req *http.Request) {
 	realmName := query.Get("realm")
 	clientName := query.Get("name")
 	role := query.Get("role")
+	authType := query.Get("authType")
 
 	var msg string = "Removed keycloak " + clientName + " from " + realmName + " realm"
 	remove(realmName, clientName)
-        if realmName != "x509" && realmName != "jwt" {
-	        removeSecret(namespace, role)
-        }
+	if authType == "client-secret" {
+		removeSecret(namespace, role)
+	}
 	// create response binary data
 	data := []byte(msg) // slice of bytes
 	// write `data` to response
@@ -81,7 +81,7 @@ func main() {
 	http.ListenAndServe(":9000", nil)
 }
 
-func create(realmName, clientName, clientRoleName string) (string, error) {
+func create(realmName, clientName, clientRoleName, authType string) (string, error) {
 	client := gocloak.NewClient("http://keycloak.default:8080")
 	ctx := context.Background()
 	token, err := client.LoginAdmin(ctx, "admin", "admin", "master")
@@ -122,7 +122,7 @@ func create(realmName, clientName, clientRoleName string) (string, error) {
 		fmt.Println("Retrieved AuthenticationFlow id", flowId)
 	}
 
-	newClient1 := gocloak.Client{
+	secretClient := gocloak.Client{
 		ClientID:                  gocloak.StringP(clientName),
 		Enabled:                   gocloak.BoolP(true),
 		DirectAccessGrantsEnabled: gocloak.BoolP(true),
@@ -135,7 +135,7 @@ func create(realmName, clientName, clientRoleName string) (string, error) {
 			"client_credentials.use_refresh_token": "true"},
 	}
 
-	newClient2 := gocloak.Client{
+	x509Client := gocloak.Client{
 		ClientID:                  gocloak.StringP(clientName),
 		Enabled:                   gocloak.BoolP(true),
 		DirectAccessGrantsEnabled: gocloak.BoolP(true),
@@ -151,32 +151,32 @@ func create(realmName, clientName, clientRoleName string) (string, error) {
 		AuthenticationFlowBindingOverrides: &map[string]string{"direct_grant": flowId},
 	}
 
-        jwksString := pemtojwks.CreateJWKS("/certs/client_pub.key", "public", "/certs/client.crt") 
-	newClient3 := gocloak.Client{
-                ClientID:                  gocloak.StringP(clientName),
-                Enabled:                   gocloak.BoolP(true),
-                DirectAccessGrantsEnabled: gocloak.BoolP(true),
-                BearerOnly:                gocloak.BoolP(false),
-                PublicClient:              gocloak.BoolP(false),
-                ServiceAccountsEnabled:    gocloak.BoolP(true),
-                ClientAuthenticatorType:   gocloak.StringP("client-jwt"),
-                DefaultClientScopes:       &[]string{"email"},
-                Attributes: &map[string]string{"token.endpoint.auth.signing.alg": "RS256",
-		       "use.jwks.string": "true",
-                       "jwks.string": jwksString, 
-		       "use.refresh.tokens": "true",
-                       "client_credentials.use_refresh_token": "true",
+	jwksString := pemtojwks.CreateJWKS("/certs/client.crt")
+	jwtClient := gocloak.Client{
+		ClientID:                  gocloak.StringP(clientName),
+		Enabled:                   gocloak.BoolP(true),
+		DirectAccessGrantsEnabled: gocloak.BoolP(true),
+		BearerOnly:                gocloak.BoolP(false),
+		PublicClient:              gocloak.BoolP(false),
+		ServiceAccountsEnabled:    gocloak.BoolP(true),
+		ClientAuthenticatorType:   gocloak.StringP("client-jwt"),
+		DefaultClientScopes:       &[]string{"email"},
+		Attributes: &map[string]string{"token.endpoint.auth.signing.alg": "RS256",
+			"use.jwks.string":                      "true",
+			"jwks.string":                          jwksString,
+			"use.refresh.tokens":                   "true",
+			"client_credentials.use_refresh_token": "true",
 		},
-        }
+	}
 
 	var newClient gocloak.Client
-	if strings.HasPrefix(clientName, "x509") {
-		newClient = newClient2
-	} else if strings.HasPrefix(clientName, "jwt") {
-		newClient = newClient3
+	if authType == "client-x509" {
+		newClient = x509Client
+	} else if authType == "client-jwt" {
+		newClient = jwtClient
 	} else {
-                newClient = newClient1
-        }
+		newClient = secretClient
+	}
 
 	clientId, err := client.CreateClient(ctx, token.AccessToken, realmName, newClient)
 	if err != nil {
@@ -204,7 +204,7 @@ func create(realmName, clientName, clientRoleName string) (string, error) {
 		fmt.Println("Service Account user", *user.Username)
 	}
 
-	if strings.HasPrefix(clientName, "x509") {
+	if authType == "client-x509" {
 		newUser := gocloak.User{
 			ID:       gocloak.StringP(realmName + "user"),
 			Username: gocloak.StringP(realmName + "user"),
@@ -262,7 +262,7 @@ func create(realmName, clientName, clientRoleName string) (string, error) {
 		fmt.Println("Client rolemapper added to client")
 	}
 
-	if strings.HasPrefix(clientName, "x509") {
+	if authType == "client-x509" {
 		clientRole := *newClient.ClientID + "." + clientRoleName
 
 		clientroleMapper := gocloak.ProtocolMapperRepresentation{
@@ -336,7 +336,7 @@ func createSecret(clientSecret, clientName, realmName, role, namespace string) {
 }
 
 func remove(realmName, clientName string) {
-	adminClient := gocloak.NewClient("http://192.168.49.2:31560")
+	adminClient := gocloak.NewClient("http://keycloak.default:8080")
 	ctx := context.Background()
 	token, err := adminClient.LoginAdmin(ctx, "admin", "admin", "master")
 	if err != nil {

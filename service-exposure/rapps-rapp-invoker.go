@@ -17,7 +17,6 @@
 //   limitations under the License.
 //   ========================LICENSE_END===================================
 //
-
 package main
 
 import (
@@ -57,7 +56,7 @@ var role string
 var rapp string
 var methods string
 var healthy bool = true
-var ttime time.Time 
+var ttime time.Time
 var jwt Jwttoken
 
 const (
@@ -80,7 +79,7 @@ func getToken(secretName string) string {
 		ttime = time.Now()
 		ttime = ttime.Add(time.Second * time.Duration(jwt.Expires_in))
 	}
-	return jwt.Access_token 
+	return jwt.Access_token
 }
 
 func getSecret(secretName string) (string, string, string) {

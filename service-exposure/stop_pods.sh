@@ -19,7 +19,22 @@
 # ============LICENSE_END=========================================================
 #
 
+export host=$(minikube ip)
+
+echo "Undeploying applications..."
+echo "---------------------------"
+curl http://$host:31570/uninstall?chart=rapp-helloworld-invoker1
+echo ""
+sleep 2
+curl http://$host:31570/uninstall?chart=rapp-helloworld-invoker2
+echo ""
+sleep 2
+curl http://$host:31570/uninstall?chart=rapp-helloworld-provider
+echo ""
+
 kubectl delete -f  rapps-helm-installer.yaml
 kubectl delete -f  rapps-istio-mgr.yaml
 kubectl delete -f rapps-keycloak-mgr.yaml
 kubectl delete -f chartmuseum.yaml
+kubectl delete -f rapps-webhook.yaml
+kubectl delete -f MutatingWebhookConfiguration.yaml

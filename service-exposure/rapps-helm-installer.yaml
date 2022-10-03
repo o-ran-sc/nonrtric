@@ -50,7 +50,7 @@ spec:
   template:
     metadata:
       labels:
-        app: rapps-helm-installer 
+        app: rapps-helm-installer
         version: v1
     spec:
       containers:
@@ -58,7 +58,7 @@ spec:
         image: ktimoney/rapps-helm-installer
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 9000 
+        - containerPort: 9000
         resources:
           limits:
             memory: 256Mi
@@ -67,7 +67,7 @@ spec:
             memory: 128Mi
             cpu: "80m"
       serviceAccountName: helm-app
-  replicas: 1 
+  replicas: 1
 ---
 apiVersion: v1
 kind: Service
@@ -79,7 +79,7 @@ spec:
     app: rapps-helm-installer
   ports:
     - protocol: TCP
-      port: 80 
-      targetPort: 9000 
-      nodePort: 31570 
+      port: 80
+      targetPort: 9000
+      nodePort: 31570
   type: NodePort

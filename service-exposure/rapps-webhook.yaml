@@ -1,0 +1,115 @@
+#
+# ============LICENSE_START=======================================================
+#  Copyright (C) 2022 Nordix Foundation.
+# ================================================================================
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+# ============LICENSE_END=========================================================
+#
+---
+############################################################
+# TLS certificate for OPA admission controller.
+############################################################
+apiVersion: v1
+kind: Secret
+metadata:
+  name: webhook-cert
+  namespace: default
+type: Opaque
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVMekNDQXhlZ0F3SUJBZ0lVUTZFV1pIK3RQdTk0WmEzeWp6STFFbGNBcTdrd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1RURUxNQWtHQTFVRUJoTUNTVVV4RURBT0JnTlZCQWdUQjFkbFltaHZiMnN4RHpBTkJnTlZCQWNUQmtSMQpZbXhwYmpFTU1Bb0dBMVVFQ2hNRFJWTlVNUTB3Q3dZRFZRUUxFd1JQY21GdU1CNFhEVEl5TURreU1EQTRNRGt3Ck1Gb1hEVFF5TURreE5UQTRNRGt3TUZvd1RURUxNQWtHQTFVRUJoTUNTVVV4RURBT0JnTlZCQWdUQjFkbFltaHYKYjJzeER6QU5CZ05WQkFjVEJrUjFZbXhwYmpFTU1Bb0dBMVVFQ2hNRFJWTlVNUTB3Q3dZRFZRUUxFd1JQY21GdQpNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQW0zdUdEYnVwQkhjV3lockZ1TjdrCkFRN3hZeW05NGVjcjJZOE5mbHFtTDU2NG9YTzlic09uaG85czVtLzdiNUFTUlZ4aTJlUFltTGg4ZmlxL3hZaDgKZEo5M3ErWm8vZU9zUElER3BFTlBCQjhqL3AwNHkyckJwN2IwZk5PdTQ2dFB1YUNMRzR6ZEZoSkgyWU5FbGxnbQpqYWtvTThPcTBCZGYrejJlSWlBYWYxQTN1bTY0czJaR1pnR2hSdnhkYW1zVFhLNm1hNFd4OXBhMHlkdC93dnJtCm1SUThWOUlDNDhOS2QveTBpUmh3M2pRNzZUb05NWWFiUk9LTE1jNjMwVXZtL2NuV0dZNjZNeFVoeEhLUWY4SE4KTGp3U1VGRzlWYmVBYXQwcktoSkw2L21Eb3dpbzFRaXhoK25lazRXdm41cGFiZzlLakRWUnRja0NXS0toeUhFTAovUUlEQVFBQm80SUJCVENDQVFFd0RnWURWUjBQQVFIL0JBUURBZ1dnTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGCkJ3TUJCZ2dyQmdFRkJRY0RBakFNQmdOVkhSTUJBZjhFQWpBQU1CMEdBMVVkRGdRV0JCVGFTU1luVDA3L3ZDMmsKTDk0NmhmRVFzemN6b1RDQm9nWURWUjBSQklHYU1JR1hnaDVxZDNRdGNISnZlSGt0WVdSdGFYTnphVzl1TFdOdgpiblJ5YjJ4c1pYS0NPR3AzZEMxd2NtOTRlUzFoWkcxcGMzTnBiMjR0WTI5dWRISnZiR3hsY2k1a1pXWmhkV3gwCkxuTjJZeTVqYkhWemRHVnlMbXh2WTJGc2dpcHFkM1F0Y0hKdmVIa3RZV1J0YVhOemFXOXVMV052Ym5SeWIyeHMKWlhJdVpHVm1ZWFZzZEM1emRtT0NDV3h2WTJGc2FHOXpkSWNFZndBQUFUQU5CZ2txaGtpRzl3MEJBUXNGQUFPQwpBUUVBU0EzV1VmbG9Ia0NIaU1TZ2VQSkVaUXdHN0tZSnJUQjByS25tYmFFSzloZnNveWlXcWs2WTl5RjFsMFVFCjBvQTdiRUZBRWh6S0VkcGxXOHRrQ1ZwaGxQZ0FBbktPU0dhYlVUam9KYURsWDBDRS9oNE5RaTlmOHVKT0ZkaVEKc3JRcXZCZWthUzNOd2ZIVHBTdFRnSEs1bEovMjUxenJ1VVZ0VTBERWpIQ1BYUks2S09uUmlNYktCSFBDNmoybQpmV29zdC9NYWJhbUlvOHlIdjZXaHNTbXhDODlEZ1BXa3RXM01QOXFEUjlTVWQzWk5BdWZKU0hEeDkxWEN6L2JpClRFZjRrRE1GRnVsMW5UUzBXTlhVUEV1MnR0SWxmMDBsZS91VHVNVUxOZ3V3Umlmc2tPSmFJcUVBc2NxWmtxdEMKQW5EMGdnV01QMEpCL1k1eGZTM1ZPLzBPVVE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBbTN1R0RidXBCSGNXeWhyRnVON2tBUTd4WXltOTRlY3IyWThOZmxxbUw1NjRvWE85CmJzT25obzlzNW0vN2I1QVNSVnhpMmVQWW1MaDhmaXEveFloOGRKOTNxK1pvL2VPc1BJREdwRU5QQkI4ai9wMDQKeTJyQnA3YjBmTk91NDZ0UHVhQ0xHNHpkRmhKSDJZTkVsbGdtamFrb004T3EwQmRmK3oyZUlpQWFmMUEzdW02NApzMlpHWmdHaFJ2eGRhbXNUWEs2bWE0V3g5cGEweWR0L3d2cm1tUlE4VjlJQzQ4TktkL3kwaVJodzNqUTc2VG9OCk1ZYWJST0tMTWM2MzBVdm0vY25XR1k2Nk14VWh4SEtRZjhITkxqd1NVRkc5VmJlQWF0MHJLaEpMNi9tRG93aW8KMVFpeGgrbmVrNFd2bjVwYWJnOUtqRFZSdGNrQ1dLS2h5SEVML1FJREFRQUJBb0lCQUFhWm9jRW5mQzlDVnVkUgpaNTlIWnVwY2xnYWRtUC9qN2txWDlmeXRJR3paRWdGWWhtd1RSaU5DSjE5STFhV1F1aFhUckNhUHMzd1lLTUM2ClU5V3d5NGV2MVVhb3kwQXJ6LzNwZ1lVcmpra2dnVWlucCtlS3FwblIvR0xvSVg1c29UL0IvdVcyZnhRV3hwSUgKTG53clZjZWhyS0UxNXlSYU9hclNuTW5hRHdYa2N1ZlF4enFLR1E2aFZZUGFGSk9JUXJQWmZXei84b2ZpWThBbwprSlZjSG1uOTZNLzZxRWhTbVZHcmc5M1BtYjJkUmNyc2hDblRCY2g5dDNuNnV4WGxKcmx0dG9lR1piTDB3Y3M0Ck9Wc2NDY043NEx3OGozSkdXeDg2QmVLT3ZORlJKajh3ajdxcGhsTW5hNjUxTmd6UE41eXlIR1IzWVhXU1lxSFcKMW9BRFFva0NnWUVBekN5ZlJjRTdMMEtsVGY4VmQ5cjZpRjhwcktBV0xSeXRZQTJjUUdSYWZHZlZYenJ4TnNBRwpGVlZlL2RabzVRa0I5NjlkKzRudDV5OUQzMWhYUGRNa0w0UWlWaHBuSE5zSzg4RVpuVXkxTkRBVCtJdEorY0VmCi9UaHRKa2Z4VGVXb1p6cmhIU1kxb2theFpzMWJ6bFpUNzFMTnBRTUs3bDBzc2hCVUdreklCME1DZ1lFQXd2TGcKcHhlWEtMMHVxNExWQVdMVEtyb2ttdmdIOG80QWpiekZLUnVTUTdlL3pVdXNVbVlZdFdMMEVqcGZXSTdNdXhrUwpjZUJiRmduakl5S3lGbDZTQ1BPaCs0N09EdlRNMDBpTGdoTnpOalVJbkE5RGJCV2ZURFVYd3ZHSDdhUGJ1OEVuCjFFUW1Wc2l5bC80SG1nK055WWJ5Q29WU1ZPZEJrQit1d0VYeFM3OENnWUFGOE9wMWlpamh1Q3U5T0VYMHBkK1MKWmtwOUptOWV3cTNjMUtpT1N4MUM3M2FLL2RrVkFjTnJqWDlsSFg4UjR4QTJsOWpCUUFNM0xlM29xdFpuQ3lUTAphU25pbllRUWwrTWFzcXkvSWdOSDBIcFVTaUZON2l1ekg1ZzFlL1J1a3RjeW9jajVJeXArWFZZK0tvMllWSFMrCnl3Y0czUzdOUHRMVkg1cUM1V2NRcHdLQmdBYUp5c3NQMlh2K1RGQm9ST2lVL2V3UzdpTmNhamZTVjJacGpGdEMKbDNjNTlHN1lPT0ZTbDBXT0dnMTZjN1F1cGVNb2hodlhvSFp1d25WdE5uZlZtQ1JBdDVBT1RBN29XdTVESXBxcwpPRkw3R0Z6VGpqbFR5Rkh2L2VvRjI3ODJuYW9BWW11V0ZZc1hsQlhRNlVSYmZTL2pITDhKbGFkUFVqMlpNbTAwCmExRlZBb0dBVlRReHNXNDJXWkRIQVExZC8vSzNXYTBQS0dWWmhHbkYxNFQzUlB3VDVDcGVKbmhhQ0QvVzh1VFQKSHBUUi8ySTY2RFQ5UjI2SlZReERoemNaa3dmR3krQVNoQ3BSb2FJZERGdjI1TS9EVGoxT2dUMUZpNm91ZjlzMgpVdFdkSEo1NlJ3cUhuRlptcnB2T3V4bGgwUWdQUHo3ZTg3dzBJMlpJQi9tRzY0Y2NHMlk9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: webhook-app
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: webhook-app
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: webhook-app
+    namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jwt-proxy-admission-controller-deployment
+  namespace: default
+  labels:
+    app: jwt-proxy-admission-controller
+spec:
+  selector:
+    matchLabels:
+      app: jwt-proxy-admission-controller
+  template:
+    metadata:
+      labels:
+        app: jwt-proxy-admission-controller
+        version: v1
+    spec:
+      serviceAccountName: webhook-app
+      containers:
+      - name: jwt-proxy-admission-controller
+        image: ktimoney/rapps-webhook
+        imagePullPolicy: IfNotPresent
+        command: ["/app/rapps-webhook"]
+        args: [
+                "-port", "8443",
+                "-tlsCertFile", "/certs/tls.crt",
+                "-tlsKeyFile", "/certs/tls.key",
+                "-hostPath", "/var/rapps/certs"
+              ]
+        ports:
+        - containerPort: 8443
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: "250m"
+          requests:
+            memory: 128Mi
+            cpu: "80m"
+        volumeMounts:
+          - readOnly: true
+            mountPath: /certs
+            name: webhook-cert
+      volumes:
+        - name: webhook-cert
+          secret:
+            secretName: webhook-cert
+  replicas: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jwt-proxy-admission-controller
+  namespace: default
+spec:
+  selector:
+    app: jwt-proxy-admission-controller
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 8443
+      nodePort: 30570
+  type: NodePort
+---

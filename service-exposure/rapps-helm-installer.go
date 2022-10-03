@@ -17,7 +17,6 @@
 //   limitations under the License.
 //   ========================LICENSE_END===================================
 //
-
 package main
 
 import (
@@ -70,6 +69,7 @@ type Rapp struct {
 	SecurityEnabled bool
 	Realm           string
 	Client          string
+	Authenticator   string
 	Roles           []struct {
 		Role   string
 		Grants []string
@@ -113,30 +113,10 @@ func runInstall(res http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				msg = err.Error()
 			} else {
-				if rapp.SecurityEnabled && rapp.Type == "provider" {
-					// keycloak client setup
-					fmt.Println("Setting up keycloak")
-					_, err = http.Get("http://rapps-keycloak-mgr.default/create?realm=" + rapp.Realm + "&name=" + rapp.Client + "&role=" + rapp.Roles[0].Role)
-					if err != nil {
-						msg = err.Error()
-					} else {
-						fmt.Println("Setting up istio")
-						_, err := http.Get("http://rapps-istio-mgr.default/create?name=" + chartName + "&realm=" + rapp.Realm + "&role=" + rapp.Roles[0].Role + "&method=" + rapp.Roles[0].Grants[0])
-						if err != nil {
-							msg = err.Error()
-						} else {
-							// Install chart
-							fmt.Printf("Installing chart %s to %s namespace\n", chartName, namespace)
-							chart, err = installHelmChart(install)
-							if err != nil {
-								msg = "Error occurred during installation " + err.Error()
-							} else {
-								msg = "Successfully installed release: " + chart
-							}
-						}
-					}
+				err := installSecurity(rapp)
+				if err != nil {
+					msg = err.Error()
 				} else {
-					// Install chart
 					fmt.Printf("Installing chart %s to %s namespace\n", chartName, namespace)
 					chart, err = installHelmChart(install)
 					if err != nil {
@@ -144,8 +124,8 @@ func runInstall(res http.ResponseWriter, req *http.Request) {
 					} else {
 						msg = "Successfully installed release: " + chart
 					}
-				}
 
+				}
 			}
 		}
 		registrerRapp(chartName, rapp.Type)
@@ -157,6 +137,54 @@ func runInstall(res http.ResponseWriter, req *http.Request) {
 	data := []byte(msg) // slice of bytes
 	// write `data` to response
 	res.Write(data)
+}
+
+func installSecurity(rapp Rapp) error {
+	var url string
+	var params string
+	role := rapp.Roles[0].Role
+	grants := rapp.Roles[0].Grants[0]
+	realm := rapp.Realm
+	client := rapp.Client
+	authenticator := rapp.Authenticator
+
+	if !rapp.SecurityEnabled {
+		return nil
+	}
+	// Different security requirements depending on the rapp type
+	if rapp.Type == "provider" {
+		// keycloak client setup
+		fmt.Println("Setting up keycloak")
+		url = "http://rapps-keycloak-mgr.default/create?"
+		params = "realm=" + realm + "&name=" + client + "&role=" + role + "&authType=" + authenticator
+		url += params
+		_, err := http.Get(url)
+		if err != nil {
+			return err
+		} else {
+			fmt.Println("Setting up istio")
+			url = "http://rapps-istio-mgr.default/create-policy?"
+			params = "name=" + chartName + "&realm=" + realm + "&role=" + role + "&method=" + grants
+			url += params
+
+			_, err := http.Get(url)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		fmt.Println("Setting up istio")
+		url = "http://rapps-istio-mgr.default/create-filter?"
+		params = "name=" + chartName + "&realm=" + realm + "&client=" + client + "&authType=" + authenticator
+		url += params
+		_, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
 }
 
 func runUninstall(res http.ResponseWriter, req *http.Request) {
@@ -178,19 +206,9 @@ func runUninstall(res http.ResponseWriter, req *http.Request) {
 			} else {
 				msg = "Successfully uninstalled release: " + chart
 			}
-			if rapp.SecurityEnabled && rapp.Type == "provider" {
-				// Remove istio objects for rapp
-				fmt.Println("Removing istio services")
-				_, err := http.Get("http://rapps-istio-mgr.default/remove?name=" + chartName)
-				if err != nil {
-					msg = err.Error()
-				}
-				// remove keycloak client
-				fmt.Println("Removing keycloak client")
-				_, err = http.Get("http://rapps-keycloak-mgr.default/remove?realm=" + rapp.Realm + "&name=" + rapp.Client + "&role=" + rapp.Roles[0].Role)
-				if err != nil {
-					msg = err.Error()
-				}
+			err := uninstallSecurity(rapp, chartName)
+			if err != nil {
+				msg = err.Error()
 			}
 		}
 		unregistrerRapp(chartName, rapp.Type)
@@ -202,6 +220,45 @@ func runUninstall(res http.ResponseWriter, req *http.Request) {
 	data := []byte(msg) // slice of bytes
 	// write `data` to response
 	res.Write(data)
+}
+
+func uninstallSecurity(rapp Rapp, chartName string) error {
+	var url string
+	var params string
+	role := rapp.Roles[0].Role
+	realm := rapp.Realm
+	client := rapp.Client
+	authenticator := rapp.Authenticator
+
+	if !rapp.SecurityEnabled {
+		return nil
+	}
+	if rapp.Type == "provider" {
+		// Remove istio objects for rapp
+		fmt.Println("Removing istio services")
+		_, err := http.Get("http://rapps-istio-mgr.default/remove-policy?name=" + chartName)
+		if err != nil {
+			return err
+		}
+		// remove keycloak client
+		fmt.Println("Removing keycloak client")
+		url = "http://rapps-keycloak-mgr.default/remove?"
+		params = "name=" + client + "&realm=" + realm + "&role=" + role + "&authType=" + authenticator
+		url += params
+		_, err = http.Get(url)
+		if err != nil {
+			return err
+		}
+	}
+	if rapp.Type == "invoker" {
+		// Remove istio objects for rapp
+		fmt.Println("Removing istio services")
+		_, err := http.Get("http://rapps-istio-mgr.default/remove-filter?name=" + chartName)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func runList(res http.ResponseWriter, req *http.Request) {
@@ -480,7 +537,7 @@ func registrerRapp(chartName, chartType string) {
 	id serial PRIMARY KEY,
 	name VARCHAR ( 50 ) UNIQUE NOT NULL,
 	type VARCHAR ( 50 ) NOT NULL,
-	created_on TIMESTAMP DEFAULT NOW() 
+	created_on TIMESTAMP DEFAULT NOW()
         );`
 	_, err = db.Exec(createStmt)
 	if err != nil {
