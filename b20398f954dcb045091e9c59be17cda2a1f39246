@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff4a8eb2_93ac8287",
+        "filename": "service-exposure/IstioOperator.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-10-17T14:35:20Z",
+      "side": 1,
+      "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd8a3670_5e290f81",
+        "filename": "service-exposure/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-10-17T14:35:20Z",
+      "side": 1,
+      "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9f31ee2_eaf8d839",
+        "filename": "service-exposure/charts/rapp-helloworld-invoker1/templates/tests/test-connection.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-10-17T14:35:20Z",
+      "side": 1,
+      "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da032cd7_1473f6ab",
+        "filename": "service-exposure/charts/rapp-helloworld-invoker2/templates/tests/test-connection.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-10-17T14:35:20Z",
+      "side": 1,
+      "message": "Missing lincense info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "694f5bf1_88c4d51a",
+        "filename": "service-exposure/charts/rapp-helloworld-provider/templates/tests/test-connection.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-10-17T14:35:20Z",
+      "side": 1,
+      "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69ba6f99_87b56666",
+        "filename": "service-exposure/keycloak.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2022-10-17T14:35:20Z",
+      "side": 1,
+      "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
