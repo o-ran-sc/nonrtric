@@ -20,17 +20,16 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 set -eux
 
 echo "--> $0"
-curdir=`pwd`
 # go installs tools like go-acc to $HOME/go/bin
 # ubuntu minion path lacks go
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+export GO111MODULE=on
 go version
 cd $SCRIPT_DIR
 
 # install the go coverage tool helper
-go get -v github.com/ory/go-acc
+go install github.com/ory/go-acc
  
-export GO111MODULE=on
 go get github.com/stretchr/testify/mock@v1.7.0
 
 go mod vendor 
