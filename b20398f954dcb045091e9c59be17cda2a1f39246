@@ -18,6 +18,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed6a99db_92b916c5",
+        "filename": "service-exposure/IstioOperator.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-25T11:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff4a8eb2_93ac8287",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd8a3670_5e290f81",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-10-17T14:35:20Z",
       "side": 1,
       "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf3d8f83_27730941",
+        "filename": "service-exposure/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-25T11:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd8a3670_5e290f81",
       "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
@@ -52,6 +88,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9888d441_a9eb9b7d",
+        "filename": "service-exposure/charts/rapp-helloworld-invoker1/templates/tests/test-connection.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-25T11:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9f31ee2_eaf8d839",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "da032cd7_1473f6ab",
@@ -65,6 +119,24 @@
       "writtenOn": "2022-10-17T14:35:20Z",
       "side": 1,
       "message": "Missing lincense info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64a2d297_222296f2",
+        "filename": "service-exposure/charts/rapp-helloworld-invoker2/templates/tests/test-connection.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-25T11:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da032cd7_1473f6ab",
       "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
@@ -86,6 +158,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a06a1572_4f6bb140",
+        "filename": "service-exposure/charts/rapp-helloworld-provider/templates/tests/test-connection.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-25T11:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "694f5bf1_88c4d51a",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "69ba6f99_87b56666",
@@ -99,6 +189,24 @@
       "writtenOn": "2022-10-17T14:35:20Z",
       "side": 1,
       "message": "Missing license info",
+      "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48c41313_5de40c23",
+        "filename": "service-exposure/keycloak.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-25T11:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69ba6f99_87b56666",
       "revId": "b20398f954dcb045091e9c59be17cda2a1f39246",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
