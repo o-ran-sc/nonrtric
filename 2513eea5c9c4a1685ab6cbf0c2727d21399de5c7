@@ -16,6 +16,41 @@
       "message": "Would it be ridiculously hard to have a test that runs this? \n\nWe could then re-enable the verify task here ... \nOr maybe we should move it to the sme repo, and could have a custom test there? ",
       "revId": "2513eea5c9c4a1685ab6cbf0c2727d21399de5c7",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8fae991_981e174c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-10-26T11:59:18Z",
+      "side": 1,
+      "message": "Replied to comments",
+      "revId": "2513eea5c9c4a1685ab6cbf0c2727d21399de5c7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "045ea846_e1eecd57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-10-26T11:59:18Z",
+      "side": 1,
+      "message": "This would need something like a CSIT test, that\u0027s probably a bit much for now as this is still a prototype.",
+      "parentUuid": "34c860a7_21cce18d",
+      "revId": "2513eea5c9c4a1685ab6cbf0c2727d21399de5c7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }

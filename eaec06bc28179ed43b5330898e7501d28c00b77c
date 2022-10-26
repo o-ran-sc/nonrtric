@@ -48,6 +48,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f99bb94_b19b5b41",
+        "filename": "service-exposure/rapps-istio-mgr.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-10-26T11:59:18Z",
+      "side": 0,
+      "message": "This is the old code; this section has been removed",
+      "parentUuid": "6c32f2e8_5d18069c",
+      "range": {
+        "startLine": 105,
+        "startChar": 22,
+        "endLine": 105,
+        "endChar": 41
+      },
+      "revId": "eaec06bc28179ed43b5330898e7501d28c00b77c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3f784c7_a1902fc9",
@@ -82,6 +106,30 @@
         "id": 1000103
       },
       "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "c3f784c7_a1902fc9",
+      "range": {
+        "startLine": 125,
+        "startChar": 260,
+        "endLine": 125,
+        "endChar": 280
+      },
+      "revId": "eaec06bc28179ed43b5330898e7501d28c00b77c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "144218cf_0f2f2505",
+        "filename": "service-exposure/rapps-istio-mgr.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2022-10-26T11:59:18Z",
       "side": 0,
       "message": "Done",
       "parentUuid": "c3f784c7_a1902fc9",
