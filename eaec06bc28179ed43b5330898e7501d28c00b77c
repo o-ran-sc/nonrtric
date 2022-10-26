@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "632972d1_1bcffcc9",
+        "filename": "service-exposure/rapps-istio-mgr.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 0,
+      "message": "Missed one :-)",
+      "parentUuid": "6c32f2e8_5d18069c",
+      "range": {
+        "startLine": 105,
+        "startChar": 22,
+        "endLine": 105,
+        "endChar": 41
+      },
+      "revId": "eaec06bc28179ed43b5330898e7501d28c00b77c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c3f784c7_a1902fc9",
         "filename": "service-exposure/rapps-istio-mgr.go",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2022-10-25T11:02:46Z",
       "side": 0,
       "message": "as above",
+      "range": {
+        "startLine": 125,
+        "startChar": 260,
+        "endLine": 125,
+        "endChar": 280
+      },
+      "revId": "eaec06bc28179ed43b5330898e7501d28c00b77c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "071288e0_7b92b5c0",
+        "filename": "service-exposure/rapps-istio-mgr.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "c3f784c7_a1902fc9",
       "range": {
         "startLine": 125,
         "startChar": 260,

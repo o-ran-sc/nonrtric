@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34c860a7_21cce18d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 1,
+      "message": "Would it be ridiculously hard to have a test that runs this? \n\nWe could then re-enable the verify task here ... \nOr maybe we should move it to the sme repo, and could have a custom test there? ",
+      "revId": "2513eea5c9c4a1685ab6cbf0c2727d21399de5c7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}

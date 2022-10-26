@@ -41,6 +41,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7587d16f_e2e80346",
+        "filename": "service-exposure/keycloak.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a355a4f0_be171ca0",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 23
+      },
+      "revId": "413dfc42b2cc3055bb546d24eb5ac2cd64228d58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b3da3a5b_9b530e42",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-10-25T11:02:46Z",
       "side": 1,
       "message": "as above",
+      "range": {
+        "startLine": 151,
+        "startChar": 1,
+        "endLine": 151,
+        "endChar": 21
+      },
+      "revId": "413dfc42b2cc3055bb546d24eb5ac2cd64228d58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0249117_d1fd175c",
+        "filename": "service-exposure/keycloak.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3da3a5b_9b530e42",
       "range": {
         "startLine": 151,
         "startChar": 1,
@@ -87,6 +135,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "232e6d92_1d2adb7c",
+        "filename": "service-exposure/keycloak.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16795452_c5b1a4b0",
+      "range": {
+        "startLine": 158,
+        "startChar": 7,
+        "endLine": 158,
+        "endChar": 25
+      },
+      "revId": "413dfc42b2cc3055bb546d24eb5ac2cd64228d58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34a7f41d_8e607587",
@@ -100,6 +172,30 @@
       "writtenOn": "2022-10-25T11:02:46Z",
       "side": 1,
       "message": "Maybe we can change the actual string returned?",
+      "range": {
+        "startLine": 32,
+        "startChar": 23,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "413dfc42b2cc3055bb546d24eb5ac2cd64228d58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "509a609b_d5be70e3",
+        "filename": "service-exposure/rapps-rapp-helloworld-provider.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2022-10-26T11:48:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34a7f41d_8e607587",
       "range": {
         "startLine": 32,
         "startChar": 23,
