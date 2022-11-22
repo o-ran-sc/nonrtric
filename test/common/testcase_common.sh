@@ -247,6 +247,9 @@ echo "1" > "$TESTLOGS/$ATC/.result$ATC.txt"
 TCLOG=$TESTLOGS/$ATC/TC.log
 exec &>  >(tee ${TCLOG})
 
+echo $(date) > $TESTLOGS/$ATC/endpoint_tc_start.log
+echo "Test failed" > $TESTLOGS/$ATC/endpoint_tc_end.log  # Will be overritten if test is ok
+
 #Variables for counting tests as well as passed and failed tests
 RES_TEST=0
 RES_PASS=0
@@ -1989,6 +1992,7 @@ print_result() {
 		#Create file with OK exit code
 		echo "0" > "$AUTOTEST_HOME/.result$ATC.txt"
 		echo "0" > "$TESTLOGS/$ATC/.result$ATC.txt"
+		echo $(date) > $TESTLOGS/$ATC/endpoint_tc_end.log
 	else
 		TMP_FLAG_FAIL_PASS=1
 		echo -e "One or more tests with status  \033[31m\033[1mFAIL\033[0m "

@@ -80,6 +80,7 @@ shift
 echo ""
 echo "==================================================="
 echo "Functional test cases for $1"
+echo "Report date: $(date)"
 echo "==================================================="
 echo
 shift
@@ -93,6 +94,11 @@ while [ $# -gt 0 ]; do
   if [ -f $IMAGE_INFO_FILE ]; then
     echo "===  Testscript: $1  ==="
     echo "Image: "$(cat $IMAGE_INFO_FILE)
+    image_name=$(< $IMAGE_INFO_FILE)
+    image_sha=$( docker inspect --format='{{.RepoDigests}}' $image_name) 2> /dev/null
+    echo "Sha: $image_sha"
+    echo "Test start: $(cat $FTC_DIR/endpoint_tc_start.log)"
+    echo "Test end: $(cat $FTC_DIR/endpoint_tc_end.log)"
     echo
     TC_RES_FILE=$FTC_DIR/.result$1.txt
     if [ -f "$TC_RES_FILE" ]; then
