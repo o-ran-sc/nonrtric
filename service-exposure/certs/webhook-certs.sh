@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # ============LICENSE_START=======================================================
 #  Copyright (C) 2022 Nordix Foundation.
@@ -17,28 +18,28 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
+
+cfssl gencert -initca ./ca-csr.json | cfssljson -bare ca
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname="jwt-proxy-admission-controller,jwt-proxy-admission-controller.default.svc.cluster.local,jwt-proxy-admission-controller.default.svc,localhost,127.0.0.1" \
+  -profile=default \
+  ca-csr.json | cfssljson -bare webhook-cert
+
+
+cat <<EOF > rapps-webhook-tls.yaml
+apiVersion: v1
+kind: Secret
 metadata:
-  name: jwt-proxy-webhook
-  namespace: default
-webhooks:
-  - name: rapps-webhook.default.svc.cluster.local
-    admissionReviewVersions:
-      - "v1beta1"
-    sideEffects: "None"
-    timeoutSeconds: 30
-    objectSelector:
-      matchLabels:
-        app.kubernetes.io/name: rapp-helloworld-invoker1
-    clientConfig:
-      service:
-        name: jwt-proxy-admission-controller
-        namespace: default
-        path: "/inject-sidecar"
-      caBundle: "${CA_PEM_B64}" 
-    rules:
-      - operations: [ "CREATE" ]
-        apiGroups: [""]
-        apiVersions: ["v1"]
-        resources: ["pods"]
+  name: webhook-cert
+type: Opaque
+data:
+  tls.crt: $(cat webhook-cert.pem | base64 | tr -d '\n')
+  tls.key: $(cat webhook-cert-key.pem | base64 | tr -d '\n') 
+EOF
+
+ca_pem_b64="$(openssl base64 -A <"ca.pem")"
+echo $ca_pem_b64
