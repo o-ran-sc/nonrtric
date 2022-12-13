@@ -19,22 +19,28 @@
 # ============LICENSE_END=========================================================
 #
 
-export host=$(kubectl get nodes -o wide | tail -1 | sed s'/  */ /'g | cut -f6 -d' ')
+cfssl gencert -initca ./ca-csr.json | cfssljson -bare ca
 
-echo "Undeploying applications..."
-echo "---------------------------"
-curl http://$host:31570/uninstall?chart=rapp-helloworld-invoker1
-echo ""
-sleep 2
-curl http://$host:31570/uninstall?chart=rapp-helloworld-invoker2
-echo ""
-sleep 2
-curl http://$host:31570/uninstall?chart=rapp-helloworld-provider
-echo ""
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname="jwt-proxy-admission-controller,jwt-proxy-admission-controller.default.svc.cluster.local,jwt-proxy-admission-controller.default.svc,localhost,127.0.0.1" \
+  -profile=default \
+  ca-csr.json | cfssljson -bare webhook-cert
 
-kubectl delete -f  rapps-helm-installer.yaml
-kubectl delete -f  rapps-istio-mgr.yaml
-kubectl delete -f rapps-keycloak-mgr.yaml
-kubectl delete -f chartmuseum.yaml
-kubectl delete -f rapps-webhook.yaml
-kubectl delete -f MutatingWebhookConfiguration.yaml
+
+cat <<EOF > rapps-webhook-tls.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: webhook-cert
+  namespace: default
+type: Opaque
+data:
+  tls.crt: $(cat webhook-cert.pem | base64 | tr -d '\n')
+  tls.key: $(cat webhook-cert-key.pem | base64 | tr -d '\n') 
+EOF
+
+ca_pem_b64="$(openssl base64 -A <"ca.pem")"
+echo $ca_pem_b64

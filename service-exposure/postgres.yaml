@@ -53,6 +53,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: db-init
+  namespace: default
 data:
   init.sql: |
     SELECT 'CREATE DATABASE capif'

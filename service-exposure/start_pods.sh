@@ -18,7 +18,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-export host=$(minikube ip)
 
 echo "Deploying applications..."
 echo "-------------------------"

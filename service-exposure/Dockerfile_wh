@@ -1,4 +1,3 @@
-#!/bin/sh
 #
 # ============LICENSE_START=======================================================
 #  Copyright (C) 2022 Nordix Foundation.
@@ -18,28 +17,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-
-cfssl gencert -initca ./ca-csr.json | cfssljson -bare ca
-
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -hostname="jwt-proxy-admission-controller,jwt-proxy-admission-controller.default.svc.cluster.local,jwt-proxy-admission-controller.default.svc,localhost,127.0.0.1" \
-  -profile=default \
-  ca-csr.json | cfssljson -bare webhook-cert
-
-
-cat <<EOF > rapps-webhook-tls.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: webhook-cert
-type: Opaque
-data:
-  tls.crt: $(cat webhook-cert.pem | base64 | tr -d '\n')
-  tls.key: $(cat webhook-cert-key.pem | base64 | tr -d '\n') 
-EOF
-
-ca_pem_b64="$(openssl base64 -A <"ca.pem")"
-echo $ca_pem_b64
+FROM golang:latest
+RUN mkdir /app
+COPY ./rapps-webhook /app
+RUN chmod +x /app/rapps-webhook
+WORKDIR /app
+ENTRYPOINT ["/app/rapps-webhook"]

@@ -20,7 +20,7 @@
 #
 
 
-CLIENT_SUBJECT="/C=IE/ST=/L=/O=/OU=Keycloak/CN=localhost/emailAddress=client@mail.com"
+CLIENT_SUBJECT="/C=IE/ST=Dublin/L=Dublin/O=Keycloak/OU=Keycloak/CN=localhost/emailAddress=client@mail.com"
 PW=changeit
 
 echo $PW > secretfile.txt
