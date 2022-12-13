@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-export host=$(minikube ip)
+export host=$(kubectl get nodes -o wide | tail -1 | sed s'/  */ /'g | cut -f6 -d' ')
 
 if [ -z "$1" ]
   then

@@ -20,8 +20,8 @@
 #
 
 
-CA_SUBJECT="/C=IE/ST=/L=/O=/OU=Keycloak/CN=localhost/emailAddress=ca@mail.com"
-SERVER_SUBJECT="/C=IE/ST=/L=/O=/OU=Keycloak/CN=localhost/emailAddress=server@mail.com"
+CA_SUBJECT="/C=IE/ST=Dublin/L=Dublin/O=Keycloak/OU=Keycloak/CN=localhost/emailAddress=ca@mail.com"
+SERVER_SUBJECT="/C=IE/ST=Dublin/L=Dublin/O=Keycloak/OU=Keycloak/CN=localhost/emailAddress=server@mail.com"
 PW=changeit
 
 echo $PW > secretfile.txt

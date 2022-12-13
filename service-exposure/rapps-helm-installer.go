@@ -290,6 +290,7 @@ func main() {
 
 func addToRepo(url string) (string, error) {
 	repoFile := settings.RepositoryConfig
+	fmt.Printf("Repo File %s\n", repoFile)
 
 	//Ensure the file directory exists as it is required for file locking
 	err := os.MkdirAll(filepath.Dir(repoFile), os.ModePerm)
@@ -341,7 +342,10 @@ func dryRun() (*action.Install, error) {
 
 	install := action.NewInstall(actionConfig)
 
+	fmt.Printf("Repo Name: %s\n",repoName)
+	fmt.Printf("Chart Name: %s\n",chartName)
 	cp, err := install.ChartPathOptions.LocateChart(fmt.Sprintf("%s/%s", repoName, chartName), settings)
+	fmt.Printf("Chart location: %s\n",cp)
 
 	chartRequested, err = loader.Load(cp)
 
@@ -537,7 +541,7 @@ func registrerRapp(chartName, chartType string) {
 	id serial PRIMARY KEY,
 	name VARCHAR ( 50 ) UNIQUE NOT NULL,
 	type VARCHAR ( 50 ) NOT NULL,
-	created_on TIMESTAMP DEFAULT NOW()
+	created_on TIMESTAMP DEFAULT NOW() 
         );`
 	_, err = db.Exec(createStmt)
 	if err != nil {
