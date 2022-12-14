@@ -28,11 +28,10 @@ If you are not using minikube, references to "minikube ip" should be changed to 
 To replicate these tests you will need to setup the various host path referenced in the yaml files on your own machine.
 
 chartmuseum.yaml:             path: /var/chartmuseum/charts
-keycloak.yaml:                path: /auth/realms/master
 keycloak.yaml:                path: /var/keycloak/certs
 postgres.yaml:                path: "/var/keycloak/data2"
-postgres.yaml:                path: /tmp
 rapps-keycloak-mgr.yaml:      path: /var/rapps/certs
+rapps-webhook.yaml:           "-hostPath", "/var/rapps/certs"
 
 or change them to match your own setup.
 
@@ -60,8 +59,6 @@ All go programs need to be built prior to running the Dockerfiles
    go build rapps-helm-installer.go
    go build rapps-keycloak-mgr.go
    go build rapps-istio-mgr.go
-   go build rapps-rapp-provider.go
-   go build rapps-rapp-invoker.go
    go build rapps-webhook.go
    go build rapps-jwt.go
    go build rapps-rapp-helloworld-provider.go
@@ -84,22 +81,23 @@ Image references in the yaml files/helm charts should be changed to match your o
 You will need to package your rapp charts and copy them to the /var/chartmuseum/charts directory before starting.
 
    cd charts/
-   helm package rapp-provider
-   scp -i $(minikube ssh-key) rapp-provider-0.1.0.tgz docker@$(minikube ip):/var/chartmuseum/charts
+   helm package rapp-helloworld-provider
+   scp -i $(minikube ssh-key) rapp-helloworld-provider-0.1.0.tgz docker@$(minikube ip):/var/chartmuseum/charts
 
-   helm package rapp-invoker
-   scp -i $(minikube ssh-key) rapp-invoker-0.1.0.tgz docker@$(minikube ip):/var/chartmuseum/charts
+   helm package rapp-helloworld-invoker1
+   scp -i $(minikube ssh-key) rapp-helloworld-invoker1-0.1.0.tgz docker@$(minikube ip):/var/chartmuseum/charts
+
+   helm package rapp-helloworld-invoker2
+   scp -i $(minikube ssh-key) rapp-helloworld-invoker2-0.1.0.tgz docker@$(minikube ip):/var/chartmuseum/charts
 
 
 Start keycloak and postgres in the default namespace with istio injection:
 
-   istioctl kube-inject -f postgres.yaml | kubectl apply -f -
-   istioctl kube-inject -f keycloak.yaml | kubectl apply -f -
-or use the keycloak.sh deploy script
+Run  ./keycloak.sh deploy
 
 To start the management pods run:
 
-   start_pods.sh
+   ./start_pods.sh
 
 Once all pods have been started a list of running pods is displayed at the end of the script:
 NAME                                                         READY   STATUS    RESTARTS   AGE
@@ -111,21 +109,15 @@ rapps-helm-installer-deployment-67476694-n5r24               1/1     Running   0
 rapps-istio-mgr-deployment-67c67647b6-p5s2k                  1/1     Running   0          8s
 rapps-keycloak-mgr-deployment-7464f87575-54h9x               1/1     Running   0          8s
 
-Get the node port for the helm installer that corresponds to port 80
 
-   kubectl get svc rapps-helm-installer
-   NAME                   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
-   rapps-helm-installer   NodePort   10.96.58.211   <none>        80:31570/TCP   8m9s
+Once these pods are up and running use the following command to install the rapps:
 
-Once these pods are up and running run:
-   curl http://<minikube ip>:<helm installer node port>/install?chart=<rapp chart name>
-   to install your rapp
+   ./deploy_rapp.sh rapp-helloworld-provider
 
-   e.g. curl http://192.168.49.2:31570/install?chart=rapp-hello-world-provider
-        Successfully installed release: rapp-provider
+   ./deploy_rapp.sh rapp-helloworld-invoker1
 
-   Alternativley use the deploy_rapp.sh script
-   e.g. ./deploy_rapp.sh rapp-helloworld-provider
+   ./deploy_rapp.sh rapp-helloworld-invoker2
+
    Note: The line export host= should be changed to the appropaite ip for the host you are running on.
 
 This will setup keycloak realm + client, istio policies and deploy your chart.
@@ -134,25 +126,17 @@ You should install both the provider and the invoker to see the pods communicati
 
 Check the invoker logs to see the test message:
 
-   kubectl logs rapp-invoker-758468d7d4-njmdn  -n istio-nonrtric
-   Received response for rapp-provider get request - Hello World!
+   kubectl logs rapp-helloworld-invoker1-758468d7d4-njmdn  -n istio-nonrtric
+   Received response for rapp-helloworld-provider get request - Hello World!
 
 If you want to test using the rp_test.sh file, the client_secret field needs be changed to match the secret for you keycloak client.
 You can find this in the keycloak-mgr log.
 
-To uninstall run:
-   curl http://<minikube ip>:<helm installer node port>/uninstall?chart=<rapp chart name>
-   e.g. curl http://192.168.49.2:31570/uninstall?chart=rapp-invoker
-        Successfully uninstalled release: rapp-invoker
+To uninstall the management pods and and rapps run:
+   ./stop_pods.sh
 
-   Alternativley use the undeploy_rapp.sh script
+You can also uninstall individual rapp using the undeploy_rapp.sh script.
    e.g. ./undeploy_rapp.sh rapp-helloworld-provider
 
-To stop the management pods and provider/invoker pods at the same time run:
-   stop_pods.sh
-
 Remove postgres and keycloak with the following commands:
-   kubectl delete -f keycloak.yaml
-   kubectl delete -f postgres.yaml
-
-   or use ./keycloak.sh undeploy
+   ./keycloak.sh undeploy
