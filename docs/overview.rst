@@ -77,7 +77,7 @@ Maintains a registry of:
 - Information Consumers
 - Information Jobs
 
-The service is not involved in data delivery and hence does not put restrictions on this. 
+The service is not involved in data delivery and hence does not put restrictions on this.
 
 Implementation:
 
@@ -110,6 +110,34 @@ Implementation:
 
 - Implemented as a Java Spring Boot application.
 - Wiki: `A1 Policy Management Service in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ .
+
+Authentification Support
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The auth-token-fetch provides support for authentification.
+It is intended to be used as a sidecar and does the authentification procedure, gets and saves the access token
+in the local file system. This includes refresh of the token before it expires.
+This means that the service only needs to read the token from a file.
+
+It is tested using Keycloak as authentification provider.
+
+.. image:: ./AuthSupport.png
+   :width: 500pt
+
+So, a service just needs to read the token file and for instance insert it in the authorization header when using HTTP.
+The file needs to be re-read if it has been updated.
+
+The auth-token-fetch is configured by the following environment variables.
+
+* CERT_PATH - the file path of the cert to use for TSL, example: security/tls.crt
+* CERT_KEY_PATH - the file path of the private key file for the cert, example: "security/tls.key"
+* ROOT_CA_CERTS_PATH - the file path of the trust store.
+* CREDS_GRANT_TYPE - the grant_type used for authentification, example: client_credentials
+* CREDS_CLIENT_SECRET - the secret/private shared key used for authentification
+* CREDS_CLIENT_ID - the client id used for authentification
+* OUTPUT_FILE - the path where the fetched authorization token is stored, example: "/tmp/authToken.txt"
+* AUTH_SERVICE_URL - the URL to the authentification service (Keycloak)
+* REFRESH_MARGIN_SECONDS - how long in advance before the authorization token expires it is refreshed
 
 A1/SDNC Controller & A1 Adapter (Controller plugin)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
