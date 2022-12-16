@@ -27,7 +27,9 @@ rappcataloguebranch = 'latest'
 helmmanagerbranch = 'latest'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
+authtokenfetchbranch = 'latest'
 a1policymanagementservicebranch = 'latest'
+smebranch = 'latest'
 onapbranch = 'latest'
 
 linkcheck_ignore = [
@@ -53,5 +55,7 @@ intersphinx_mapping['rappcatalogue'] = ('https://docs.o-ran-sc.org/projects/o-ra
 intersphinx_mapping['helmmanager'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-helmmanager/en/%s' % helmmanagerbranch, None)
 intersphinx_mapping['ransliceassurance'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-ransliceassurance/en/%s' % ransliceassurancebranch, None)
 intersphinx_mapping['orufhrecovery'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-orufhrecovery/en/%s' % orufhrecoverybranch, None)
+intersphinx_mapping['authtokenfetch'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric/en/%s' % authtokenfetchbranch, None)
 intersphinx_mapping['a1policymanagementservice'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-a1policymanagementservice/en/%s' % a1policymanagementservicebranch, None)
+intersphinx_mapping['sme'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-sme/en/%s' % smebranch, None)
 intersphinx_mapping['onapa1policymanagementservice'] = ('https://docs.onap.org/projects/onap-ccsdk-oran/en/%s' % onapbranch, None)

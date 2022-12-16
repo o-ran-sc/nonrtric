@@ -9,6 +9,24 @@ Release-Notes
 
 This document provides the release notes for the release of the different parts of the Non-RT RIC.
 
+Since release F the products has been moved to separate repos. The release notes for the products  can now be found:
+
+* :doc:`Non-RT-RIC Control Panel <controlpanel:release-notes>`.
+* :doc:`Information Coordinator Service <informationcoordinatorservice:release-notes>`.
+* :doc:`A1 Policy Management Service <a1policymanagementservice:release-notes>`.
+* :doc:`Near-RT RIC A1 Simulator <simulator:release-notes>`.
+* DMaaP/Kafka Information Producer Adapters. :doc:`DMaaPAdapter <dmaapadapter:release-notes>`. :doc:`DMaaP Mediator Producer <dmaapmediatorproducer:release-notes>`.
+* :doc:`Non-RT-RIC App Catalogue <rappcatalogue:release-notes>`.
+* :doc:`K8S Helm Chart LCM Manager <helmmanager:release-notes>`.
+* :doc:`Auth Token Fetch <authtokenfetch:release-notes>`.
+* :doc:`Service Management & Exposure (SME) <sme:release-notes>`.
+* Use Cases:
+
+  * :doc:`"Helloworld" O-RU Fronthaul Recovery use case <orufhrecovery:release-notes>`.
+  * :doc:`"Helloworld" O-DU Slice Assurance use case <ransliceassurance:release-notes>`.
+
+
+
 Bronze
 ------
 +-----------------------------+---------------------------------------------------+

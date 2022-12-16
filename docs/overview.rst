@@ -38,12 +38,14 @@ These are the components that make up the Non-RT-RIC:
 * `DMaaP/Kafka Information Producer Adapters <#dmaap-kafka-information-producer-adapters>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
 * `Initial Non-RT-RIC App Catalogue <#initial-non-rt-ric-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
 * `Initial K8S Helm Chart LCM Manager <#id5>`_. :doc:`Documentation site <helmmanager:index>`.
-* `Auth Token Fetch <#id6>`_.
+* `Auth Token Fetch <#id6>`_. :doc:`Documentation site <authtokenfetch:index>`.
+* `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>`.
 * `Test Framework <#id7>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
   * "Helloworld" O-RU Fronthaul Recovery use case. :doc:`Documentation site <orufhrecovery:index>`.
   * "Helloworld" O-DU Slice Assurance use case. :doc:`Documentation site <ransliceassurance:index>`.
+
 
 Non-RT-RIC Control Panel / NONRTRIC Dashboard
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -219,6 +221,23 @@ Implementation:
 - Implemented as a Java Spring Boot application.
 - Repo: *nonrtric/plt/helmmanager*
 - Documentation at the :doc:`Helm Manager documentation site <helmmanager:index>`.
+
+Service Management and Exposure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An initial implementation of the CAPIF Core service. It implements the following CAPIF APIs:
+- API Provider Management
+- Publish Service
+- Discover Service
+- API Invoker Management
+- Security
+- Events
+
+Implementation:
+
+- Implemented in Go
+- Repo: *nonrtric/plt/sme*
+- Documentation at the :doc:`Service Management & Exposure (SME) documentation site <sme:index>`.
 
 Auth Token Fetch
 ~~~~~~~~~~~~~~~~
