@@ -229,6 +229,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "739b81af_5d467ab6",
+        "filename": "docs/overview.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2022-12-16T13:22:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c13f3b9_567cf47a",
+      "range": {
+        "startLine": 246,
+        "startChar": 52,
+        "endLine": 246,
+        "endChar": 69
+      },
+      "revId": "d8cf08be0b1393c8fbda30f1c72c9ca34ab6ae1a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b5e5b55_5b6f775f",
