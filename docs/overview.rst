@@ -38,7 +38,7 @@ These are the components that make up the Non-RT-RIC:
 * `DMaaP/Kafka Information Producer Adapters <#dmaap-kafka-information-producer-adapters>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
 * `Initial Non-RT-RIC App Catalogue <#initial-non-rt-ric-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
 * `Initial K8S Helm Chart LCM Manager <#id5>`_. :doc:`Documentation site <helmmanager:index>`.
-* `Auth Token Fetch <#id6>`_. :doc:`Documentation site <authtokenfetch:index>`.
+* `Authentication Support <#id6>`_. :doc:`Documentation site <authentification-support:index>`.
 * `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>`.
 * `Test Framework <#id7>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
@@ -239,10 +239,33 @@ Implementation:
 - Repo: *nonrtric/plt/sme*
 - Documentation at the :doc:`Service Management & Exposure (SME) documentation site <sme:index>`.
 
-Auth Token Fetch
-~~~~~~~~~~~~~~~~
+Authentication Support
+~~~~~~~~~~~~~~~~~~~~~~
 
-Work in progress.
+The auth-token-fetch provides support for authentication.
+It is intended to be used as a sidecar and does the authentication procedure, gets and saves the access token
+in the local file system. This includes refresh of the token before it expires.
+This means that the service only needs to read the token from a file.
+
+It is tested using Keycloak as authentication provider.
+
+.. image:: ./AuthSupport.png
+   :width: 500pt
+
+So, a service just needs to read the token file and for instance insert it in the authorization header when using HTTP.
+The file needs to be re-read if it has been updated.
+
+The auth-token-fetch is configured by the following environment variables.
+
+* CERT_PATH - the file path of the cert to use for TSL, example: security/tls.crt
+* CERT_KEY_PATH - the file path of the private key file for the cert, example: "security/tls.key"
+* ROOT_CA_CERTS_PATH - the file path of the trust store.
+* CREDS_GRANT_TYPE - the grant_type used for authentication, example: client_credentials
+* CREDS_CLIENT_SECRET - the secret/private shared key used for authentication
+* CREDS_CLIENT_ID - the client id used for authentication
+* OUTPUT_FILE - the path where the fetched authorization token is stored, example: "/tmp/authToken.txt"
+* AUTH_SERVICE_URL - the URL to the authentication service (Keycloak)
+* REFRESH_MARGIN_SECONDS - how long in advance before the authorization token expires it is refreshed
 
 Test Framework
 ~~~~~~~~~~~~~~
