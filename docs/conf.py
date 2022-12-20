@@ -18,19 +18,19 @@ from docs_conf.conf import *
 
 #branch configuration
 
-controlpanelbranch = 'latest'
-simulatorbranch = 'latest'
-dmaapmediatorproducerbranch = 'latest'
+controlpanelbranch = 'g-release'
+simulatorbranch = 'g-release'
+dmaapmediatorproducerbranch = 'g-release'
 dmaapadapterbranch = 'g-release'
 informationcoordinatorservicebranch = 'g-release'
 rappcataloguebranch = 'g-release'
-helmmanagerbranch = 'latest'
+helmmanagerbranch = 'g-release'
 ransliceassurancebranch = 'g-release'
-orufhrecoverybranch = 'latest'
-authtokenfetchbranch = 'latest'
+orufhrecoverybranch = 'g-release'
+authtokenfetchbranch = 'g-release'
 a1policymanagementservicebranch = 'g-release'
-smebranch = 'latest'
-onapbranch = 'latest'
+smebranch = 'g-release'
+onapbranch = 'kohn'
 
 linkcheck_ignore = [
     'http://localhost.*',
