@@ -187,7 +187,7 @@ There are two alternative implementations to allow Information Consumers to cons
 Implementation:
 
 - Implementation in Java Spring (DMaaP Adapter), repo: *nonrtric/plt/dmaapadapter*, see :doc:`DMaaP Adapter documentation site <dmaapadapter:index>`.
-- Implemention in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see :doc:`DMaaP Mediator Producer documentation site <dmaapmediatorproducer:index>`.
+- Implementation in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see :doc:`DMaaP Mediator Producer documentation site <dmaapmediatorproducer:index>`.
 
 Initial Non-RT-RIC App Catalogue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,6 +226,7 @@ Service Management and Exposure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An initial implementation of the CAPIF Core service. It implements the following CAPIF APIs:
+
 - API Provider Management
 - Publish Service
 - Discover Service
