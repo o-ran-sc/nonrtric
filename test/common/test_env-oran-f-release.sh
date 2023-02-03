@@ -523,7 +523,7 @@ DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for
 DMAAP_MED_HOST_DATA_FILE="type_config_1.json"            # Host data file name
 DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name
 DMAAP_MED_FEATURE_LEVEL="KAFKATYPES"                     # Space separated list of features
-
+                                                         # KAFKATYPES support for kafka type from rel f
 KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
 KAFKAPC_DISPLAY_NAME="Kafka Producer/Consumer"
 KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)

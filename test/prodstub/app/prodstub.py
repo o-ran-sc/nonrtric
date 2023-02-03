@@ -364,6 +364,7 @@ def callback_create(producer_id):
     return_msg=""
     if (req_json_dict[job_key_name] == job_id):
         print("Create callback received for producer: "+str(producer_id)+" and job: "+str(job_id))
+        print(json.loads(request.data))
         return_code=job_dict['create_response']
         if ((job_dict['create_response'] == 200) or (job_dict['create_response'] == 201)):
             job_dict['json']=req_json_dict

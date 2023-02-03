@@ -93,6 +93,7 @@ while [ $# -gt 0 ]; do
   IMAGE_INFO_FILE=$FTC_DIR/imageinfo_$APP_ID".log"
   if [ -f $IMAGE_INFO_FILE ]; then
     echo "===  Testscript: $1  ==="
+    echo "Slogan: "$(cat $FTC_DIR/endpoint_tc_slogan.log)
     echo "Image: "$(cat $IMAGE_INFO_FILE)
     image_name=$(< $IMAGE_INFO_FILE)
     image_sha=$( docker inspect --format='{{.RepoDigests}}' $image_name) 2> /dev/null

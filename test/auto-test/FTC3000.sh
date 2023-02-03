@@ -34,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE"
+SUPPORTED_PROFILES="ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -121,7 +121,11 @@ do
     cr_index=$(($i%$NUM_CR))
     service_mr="CR_SERVICE_MR_PATH_"$cr_index
     service_app="CR_SERVICE_APP_PATH_"$cr_index
-    ics_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template1.json
+    if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+        ics_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template1.1.json
+    else
+        ics_api_idc_put_job 201 job-adp-$i ExampleInformationType ${!service_mr}/job-adp-data$i"?storeas=md5" info-owner-adp-$i ${!service_app}/job_status_info-owner-adp-$i testdata/dmaap-adapter/job-template1.json
+    fi
 
 done
 print_timer
@@ -133,8 +137,11 @@ do
     cr_index=$(($i%$NUM_CR))
     service_text="CR_SERVICE_TEXT_PATH_"$cr_index
     service_app="CR_SERVICE_APP_PATH_"$cr_index
-    ics_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka ${!service_text}/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i ${!service_app}/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1-kafka.json
-
+    if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+        ics_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka ${!service_text}/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i ${!service_app}/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1.1-kafka.json
+    else
+        ics_api_idc_put_job 201 job-adp-kafka-$i ExampleInformationTypeKafka ${!service_text}/job-adp-kafka-data$i"?storeas=md5" info-owner-adp-kafka-$i ${!service_app}/job_status_info-owner-adp-kafka-$i testdata/dmaap-adapter/job-template-1-kafka.json
+    fi
 done
 print_timer
 
@@ -157,7 +164,11 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
         cr_index=$(($i%$NUM_CR))
         service_text="CR_SERVICE_TEXT_PATH_"$cr_index
         service_app="CR_SERVICE_APP_PATH_"$cr_index
-        ics_api_idc_put_job 201 job-med-kafka-$i Kafka_TestTopic ${!service_text}/job-med-kafka-data$i"?storeas=md5" info-owner-med-kafka-$i ${!service_app}/job_status_info-owner-med-kafka-$i testdata/dmaap-mediator/job-template-1-kafka.json
+        if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+            ics_api_idc_put_job 201 job-med-kafka-$i Kafka_TestTopic ${!service_text}/job-med-kafka-data$i"?storeas=md5" info-owner-med-kafka-$i ${!service_app}/job_status_info-owner-med-kafka-$i testdata/dmaap-mediator/job-template-1.1-kafka.json
+        else
+            ics_api_idc_put_job 201 job-med-kafka-$i Kafka_TestTopic ${!service_text}/job-med-kafka-data$i"?storeas=md5" info-owner-med-kafka-$i ${!service_app}/job_status_info-owner-med-kafka-$i testdata/dmaap-mediator/job-template-1-kafka.json
+        fi
     done
     print_timer
 fi

@@ -248,6 +248,7 @@ TCLOG=$TESTLOGS/$ATC/TC.log
 exec &>  >(tee ${TCLOG})
 
 echo $(date) > $TESTLOGS/$ATC/endpoint_tc_start.log
+echo "$TC_ONELINE_DESCR" > $TESTLOGS/$ATC/endpoint_tc_slogan.log
 echo "Test failed" > $TESTLOGS/$ATC/endpoint_tc_end.log  # Will be overritten if test is ok
 
 #Variables for counting tests as well as passed and failed tests
