@@ -34,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE"
+SUPPORTED_PROFILES="ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -146,7 +146,20 @@ for ((i=1; i<=$NUM_JOBS; i++))
 do
     # Max buffer timeout for is about 160 sec for Adator jobs"
     adp_timeout=$(($i*1000))
-    adp_config_data='{"filter":"Message*","maxConcurrency": 1,"bufferTimeout": {"maxSize": 100,"maxTimeMiliseconds": '$adp_timeout'}}'
+    if [[ "$DMAAP_ADP_FEATURE_LEVEL" == *"FILTERSPEC"* ]]; then
+        deviation "It is possible to give filter without filtertype without error indication"
+        if [[ "$DMAAP_ADP_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+            adp_config_data='{"filterType": "regexp", "filter":"Message*","maxConcurrency": 1,"bufferTimeout": {"maxSize": 100,"maxTimeMilliseconds": '$adp_timeout'}}'
+        else
+            adp_config_data='{"filterType": "regexp", "filter":"Message*","maxConcurrency": 1,"bufferTimeout": {"maxSize": 100,"maxTimeMiliseconds": '$adp_timeout'}}'
+        fi
+    else
+        if [[ "$DMAAP_ADP_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+            adp_config_data='{"filter":"Message*","maxConcurrency": 1,"bufferTimeout": {"maxSize": 100,"maxTimeMilliseconds": '$adp_timeout'}}'
+        else
+            adp_config_data='{"filter":"Message*","maxConcurrency": 1,"bufferTimeout": {"maxSize": 100,"maxTimeMiliseconds": '$adp_timeout'}}'
+        fi
+    fi
     echo $adp_config_data > tmp/adp_config_data.json
 
     cr_index=$(($i%$NUM_CR))
@@ -163,7 +176,11 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     for ((i=1; i<=$NUM_JOBS; i++))
     do
         med_timeout=$(($i*5000))
-        med_config_data='{"bufferTimeout": {"maxSize": 100,"maxTimeMiliseconds": '$med_timeout'}}'
+        if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+            med_config_data='{"bufferTimeout": {"maxSize": 100,"maxTimeMilliseconds": '$med_timeout'}}'
+        else
+            med_config_data='{"bufferTimeout": {"maxSize": 100,"maxTimeMiliseconds": '$med_timeout'}}'
+        fi
         echo $med_config_data > tmp/med_config_data.json
         cr_index=$(($i%$NUM_CR))
         service_text="CR_SERVICE_TEXT_PATH_"$cr_index

@@ -1,0 +1,7 @@
+{
+  "maxConcurrency": 1,
+  "bufferTimeout": {
+      "maxSize": 1,
+      "maxTimeMilliseconds": 0
+  }
+}

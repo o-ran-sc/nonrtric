@@ -34,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE"
+SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -266,62 +266,62 @@ ics_api_edp_get_producer_status 200 prod-d ENABLED
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     if [ $(($i%5)) -eq 0 ]; then
-        ics_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
+        ics_api_a1_put_job 201 job$i type1 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1_$(($i+$NUM_JOBS)) testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ics_api_a1_get_job_status 200 type1 job$i ENABLED
         else
             ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type101 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner$(($i+$NUM_JOBS)) testdata/ics/job-template.json VALIDATE
             ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 3 prod-a prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 1 ]; then
-        ics_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
+        ics_api_a1_put_job 201 job$i type2 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1_$(($i+$NUM_JOBS)) testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ics_api_a1_get_job_status 200 type2 job$i ENABLED
         else
             ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type102 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner$(($i+$NUM_JOBS)) testdata/ics/job-template.json VALIDATE
             ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 2 prod-b prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 2 ]; then
-        ics_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
+        ics_api_a1_put_job 201 job$i type3 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1_$(($i+$NUM_JOBS)) testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ics_api_a1_get_job_status 200 type3 job$i ENABLED
         else
             ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type103 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner$(($i+$NUM_JOBS)) testdata/ics/job-template.json VALIDATE
             ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-c 120
         fi
     fi
     if [ $(($i%5)) -eq 3 ]; then
-        ics_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
+        ics_api_a1_put_job 201 job$i type4 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1_$(($i+$NUM_JOBS)) testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ics_api_a1_get_job_status 200 type4 job$i ENABLED
         else
             ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type104 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner$(($i+$NUM_JOBS)) testdata/ics/job-template.json VALIDATE
             ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
     if [ $(($i%5)) -eq 4 ]; then
-        ics_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1 testdata/ics/job-template.json
+        ics_api_a1_put_job 201 job$i type5 $TARGET ric1 $CR_SERVICE_APP_PATH_0/job_status_ric1_$(($i+$NUM_JOBS)) testdata/ics/job-template.json
         if [  -z "$FLAT_A1_EI" ]; then
             ics_api_a1_get_job_status 200 type5 job$i ENABLED
         else
             ics_api_a1_get_job_status 200 job$i ENABLED 120
         fi
         if [ $use_info_jobs ]; then
-            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner testdata/ics/job-template.json VALIDATE
+            ics_api_idc_put_job 201 job$(($i+$NUM_JOBS)) type105 $TARGET info-owner $CR_SERVICE_APP_PATH_0/job_status_info-owner$(($i+$NUM_JOBS)) testdata/ics/job-template.json VALIDATE
             ics_api_idc_get_job_status2 200 job$(($i+$NUM_JOBS)) ENABLED 1 prod-d 120
         fi
     fi
@@ -780,7 +780,8 @@ if [ $use_info_jobs ]; then
 fi
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-    cr_equal 0 received_callbacks 10 30
+    deviation "Total number of job callbacks are not stable - there may be additional job status callbacks"
+    cr_equal 0 received_callbacks 10 30    # 10 type status
     cr_equal 0 received_callbacks?id=type-status1 5
     cr_equal 0 received_callbacks?id=type-status2 5
 

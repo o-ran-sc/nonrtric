@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 #Profile for ORAN Cherry
-TEST_ENV_PROFILE="ORAN-G-RELEASE"
+TEST_ENV_PROFILE="ORAN-H-RELEASE"
 FLAVOUR="ORAN"
 
 ########################################
@@ -60,25 +60,25 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 # A1PMS base image and tags
 A1PMS_IMAGE_BASE="o-ran-sc/nonrtric-plt-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="2.5.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="2.5.0"
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
+A1PMS_IMAGE_TAG_LOCAL="2.6.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.6.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="2.6.0"
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.6.0"
 
 # ICS image and tags
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
-ICS_IMAGE_TAG_LOCAL="1.4.0-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.4.0-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE="1.4.0"
-ICS_IMAGE_TAG_REMOTE_RELEASE="1.4.0"
+ICS_IMAGE_TAG_LOCAL="1.5.0-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.5.0-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE="1.5.0"
+ICS_IMAGE_TAG_REMOTE_RELEASE="1.5.0"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 #Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_LOCAL="2.4.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE="2.4.0"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.4.0"
+CONTROL_PANEL_IMAGE_TAG_LOCAL="2.5.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE="2.5.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
 
 
 # Gateway image and tags
@@ -91,7 +91,7 @@ NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
 
 # SDNC A1 Controller image and tags - Note using released honolulu ONAP image
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.3.2"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.4.2"
 #No local image for ONAP SDNC, remote release image always used
 
 # ORAN SDNC adapter kept as reference
@@ -119,43 +119,43 @@ RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
 RAPP_CAT_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
 RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
 RAPP_CAT_IMAGE_TAG_REMOTE="1.2.0"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 
 # Near RT RIC Simulator image and tags - same version as cherry
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
 RIC_SIM_IMAGE_TAG_LOCAL="latest"
-RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.0-SNAPSHOT"
-RIC_SIM_IMAGE_TAG_REMOTE="2.4.0"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.4.0"
+RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.0-SNAPSHOT"
+RIC_SIM_IMAGE_TAG_REMOTE="2.5.0"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
 
 # DMAAP Mediator Service
 DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapmediatorproducer"
 DMAAP_MED_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
 DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
 DMAAP_MED_IMAGE_TAG_REMOTE="1.2.0"
-DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 # DMAAP Adapter Service
 DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapadapter"
-DMAAP_ADP_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE="1.2.0"
-DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
+DMAAP_ADP_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE="1.3.0"
+DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.3.0"
 
 # Helm Manager
 HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-plt-helmmanager"
 HELM_MANAGER_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.0-SNAPSHOT"
 HELM_MANAGER_IMAGE_TAG_REMOTE="1.3.0"
-HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
+HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.3.0"
 
 # Auth sidecar
 AUTHSIDECAR_IMAGE_BASE="o-ran-sc/nonrtric-auth-token-fetch"
-AUTHSIDECAR_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-AUTHSIDECAR_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-AUTHSIDECAR_IMAGE_TAG_REMOTE="1.1.0"
-AUTHSIDECAR_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+AUTHSIDECAR_IMAGE_TAG_LOCAL="1.1.1-SNAPSHOT"
+AUTHSIDECAR_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.1-SNAPSHOT"
+AUTHSIDECAR_IMAGE_TAG_REMOTE="1.1.1"
+AUTHSIDECAR_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
@@ -507,8 +507,8 @@ DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adapter-service/data" # Path in contai
 DMAAP_ADP_DATA_FILE="application_configuration.json"  # Container data file name
 DMAAP_ADP_CONFIG_FILE=application.yaml                   # Config file name
 DMAAP_ADP_CONFIG_FILE_TEMPLATE=application2.yaml         # Template config file name
-DMAAP_ADP_FEATURE_LEVEL="GENERATED_PROD_NAME FILTERSPEC"            # Space separated list of features
-
+DMAAP_ADP_FEATURE_LEVEL="GENERATED_PROD_NAME FILTERSPEC FILTERSCHEMA"            # Space separated list of features
+                                                         # FILTERSCHEMA corrected type schema from rel h
 DMAAP_MED_APP_NAME="dmaapmediatorservice"                # Name for Dmaap Mediator container
 DMAAP_MED_DISPLAY_NAME="Dmaap Mediator Service"          # Display name for Dmaap Mediator container
 DMAAP_MED_EXTERNAL_PORT=8085                             # Dmaap Mediator container external port (host -> container)
@@ -522,8 +522,10 @@ DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_grou
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
 DMAAP_MED_HOST_DATA_FILE="type_config_1.json"            # Host data file name
 DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name
-DMAAP_MED_FEATURE_LEVEL="KAFKATYPES"                     # Space separated list of features
+DMAAP_MED_FEATURE_LEVEL="KAFKATYPES FILTERSCHEMA"        # Space separated list of features
                                                          # KAFKATYPES support for kafka type from rel f
+                                                         # FILTERSCHEMA corrected kafka type schema from rel h
+
 KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
 KAFKAPC_DISPLAY_NAME="Kafka Producer/Consumer"
 KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)
