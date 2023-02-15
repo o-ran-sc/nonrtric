@@ -1,0 +1,18 @@
+{
+   "info_type_id": "PmDataOverKafka",
+   "job_id": "pmLogger",
+   "job_owner": "owner",
+   "job_definition": {
+      "filterType": "pmdata",
+      "filter": {
+         "sourceNames": [],
+         "measObjInstIds": [],
+         "measTypeSpecs": [],
+         "measuredEntityDns": []
+      },
+      "deliveryInfo": {
+         "topic": "pmreports",
+         "bootStrapServers": "localhost:9092"
+      }
+   }
+}
