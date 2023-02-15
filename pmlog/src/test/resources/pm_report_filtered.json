@@ -1,0 +1,67 @@
+{
+   "event": {
+      "commonEventHeader": {
+         "domain": "perf3gpp",
+         "eventId": "9efa1210-f285-455f-9c6a-3a659b1f1882",
+         "eventName": "perf3gpp_gnb-Ericsson_pmMeasResult",
+         "sourceName": "O-DU-1122",
+         "reportingEntityName": "",
+         "startEpochMicrosec": 951912000000,
+         "lastEpochMicrosec": 951912900000,
+         "timeZoneOffset": "+00:00"
+      },
+      "perf3gppFields": {
+         "perf3gppFieldsVersion": "1.0",
+         "measDataCollection": {
+            "granularityPeriod": 900,
+            "measuredEntityUserName": "RNC Telecomville",
+            "measuredEntityDn": "SubNetwork=CountryNN,MeContext=MEC-Gbg-1,ManagedElement=RNC-Gbg-1",
+            "measuredEntitySoftwareVersion": "",
+            "measInfoList": [
+               {
+                  "measInfoId": {
+                     "sMeasInfoId": ""
+                  },
+                  "measTypes": {
+                     "sMeasTypesList": [
+                        "succImmediateAssignProcs"
+                     ]
+                  },
+                  "measValuesList": [
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-997",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "1113"
+                           }
+                        ]
+                     },
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-998",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "234"
+                           }
+                        ]
+                     },
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-999",
+                        "suspectFlag": "true",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "789"
+                           }
+                        ]
+                     }
+                  ]
+               }
+            ]
+         }
+      }
+   }
+}
