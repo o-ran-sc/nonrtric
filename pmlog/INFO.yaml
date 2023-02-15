@@ -1,0 +1,55 @@
+---
+project: "nonrtric_plt_pmlog"
+project_creation_date: "2022-02-01"
+project_category: ""
+lifecycle_state: "Incubation"
+project_lead: &oran_nonrtric_ptl
+    name: "John Keeney"
+    email: "John.Keeney@est.tech"
+    id: "johnkeeney"
+    company: "Ericsson Software Technology"
+    timezone: "Europe/Dublin"
+primary_contact: *oran_nonrtric_ptl
+issue_tracking:
+    type: "jira"
+    url: "https://jira.o-ran-sc.org/projects/NONRTRIC"
+    key: "NONRTRIC"
+mailing_list:
+    type: "groups.io"
+    url: "https://lists.o-ran-sc.org/g/discuss"
+realtime_discussion:
+    type: "irc"
+    server: "freenode.net"
+    channel: "#o-ran-sc"
+meetings:
+    - type: "zoom"
+      agenda: ""
+      url: "https://wiki.o-ran-sc.org/display/RICNR/Meetings"
+      server: "n/a"
+      channel: "n/a"
+      repeats: "weekly"
+      time: "Wednesdays, 16:00/17:00 UTC"
+repositories:
+    - "nonrtric/plt/pmlog"
+committers:
+    - <<: *oran_nonrtric_ptl
+    - name: "Henrik Andersson"
+      email: "henrik.b.andersson@est.tech"
+      company: "Ericsson Software Technology"
+      id: "elinuxhenrik"
+      timezone: "Sweden/Stockholm"
+    - name: "Patrik Buhr"
+      email: "patrik.buhr@est.tech"
+      company: "Ericsson Software Technology"
+      id: "PatrikBuhr"
+      timezone: "Sweden/Stockholm"
+    - name: "Bjorn Magnusson"
+      email: "bjorn.magnusson@est.tech"
+      company: "Ericsson Software Technology"
+      id: "BjornMagnussonXA"
+      timezone: "Sweden/Stockholm"
+tsc:
+    # yamllint disable-line rule:line-length
+    approval:
+        "https://wiki.o-ran-sc.org/display/TOC#ORANSCTechnicalOversightCommittee(TOC)-20220126
+        sect.5.a-o"
