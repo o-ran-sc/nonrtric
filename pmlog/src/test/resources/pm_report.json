@@ -1,0 +1,223 @@
+{
+   "event": {
+      "commonEventHeader": {
+         "domain": "perf3gpp",
+         "eventName": "perf3gpp_gnb-Ericsson_pmMeasResult",
+         "sourceName": "O-DU-1122",
+         "reportingEntityName": "",
+         "startEpochMicrosec": 1465839830100400,
+         "lastEpochMicrosec": 1676378616564000,
+         "timeZoneOffset": "+00:00"
+      },
+      "perf3gppFields": {
+         "perf3gppFieldsVersion": "1.0",
+         "measDataCollection": {
+            "granularityPeriod": 900,
+            "measuredEntityUserName": "RNC Telecomville",
+            "measuredEntityDn": "SubNetwork=CountryNN,MeContext=MEC-Gbg-1,ManagedElement=RNC-Gbg-1",
+            "measuredEntitySoftwareVersion": "",
+            "measInfoList": [
+               {
+                  "measInfoId": {
+                     "sMeasInfoId": ""
+                  },
+                  "measTypes": {
+                     "sMeasTypesList": [
+                        "attTCHSeizures",
+                        "succTCHSeizures",
+                        "attImmediateAssignProcs",
+                        "succImmediateAssignProcs"
+                     ]
+                  },
+                  "measValuesList": [
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-997",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "813"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "913"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "1013"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "1113"
+                           }
+                        ]
+                     },
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-998",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "890"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "901"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "123"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "234"
+                           }
+                        ]
+                     },
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-999",
+                        "suspectFlag": "true",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "456"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "567"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "678"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "789"
+                           }
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "measInfoId": {
+                     "sMeasInfoId": "ENodeBFunction"
+                  },
+                  "measTypes": {
+                     "sMeasTypesList": [
+                        "attTCHSeizures1",
+                        "succTCHSeizures2",
+                        "attImmediateAssignProcs3",
+                        "succImmediateAssignProcs4"
+                     ]
+                  },
+                  "measValuesList": [
+                     {
+                        "measObjInstId": "ManagedElement=RNC-Gbg-1,ENodeBFunction=1",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "4"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "86,87,2,6,77,96,75,33,24"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "40"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "90"
+                           }
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "measInfoId": {
+                     "sMeasInfoId": ""
+                  },
+                  "measTypes": {
+                     "sMeasTypesList": [
+                        "attTCHSeizures5",
+                        "succTCHSeizures6",
+                        "attImmediateAssignProcs7",
+                        "succImmediateAssignProcs8"
+                     ]
+                  },
+                  "measValuesList": [
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-997",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "238"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "344"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "563"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "787"
+                           }
+                        ]
+                     },
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-998",
+                        "suspectFlag": "false",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "898"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "905"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "127"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "238"
+                           }
+                        ]
+                     },
+                     {
+                        "measObjInstId": "RncFunction=RF-1,UtranCell=Gbg-999",
+                        "suspectFlag": "true",
+                        "measResults": [
+                           {
+                              "p": 1,
+                              "sValue": "454"
+                           },
+                           {
+                              "p": 2,
+                              "sValue": "569"
+                           },
+                           {
+                              "p": 3,
+                              "sValue": "672"
+                           },
+                           {
+                              "p": 4,
+                              "sValue": "785"
+                           }
+                        ]
+                     }
+                  ]
+               }
+            ]
+         }
+      }
+   }
+}
