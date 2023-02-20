@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69f8a719_615a8273",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2023-02-20T17:11:12Z",
+      "side": 1,
+      "message": "I left a few comments, nothing very important",
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4f99f39_c955604e",
+        "filename": "pmlog/config/application.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2023-02-20T17:11:12Z",
+      "side": 1,
+      "message": "I wonder if we should use something more generic like oran",
+      "range": {
+        "startLine": 89,
+        "startChar": 9,
+        "endLine": 89,
+        "endChar": 12
+      },
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0bf1cc5_85a9bdf7",
+        "filename": "pmlog/src/test/resources/pm_report.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2023-02-20T17:11:12Z",
+      "side": 1,
+      "message": "pink space",
+      "range": {
+        "startLine": 8,
+        "startChar": 48,
+        "endLine": 8,
+        "endChar": 77
+      },
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85e1b522_347022a7",
+        "filename": "pmlog/src/test/resources/pm_report_filtered.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2023-02-20T17:11:12Z",
+      "side": 1,
+      "message": "more pink spaces",
+      "range": {
+        "startLine": 8,
+        "startChar": 34,
+        "endLine": 8,
+        "endChar": 39
+      },
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
