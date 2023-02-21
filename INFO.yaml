@@ -33,10 +33,15 @@ repositories:
     - 'nonrtric'
 committers:
     - <<: *oran_nonrtric_ptl
-    - name: 'Henrik Andersson '
-      email: 'henrik.b.andersson@est.tech '
+    - name: 'Patrik Buhr'
+      email: 'patrik.buhr@est.tech'
       company: 'Ericsson Software Technology'
-      id: 'elinuxhenrik'
+      id: 'PatrikBuhr'
+      timezone: 'Sweden/Stockholm'
+    - name: 'Bjorn Magnusson'
+      email: 'bjorn.magnusson@est.tech'
+      company: 'Ericsson Software Technology'
+      id: 'BjornMagnussonXA'
       timezone: 'Sweden/Stockholm'
 tsc:
     # yamllint disable-line rule:line-length
