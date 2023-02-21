@@ -41,6 +41,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37a6c80a_0f65b129",
+        "filename": "pmlog/config/application.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2023-02-21T10:18:12Z",
+      "side": 1,
+      "message": "This is just a template. The installation will have to change bucket name, org, user and password etc.",
+      "parentUuid": "e4f99f39_c955604e",
+      "range": {
+        "startLine": 89,
+        "startChar": 9,
+        "endLine": 89,
+        "endChar": 12
+      },
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0bf1cc5_85a9bdf7",
@@ -64,6 +88,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f4abeed_a8aef802",
+        "filename": "pmlog/src/test/resources/pm_report.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2023-02-21T10:18:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0bf1cc5_85a9bdf7",
+      "range": {
+        "startLine": 8,
+        "startChar": 48,
+        "endLine": 8,
+        "endChar": 77
+      },
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85e1b522_347022a7",
@@ -77,6 +125,30 @@
       "writtenOn": "2023-02-20T17:11:12Z",
       "side": 1,
       "message": "more pink spaces",
+      "range": {
+        "startLine": 8,
+        "startChar": 34,
+        "endLine": 8,
+        "endChar": 39
+      },
+      "revId": "9c932bde9dc391ba71a383dd95898522d7a00216",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b022399_f306684a",
+        "filename": "pmlog/src/test/resources/pm_report_filtered.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2023-02-21T10:18:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85e1b522_347022a7",
       "range": {
         "startLine": 8,
         "startChar": 34,
