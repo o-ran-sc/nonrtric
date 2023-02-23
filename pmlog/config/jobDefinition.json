@@ -1,0 +1,18 @@
+{
+   "info_type_id": "PmDataOverKafka",
+   "job_owner": "owner",
+   "job_result_uri": "",
+   "job_definition": {
+      "filterType": "pmdata",
+      "filter": {
+         "sourceNames": [],
+         "measObjInstIds": [],
+         "measTypeSpecs": [],
+         "measuredEntityDns": []
+      },
+      "deliveryInfo": {
+         "topic": "pmreports",
+         "bootStrapServers": "localhost:9092"
+      }
+   }
+}
