@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import org.slf4j.Logger;
@@ -69,9 +68,8 @@ public class ApplicationConfig {
     private int httpProxyPort = 0;
 
     @Getter
-    @Setter
     @Value("${server.port}")
-    private int localServerHttpPort;
+    private int localServerHttpsPort;
 
     @Getter
     @Value("${app.kafka.max-poll-records:300}")

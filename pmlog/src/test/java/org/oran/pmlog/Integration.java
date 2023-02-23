@@ -74,7 +74,7 @@ class Integration {
 
     static class TestApplicationConfig extends ApplicationConfig {
         String thisProcessUrl() {
-            final String url = "https://localhost:" + getLocalServerHttpPort();
+            final String url = "https://localhost:" + getLocalServerHttpsPort();
             return url;
         }
     }
@@ -161,11 +161,12 @@ class Integration {
 
     }
 
+    final String PM_REPORT_FILE_BIG = "./src/test/resources/A20000626.2315+0200-2330+0200_HTTPS-6-73.json";
+    final String PM_REPORT_FILE = "./src/test/resources/pm_report.json";
+
     String pmReport(int sequenceValue, int noOfObjects) {
         try {
-            String path = "./src/test/resources/pm_report.json";
-            // path = "./src/test/resources/A20000626.2315+0200-2330+0200_HTTPS-6-73.json";
-            String str = Files.readString(Path.of(path), Charset.defaultCharset());
+            String str = Files.readString(Path.of(PM_REPORT_FILE), Charset.defaultCharset());
             PmReport report = gson.fromJson(str, PmReport.class);
             PmReport.MeasDataCollection measDataCollection = report.event.getPerf3gppFields().getMeasDataCollection();
 

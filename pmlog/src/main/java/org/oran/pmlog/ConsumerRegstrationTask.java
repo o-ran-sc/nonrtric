@@ -74,7 +74,7 @@ public class ConsumerRegstrationTask {
     private void createSubscription() {
         putInfoJob() //
                 .doOnError(this::handleRegistrationFailure)
-                .retryWhen(Retry.fixedDelay(100, Duration.ofMillis(30 * 1000))) //
+                .retryWhen(Retry.fixedDelay(100, Duration.ofMillis(5 * 1000))) //
                 .subscribe( //
                         null, //
                         this::handleRegistrationFailure, //

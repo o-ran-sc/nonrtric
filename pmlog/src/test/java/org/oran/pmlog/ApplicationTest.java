@@ -21,6 +21,7 @@
 package org.oran.pmlog;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 
@@ -44,6 +45,7 @@ import org.oran.pmlog.clients.AsyncRestClient;
 import org.oran.pmlog.clients.AsyncRestClientFactory;
 import org.oran.pmlog.clients.SecurityContext;
 import org.oran.pmlog.configuration.ApplicationConfig;
+import org.oran.pmlog.configuration.ConsumerJobInfo;
 import org.oran.pmlog.configuration.WebClientConfig;
 import org.oran.pmlog.configuration.WebClientConfig.HttpProxyConfig;
 import org.slf4j.Logger;
@@ -52,7 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
@@ -62,7 +63,7 @@ import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Flux;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks", //
@@ -76,17 +77,25 @@ class ApplicationTest {
     @Autowired
     SecurityContext securityContext;
 
-    private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().disableHtmlEscaping().create();
+    @Autowired
+    private IcsSimulatorController icsSimulatorController;
 
-    @LocalServerPort
-    int port;
+    @Autowired
+    private ConsumerRegstrationTask consumerRegstrationTask;
+
+    private com.google.gson.Gson gson = new com.google.gson.GsonBuilder().disableHtmlEscaping().create();
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     static class TestApplicationConfig extends ApplicationConfig {
 
+        @Override
+        public String getIcsBaseUrl() {
+            return thisProcessUrl();
+        }
+
         String thisProcessUrl() {
-            final String url = "https://localhost:" + getLocalServerHttpPort();
+            final String url = "https://localhost:" + getLocalServerHttpsPort();
             return url;
         }
     }
@@ -135,7 +144,7 @@ class ApplicationTest {
 
     @AfterEach
     void reset() {
-
+        this.icsSimulatorController.testResults.reset();
     }
 
     @Test
@@ -165,12 +174,21 @@ class ApplicationTest {
         Mockito.verify(TestBeanFactory.influxStore, Mockito.times(1)).store(any(), any());
     }
 
+    @Test
+    void testJobCreation() throws Exception {
+        await().untilAsserted(() -> assertThat(consumerRegstrationTask.isRegisteredInIcs()).isTrue());
+        ConsumerJobInfo createdJob = this.icsSimulatorController.testResults.createdJob;
+        assertThat(createdJob).isNotNull();
+        assertThat(createdJob.jobDefinition.getDeliveryInfo().getTopic())
+                .isEqualTo(applicationConfig.getKafkaInputTopic());
+    }
+
     private AsyncRestClient restClient() {
         return restClient(false);
     }
 
     private String baseUrl() {
-        return "https://localhost:" + this.port;
+        return "https://localhost:" + this.applicationConfig.getLocalServerHttpsPort();
     }
 
     private AsyncRestClient restClient(boolean useTrustValidation) {
