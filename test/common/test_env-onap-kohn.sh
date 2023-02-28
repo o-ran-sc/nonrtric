@@ -202,7 +202,7 @@ A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container f
 A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
 A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
-A1PMS_FEATURE_LEVEL="NOCONSUL INITIALCONFIGMAP"            # Space separated list of features
+A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container

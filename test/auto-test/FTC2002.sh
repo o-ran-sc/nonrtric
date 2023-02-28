@@ -32,7 +32,7 @@ KUBE_PRESTARTED_IMAGES=" "
 CONDITIONALLY_IGNORED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON "
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON "
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER"
 
@@ -72,9 +72,7 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            start_ric_simulators ricsim_g3 1  STD_2.0.0
-        fi
+        start_ric_simulators ricsim_g3 1  STD_2.0.0
 
         start_sdnc
 

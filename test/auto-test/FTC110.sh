@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM KUBEPROXY NGW"
@@ -31,10 +31,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -57,9 +57,7 @@ start_kube_proxy
 
 start_ric_simulators ricsim_g1 1  OSC_2.1.0
 start_ric_simulators ricsim_g2 1  STD_1.1.3
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    start_ric_simulators ricsim_g3 1  STD_2.0.0
-fi
+start_ric_simulators ricsim_g3 1  STD_2.0.0
 
 start_mr
 
@@ -73,25 +71,13 @@ fi
 
 start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-__CONFIG_HEADER="NOHEADER"
-if [ $RUNMODE == "KUBE" ]; then
-    __CONFIG_HEADER="HEADER"
-else
-    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        __CONFIG_HEADER="HEADER"
-    fi
-fi
-prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
+
+prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
 
 if [ $RUNMODE == "KUBE" ]; then
-    a1pms_load_config                       ".consul_config.json"
+    a1pms_load_config                       ".a1pms_config.json"
 else
-    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        a1pms_api_put_configuration 200 ".consul_config.json"
-    else
-        start_consul_cbs
-        consul_config_app                   ".consul_config.json"
-    fi
+    a1pms_api_put_configuration 200 ".a1pms_config.json"
 fi
 
 set_a1pms_debug
@@ -106,9 +92,7 @@ a1pms_api_get_status 200
 #Print simulator interface version
 sim_print ricsim_g1_1 interface
 sim_print ricsim_g2_1 interface
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    sim_print ricsim_g3_1 interface
-fi
+sim_print ricsim_g3_1 interface
 
 a1pms_api_put_service 201 "service1" 15 "$CR_SERVICE_APP_PATH_0/service1"
 
@@ -190,42 +174,23 @@ a1pms_api_put_service 201 "service10" 600 "$CR_SERVICE_APP_PATH_0/service10"
 
 sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
+sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
 
-    sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+a1pms_equal json:rics 3 300
 
-    a1pms_equal json:rics 3 300
+#a1pms_equal json:policy_schemas 2 120
 
-    #a1pms_equal json:policy_schemas 2 120
+a1pms_equal json:policy-types 3 120
 
-    a1pms_equal json:policy-types 3 120
+a1pms_equal json:policies 0
 
-    a1pms_equal json:policies 0
-else
-    a1pms_equal json:rics 2 300
-
-    a1pms_equal json:policy_schemas 2 120
-
-    a1pms_equal json:policy_types 2
-
-    a1pms_equal json:policies 0
-fi
-
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-else
-    notificationurl=""
-fi
+notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
 a1pms_api_put_policy 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
 a1pms_api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    a1pms_api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
-    a1pms_equal json:policies 3
-else
-    a1pms_equal json:policies 2
-fi
+a1pms_api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
+a1pms_equal json:policies 3
 
 sim_equal ricsim_g1_1 num_instances 1
 sim_equal ricsim_g2_1 num_instances 1
@@ -233,38 +198,24 @@ sim_equal ricsim_g2_1 num_instances 1
 a1pms_api_put_policy 201 "service10" ricsim_g1_1 1 5001 true $notificationurl testdata/OSC/pi1_template.json
 a1pms_api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5101 true $notificationurl testdata/STD/pi1_template.json
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    a1pms_api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5201 true $notificationurl testdata/STD2/pi_qos2_template.json
-    a1pms_equal json:policies 6
-else
-    a1pms_equal json:policies 4
-fi
+a1pms_api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5201 true $notificationurl testdata/STD2/pi_qos2_template.json
+a1pms_equal json:policies 6
 
 sim_equal ricsim_g1_1 num_instances 2
 sim_equal ricsim_g2_1 num_instances 2
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    sim_equal ricsim_g3_1 num_instances 2
-fi
+sim_equal ricsim_g3_1 num_instances 2
 
 sim_post_delete_instances 200 ricsim_g1_1
 sim_post_delete_instances 200 ricsim_g2_1
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    sim_post_delete_instances 200 ricsim_g3_1
-fi
+sim_post_delete_instances 200 ricsim_g3_1
 
 #Wait for recreate of non transient policy
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    a1pms_equal json:policies 3 180
-else
-    a1pms_equal json:policies 2 180
-fi
+a1pms_equal json:policies 3 180
 
 sim_equal ricsim_g1_1 num_instances 1
 sim_equal ricsim_g2_1 num_instances 1
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    sim_equal ricsim_g3_1 num_instances 1
-fi
+sim_equal ricsim_g3_1 num_instances 1
 
 a1pms_api_put_service 200 "service10" 10 "$CR_SERVICE_APP_PATH_0/service10"
 
@@ -273,9 +224,7 @@ a1pms_equal json:policies 0 120
 
 sim_equal ricsim_g1_1 num_instances 0
 sim_equal ricsim_g2_1 num_instances 0
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    sim_equal ricsim_g3_1 num_instances 0
-fi
+sim_equal ricsim_g3_1 num_instances 0
 
 a1pms_api_get_service_ids 200
 

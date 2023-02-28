@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Full a1pms API walkthrough using a1pms REST/DMAAP and with/wit
 USE_ISTIO=0
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 if [ $USE_ISTIO -eq 0 ]; then
@@ -37,10 +37,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -205,11 +205,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
         sim_put_policy_type 201 ricsim_g1_1 2 testdata/OSC/sim_2.json
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            start_ric_simulators ricsim_g3 1  STD_2.0.0
-            sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
-            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
-        fi
+        start_ric_simulators ricsim_g3 1  STD_2.0.0
+        sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
+        sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
 
         start_mr
 
@@ -221,83 +219,57 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
         fi
 
-        __CONFIG_HEADER="NOHEADER"
-        if [ $RUNMODE == "KUBE" ]; then
-            __CONFIG_HEADER="HEADER"
-        else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-                __CONFIG_HEADER="HEADER"
-            fi
-        fi
+
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
-            prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
+            prepare_a1pms_config      SDNC    ".a1pms_config.json"
         else
-            prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
+            prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
-            a1pms_load_config                       ".consul_config.json"
+            a1pms_load_config                       ".a1pms_config.json"
         else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-                #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
-                if [ $__httpx == "HTTPS" ]; then
+            #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+            if [ $__httpx == "HTTPS" ]; then
+                use_a1pms_rest_https
+            else
+                use_a1pms_rest_http
+            fi
+
+            if [[ $interface != *"DMAAP"* ]]; then
+                echo "{}" > ".a1pms_config_incorrect.json"
+                a1pms_api_put_configuration 400 ".a1pms_config_incorrect.json"
+            fi
+
+            a1pms_api_put_configuration 200 ".a1pms_config.json"
+            a1pms_api_get_configuration 200 ".a1pms_config.json"
+            if [ $__httpx == "HTTPS" ]; then
+                if [[ $interface = *"DMAAP"* ]]; then
+                    use_a1pms_dmaap_https
+                else
                     use_a1pms_rest_https
+                fi
+            else
+                if [[ $interface = *"DMAAP"* ]]; then
+                    use_a1pms_dmaap_http
                 else
                     use_a1pms_rest_http
                 fi
-
-                if [[ $interface != *"DMAAP"* ]]; then
-                    echo "{}" > ".consul_config_incorrect.json"
-                    a1pms_api_put_configuration 400 ".consul_config_incorrect.json"
-                fi
-
-                a1pms_api_put_configuration 200 ".consul_config.json"
-                a1pms_api_get_configuration 200 ".consul_config.json"
-                if [ $__httpx == "HTTPS" ]; then
-                    if [[ $interface = *"DMAAP"* ]]; then
-                        use_a1pms_dmaap_https
-                    else
-                        use_a1pms_rest_https
-                    fi
-                else
-                    if [[ $interface = *"DMAAP"* ]]; then
-                        use_a1pms_dmaap_http
-                    else
-                        use_a1pms_rest_http
-                    fi
-                fi
-
-            else
-                start_consul_cbs
-                consul_config_app                   ".consul_config.json"
             fi
         fi
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:rics 3 300
+        a1pms_equal json:rics 3 300
 
-            a1pms_equal json:policy-types 5 120
+        a1pms_equal json:policy-types 5 120
 
-            a1pms_equal json:policies 0
+        a1pms_equal json:policies 0
 
-            a1pms_equal json:policy-instances 0
-        else
-            a1pms_equal json:rics 2 300
+        a1pms_equal json:policy-instances 0
 
-            a1pms_equal json:policy_schemas 3 120
+        cr_equal 0 received_callbacks 3 120
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
 
-            a1pms_equal json:policy_types 3
-
-            a1pms_equal json:policies 0
-
-            a1pms_equal json:policy_ids 0
-        fi
-
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            cr_equal 0 received_callbacks 3 120
-            cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
-        fi
         mr_equal requests_submitted 0
 
 
@@ -393,117 +365,71 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############## RIC Repository ##############"
         echo "############################################"
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
-        else
-            a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
-        fi
+        a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
+
         a1pms_api_get_rics 200 1 "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
 
         a1pms_api_get_rics 404 47
 
         a1pms_api_get_rics 404 "test"
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_ric 200 me1_ricsim_g1_1 NORIC "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
+        a1pms_api_get_ric 200 me1_ricsim_g1_1 NORIC "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
 
-            a1pms_api_get_ric 200 me2_ricsim_g1_1 NORIC "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
+        a1pms_api_get_ric 200 me2_ricsim_g1_1 NORIC "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
 
-            a1pms_api_get_ric 200 me1_ricsim_g2_1 NORIC "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+        a1pms_api_get_ric 200 me1_ricsim_g2_1 NORIC "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
 
-            a1pms_api_get_ric 200 me2_ricsim_g2_1 NORIC "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+        a1pms_api_get_ric 200 me2_ricsim_g2_1 NORIC "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
 
-            a1pms_api_get_ric 200 me1_ricsim_g3_1 NORIC "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
+        a1pms_api_get_ric 200 me1_ricsim_g3_1 NORIC "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
 
-            a1pms_api_get_ric 200 me2_ricsim_g3_1 NORIC "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
+        a1pms_api_get_ric 200 me2_ricsim_g3_1 NORIC "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
 
-            a1pms_api_get_ric 200 NOME      ricsim_g1_1 "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
+        a1pms_api_get_ric 200 NOME      ricsim_g1_1 "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
 
-            a1pms_api_get_ric 200 NOME      ricsim_g2_1 "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+        a1pms_api_get_ric 200 NOME      ricsim_g2_1 "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
 
-            a1pms_api_get_ric 200 NOME      ricsim_g3_1 "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
+        a1pms_api_get_ric 200 NOME      ricsim_g3_1 "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
 
-            a1pms_api_get_ric 404 NOME test1
+        a1pms_api_get_ric 404 NOME test1
 
-            a1pms_api_get_ric 404 test NORIC
+        a1pms_api_get_ric 404 test NORIC
 
-            a1pms_api_get_ric 400 me1_ricsim_g1_1 ricsim_g1_1
+        a1pms_api_get_ric 400 me1_ricsim_g1_1 ricsim_g1_1
 
-            a1pms_api_get_ric 400 me1_ricsim_g1_1 TESTRIC
+        a1pms_api_get_ric 400 me1_ricsim_g1_1 TESTRIC
 
-            a1pms_api_get_ric 400 TESTME ricsim_g1_1
-
-        else
-            a1pms_api_get_ric 200 me1_ricsim_g1_1 ricsim_g1_1
-
-            a1pms_api_get_ric 200 me2_ricsim_g1_1 ricsim_g1_1
-
-            a1pms_api_get_ric 200 me1_ricsim_g2_1 ricsim_g2_1
-
-            a1pms_api_get_ric 200 me2_ricsim_g2_1 ricsim_g2_1
-
-            a1pms_api_get_ric 404 test
-        fi
+        a1pms_api_get_ric 400 TESTME ricsim_g1_1
 
         echo "############################################"
         echo "########### A1 Policy Management ###########"
         echo "############################################"
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_type 200 1 testdata/OSC/1-a1pms-modified.json
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_type 200 2 testdata/OSC/2-a1pms-modified.json
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_type 200 STD_QOS_0_2_0 testdata/STD2/qos-a1pms-modified.json
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_type 200 STD_QOS2_0.1.0 testdata/STD2/qos2-a1pms-modified.json
+        deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
+        #Behaviour accepted for now
+        a1pms_api_get_policy_type 200 1 testdata/OSC/1-a1pms-modified.json
+        deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
+        #Behaviour accepted for now
+        a1pms_api_get_policy_type 200 2 testdata/OSC/2-a1pms-modified.json
+        deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
+        #Behaviour accepted for now
+        a1pms_api_get_policy_type 200 STD_QOS_0_2_0 testdata/STD2/qos-a1pms-modified.json
+        deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
+        #Behaviour accepted for now
+        a1pms_api_get_policy_type 200 STD_QOS2_0.1.0 testdata/STD2/qos2-a1pms-modified.json
 
-            a1pms_api_get_policy_type 404 3
-        else
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_schema 200 1 testdata/OSC/1-a1pms-modified.json
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_schema 200 2 testdata/OSC/2-a1pms-modified.json
+        a1pms_api_get_policy_type 404 3
 
-            a1pms_api_get_policy_schema 404 3
-        fi
-
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_schemas 404
-        else
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_schemas 200 NORIC testdata/OSC/1-a1pms-modified.json testdata/OSC/2-a1pms-modified.json NOFILE
-            deviation "TR9 - a1pms modify the type with type id - test combo $interface and $__httpx"
-            #Behaviour accepted for now
-            a1pms_api_get_policy_schemas 200 ricsim_g1_1 testdata/OSC/1-a1pms-modified.json testdata/OSC/2-a1pms-modified.json
-
-            a1pms_api_get_policy_schemas 200 ricsim_g2_1 NOFILE
-
-            a1pms_api_get_policy_schemas 404 test
-        fi
+        a1pms_api_get_policy_schemas 404
 
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_types 200 NORIC 1 2 EMPTY STD_QOS_0_2_0 STD_QOS2_0.1.0
-        else
-            a1pms_api_get_policy_types 200 NORIC 1 2 EMPTY
-        fi
+        a1pms_api_get_policy_types 200 NORIC 1 2 EMPTY STD_QOS_0_2_0 STD_QOS2_0.1.0
 
         a1pms_api_get_policy_types 200 ricsim_g1_1 1 2
 
         a1pms_api_get_policy_types 200 ricsim_g2_1 EMPTY
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_types 200 ricsim_g3_1 STD_QOS_0_2_0 STD_QOS2_0.1.0
-        fi
+        a1pms_api_get_policy_types 200 ricsim_g3_1 STD_QOS_0_2_0 STD_QOS2_0.1.0
 
         a1pms_api_get_policy_types 404 dummy-ric
 
@@ -511,11 +437,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         a1pms_api_put_service 201 "service10" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-        else
-            notificationurl=""
-        fi
+        notificationurl=$CR_SERVICE_APP_PATH_0"/test"
+
         if [[ $interface != *"DMAAP"* ]]; then
             # Badly formatted json is not possible to send via dmaap
             a1pms_api_put_policy 400 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi_bad_template.json
@@ -538,74 +461,49 @@ for __httpx in $TESTED_PROTOCOLS ; do
         a1pms_api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 true $notificationurl testdata/STD/pi1_template.json
         a1pms_api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 false $notificationurl testdata/STD/pi1_template.json
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
-            a1pms_api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
+        a1pms_api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
+        a1pms_api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
 
-            a1pms_api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 true $notificationurl testdata/STD2/pi_qos2_template.json
-            a1pms_api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 false $notificationurl testdata/STD2/pi_qos2_template.json
-        fi
+        a1pms_api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 true $notificationurl testdata/STD2/pi_qos2_template.json
+        a1pms_api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 false $notificationurl testdata/STD2/pi_qos2_template.json
 
         a1pms_api_get_policy_status 404 1
         a1pms_api_get_policy_status 404 2
         VAL='NOT IN EFFECT'
         a1pms_api_get_policy_status 200 5000 OSC "$VAL" "false"
         a1pms_api_get_policy_status 200 5100 STD "UNDEFINED"
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_status 200 5200 STD2 EMPTY EMPTY
-        fi
+        a1pms_api_get_policy_status 200 5200 STD2 EMPTY EMPTY
 
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #a1pms_equal json:policies 2
         #Allow 3 for now
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policies 4
-        else
-            a1pms_equal json:policies 3
-        fi
+        a1pms_equal json:policies 4
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #a1pms_equal json:policy_ids 2
         #Allow 3 for now
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-instances 4
-        else
-            a1pms_equal json:policy_ids 3
-        fi
+        a1pms_equal json:policy-instances 4
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #a1pms_api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100
         #Allow policy create with unregistered service for now
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100 2000 5200
-        else
-            a1pms_api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100 2000
-        fi
+        a1pms_api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100 2000 5200
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #a1pms_api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000
         #Allow policy create with unregistered service for now
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000 2000
+        a1pms_api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000 2000
 
-            a1pms_api_get_policy_ids 200 ricsim_g2_1 NOSERVICE NOTYPE 5100
+        a1pms_api_get_policy_ids 200 ricsim_g2_1 NOSERVICE NOTYPE 5100
 
-            a1pms_api_get_policy_ids 200 ricsim_g3_1 NOSERVICE NOTYPE 5200
+        a1pms_api_get_policy_ids 200 ricsim_g3_1 NOSERVICE NOTYPE 5200
 
-            a1pms_api_get_policy_ids 200 NORIC "service10" NOTYPE 5000 5100 5200
-        else
-            a1pms_api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000 2000
-
-            a1pms_api_get_policy_ids 200 ricsim_g2_1 NOSERVICE NOTYPE 5100
-
-
-            a1pms_api_get_policy_ids 200 NORIC "service10" NOTYPE 5000 5100
-        fi
+        a1pms_api_get_policy_ids 200 NORIC "service10" NOTYPE 5000 5100 5200
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
@@ -616,27 +514,17 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         a1pms_api_get_policy_ids 200 NORIC NOSERVICE 2 NOID
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy_ids 200 NORIC NOSERVICE STD_QOS2_0.1.0 5200
-        fi
+        a1pms_api_get_policy_ids 200 NORIC NOSERVICE STD_QOS2_0.1.0 5200
 
         a1pms_api_get_policy_ids 200 ricsim_g2_1 NOSERVICE 1 NOID
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_api_get_policy 200 5000 testdata/OSC/pi1_template.json "service10" ricsim_g1_1 1 false $notificationurl
+        a1pms_api_get_policy 200 5000 testdata/OSC/pi1_template.json "service10" ricsim_g1_1 1 false $notificationurl
 
-            a1pms_api_get_policy 200 5100 testdata/STD/pi1_template.json "service10" ricsim_g2_1 NOTYPE false $notificationurl
+        a1pms_api_get_policy 200 5100 testdata/STD/pi1_template.json "service10" ricsim_g2_1 NOTYPE false $notificationurl
 
-            a1pms_api_get_policy 200 5200 testdata/STD2/pi_qos2_template.json "service10" ricsim_g3_1 STD_QOS2_0.1.0 false $notificationurl
+        a1pms_api_get_policy 200 5200 testdata/STD2/pi_qos2_template.json "service10" ricsim_g3_1 STD_QOS2_0.1.0 false $notificationurl
 
-            a1pms_api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" 1 false $notificationurl testdata/OSC/pi1_template.json
-        else
-            a1pms_api_get_policy 200 5000 testdata/OSC/pi1_template.json
-
-            a1pms_api_get_policy 200 5100 testdata/STD/pi1_template.json
-
-            a1pms_api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" 1 testdata/OSC/pi1_template.json
-        fi
+        a1pms_api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" 1 false $notificationurl testdata/OSC/pi1_template.json
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
@@ -648,33 +536,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         a1pms_api_delete_policy 204 5000
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-
-            a1pms_api_delete_policy 204 5200
-        fi
+        a1pms_api_delete_policy 204 5200
 
         a1pms_equal json:policies 1
 
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-instances 1
-        else
-            a1pms_equal json:policy_ids 1
-        fi
+        a1pms_equal json:policy-instances 1
 
         a1pms_api_delete_policy 204 5100
 
         a1pms_equal json:policies 0
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-instances 0
-        else
-            a1pms_equal json:policy_ids 0
-        fi
+        a1pms_equal json:policy-instances 0
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            cr_equal 0 received_callbacks 3
-        fi
+        cr_equal 0 received_callbacks 3
 
         if [[ $interface = *"DMAAP"* ]]; then
             mr_greater requests_submitted 0
@@ -691,15 +566,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             if [[ $interface = *"SDNC"* ]]; then
                 sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
                 sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
-                if [ "$A1PMS_VERSION" == "V2" ]; then
-                    sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
-                fi
+                sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
             else
                 sim_contains_str ricsim_g1_1 remote_hosts $A1PMS_APP_NAME
                 sim_contains_str ricsim_g2_1 remote_hosts $A1PMS_APP_NAME
-                if [ "$A1PMS_VERSION" == "V2" ]; then
-                    sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
-                fi
+                sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
             fi
         fi
 

@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Resync 10000 policies using OSC and STD interface"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -94,9 +94,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g2 4 STD_1.1.3
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            start_ric_simulators ricsim_g3 4  STD_2.0.0
-        fi
+        start_ric_simulators ricsim_g3 4  STD_2.0.0
 
         start_mr
 
@@ -112,48 +110,36 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         set_a1pms_debug
 
-        __CONFIG_HEADER="NOHEADER"
-        if [ $RUNMODE == "KUBE" ]; then
-            __CONFIG_HEADER="HEADER"
-        else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-                __CONFIG_HEADER="HEADER"
-            fi
-        fi
+
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
-            prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
+            prepare_a1pms_config      SDNC    ".a1pms_config.json"
         else
-            prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
+            prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
-            a1pms_load_config                       ".consul_config.json"
+            a1pms_load_config                       ".a1pms_config.json"
         else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-                #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
-                if [ $__httpx == "HTTPS" ]; then
+            #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+            if [ $__httpx == "HTTPS" ]; then
+                use_a1pms_rest_https
+            else
+                use_a1pms_rest_http
+            fi
+            a1pms_api_put_configuration 200 ".a1pms_config.json"
+            if [ $__httpx == "HTTPS" ]; then
+                if [[ $interface = *"DMAAP"* ]]; then
+                    use_a1pms_dmaap_https
+                else
                     use_a1pms_rest_https
+                fi
+            else
+                if [[ $interface = *"DMAAP"* ]]; then
+                    use_a1pms_dmaap_http
                 else
                     use_a1pms_rest_http
                 fi
-                a1pms_api_put_configuration 200 ".consul_config.json"
-                if [ $__httpx == "HTTPS" ]; then
-                    if [[ $interface = *"DMAAP"* ]]; then
-                        use_a1pms_dmaap_https
-                    else
-                        use_a1pms_rest_https
-                    fi
-                else
-                    if [[ $interface = *"DMAAP"* ]]; then
-                        use_a1pms_dmaap_http
-                    else
-                        use_a1pms_rest_http
-                    fi
-                fi
-            else
-                start_consul_cbs
-                consul_config_app                   ".consul_config.json"
             fi
         fi
 
@@ -165,28 +151,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_print ricsim_g2_1 interface
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            sim_print ricsim_g3_1 interface
-        fi
+        sim_print ricsim_g3_1 interface
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-types 2 120  #Wait for the a1pms to refresh types from the simulator
-        else
-            a1pms_equal json:policy_types 2 120  #Wait for the a1pms to refresh types from the simulator
-        fi
+        a1pms_equal json:policy-types 2 120  #Wait for the a1pms to refresh types from the simulator
 
         a1pms_api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
         START_ID=2000
         NUM_POLICIES=10000  # Must be at least 100
-   NUM_POLICIES=110
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-        else
-            notificationurl=""
-        fi
+
+        notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
         if [[ $interface == *"BATCH"* ]]; then
             a1pms_api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES

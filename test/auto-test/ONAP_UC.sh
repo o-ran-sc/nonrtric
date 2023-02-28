@@ -20,7 +20,7 @@
 
 TC_ONELINE_DESCR="ONAP Use case REQ-626"
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR A1PMS RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR MR DMAAPMR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR A1PMS RICSIM SDNC KUBEPROXY NGW"
@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON "
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON "
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -52,12 +52,7 @@ use_sdnc_https
 use_simulator_https
 use_mr_https
 __httpx="HTTPS"
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-else
-    echo "Version V2 of A1PMS is needed, exiting..."
-    exit 1
-fi
+notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
 generate_policy_uuid
 
@@ -99,20 +94,13 @@ for interface in $TESTED_VARIANTS ; do
         start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
     fi
 
-    __CONFIG_HEADER="NOHEADER"
-    if [ $RUNMODE == "KUBE" ]; then
-        __CONFIG_HEADER="HEADER"
-    else
-        if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        __CONFIG_HEADER="HEADER"
-        fi
-    fi
+
 
     if [[ $interface = *"SDNC"* ]]; then
         start_sdnc
-        prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
+        prepare_a1pms_config      SDNC    ".a1pms_config.json"
     else
-        prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
+        prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
     fi
 
     start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
@@ -120,32 +108,27 @@ for interface in $TESTED_VARIANTS ; do
     set_a1pms_trace
 
     if [ $RUNMODE == "KUBE" ]; then
-        a1pms_load_config                       ".consul_config.json"
+        a1pms_load_config                       ".a1pms_config.json"
     else
-        if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-            #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
-            if [ $__httpx == "HTTPS" ]; then
+        #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+        if [ $__httpx == "HTTPS" ]; then
+            use_a1pms_rest_https
+        else
+            use_a1pms_rest_http
+        fi
+        a1pms_api_put_configuration 200 ".a1pms_config.json"
+        if [ $__httpx == "HTTPS" ]; then
+            if [[ $interface = *"DMAAP"* ]]; then
+                use_a1pms_dmaap_https
+            else
                 use_a1pms_rest_https
+            fi
+        else
+            if [[ $interface = *"DMAAP"* ]]; then
+                use_a1pms_dmaap_http
             else
                 use_a1pms_rest_http
             fi
-            a1pms_api_put_configuration 200 ".consul_config.json"
-            if [ $__httpx == "HTTPS" ]; then
-                if [[ $interface = *"DMAAP"* ]]; then
-                    use_a1pms_dmaap_https
-                else
-                    use_a1pms_rest_https
-                fi
-            else
-                if [[ $interface = *"DMAAP"* ]]; then
-                    use_a1pms_dmaap_http
-                else
-                    use_a1pms_rest_http
-                fi
-            fi
-        else
-            start_consul_cbs
-            consul_config_app                   ".consul_config.json"
         fi
     fi
 

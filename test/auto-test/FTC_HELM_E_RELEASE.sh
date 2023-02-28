@@ -66,11 +66,6 @@ echo -e "$RED CHECK WHY RC HTTPS DOES NOT WORK $ERED"
 ###############################use_control_panel_https
 use_control_panel_http
 
-if [ "$A1PMS_VERSION" == "V1" ]; then
-   echo "A1PMS VERSION 2 (V2) is required"
-   exit 1
-fi
-
 clean_environment
 
 ics_kube_pvc_reset
@@ -227,23 +222,11 @@ do
     a1_a1pms_api_get_policy_type 200 2 testdata/OSC/2-a1pms-modified.json
 done
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
+a1pms_equal json:policy-types 5 120
 
-    a1pms_equal json:policy-types 5 120
+a1pms_equal json:policies 0
 
-    a1pms_equal json:policies 0
-
-    a1pms_equal json:policy-instances 0
-else
-
-    a1pms_equal json:policy_schemas 5 120
-
-    a1pms_equal json:policy_types 5
-
-    a1pms_equal json:policies 0
-
-    a1pms_equal json:policy_ids 0
-fi
+a1pms_equal json:policy-instances 0
 
 a1pms_api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/ER-app"
 
@@ -299,23 +282,11 @@ start_stopped_a1pms
 
 sleep_wait 200
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
+a1pms_equal json:policy-types 5 120
 
-    a1pms_equal json:policy-types 5 120
+a1pms_equal json:policies 12
 
-    a1pms_equal json:policies 12
-
-    a1pms_equal json:policy-instances 12
-else
-
-    a1pms_equal json:policy_schemas 5 120
-
-    a1pms_equal json:policy_types 5
-
-    a1pms_equal json:policies 12
-
-    a1pms_equal json:policy_ids 12
-fi
+a1pms_equal json:policy-instances 12
 
 # Check the number of policies in STD and STD2
 for ((i=0; i<$STD_NUM_RICS; i++))
