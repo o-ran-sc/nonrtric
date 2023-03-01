@@ -278,7 +278,7 @@ A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container f
 A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
 A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
-A1PMS_FEATURE_LEVEL="NOCONSUL INITIALCONFIGMAP"            # Space separated list of features
+A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
@@ -367,24 +367,6 @@ RIC_SIM_CERT_MOUNT_DIR="./cert"
 RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
 RIC_SIM_ALIVE_URL="/"                                    # Base path for alive check
 RIC_SIM_COMMON_SVC_NAME=""                               # Name of svc if one common svc is used for all ric sim groups (stateful sets)
-# Kept as reference for oran a1 adapter
-# SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
-# SDNC_DISPLAY_NAME="SDNC A1 Controller"
-# SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
-# SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
-# SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
-# SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
-# SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
-# SDNC_A1_TRUSTSTORE_PASSWORD=""                           # SDNC truststore password
-# SDNC_USER="admin"                                        # SDNC username
-# SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
-# SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
-# SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
-# SDNC_COMPOSE_DIR="sdnc"                                  # Dir in simulator_group for docker-compose
-# SDNC_COMPOSE_FILE="docker-compose.yml"
-# SDNC_KUBE_APP_FILE="app.yaml"
-# SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
-# SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
 
 # For ONAP sdnc
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container

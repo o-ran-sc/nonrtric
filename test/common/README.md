@@ -329,28 +329,6 @@ Delete a chart in chartmusem
 | `<chart-name>` | Name of the chart to delete |
 | `<version>` | Chart version, default is 0.1.0 |
 
-
-# Description of functions in consul_api_function.sh #
-
-## Function: consul_config_app ##
-
-Function to load a json config from a file into consul for the A1PMS
-
-| arg list |
-|--|
-| `<json-config-file>` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<json-config-file>` | The path to the json file to be loaded to Consul/CBS |
-
-## Function: start_consul_cbs ##
-
-Start the Consul and CBS containers
-| arg list |
-|--|
-| None |
-
 # Description of functions in cp_api_function.sh #
 
 ## Function: use_control_panel_http ##
@@ -2080,9 +2058,9 @@ Start a previousely stopped a1pms container (docker) or scale it to 1 (kubernete
 |--|
 |  None |
 
-## Function: prepare_consul_config ##
+## Function: prepare_a1pms_config ##
 
-Function to prepare a Consul config based on the previously configured (and started simulators). Note that all simulator must be running and the test script has to configure if http or https shall be used for the components (this is done by the functions 'use_simulator_http', 'use_simulator_https', 'use_sdnc_http', 'use_sdnc_https', 'use_mr_http', 'use_mr_https')
+Function to prepare an a1pms config based on the previously configured (and started simulators). Note that all simulator must be running and the test script has to configure if http or https shall be used for the components (this is done by the functions 'use_simulator_http', 'use_simulator_https', 'use_sdnc_http', 'use_sdnc_https', 'use_mr_http', 'use_mr_https')
 | arg list |
 |--|
 | `SDNC|NOSDNC <output-file>` |

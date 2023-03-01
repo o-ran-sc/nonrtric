@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via a1pms REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -48,11 +48,8 @@ generate_policy_uuid
 #Local vars in test script
 ##########################
 
-# Number of RICs per interface type (OSC and STD)
-NUM_RICS=30
-if [ "$A1PMS_VERSION" == "V2" ]; then
-   NUM_RICS=20 # 3 A1 interfaces test, less sims per interface. total sims will be same
-fi
+# Number of RICs per interface type (OSC and STD x 2)
+NUM_RICS=20
 
 # Number of policy instances per RIC
 NUM_INSTANCES=5
@@ -82,9 +79,7 @@ start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
 start_ric_simulators ricsim_g2 $NUM_RICS STD_1.1.3
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-   start_ric_simulators ricsim_g3 $NUM_RICS  STD_2.0.0
-fi
+start_ric_simulators ricsim_g3 $NUM_RICS  STD_2.0.0
 
 start_mr
 
@@ -99,26 +94,14 @@ fi
 A1PMS_RETRY_CODES=423
 start_a1pms NORPOXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-__CONFIG_HEADER="NOHEADER"
-if [ $RUNMODE == "KUBE" ]; then
-   __CONFIG_HEADER="HEADER"
-else
-   if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-   __CONFIG_HEADER="HEADER"
-   fi
-fi
 
-prepare_consul_config      SDNC  ".consul_config.json" $__CONFIG_HEADER
+
+prepare_a1pms_config      SDNC  ".a1pms_config.json"
 
 if [ $RUNMODE == "KUBE" ]; then
-    a1pms_load_config                       ".consul_config.json"
+    a1pms_load_config                       ".a1pms_config.json"
 else
-    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        a1pms_api_put_configuration 200 ".consul_config.json"
-    else
-        start_consul_cbs
-        consul_config_app                   ".consul_config.json"
-    fi
+    a1pms_api_put_configuration 200 ".a1pms_config.json"
 fi
 
 start_sdnc
@@ -139,13 +122,11 @@ do
    sim_print ricsim_g2_$i interface
 done
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-   echo "Print the interface for group 2 simulators, shall be STD 2"
-   for ((i=1; i<=$NUM_RICS; i++))
-   do
-      sim_print ricsim_g3_$i interface
-   done
-fi
+echo "Print the interface for group 2 simulators, shall be STD 2"
+for ((i=1; i<=$NUM_RICS; i++))
+do
+   sim_print ricsim_g3_$i interface
+done
 
 echo "Load policy type in group 1 simulators"
 for ((i=1; i<=$NUM_RICS; i++))
@@ -153,13 +134,11 @@ do
    sim_put_policy_type 201 ricsim_g1_$i 1 testdata/OSC/sim_1.json
 done
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-   echo "Load policy type in group 3 simulators"
-   for ((i=1; i<=$NUM_RICS; i++))
-   do
-      sim_put_policy_type 201 ricsim_g3_$i STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
-   done
-fi
+echo "Load policy type in group 3 simulators"
+for ((i=1; i<=$NUM_RICS; i++))
+do
+   sim_put_policy_type 201 ricsim_g3_$i STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+done
 
 echo "Check the number of instances in  group 1 simulators, shall be 0"
 for ((i=1; i<=$NUM_RICS; i++))
@@ -173,30 +152,20 @@ do
    sim_equal ricsim_g2_$i num_instances 0
 done
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-   echo "Check the number of instances in group 3 simulators, shall be 0"
-   for ((i=1; i<=$NUM_RICS; i++))
-   do
-      sim_equal ricsim_g3_$i num_instances 0
-   done
-fi
+echo "Check the number of instances in group 3 simulators, shall be 0"
+for ((i=1; i<=$NUM_RICS; i++))
+do
+   sim_equal ricsim_g3_$i num_instances 0
+done
 
 echo "Wait for the a1pms to refresh types from the simulator"
-if [ "$A1PMS_VERSION" == "V2" ]; then
-   a1pms_equal json:policy-types 3 300
-else
-   a1pms_equal json:policy_types 2 300
-fi
+a1pms_equal json:policy-types 3 300
 
 echo "Check the number of types in the a1pms for each ric is 1"
 for ((i=1; i<=$NUM_RICS; i++))
 do
-   if [ "$A1PMS_VERSION" == "V2" ]; then
-      a1pms_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
-      a1pms_equal json:policy-types?ric_id=ricsim_g3_$i 1 120
-   else
-      a1pms_equal json:policy_types?ric=ricsim_g1_$i 1 120
-   fi
+   a1pms_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+   a1pms_equal json:policy-types?ric_id=ricsim_g3_$i 1 120
 done
 
 echo "Register a service"
@@ -209,11 +178,7 @@ A1PMS_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 
 MR_MESSAGES=0
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-      notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-else
-      notificationurl=""
-fi
+notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
 while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
@@ -266,11 +231,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
       done
 
-      if [ "$A1PMS_VERSION" == "V2" ]; then
-         a1pms_equal json:policy-instances $INSTANCES
-      else
-         a1pms_equal json:policy_ids $INSTANCES
-      fi
+      a1pms_equal json:policy-instances $INSTANCES
 
       echo "Create $NUM_INSTANCES instances in each STD RIC"
       if [ $interface == "REST_PARALLEL" ]; then
@@ -291,39 +252,28 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
       done
 
-      if [ "$A1PMS_VERSION" == "V2" ]; then
-         a1pms_equal json:policy-instances $INSTANCES
-      else
-         a1pms_equal json:policy_ids $INSTANCES
+      a1pms_equal json:policy-instances $INSTANCES
+
+      echo "Create $NUM_INSTANCES instances in each STD 2 RIC"
+      if [ $interface == "REST_PARALLEL" ]; then
+         a1pms_api_put_policy_parallel 201 "serv1" ricsim_g3_ $NUM_RICS STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES 3
       fi
-
-      if [ "$A1PMS_VERSION" == "V2" ]; then
-         echo "Create $NUM_INSTANCES instances in each STD 2 RIC"
-         if [ $interface == "REST_PARALLEL" ]; then
-            a1pms_api_put_policy_parallel 201 "serv1" ricsim_g3_ $NUM_RICS STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES 3
+      for ((i=1; i<=$NUM_RICS; i++))
+      do
+         if [ $interface == "DMAAP-BATCH" ]; then
+            a1pms_api_put_policy_batch 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
+         elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
+            a1pms_api_put_policy 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
          fi
-         for ((i=1; i<=$NUM_RICS; i++))
-         do
-            if [ $interface == "DMAAP-BATCH" ]; then
-               a1pms_api_put_policy_batch 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
-            elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-               a1pms_api_put_policy 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
-            fi
-            if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
-               MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
-            fi
-            sim_equal ricsim_g3_$i num_instances $NUM_INSTANCES
-            INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
-            INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
-         done
-
-         if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-instances $INSTANCES
-         else
-            a1pms_equal json:policy_ids $INSTANCES
+         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
+            MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
          fi
-      fi
+         sim_equal ricsim_g3_$i num_instances $NUM_INSTANCES
+         INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
+         INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
+      done
 
+      a1pms_equal json:policy-instances $INSTANCES
 
       echo "Delete all instances in each OSC RIC"
 
@@ -346,11 +296,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
       done
 
-      if [ "$A1PMS_VERSION" == "V2" ]; then
-         a1pms_equal json:policy-instances $INSTANCES
-      else
-         a1pms_equal json:policy_ids $INSTANCES
-      fi
+      a1pms_equal json:policy-instances $INSTANCES
 
       echo "Delete all instances in each STD RIC"
 
@@ -372,39 +318,29 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
       done
 
-      if [ "$A1PMS_VERSION" == "V2" ]; then
-         a1pms_equal json:policy-instances $INSTANCES
-      else
-         a1pms_equal json:policy_ids $INSTANCES
+      a1pms_equal json:policy-instances $INSTANCES
+
+      echo "Delete all instances in each STD 2 RIC"
+
+      if [ $interface == "REST_PARALLEL" ]; then
+         a1pms_api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
       fi
-
-      if [ "$A1PMS_VERSION" == "V2" ]; then
-         echo "Delete all instances in each STD 2 RIC"
-
-         if [ $interface == "REST_PARALLEL" ]; then
-            a1pms_api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+      for ((i=1; i<=$NUM_RICS; i++))
+      do
+         if [ $interface == "DMAAP-BATCH" ]; then
+            a1pms_api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
+         elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
+            a1pms_api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
          fi
-         for ((i=1; i<=$NUM_RICS; i++))
-         do
-            if [ $interface == "DMAAP-BATCH" ]; then
-               a1pms_api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
-            elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-               a1pms_api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
-            fi
-            if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
-               MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
-            fi
-            INSTANCES=$(($INSTANCES-$NUM_INSTANCES))
-            sim_equal ricsim_g3_$i num_instances 0
-            INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
-         done
-
-         if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-instances $INSTANCES
-         else
-            a1pms_equal json:policy_ids $INSTANCES
+         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
+            MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
          fi
-      fi
+         INSTANCES=$(($INSTANCES-$NUM_INSTANCES))
+         sim_equal ricsim_g3_$i num_instances 0
+         INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
+      done
+
+      a1pms_equal json:policy-instances $INSTANCES
 
       mr_equal requests_submitted $MR_MESSAGES
       mr_equal requests_fetched $MR_MESSAGES
@@ -419,9 +355,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          sim_contains_str ricsim_g1_$i remote_hosts $SDNC_APP_NAME
          sim_contains_str ricsim_g2_$i remote_hosts $SDNC_APP_NAME
 
-         if [ "$A1PMS_VERSION" == "V2" ]; then
-            sim_contains_str ricsim_g3_$i remote_hosts $SDNC_APP_NAME
-         fi
+         sim_contains_str ricsim_g3_$i remote_hosts $SDNC_APP_NAME
       done
 
    done

@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Create 10000 policies in sequence using http/https and a1pms REST/DMAAP with/without SDNC controller"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -86,9 +86,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g1 1 OSC_2.1.0
         start_ric_simulators ricsim_g2 1 STD_1.1.3
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            start_ric_simulators ricsim_g3 1  STD_2.0.0
-        fi
+        start_ric_simulators ricsim_g3 1  STD_2.0.0
 
         start_mr
 
@@ -107,34 +105,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
         mr_equal requests_submitted 0
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
-        fi
+        sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
 
-        __CONFIG_HEADER="NOHEADER"
-        if [ $RUNMODE == "KUBE" ]; then
-            __CONFIG_HEADER="HEADER"
-        else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-            __CONFIG_HEADER="HEADER"
-            fi
-        fi
+
         if [[ $interface == "SDNC" ]]; then
             start_sdnc
-            prepare_consul_config      SDNC    ".consul_config.json" $__CONFIG_HEADER
+            prepare_a1pms_config      SDNC    ".a1pms_config.json"
         else
-            prepare_consul_config      NOSDNC  ".consul_config.json" $__CONFIG_HEADER
+            prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
-            a1pms_load_config                       ".consul_config.json"
+            a1pms_load_config                       ".a1pms_config.json"
         else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-                a1pms_api_put_configuration 200 ".consul_config.json"
-            else
-                start_consul_cbs
-                consul_config_app                   ".consul_config.json"
-            fi
+            a1pms_api_put_configuration 200 ".a1pms_config.json"
         fi
 
         sleep_wait 120 "Let A1PMS cofiguration take effect"
@@ -143,23 +127,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_print ricsim_g1_1 interface
         sim_print ricsim_g2_1 interface
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            sim_print ricsim_g3_1 interface
-        fi
+        sim_print ricsim_g3_1 interface
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            a1pms_equal json:policy-types 3 300  #Wait for the a1pms to refresh types from the simulators
-        else
-            a1pms_equal json:policy_types 2 300  #Wait for the a1pms to refresh types from the simulators
-        fi
+        a1pms_equal json:policy-types 3 300  #Wait for the a1pms to refresh types from the simulators
 
         a1pms_api_put_service 201 "serv1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-        else
-            notificationurl=""
-        fi
+        notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
         start_timer "Create polices in OSC via a1pms REST and $interface using "$__httpx
         a1pms_api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
@@ -175,16 +149,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
 
-            START_ID=$(($START_ID+$NUM_POLICIES))
 
-            start_timer "Create polices in STD 2 via a1pms REST and $interface using "$__httpx
-            a1pms_api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
-            print_timer "Create polices in STD via a1pms REST and $interface using "$__httpx
+        START_ID=$(($START_ID+$NUM_POLICIES))
 
-            sim_equal ricsim_g3_1 num_instances $NUM_POLICIES
-        fi
+        start_timer "Create polices in STD 2 via a1pms REST and $interface using "$__httpx
+        a1pms_api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
+        print_timer "Create polices in STD via a1pms REST and $interface using "$__httpx
+
+        sim_equal ricsim_g3_1 num_instances $NUM_POLICIES
+
 
         if [ $__httpx == "HTTPS" ]; then
             echo "Using secure ports towards dmaap"
@@ -210,16 +184,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g2_1 num_instances $((2*$NUM_POLICIES))
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
 
-            START_ID=$(($START_ID+$NUM_POLICIES))
+        START_ID=$(($START_ID+$NUM_POLICIES))
 
-            start_timer "Create polices in STD 2 via a1pms DMAAP, one by one, and $interface using "$__httpx
-            a1pms_api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
-            print_timer "Create polices in STD via a1pms DMAAP, one by one, and $interface using "$__httpx
+        start_timer "Create polices in STD 2 via a1pms DMAAP, one by one, and $interface using "$__httpx
+        a1pms_api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
+        print_timer "Create polices in STD via a1pms DMAAP, one by one, and $interface using "$__httpx
 
-            sim_equal ricsim_g3_1 num_instances $((2*$NUM_POLICIES))
-        fi
+        sim_equal ricsim_g3_1 num_instances $((2*$NUM_POLICIES))
+
 
         START_ID=$(($START_ID+$NUM_POLICIES))
 
@@ -237,29 +210,24 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g2_1 num_instances $((3*$NUM_POLICIES))
 
-        if [ "$A1PMS_VERSION" == "V2" ]; then
 
-            START_ID=$(($START_ID+$NUM_POLICIES))
+        START_ID=$(($START_ID+$NUM_POLICIES))
 
-            start_timer "Create polices in STD via a1pms DMAAP in batch and $interface using "$__httpx
-            a1pms_api_put_policy_batch 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
-            print_timer "Create polices in STD via a1pms DMAAP in batch and $interface using "$__httpx
+        start_timer "Create polices in STD via a1pms DMAAP in batch and $interface using "$__httpx
+        a1pms_api_put_policy_batch 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
+        print_timer "Create polices in STD via a1pms DMAAP in batch and $interface using "$__httpx
 
-            sim_equal ricsim_g3_1 num_instances $((3*$NUM_POLICIES))
-        fi
+        sim_equal ricsim_g3_1 num_instances $((3*$NUM_POLICIES))
+
 
         if [ $interface == "SDNC" ]; then
             sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
             sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
-            if [ "$A1PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
-            fi
+            sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
         else
             sim_contains_str ricsim_g1_1 remote_hosts $A1PMS_APP_NAME
             sim_contains_str ricsim_g2_1 remote_hosts $A1PMS_APP_NAME
-            if [ "$A1PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
-            fi
+            sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
         fi
 
         check_a1pms_logs

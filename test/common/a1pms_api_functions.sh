@@ -197,9 +197,6 @@ __export_a1pms_vars() {
 		export A1PMS_CONFIG_CONFIGMAP_NAME=$A1PMS_APP_NAME"-config"
 		export A1PMS_DATA_CONFIGMAP_NAME=$A1PMS_APP_NAME"-data"
 		export A1PMS_PKG_NAME
-		export CONSUL_HOST
-		export CONSUL_INTERNAL_PORT
-		export CONFIG_BINDING_SERVICE
 		export A1PMS_CONFIG_KEY
 		export DOCKER_SIM_NWNAME
 		export A1PMS_HOST_MNT_DIR
@@ -460,16 +457,16 @@ start_stopped_a1pms() {
 
 
 # Function to perpare the consul configuration according to the current simulator configuration
-# args: SDNC|NOSDNC <output-file> HEADER|NOHEADER
+# args: SDNC|NOSDNC <output-file>
 # (Function for test scripts)
-prepare_consul_config() {
+prepare_a1pms_config() {
   	echo -e $BOLD"Prepare Consul config"$EBOLD
 
 	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
 
-	if [ $# != 3 ];  then
+	if [ $# != 2 ];  then
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file> HEADER|NOHEADER" $@
+    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
 		exit 1
 	fi
 
@@ -571,9 +568,7 @@ prepare_consul_config() {
 	config_json=$config_json"\n           ]"
 	config_json=$config_json"\n}"
 
-	if [ $3 == "HEADER" ]; then
-		config_json="{\"config\":"$config_json"}"
-	fi
+	config_json="{\"config\":"$config_json"}"
 
 	printf "$config_json">$2
 

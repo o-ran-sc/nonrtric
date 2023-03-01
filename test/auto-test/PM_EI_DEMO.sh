@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Preparation demo setup  - policy management and information information"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR A1PMS RICSIM SDNC ICS PRODSTUB RC HTTPPROXY KUBEPROXY NGW"
+DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC ICS PRODSTUB RC HTTPPROXY KUBEPROXY NGW"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR CR A1PMS RC PRODSTUB RICSIM CP ICS SDNC HTTPPROXY KUBEPROXY NGW"
@@ -30,10 +30,10 @@ KUBE_PRESTARTED_IMAGES=""
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
 #the image is not configured in the supplied env_file
 #Used for images not applicable to all supported profile
-CONDITIONALLY_IGNORED_IMAGES="CBS CONSUL NGW"
+CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-HONOLULU ONAP-ISTANBUL ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-CHERRY ORAN-D-RELEASE ORAN-E-RELEASE ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -59,12 +59,7 @@ else
 fi
 
 
-if [ "$A1PMS_VERSION" == "V2" ]; then
-    notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-else
-   echo "A1PMS VERSION 2 (V2) is required"
-   exit 1
-fi
+notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
 clean_environment
 
@@ -88,26 +83,14 @@ start_sdnc    # Comment this line to run A1PMS with proxy
 
 start_a1pms PROXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
-__CONFIG_HEADER="NOHEADER"
-if [ $RUNMODE == "KUBE" ]; then
-    __CONFIG_HEADER="HEADER"
-else
-    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-    __CONFIG_HEADER="HEADER"
-    fi
-fi
 
-prepare_consul_config      SDNC  ".consul_config.json" $__CONFIG_HEADER  #Change to NOSDNC if running A1PMS with  proxy
+
+prepare_a1pms_config      SDNC  ".a1pms_config.json"  #Change to NOSDNC if running A1PMS with  proxy
 
 if [ $RUNMODE == "KUBE" ]; then
-    a1pms_load_config                       ".consul_config.json"
+    a1pms_load_config                       ".a1pms_config.json"
 else
-    if [[ "$A1PMS_FEATURE_LEVEL" == *"NOCONSUL"* ]]; then
-        a1pms_api_put_configuration 200 ".consul_config.json"
-    else
-        start_consul_cbs
-        consul_config_app                   ".consul_config.json"
-    fi
+    a1pms_api_put_configuration 200 ".a1pms_config.json"
 fi
 
 start_cr 1
