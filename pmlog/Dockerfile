@@ -20,7 +20,7 @@
 # ============LICENSE_END=========================================================
 
 
-FROM openjdk:11-jre-slim
+FROM openjdk:17-jdk-slim
 
 EXPOSE 8084 8435
 

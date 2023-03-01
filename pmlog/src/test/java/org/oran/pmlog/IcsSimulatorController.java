@@ -69,9 +69,14 @@ public class IcsSimulatorController {
             @PathVariable("infoJobId") String jobId, //
             @RequestBody String body) {
         logger.debug("*** added consumer job {}", jobId);
-        ConsumerJobInfo informationJobObject = gson.fromJson(body, ConsumerJobInfo.class);
-        testResults.setCreatedJob(informationJobObject);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            ConsumerJobInfo informationJobObject = gson.fromJson(body, ConsumerJobInfo.class);
+            testResults.setCreatedJob(informationJobObject);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Received malformed data: {}, {}", body, e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

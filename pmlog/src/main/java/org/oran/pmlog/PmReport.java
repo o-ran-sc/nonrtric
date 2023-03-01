@@ -29,7 +29,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Builder(toBuilder = true)
 public class PmReport {
 
@@ -43,6 +42,11 @@ public class PmReport {
 
     public long lastTimeEpochMili() {
         return event.commonEventHeader.lastEpochMicrosec / 1000;
+    }
+
+    public String fullDistinguishedName(PmReport.MeasValuesList measValueList) {
+        return event.getPerf3gppFields().getMeasDataCollection().getMeasuredEntityDn() + ","
+                + measValueList.getMeasObjInstId();
     }
 
     @Expose
