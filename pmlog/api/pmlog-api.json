@@ -8,6 +8,51 @@
     }}},
     "openapi": "3.0.1",
     "paths": {
+        "/actuator/threaddump": {"get": {
+            "summary": "Actuator web endpoint 'threaddump'",
+            "operationId": "threaddump_4",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/actuator/info": {"get": {
+            "summary": "Actuator web endpoint 'info'",
+            "operationId": "info_2",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/actuator/loggers": {"get": {
+            "summary": "Actuator web endpoint 'loggers'",
+            "operationId": "loggers_2",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/actuator/health/**": {"get": {
+            "summary": "Actuator web endpoint 'health-path'",
+            "operationId": "health-path_2",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
+        "/actuator/shutdown": {"post": {
+            "summary": "Actuator web endpoint 'shutdown'",
+            "operationId": "shutdown_2",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"*/*": {"schema": {"type": "object"}}}
+            }},
+            "tags": ["Actuator"]
+        }},
         "/actuator/metrics/{requiredMetricName}": {"get": {
             "summary": "Actuator web endpoint 'metrics-requiredMetricName'",
             "operationId": "metrics-requiredMetricName_2",
@@ -38,15 +83,6 @@
             }},
             "tags": ["Actuator"]
         }},
-        "/actuator/threaddump": {"get": {
-            "summary": "Actuator web endpoint 'threaddump'",
-            "operationId": "threaddump_4",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"*/*": {"schema": {"type": "object"}}}
-            }},
-            "tags": ["Actuator"]
-        }},
         "/actuator/logfile": {"get": {
             "summary": "Actuator web endpoint 'logfile'",
             "operationId": "logfile_2",
@@ -55,6 +91,24 @@
                 "content": {"*/*": {"schema": {"type": "object"}}}
             }},
             "tags": ["Actuator"]
+        }},
+        "/data-consumer/v1/info-jobs/{infoJobId}": {"put": {
+            "requestBody": {
+                "content": {"application/json": {"schema": {"type": "string"}}},
+                "required": true
+            },
+            "operationId": "putIndividualInfoJob",
+            "responses": {"200": {
+                "description": "OK",
+                "content": {"application/json": {"schema": {"type": "object"}}}
+            }},
+            "parameters": [{
+                "schema": {"type": "string"},
+                "in": "path",
+                "name": "infoJobId",
+                "required": true
+            }],
+            "tags": ["Information Coordinator Service Simulator (exists only in test)"]
         }},
         "/actuator/loggers/{name}": {
             "post": {
@@ -88,36 +142,9 @@
                 "tags": ["Actuator"]
             }
         },
-        "/actuator/info": {"get": {
-            "summary": "Actuator web endpoint 'info'",
-            "operationId": "info_2",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"*/*": {"schema": {"type": "object"}}}
-            }},
-            "tags": ["Actuator"]
-        }},
         "/actuator/health": {"get": {
             "summary": "Actuator web endpoint 'health'",
             "operationId": "health_2",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"*/*": {"schema": {"type": "object"}}}
-            }},
-            "tags": ["Actuator"]
-        }},
-        "/actuator/loggers": {"get": {
-            "summary": "Actuator web endpoint 'loggers'",
-            "operationId": "loggers_2",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"*/*": {"schema": {"type": "object"}}}
-            }},
-            "tags": ["Actuator"]
-        }},
-        "/actuator/health/**": {"get": {
-            "summary": "Actuator web endpoint 'health-path'",
-            "operationId": "health-path_2",
             "responses": {"200": {
                 "description": "OK",
                 "content": {"*/*": {"schema": {"type": "object"}}}
@@ -141,15 +168,6 @@
                 "content": {"*/*": {"schema": {"type": "object"}}}
             }},
             "tags": ["Actuator"]
-        }},
-        "/actuator/shutdown": {"post": {
-            "summary": "Actuator web endpoint 'shutdown'",
-            "operationId": "shutdown_2",
-            "responses": {"200": {
-                "description": "OK",
-                "content": {"*/*": {"schema": {"type": "object"}}}
-            }},
-            "tags": ["Actuator"]
         }}
     },
     "info": {
@@ -161,12 +179,15 @@
         "title": "PM Logger",
         "version": "1.0"
     },
-    "tags": [{
-        "name": "Actuator",
-        "description": "Monitor and interact",
-        "externalDocs": {
-            "description": "Spring Boot Actuator Web API Documentation",
-            "url": "https://docs.spring.io/spring-boot/docs/current/actuator-api/html/"
+    "tags": [
+        {"name": "Information Coordinator Service Simulator (exists only in test)"},
+        {
+            "name": "Actuator",
+            "description": "Monitor and interact",
+            "externalDocs": {
+                "description": "Spring Boot Actuator Web API Documentation",
+                "url": "https://docs.spring.io/spring-boot/docs/current/actuator-api/html/"
+            }
         }
-    }]
+    ]
 }

@@ -20,12 +20,9 @@
 
 package org.oran.pmlog;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -95,22 +92,6 @@ public class KafkaTopicListener {
 
         return ReceiverOptions.<byte[], byte[]>create(consumerProps)
                 .subscription(Collections.singleton(this.applicationConfig.getKafkaInputTopic()));
-    }
-
-    public static byte[] unzip(byte[] bytes) throws IOException {
-        try (final GZIPInputStream gzipInput = new GZIPInputStream(new ByteArrayInputStream(bytes))) {
-            return gzipInput.readAllBytes();
-        }
-    }
-
-    private static byte[] unzip(byte[] bytes, String fileName) {
-        try {
-            return fileName.endsWith(".gz") ? unzip(bytes) : bytes;
-        } catch (IOException e) {
-            logger.error("Error while decompression, file: {}, reason: {}", fileName, e.getMessage());
-            return new byte[0];
-        }
-
     }
 
 }

@@ -10,12 +10,78 @@ info:
 servers:
 - url: /
 tags:
+- name: Information Coordinator Service Simulator (exists only in test)
 - name: Actuator
   description: Monitor and interact
   externalDocs:
     description: Spring Boot Actuator Web API Documentation
     url: https://docs.spring.io/spring-boot/docs/current/actuator-api/html/
 paths:
+  /actuator/threaddump:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'threaddump'
+      operationId: threaddump_4
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator/info:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'info'
+      operationId: info_2
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator/loggers:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'loggers'
+      operationId: loggers_2
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator/health/**:
+    get:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'health-path'
+      operationId: health-path_2
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /actuator/shutdown:
+    post:
+      tags:
+      - Actuator
+      summary: Actuator web endpoint 'shutdown'
+      operationId: shutdown_2
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /actuator/metrics/{requiredMetricName}:
     get:
       tags:
@@ -54,19 +120,6 @@ paths:
                   type: object
                   additionalProperties:
                     $ref: '#/components/schemas/Link'
-  /actuator/threaddump:
-    get:
-      tags:
-      - Actuator
-      summary: Actuator web endpoint 'threaddump'
-      operationId: threaddump_4
-      responses:
-        200:
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /actuator/logfile:
     get:
       tags:
@@ -78,6 +131,32 @@ paths:
           description: OK
           content:
             '*/*':
+              schema:
+                type: object
+  /data-consumer/v1/info-jobs/{infoJobId}:
+    put:
+      tags:
+      - Information Coordinator Service Simulator (exists only in test)
+      operationId: putIndividualInfoJob
+      parameters:
+      - name: infoJobId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
               schema:
                 type: object
   /actuator/loggers/{name}:
@@ -121,51 +200,12 @@ paths:
             '*/*':
               schema:
                 type: object
-  /actuator/info:
-    get:
-      tags:
-      - Actuator
-      summary: Actuator web endpoint 'info'
-      operationId: info_2
-      responses:
-        200:
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /actuator/health:
     get:
       tags:
       - Actuator
       summary: Actuator web endpoint 'health'
       operationId: health_2
-      responses:
-        200:
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /actuator/loggers:
-    get:
-      tags:
-      - Actuator
-      summary: Actuator web endpoint 'loggers'
-      operationId: loggers_2
-      responses:
-        200:
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /actuator/health/**:
-    get:
-      tags:
-      - Actuator
-      summary: Actuator web endpoint 'health-path'
-      operationId: health-path_2
       responses:
         200:
           description: OK
@@ -192,19 +232,6 @@ paths:
       - Actuator
       summary: Actuator web endpoint 'heapdump'
       operationId: heapdump_2
-      responses:
-        200:
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /actuator/shutdown:
-    post:
-      tags:
-      - Actuator
-      summary: Actuator web endpoint 'shutdown'
-      operationId: shutdown_2
       responses:
         200:
           description: OK
