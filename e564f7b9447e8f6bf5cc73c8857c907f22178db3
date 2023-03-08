@@ -33,6 +33,23 @@
       "message": "Job is verifying correctly in sandbox job: \nhttps://jenkins.o-ran-sc.org/sandbox/view/All/job/nonrtric-plt-pm-pmlogger-influx-maven-verify-master-mvn36-openjdk17/2/\n\nWill recheck when ci-management jenkins job configuration is merged. ",
       "revId": "e564f7b9447e8f6bf5cc73c8857c907f22178db3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01c1720e_38a57368",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-03-08T11:32:16Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "e564f7b9447e8f6bf5cc73c8857c907f22178db3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
