@@ -105,11 +105,6 @@ public class InfluxStore {
         return measInfoList.getMeasTypes().getMeasType(measResult.getP());
     }
 
-    private String fdn(PmReport report, PmReport.MeasValuesList measValueList) {
-        return report.event.getPerf3gppFields().getMeasDataCollection().getMeasuredEntityDn() + ","
-                + measValueList.getMeasObjInstId();
-    }
-
     private void addCounterFieldToPoint(Point point, PmReport.MeasInfoList measInfoList,
             PmReport.MeasValuesList measValueList, PmReport.MeasResult measResult) {
         String measType = measType(measResult, measInfoList);
@@ -137,7 +132,8 @@ public class InfluxStore {
                 if (measValueList.getSuspectFlag().equals("true")) {
                     continue;
                 }
-                Point point = Point.measurement(fdn(report, measValueList)).time(endTime(report), WritePrecision.MS);
+                Point point = Point.measurement(report.fullDistinguishedName(measValueList)).time(endTime(report),
+                        WritePrecision.MS);
 
                 point.addField("GranularityPeriod", measDataCollection.getGranularityPeriod());
 

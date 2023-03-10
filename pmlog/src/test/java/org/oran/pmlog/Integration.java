@@ -138,7 +138,7 @@ class Integration {
         Thread.sleep(4000);
     }
 
-    private String generateCounterValue(int sequenceValue, int noOfObjects, String counterName) {
+    private String generateCounterValue(int sequenceValue, int noOfObjects, String counterName, String resourceFdn) {
         long value = (random.nextInt() % 100) * sequenceValue + (counterName.hashCode() % 5000);
         return Long.toString(value);
     }
@@ -172,12 +172,12 @@ class Integration {
 
             setEndTime(report, sequenceValue, noOfObjects);
 
-            // Fill it with random values
+            // Fill it with generated values
             for (PmReport.MeasInfoList measInfoList : measDataCollection.getMeasInfoList()) {
                 for (PmReport.MeasValuesList measValueList : measInfoList.getMeasValuesList()) {
                     for (PmReport.MeasResult measResult : measValueList.getMeasResults()) {
                         String value = this.generateCounterValue(sequenceValue, noOfObjects,
-                                measType(measResult, measInfoList));
+                                measType(measResult, measInfoList), report.fullDistinguishedName(measValueList));
                         measResult.setSValue(value);
                     }
                 }
