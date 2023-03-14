@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "ff3afde70cdc9519d527fa096c31df1151d84765",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0288eb56_cda5396f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-03-14T11:27:01Z",
+      "side": 1,
+      "message": "Automatic verify task has been removed in https://gerrit.o-ran-sc.org/r/c/ci-management/+/10734 so no verify job will trigger. \nManually verifying +1 ",
+      "revId": "ff3afde70cdc9519d527fa096c31df1151d84765",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
