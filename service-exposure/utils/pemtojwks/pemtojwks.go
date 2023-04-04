@@ -2,7 +2,7 @@
 //   ========================LICENSE_START=================================
 //   O-RAN-SC
 //   %%
-//   Copyright (C) 2022: Nordix Foundation
+//   Copyright (C) 2022-2023: Nordix Foundation
 //   %%
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 //   limitations under the License.
 //   ========================LICENSE_END===================================
 //
-package pemtojwks
+package pemtojwks 
 
 import (
 	"crypto/rsa"
@@ -38,6 +38,7 @@ type Jwks struct {
 type Key struct {
 	Kid string `json:"kid,omitempty"`
 	Kty string `json:"kty"`
+	Alg string `json:"alg"`
 	Use string `json:"use"`
 	N   string `json:"n"`
 	E   string `json:"e"`
@@ -93,27 +94,35 @@ func getPublicKeyFromCert(cert_bytes []byte) *rsa.PublicKey {
         cert, _ = x509.ParseCertificate(block.Bytes)
         rsaPublicKey := cert.PublicKey.(*rsa.PublicKey)
 
-        return rsaPublicKey
+        return rsaPublicKey 
 }
 
-func CreateJWKS(certFile string) string {
+func CreateJWKS(certFile string) (string, string, string) {
 	var publicKey *rsa.PublicKey
+	var kid string = "SIGNING_KEY"
 
 	cert, err := ioutil.ReadFile(certFile)
 	if err != nil {
 		fmt.Println(err)
 	}
 	publicKey = getPublicKeyFromCert(cert)
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		fmt.Println(err)
+	}
+	publicKeyPem := pem.EncodeToMemory(&pem.Block{Type: "RSA PUBLIC KEY", Bytes: publicKeyBytes})
+	block, _ := pem.Decode(publicKeyPem)
+	publicKeyString := base64.StdEncoding.EncodeToString(block.Bytes)
 
 	certificate := getCert(cert)
 	// generate fingerprint with sha1
 	// you can also use md5, sha256, etc.
 	fingerprint := sha1.Sum(certificate.Raw)
 
-
 	jwksKey := Key{
-		Kid: "SIGNING_KEY",
+		Kid: kid,
 		Kty: "RSA",
+		Alg: "RS256",
 		Use: "sig",
 		N: base64.RawStdEncoding.EncodeToString(publicKey.N.Bytes()),
 		E: base64.RawStdEncoding.EncodeToString(big.NewInt(int64(publicKey.E)).Bytes()),
@@ -126,8 +135,7 @@ func CreateJWKS(certFile string) string {
 	jwksJson, err := json.Marshal(jwks)
 	if err != nil {
 		fmt.Println(err)
-		return err.Error()
 	}
-	return string(jwksJson)
+	return string(jwksJson), publicKeyString, kid
 
 }

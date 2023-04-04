@@ -2,7 +2,7 @@
 //   ========================LICENSE_START=================================
 //   O-RAN-SC
 //   %%
-//   Copyright (C) 2022: Nordix Foundation
+//   Copyright (C) 2022-2023: Nordix Foundation
 //   %%
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ func getToken(res http.ResponseWriter, req *http.Request) {
 	clientId = req.Header.Get("client")
 	realmName = req.Header.Get("realm")
 	namespace = req.Header.Get("ns")
-	keycloakUrl := "http://" + keycloakHost + ":" + keycloakPort + "/auth/realms/" + realmName + "/protocol/openid-connect/token"
+	keycloakUrl := "http://" + keycloakHost + ":" + keycloakPort + "/realms/" + realmName + "/protocol/openid-connect/token"
 	fmt.Printf("Making token request to %s\n", keycloakUrl)
 	res.Header().Set("Content-type", "application/json")
 	res.Header().Set("Authorization", "")
@@ -78,6 +78,8 @@ func getToken(res http.ResponseWriter, req *http.Request) {
 	if authenticator == "client-jwt" {
 		resp, err = getJwtToken(keycloakUrl, clientId)
 	} else if authenticator == "client-x509" {
+		keycloakPort = "443"
+		keycloakUrl := "https://" + keycloakAlias + ":" + keycloakPort + "/realms/" + realmName + "/protocol/openid-connect/token"
 		resp, err = getx509Token(keycloakUrl, clientId)
 	} else {
 		resp, err = getSecretToken(keycloakUrl, clientId)
@@ -119,8 +121,10 @@ func getJwtToken(keycloakUrl, clientId string) (*http.Response, error) {
 }
 
 func getClientAssertion() string {
-	realm := "http://" + keycloakHost + ":" + keycloakPort + "/auth/realms/" + realmName
-	clientAssertion := generatejwt.CreateJWT("/certs/client.key", "", clientId, realm)
+	//aud := "http://" + keycloakHost + ":" + keycloakPort + "/auth/realms/" + realmName
+	//aud := "http://keycloak/auth/realms/" + realmName
+	aud := "https://keycloak:8443/realms/" + realmName
+	clientAssertion := generatejwt.CreateJWT("/certs/client.key", "", clientId, aud)
 	return clientAssertion
 }
 
@@ -214,7 +218,7 @@ func health(res http.ResponseWriter, req *http.Request) {
 func main() {
 	flag.StringVar(&keycloakHost, "keycloakHost", "istio-ingressgateway.istio-system", "Keycloak Host")
 	flag.StringVar(&keycloakPort, "keycloakPort", "80", "Keycloak Port")
-	flag.StringVar(&keycloakAlias, "keycloakAlias", "keycloak.oran.org", "Keycloak URL Alias")
+	flag.StringVar(&keycloakAlias, "keycloakAlias", "keycloak.est.tech", "Keycloak URL Alias")
 	flag.Parse()
 
 	healthHandler := http.HandlerFunc(health)

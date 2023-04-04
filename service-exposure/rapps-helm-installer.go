@@ -2,7 +2,7 @@
 //   ========================LICENSE_START=================================
 //   O-RAN-SC
 //   %%
-//   Copyright (C) 2022: Nordix Foundation
+//   Copyright (C) 2022-2023: Nordix Foundation
 //   %%
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -225,7 +225,6 @@ func runUninstall(res http.ResponseWriter, req *http.Request) {
 func uninstallSecurity(rapp Rapp, chartName string) error {
 	var url string
 	var params string
-	role := rapp.Roles[0].Role
 	realm := rapp.Realm
 	client := rapp.Client
 	authenticator := rapp.Authenticator
@@ -243,7 +242,7 @@ func uninstallSecurity(rapp Rapp, chartName string) error {
 		// remove keycloak client
 		fmt.Println("Removing keycloak client")
 		url = "http://rapps-keycloak-mgr.default/remove?"
-		params = "name=" + client + "&realm=" + realm + "&role=" + role + "&authType=" + authenticator
+		params = "name=" + client + "&realm=" + realm + "&authType=" + authenticator
 		url += params
 		_, err = http.Get(url)
 		if err != nil {

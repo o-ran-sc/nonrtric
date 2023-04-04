@@ -1,6 +1,6 @@
 #
 # ============LICENSE_START=======================================================
-#  Copyright (C) 2022 Nordix Foundation.
+#  Copyright (C) 2022-2023 Nordix Foundation.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,24 +20,23 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: keycloak
+  name: keycloak 
   namespace: default
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: keycloak
-  namespace: default
   labels:
     app: keycloak
 spec:
   type: ExternalName
-  externalName: keycloak.local
+  externalName: keycloak.local 
   ports:
   - name: http
     port: 8080
     targetPort: 8080
-    nodePort: 31560
+    nodePort: 31560 
   - name: https
     port: 8443
     targetPort: 8443
@@ -66,42 +65,48 @@ spec:
       initContainers:
       - name: init-postgres
         image: busybox
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: IfNotPresent 
         command: ['sh', '-c', 'until nc -vz postgres 5432; do echo waiting for postgres db; sleep 2; done;']
-      serviceAccountName: keycloak
+      serviceAccountName: keycloak 
       containers:
       - name: keycloak
-        image: quay.io/keycloak/keycloak:16.1.1
-        imagePullPolicy: IfNotPresent
+        image: quay.io/keycloak/keycloak:latest
+        imagePullPolicy: IfNotPresent 
+        args: [ 
+                'start',
+                '--https-key-store-file=/etc/x509/https/server.keystore',
+                '--https-key-store-password=changeit',
+                '--https-key-store-type=PKCS12',
+                '--https-trust-store-file=/etc/x509/https/server.truststore',
+                '--https-trust-store-password=changeit',
+                '--https-trust-store-type=PKCS12',
+                '--https-client-auth=request',
+                '--http-enabled=true'
+              ]
+
         env:
-        - name: KEYCLOAK_USER
-          value: "admin"
-        - name: KEYCLOAK_PASSWORD
-          value: "admin"
-        - name: KEYCLOAK_HTTPS_PORT
-          value: "8443"
-        - name: PROXY_ADDRESS_FORWARDING
+        - name : X509_CA_BUNDLE 
+          value: /etc/x509/https/rootCA.crt 
+        - name : KEYCLOAK_ADMIN 
+          value: admin 
+        - name : KEYCLOAK_ADMIN_PASSWORD 
+          value: admin 
+        - name : KC_DB 
+          value: postgres 
+        - name : KC_DB_URL 
+          value: "jdbc:postgresql://postgres:5432/keycloak"  
+        - name : KC_DB_USERNAME
+          value: keycloak
+        - name : KC_DB_PASSWORD
+          value: keycloak
+        - name : KC_HOSTNAME
+          value: keycloak 
+        - name : MY_PROVIDER_JAR_URL 
+          value: /opt/jboss/keycloak/standalone/deployments/authz-js-policies.jar 
+        - name: KC_HEALTH_ENABLED
           value: "true"
-        - name: MANAGEMENT_USER
-          value: "wildfly-admin"
-        - name: MANAGEMENT_PASSWORD
-          value: "secret"
-        - name: INGRESS_ENABLED
-          value: "false"
-        - name: DB_VENDOR
-          value: "postgres"
-        - name: DB_ADDR
-          value: "postgres"
-        - name: DB_PORT
-          value: "5432"
-        - name: DB_DATABASE
-          value: "keycloak"
-        - name: DB_USER
-          value: "keycloak"
-        - name : DB_PASSWORD
-          value: "keycloak"
-        - name : X509_CA_BUNDLE
-          value: /etc/x509/https/rootCA.crt
+        - name: KC_METRICS_ENABLED 
+          value: "true"
         ports:
         - name: http
           containerPort: 8080
@@ -109,22 +114,28 @@ spec:
           containerPort: 8443
         readinessProbe:
           httpGet:
-            path: /auth/realms/master
-            port: 8080
+            scheme: HTTPS 
+            path: /health/ready 
+            port: 8443
         volumeMounts:
-        - name: keycloak-certs
-          mountPath: /etc/x509/https
+        - name: keycloak-certs 
+          mountPath: /etc/x509/https 
+        - name: authz-js-policies 
+          mountPath: /opt/jboss/keycloak/standalone/deployments/authz-js-policies.jar 
       volumes:
-      - name: keycloak-certs
+      - name: keycloak-certs 
         hostPath:
-           path: /var/keycloak/certs
+           path: /var/keycloak/certs 
            type: Directory
+      - name: authz-js-policies 
+        hostPath:
+           path: /var/keycloak/deployments/authz-js-policies.jar 
+           type: File
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: kcgateway
-  namespace: default
 spec:
   selector:
     istio: ingressgateway # use istio default ingress gateway
@@ -136,7 +147,7 @@ spec:
     tls:
       mode: PASSTHROUGH
     hosts:
-    - keycloak.oran.org
+    - keycloak.est.tech
   - port:
       number: 80
       name: http
@@ -148,17 +159,16 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: keycloak-tls-vs
-  namespace: default
 spec:
   hosts:
-  - keycloak.oran.org
+  - keycloak.est.tech
   gateways:
   - kcgateway
   tls:
   - match:
     - port: 443
       sniHosts:
-      - keycloak.oran.org
+      - keycloak.est.tech
     route:
     - destination:
         host: keycloak.default.svc.cluster.local
@@ -169,17 +179,16 @@ apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: keycloak-vs
-  namespace: default
 spec:
   hosts:
   - "*"
   gateways:
-  - kcgateway
+  - kcgateway 
   http:
   - name: "keycloak-routes"
     match:
     - uri:
-        prefix: "/auth"
+        prefix: "/realms"
     route:
     - destination:
         port:
