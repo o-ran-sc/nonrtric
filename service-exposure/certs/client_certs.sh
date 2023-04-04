@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ============LICENSE_START=======================================================
-#  Copyright (C) 2022 Nordix Foundation.
+#  Copyright (C) 2022-2023 Nordix Foundation.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,14 +19,31 @@
 # ============LICENSE_END=========================================================
 #
 
-
 CLIENT_SUBJECT="/C=IE/ST=Dublin/L=Dublin/O=Keycloak/OU=Keycloak/CN=localhost/emailAddress=client@mail.com"
 PW=changeit
+CERTNAME=client
+IP=$(minikube ip)
+DAYS=3650
 
+rm ${CERTNAME}.key ${CERTNAME}.csr ${CERTNAME}.crt ${CERTNAME}.p12 ${CERTNAME}.pem ${CERTNAME}_pub.key 2>/dev/null
 echo $PW > secretfile.txt
 
-openssl req -new -newkey rsa:4096 -nodes -keyout client.key -subj "$CLIENT_SUBJECT" -out client.csr
+echo "subjectKeyIdentifier   = hash" > x509.ext
+echo "authorityKeyIdentifier = keyid:always,issuer:always" >> x509.ext
+echo "basicConstraints       = CA:TRUE" >> x509.ext
+echo "keyUsage               = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign" >> x509.ext
+echo "subjectAltName         = DNS.1:localhost, IP.1:127.0.0.1, DNS.2:minikube, IP.2:${IP}, DNS.3:keycloak.default, DNS.4:keycloak.est.tech, DNS.5:keycloak" >> x509.ext
+echo "issuerAltName          = issuer:copy" >> x509.ext
 
-openssl x509 -req -CA rootCA.crt -CAkey rootCA.key -in client.csr -passin file:secretfile.txt -out client.crt -days 365 -CAcreateserial
+openssl req -new -newkey rsa:4096 -nodes -keyout ${CERTNAME}.key -subj "$CLIENT_SUBJECT" -out ${CERTNAME}.csr 
 
-rm secretfile.txt 2>/dev/null
+openssl x509 -req -CA rootCA.crt -CAkey rootCA.key -in ${CERTNAME}.csr -passin file:secretfile.txt -out ${CERTNAME}.crt -days $DAYS -CAcreateserial -extfile x509.ext 
+
+
+openssl pkcs12 -export -clcerts -in ${CERTNAME}.crt -inkey ${CERTNAME}.key -passout file:secretfile.txt -out ${CERTNAME}.p12
+
+openssl pkcs12 -in ${CERTNAME}.p12 -password pass:$PW -passout file:secretfile.txt -out ${CERTNAME}.pem -clcerts -nodes
+
+openssl rsa -in ${CERTNAME}.key -outform PEM -pubout -out ${CERTNAME}_pub.key
+
+rm secretfile.txt x509.ext 2>/dev/null
