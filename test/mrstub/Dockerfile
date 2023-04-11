@@ -1,5 +1,5 @@
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,20 +17,16 @@
 
 ARG NEXUS_PROXY_REPO
 
-FROM ${NEXUS_PROXY_REPO}python:3.8-slim-buster
+FROM ${NEXUS_PROXY_REPO}alpine:3.17.3
 
-# Change order to fix problem with WSL
-
-#install nginx
-RUN apt-get update
-RUN apt-get install -y nginx=1.14.*
-
-COPY app/ /usr/src/app/
-COPY cert/ /usr/src/app/cert/
+RUN apk add --update --no-cache python3 py3-pip nginx
 
 WORKDIR /usr/src/app
 
-RUN pip install -r requirements.txt
+COPY app/ .
+COPY cert/ ./cert/
+
+RUN pip3 install -r requirements.txt
 
 RUN chmod +x start.sh
 

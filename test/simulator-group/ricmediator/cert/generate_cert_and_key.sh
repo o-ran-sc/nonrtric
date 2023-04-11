@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,20 +17,5 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - short list of tests on alternative A1PMS endpoint image testing. a1pms RES and SNDC controller resconf"
-
-. ../common/testsuite_common.sh
-
-suite_setup
-
-############# TEST CASES #################
-
-./FTC1.sh $@
-./FTC10.sh $@
-./FTC100.sh $@
-./FTC110.sh $@
-./FTC2001.sh $@
-
-##########################################
-
-suite_complete
+# This will generate a self-signed certificate with password 'test'
+openssl req -x509 -passout pass:"test" -newkey rsa:2048 -keyout key.crt -out cert.crt -days 9999

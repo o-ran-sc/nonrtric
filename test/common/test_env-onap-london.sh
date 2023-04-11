@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -76,44 +76,37 @@ A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.5.0"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.5.0-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.0-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.5.0-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
-
-# SDNC A1 Controller remote image and tag
-SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.4.2-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.2-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.4.2-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.4.1"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.5.1-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.1-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.5.1-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.5.1"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-# ICS image and tag - using f release
+# ICS image and tag - using g release
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
-ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.3.1"
+ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.4.1"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
-# Control Panel image and tag - using f release
+# Control Panel image and tag - using g release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.3.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.4.0"
 
-# Gateway image and tags - used f release
+# Gateway image and tags - used g release
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
 NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
 
-# RAPP Catalogue image and tags - used f release
+# RAPP Catalogue image and tags - used g release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
 RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.1.0"
 
 
-# Near RT RIC Simulator image and tags - used f release
+# Near RT RIC Simulator image and tags - used g release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.3.1"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.4.0"
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
@@ -209,9 +202,9 @@ A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container f
 A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
 A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
-A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
-#Preparation for DMAAP removal
-#A1PMS_FEATURE_LEVEL="NO-DMAAP"                             # Space separated list of features
+A1PMS_FEATURE_LEVEL="NO-DMAAP ADAPTER-CLASS"               # Space separated list of features
+A1PMS_ADAPTER_CLASS=""                                     # Class name set by override file
+A1PMS_ADAPTER_POLICY_NAME=""                               # Policy name set by override file
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container
@@ -230,8 +223,7 @@ ICS_ALIVE_URL="/status"                                  # Base path for alive c
 ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
 ICS_CONFIG_MOUNT_PATH=/opt/app/information-coordinator-service/config # Internal container path for configuration
 ICS_CONFIG_FILE=application.yaml                         # Config file name
-ICS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
-ICS_FEATURE_LEVEL="INFO-TYPES"                           # Space separated list of features
+ICS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -314,14 +306,14 @@ SDNC_PWD="admin"                                         # SNDC PWD
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
 SDNC_API_URL="/rests/operations/A1-ADAPTER-API:"         # Base url path for SNDC API (for upgraded sdnc)
 #SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
-SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
+SDNC_ALIVE_URL="/apidoc/explorer/index.html"             # Base url path for SNDC API docs (for alive check)
 SDNC_COMPOSE_DIR="sdnc"
 SDNC_COMPOSE_FILE="docker-compose-2.yml"
 SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
 #SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
-SDNC_FEATURE_LEVEL="TRANS_RESP_CODE"                     # Space separated list of features
+SDNC_FEATURE_LEVEL="TRANS_RESP_CODE NO_NB_HTTPS"         # Space separated list of features
                                                          # TRANS_RESP_CODE: SDNC return southbound response code
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue

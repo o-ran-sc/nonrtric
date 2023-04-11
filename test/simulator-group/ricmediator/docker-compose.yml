@@ -1,5 +1,5 @@
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -25,21 +25,29 @@ networks:
     name: ${DOCKER_SIM_NWNAME}
 
 services:
-  ${RICSIM_COMPOSE_SERVICE_NAME}:
-    image: ${RIC_SIM_IMAGE}
+  ${RICMEDIATOR_SIMCOMPOSE_SERVICE_NAME}:
+    image: ${RICMEDIATOR_SIM_IMAGE}
     networks:
       - default
     ports:
-      - ${RIC_SIM_INTERNAL_PORT}/tcp
-      - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
+      - ${RICMEDIATOR_SIM_INTERNAL_PORT}/tcp
+      - ${RICMEDIATOR_SIM_INTERNAL_SECURE_PORT}/tcp
     environment:
-      - A1_VERSION=${RICSIM_COMPOSE_A1_VERSION}
-      - REMOTE_HOSTS_LOGGING=1
-      - ALLOW_HTTP=true
-      - DUPLICATE_CHECK=1
+      - DBAAS_SERVICE_HOST=dbaas
+      - DBAAS_SERVICE_PORT=6379
     volumes:
-      - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+      - ${RICMEDIATOR_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
     labels:
-      - "a1sim=app"
-      - "nrttest_app=RICSIM"
-      - "nrttest_dp=${RIC_SIM_DISPLAY_NAME}"
+      - "orana1sim=app"
+      - "nrttest_app=RICMEDIATORSIM"
+      - "nrttest_dp=${RICMEDIATOR_SIM_DISPLAY_NAME}"
+
+  dbaas:
+    image: ${RICMEDIATOR_SIM_DB_IMAGE}
+    networks:
+      - default
+    ports:
+      - 6379/tcp
+    labels:
+      - "nrttest_app=RICMEDIATORSIM"
+      - "nrttest_dp=${RICMEDIATOR_SIM_DISPLAY_NAME}"

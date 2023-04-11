@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 #
 
 
-TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and A1PMS REST with/without SDNC controller"
+TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy with A1PMS adapter using http/https and A1PMS REST with/without SDNC controller"
 
 #App names to include in the test when running docker, space separated list
-DOCKER_INCLUDED_IMAGES="CP CR MR DMAAPMR A1PMS RICSIM SDNC NGW KUBEPROXY"
+DOCKER_INCLUDED_IMAGES="CP CR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
-KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR A1PMS RICSIM SDNC NGW KUBEPROXY "
+KUBE_INCLUDED_IMAGES="CP CR A1PMS RICSIM SDNC NGW KUBEPROXY "
 #Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
@@ -34,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW "
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ORAN-H-RELEASE ONAP-LONDON"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -47,11 +47,7 @@ setup_testenvironment
 sim_generate_policy_uuid
 
 # Tested variants of REST/DMAAP/SDNC config
-TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC"
-
-if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
-    TESTED_VARIANTS="REST   REST+SDNC"
-fi
+TESTED_VARIANTS="REST   REST+SDNC"
 
 #Test a1pms and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
@@ -93,43 +89,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
                     use_sdnc_https
                 fi
             fi
-            if [[ $interface = *"DMAAP"* ]]; then
-                use_a1pms_dmaap_https
-            else
-                use_a1pms_rest_https
-            fi
+            use_a1pms_rest_https
         else
             use_cr_http
             use_simulator_http
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_http
             fi
-            if [[ $interface = *"DMAAP"* ]]; then
-                use_a1pms_dmaap_http
-            else
-                use_a1pms_rest_http
-            fi
-        fi
-        if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
-            :
-        else
-            if [ $__httpx == "HTTPS" ]; then
-                use_mr_https
-            else
-                use_mr_http
-            fi
+            use_a1pms_rest_http
         fi
 
-        start_ric_simulators ricsim_g1 1  OSC_2.1.0
-        start_ric_simulators ricsim_g2 1  STD_1.1.3
-        start_ric_simulators ricsim_g3 1  STD_2.0.0
-
-        if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
-            :
-        else
-            start_mr    "$MR_READ_TOPIC"  "/events" "users/policy-agent" \
-                        "$MR_WRITE_TOPIC" "/events" "users/mr-stub"
-        fi
+        start_ric_simulators ricsim_g1 1  STD_2.0.0
+        start_ric_simulators ricsim_g2 1  STD_2.0.0  #APMS will use adapter class towards this sim
 
         start_cr 1
 
@@ -139,13 +110,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
             start_gateway $SIM_GROUP/$NRT_GATEWAY_COMPOSE_DIR/$NRT_GATEWAY_CONFIG_FILE
         fi
 
-
+        if [ -z "$A1PMS_ADAPTER_CLASS" ]; then
+            echo -e $RED"Env var A1PMS_ADAPTER_CLASS must be set with override file"$ERED
+            exit 1
+        fi
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
             controller_api_wait_for_status_ok 200 ricsim_g1_1
-            prepare_a1pms_config      SDNC    ".a1pms_config.json"
+            prepare_a1pms_config      SDNC    ".a1pms_config.json" ricsim-g2 $A1PMS_ADAPTER_CLASS
         else
-            prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
+            prepare_a1pms_config      NOSDNC  ".a1pms_config.json" ricsim-g2 $A1PMS_ADAPTER_CLASS
         fi
 
         if [ $RUNMODE == "KUBE" ]; then
@@ -159,41 +133,26 @@ for __httpx in $TESTED_PROTOCOLS ; do
             fi
             a1pms_api_put_configuration 200 ".a1pms_config.json"
             if [ $__httpx == "HTTPS" ]; then
-                if [[ $interface = *"DMAAP"* ]]; then
-                    use_a1pms_dmaap_https
-                else
-                    use_a1pms_rest_https
-                fi
+                use_a1pms_rest_https
             else
-                if [[ $interface = *"DMAAP"* ]]; then
-                    use_a1pms_dmaap_http
-                else
-                    use_a1pms_rest_http
-                fi
+                use_a1pms_rest_http
             fi
         fi
 
-        if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
-            :
-        else
-            mr_equal requests_submitted 0
-        fi
+        sim_put_policy_type 201 ricsim_g1_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
+        sim_put_policy_type 201 ricsim_g2_1 $A1PMS_ADAPTER_POLICY_NAME testdata/STD2/sim_qos.json
 
-        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+        a1pms_equal json:rics 2 300
 
-        sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
-
-        a1pms_equal json:rics 3 300
-
-        a1pms_equal json:policy-types 3 120
+        a1pms_equal json:policy-types 2 120
 
         a1pms_equal json:policies 0
 
         a1pms_equal json:policy-instances 0
 
-        cr_equal 0 received_callbacks 3 120
+        cr_equal 0 received_callbacks 2 120
 
-        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
+        cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1
 
         echo "############################################"
         echo "############## Health check ################"
@@ -217,59 +176,40 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############## RIC Repository ##############"
         echo "############################################"
 
-        a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0:AVAILABLE"
+        a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:STD_QOS_0_2_0:AVAILABLE ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:$A1PMS_ADAPTER_POLICY_NAME:AVAILABLE"
 
         echo "############################################"
         echo "########### A1 Policy Management ###########"
         echo "############################################"
 
         notificationurl=$CR_SERVICE_APP_PATH_0"/test"
-        a1pms_api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
-        a1pms_api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
-        a1pms_api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
-        a1pms_api_put_policy 200 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
 
-        a1pms_api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
-        a1pms_api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
+        a1pms_api_put_policy 201 "serv1" ricsim_g1_1 STD_QOS_0_2_0 5000 true $notificationurl testdata/STD2/pi_qos_template.json
+        a1pms_api_put_policy 200 "serv1" ricsim_g1_1 STD_QOS_0_2_0 5000 true $notificationurl testdata/STD2/pi_qos_template.json
 
-        a1pms_equal json:policies 3
+        a1pms_api_put_policy 201 "serv1" ricsim_g2_1 $A1PMS_ADAPTER_POLICY_NAME 5100 true $notificationurl testdata/STD2/pi_qos_template.json
+        a1pms_api_put_policy 200 "serv1" ricsim_g2_1 $A1PMS_ADAPTER_POLICY_NAME 5100 true $notificationurl testdata/STD2/pi_qos_template.json
+
+        a1pms_equal json:policies 2
 
         a1pms_api_delete_policy 204 5000
 
         a1pms_api_delete_policy 204 5100
 
-        a1pms_api_delete_policy 204 5200
-
         a1pms_equal json:policies 0
 
         a1pms_equal json:policy-instances 0
 
-        cr_equal 0 received_callbacks 3
+        cr_equal 0 received_callbacks 2
 
-        if [[ $interface = *"DMAAP"* ]]; then
-
-            VAL=14 # Number of a1pms API calls over DMAAP
-            mr_equal requests_fetched $VAL
-            mr_equal responses_submitted $VAL
-            mr_equal responses_fetched $VAL
-            mr_equal current_requests 0
-            mr_equal current_responses 0
-        else
-            if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
-                :
-            else
-                mr_equal requests_submitted 0
-            fi
-        fi
 
         if [[ $interface = *"SDNC"* ]]; then
             sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
-            sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
-            sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
+            # Adatper does not go through SDNC
+            sim_contains_str ricsim_g2_1 remote_hosts $A1PMS_APP_NAME
         else
             sim_contains_str ricsim_g1_1 remote_hosts $A1PMS_APP_NAME
             sim_contains_str ricsim_g2_1 remote_hosts $A1PMS_APP_NAME
-            sim_contains_str ricsim_g3_1 remote_hosts $A1PMS_APP_NAME
         fi
 
         check_a1pms_logs

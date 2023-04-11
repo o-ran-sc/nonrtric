@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ORAN Cherry
+#Profile for ORAN H release
 TEST_ENV_PROFILE="ORAN-H-RELEASE"
 FLAVOUR="ORAN"
 
@@ -83,10 +83,10 @@ CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
 
 # Gateway image and tags
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
-NRT_GATEWAY_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE="1.1.0"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+NRT_GATEWAY_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE="1.2.0"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 
 # SDNC A1 Controller image and tags - Note using released honolulu ONAP image
@@ -122,12 +122,20 @@ RAPP_CAT_IMAGE_TAG_REMOTE="1.2.0"
 RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 
-# Near RT RIC Simulator image and tags - same version as cherry
+# Near RT RIC Simulator image and tags
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
 RIC_SIM_IMAGE_TAG_LOCAL="latest"
 RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.0-SNAPSHOT"
 RIC_SIM_IMAGE_TAG_REMOTE="2.5.0"
 RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
+
+# ORAN Near RT RIC Simulator image and tags
+RICMEDIATOR_SIM_IMAGE_BASE="o-ran-sc/ric-plt-a1"
+RICMEDIATOR_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="3.0.1"
+
+# ORAN Near RT RIC Simulator DB image and tags
+RICMEDIATOR_SIM_DB_IMAGE_BASE="o-ran-sc/ric-plt-dbaas"
+RICMEDIATOR_SIM_DB_IMAGE_TAG_REMOTE_RELEASE_ORAN="0.6.2"
 
 # DMAAP Mediator Service
 DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapmediatorproducer"
@@ -278,7 +286,9 @@ A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container f
 A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
 A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
-A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
+A1PMS_FEATURE_LEVEL="NO-DMAAP ADAPTER-CLASS"               # Space separated list of features
+A1PMS_ADAPTER_CLASS=""                                     # Class name set by override file
+A1PMS_ADAPTER_POLICY_NAME=""                               # Policy name set by override file
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
@@ -297,8 +307,7 @@ ICS_ALIVE_URL="/status"                                  # Base path for alive c
 ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
 ICS_CONFIG_MOUNT_PATH=/opt/app/information-coordinator-service/config # Internal container path for configuration
 ICS_CONFIG_FILE=application.yaml                         # Config file name
-ICS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
-ICS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS INFO-TYPE-INFO RESP_CODE_CHANGE_1 DEFAULT_TYPE_VALIDATION"  # Space separated list of features
+ICS_FEATURE_LEVEL="TYPE-SUBSCRIPTIONS INFO-TYPE-INFO RESP_CODE_CHANGE_1 DEFAULT_TYPE_VALIDATION"  # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -360,13 +369,31 @@ RIC_SIM_PREFIX="ricsim"                                  # Prefix added to ric c
                                                          # This prefix can be changed from the command line
 RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
                                                          # (external ports allocated by docker)
-RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
+RIC_SIM_INTERNAL_SECURE_PORT=8185                       # RIC Simulator container internal secure port (container -> container).
                                                          # (external ports allocated by docker)
 RIC_SIM_CERT_MOUNT_DIR="./cert"
 
 RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
 RIC_SIM_ALIVE_URL="/"                                    # Base path for alive check
 RIC_SIM_COMMON_SVC_NAME=""                               # Name of svc if one common svc is used for all ric sim groups (stateful sets)
+
+RICMEDIATOR_SIM_DISPLAY_NAME="ORAN Near-RT RIC A1 Simulator"
+RICMEDIATOR_SIM_DB_DISPLAY_NAME="ORAN Near-RT RIC A1 Simulator DB"
+RICMEDIATOR_SIM_BASE="g"                                     # Base name of the RIC Simulator container, shall be the group code
+                                                         # Note, a prefix is added to each container name by the .env file in the 'ric' dir
+RICMEDIATOR_SIM_PREFIX="ricsim"                              # Prefix added to ric container name, added in the .env file in the 'ric' dir
+                                                         # This prefix can be changed from the command line
+RICMEDIATOR_SIM_INTERNAL_PORT=10000                      # RIC Simulator container internal port (container -> container).
+                                                         # (external ports allocated by docker)
+RICMEDIATOR_SIM_INTERNAL_SECURE_PORT=10001               # RIC Simulator container internal secure port (container -> container).
+                                                         # (external ports allocated by docker)
+                                                         # This port number is not supported by app, kept only for consistency with other ric sims
+RICMEDIATOR_SIM_CERT_MOUNT_DIR="./cert"
+
+RICMEDIATOR_SIM_COMPOSE_DIR="ricmediator"                # Dir in simulator group for docker compose
+RICMEDIATOR_SIM_ALIVE_URL="/a1-p/healthcheck"            # Base path for alive check
+RICMEDIATOR_SIM_COMMON_SVC_NAME=""                       # Name of svc if one common svc is used for all ric sim groups (stateful sets)
+
 
 # For ONAP sdnc
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container

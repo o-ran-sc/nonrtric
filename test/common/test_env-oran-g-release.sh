@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -297,8 +297,7 @@ ICS_ALIVE_URL="/status"                                  # Base path for alive c
 ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
 ICS_CONFIG_MOUNT_PATH=/opt/app/information-coordinator-service/config # Internal container path for configuration
 ICS_CONFIG_FILE=application.yaml                         # Config file name
-ICS_VERSION="V1-2"                                       # Version where the types are decoupled from the producer registration
-ICS_FEATURE_LEVEL="INFO-TYPES TYPE-SUBSCRIPTIONS INFO-TYPE-INFO RESP_CODE_CHANGE_1 DEFAULT_TYPE_VALIDATION"  # Space separated list of features
+ICS_FEATURE_LEVEL="TYPE-SUBSCRIPTIONS INFO-TYPE-INFO RESP_CODE_CHANGE_1 DEFAULT_TYPE_VALIDATION"  # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub

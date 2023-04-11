@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -48,15 +48,16 @@ setup_testenvironment
 
 use_cr_https
 use_a1pms_rest_https
-use_sdnc_https
+if [[ "$SDNC_FEATURE_LEVEL" == *"NO_NB_HTTPS"* ]]; then
+    deviation "SDNC does not support NB https"
+    use_sdnc_http
+else
+    use_sdnc_https
+fi
 use_simulator_https
 use_ics_rest_https
 use_prod_stub_https
-if [ $ICS_VERSION == "V1-1" ]; then
-    use_rapp_catalogue_http # https not yet supported
-else
-    use_rapp_catalogue_https
-fi
+use_rapp_catalogue_https
 
 
 notificationurl=$CR_SERVICE_APP_PATH_0"/test"
@@ -71,7 +72,11 @@ STD_NUM_RICS=2
 
 start_ric_simulators $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
 
-start_mr #Just to prevent errors in the a1pms log...
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    start_mr #Just to prevent errors in the a1pms log...
+fi
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -80,6 +85,7 @@ if [ ! -z "$NRT_GATEWAY_APP_NAME" ]; then
 fi
 
 start_sdnc    # Comment this line to run A1PMS with proxy
+controller_api_wait_for_status_ok 200 ricsim_g3_1 # Comment this line to run A1PMS with proxy
 
 start_a1pms PROXY $SIM_GROUP/$A1PMS_COMPOSE_DIR/$A1PMS_CONFIG_FILE
 
@@ -104,11 +110,6 @@ start_rapp_catalogue
 set_a1pms_trace
 
 set_ics_trace
-
-use_info_jobs=false  #Set flag if interface supporting info-types is used
-if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    use_info_jobs=true
-fi
 
 rapp_cat_api_get_services 200 EMPTY
 
@@ -155,9 +156,9 @@ a1pms_api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/1"
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
 done
 
@@ -173,8 +174,6 @@ for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     sim_print $RIC_SIM_PREFIX"_g3_"$i remote_hosts
 done
-
-FLAT_A1_EI="1"
 
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
 CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
@@ -199,59 +198,28 @@ prodstub_arm_job_create 200 prod-a job2
 ics_api_service_status 200
 
 ## Setup prod-a
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
+ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
 
-    ics_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
-else
-    ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
+ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 
-    ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-
-    ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-fi
+ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 
 ics_api_edp_get_producer_status 200 prod-a ENABLED
 
 
 ## Create a job for prod-a
 ## job1 - prod-a
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type1 job1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    if [ $use_info_jobs ]; then
-        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-    fi
-fi
-
+ prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
 
 ## Create a second job for prod-a
 ## job2 - prod-a
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type1 job2 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    if [ $use_info_jobs ]; then
-        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
 
 check_a1pms_logs
 check_ics_logs

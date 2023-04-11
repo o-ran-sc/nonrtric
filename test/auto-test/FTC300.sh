@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -43,10 +43,14 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 # Tested variants of REST/DMAAP/SDNC config
-TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    TESTED_VARIANTS="REST   REST+SDNC"
+else
+    TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
+fi
 #Test a1pms and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
 
@@ -62,9 +66,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
             use_simulator_https
-            use_mr_https
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+                :
+            else
+                use_mr_https
+            fi
             if [[ $interface = *"SDNC"* ]]; then
-                use_sdnc_https
+                if [[ "$SDNC_FEATURE_LEVEL" == *"NO_NB_HTTPS"* ]]; then
+                    deviation "SDNC does not support NB https"
+                    use_sdnc_http
+                else
+                    use_sdnc_https
+                fi
             fi
             if [[ $interface = *"DMAAP"* ]]; then
                 use_a1pms_dmaap_https
@@ -74,7 +87,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
         else
             use_cr_http
             use_simulator_http
-            use_mr_http
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+                :
+            else
+                use_mr_http
+            fi
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_http
             fi
@@ -96,7 +113,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g3 4  STD_2.0.0
 
-        start_mr
+        if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+            :
+        else
+            start_mr
+        fi
 
         start_cr 1
 
@@ -113,6 +134,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
+            controller_api_wait_for_status_ok 200 ricsim_g1_1
             prepare_a1pms_config      SDNC    ".a1pms_config.json"
         else
             prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
