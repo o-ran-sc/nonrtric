@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 # Clean container and start all needed containers #
 clean_environment
@@ -59,7 +59,11 @@ start_ric_simulators ricsim_g1 1  OSC_2.1.0
 start_ric_simulators ricsim_g2 1  STD_1.1.3
 start_ric_simulators ricsim_g3 1  STD_2.0.0
 
-start_mr
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    start_mr
+fi
 
 start_cr 1
 
@@ -80,6 +84,7 @@ cr_equal 0 received_callbacks 3 120
 cr_api_check_all_sync_events 200 0 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
 
 # Add an STD RIC and check
+
 start_ric_simulators ricsim_g2 2  STD_1.1.3
 
 prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
@@ -94,8 +99,7 @@ cr_api_check_all_sync_events 200 0 ric-registration ricsim_g2_2
 
 check_a1pms_logs
 
-
-# Remove one RIC RIC and check
+# Remove one RIC and check
 start_ric_simulators ricsim_g2 1  STD_1.1.3
 
 prepare_a1pms_config      NOSDNC  ".a1pms_config.json"

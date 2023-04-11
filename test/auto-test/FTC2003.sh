@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ setup_testenvironment
 #Local vars in test script
 ##########################
 
-FLAT_A1_EI="1"
 NUM_JOBS=10
 
 clean_environment
@@ -72,11 +71,7 @@ start_dmaapadp PROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE_TE
 
 set_dmaapadp_trace
 
-if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    ics_equal json:data-producer/v1/info-producers 1 60
-else
-    ics_equal json:ei-producer/v1/eiproducers 1 60
-fi
+ics_equal json:data-producer/v1/info-producers 1 60
 
 ics_api_idc_get_job_ids 200 NOTYPE NOWNER EMPTY
 ics_api_idc_get_type_ids 200 ExampleInformationType ExampleInformationTypeKafka
@@ -93,10 +88,14 @@ else
     ics_api_edp_get_producer_ids_2 200 NOTYPE DmaapGenericInfoProducer
 fi
 
-
+if [[ "$DMAAP_ADP_FEATURE_LEVEL" == *"FILTERSCHEMA"* ]]; then
+    _template_json=job-template1.1.json
+else
+    _template_json=job-template1.json
+fi
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/job-template1.json
+    ics_api_idc_put_job 201 joby$i ExampleInformationType $CR_SERVICE_MR_PATH_0/joby-data$i info-ownery$i $CR_SERVICE_MR_PATH_0/job_status_info-ownery$i testdata/dmaap-adapter/$_template_json
 done
 
 for ((i=1; i<=$NUM_JOBS; i++))

@@ -46,7 +46,7 @@ setup_testenvironment
 
 #Local vars in test script
 ##########################
-FLAT_A1_EI="1"
+
 NUM_CR=10 # Number of callback receivers, divide all callbacks to this number of servers - for load sharing
 ## Note: The number jobs must be a multiple of the number of CRs in order to calculate the number of expected event in each CR
 NUM_JOBS=200  # Mediator and adapter gets same number of jobs for every type
@@ -448,7 +448,7 @@ mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
 #in one batch
 #########################################################
 
-DATA_DELIV_JOBS=7 #Each job will eventuall get 5+2 msgs
+DATA_DELIV_JOBS=7 #Each job will eventually get 5+2 msgs
 
 # Wait for data recetption, adapter
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 #
 
 # List of short names for all supported apps, including simulators etc
-APP_SHORT_NAMES="A1PMS ICS SDNC CP NGW RC RICSIM HTTPPROXY DMAAPMR MR CR PRODSTUB KUBEPROXY DMAAPMED DMAAPADP PVCCLEANER KAFKAPC CHARTMUS HELMMANAGER LOCALHELM KEYCLOAK ISTIO AUTHSIDECAR"
+APP_SHORT_NAMES="A1PMS ICS SDNC CP NGW RC RICSIM RICMEDIATORSIM HTTPPROXY DMAAPMR MR CR PRODSTUB KUBEPROXY DMAAPMED DMAAPADP PVCCLEANER KAFKAPC CHARTMUS HELMMANAGER LOCALHELM KEYCLOAK ISTIO AUTHSIDECAR"
 
 # List of available apps that built and released of the project
 PROJECT_IMAGES="A1PMS ICS SDNC CP NGW RICSIM RC DMAAPMED DMAAPADP HELMMANAGER AUTHSIDECAR"
 
 # List of available apps to override with local or remote staging/snapshot/release image
-AVAILABLE_IMAGES_OVERRIDE="A1PMS ICS SDNC CP NGW RICSIM RC DMAAPMED DMAAPADP HELMMANAGER AUTHSIDECAR"
+AVAILABLE_IMAGES_OVERRIDE="A1PMS ICS SDNC CP NGW RICSIM RICMEDIATORSIM RC DMAAPMED DMAAPADP HELMMANAGER AUTHSIDECAR"
 
 # List of available apps where the image is built by the test environment
 LOCAL_IMAGE_BUILD="MR CR PRODSTUB KUBEPROXY HTTPPROXY KAFKAPC"

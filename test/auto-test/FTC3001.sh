@@ -46,7 +46,7 @@ setup_testenvironment
 
 #Local vars in test script
 ##########################
-FLAT_A1_EI="1"
+
 NUM_CR=1 # Number of callback receivers, max 1
 ## Note: The number jobs must be a multiple of the number of CRs in order to calculate the number of expected event in each CR
 NUM_JOBS=100  # Mediator and adapter gets same number of jobs for every type

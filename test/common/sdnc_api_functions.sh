@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -638,4 +638,37 @@ controller_api_get_A1_policy_status() {
 
 	__log_test_pass
 	return 0
+}
+
+# Wait for http status on url
+# args: <response-code> <ric-id>
+# (Function for test scripts)
+controller_api_wait_for_status_ok() {
+	__log_conf_start $@
+
+    if [ $# -ne 2 ]; then
+		__print_err "<response-code> <ric-id> " $@
+		return 1
+	fi
+	ric_id=$(__find_sim_host $2)
+    url="$ric_id/"
+
+	TS_START=$SECONDS
+	while [ $(($TS_START+500)) -gt $SECONDS ]; do
+		echo -ne " Waiting for http status $1 on $url via sdnc, waited: $(($SECONDS-$TS_START))"$SAMELINE
+		res=$(__do_curl_to_controller getA1Policy "$url")
+		retcode=$?
+		status=${res:${#res}-3}
+		if [ $retcode -eq 0 ]; then
+			if [ $status -eq $1 ]; then
+				echo ""
+				__log_conf_ok
+				return 0
+			fi
+		fi
+		sleep 5
+	done
+	echo ""
+	__log_conf_fail_general
+	return 1
 }

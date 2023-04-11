@@ -1,3 +1,4 @@
 .tmp.json
 .dockererr
 gen_docker-compose*
+REM_*

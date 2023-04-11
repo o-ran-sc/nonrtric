@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via a1pms REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
+TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via a1pms REST and with SDNC using http or https"
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
@@ -43,7 +43,7 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 #Local vars in test script
 ##########################
@@ -71,7 +71,12 @@ if [ $HTTPX == "HTTP" ]; then
 else
    use_cr_https
    use_a1pms_rest_https
-   use_sdnc_https
+   if [[ "$SDNC_FEATURE_LEVEL" == *"NO_NB_HTTPS"* ]]; then
+      deviation "SDNC does not support NB https"
+      use_sdnc_http
+   else
+      use_sdnc_https
+   fi
    use_simulator_https
 fi
 
@@ -81,7 +86,11 @@ start_ric_simulators ricsim_g2 $NUM_RICS STD_1.1.3
 
 start_ric_simulators ricsim_g3 $NUM_RICS  STD_2.0.0
 
-start_mr
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    start_mr
+fi
 
 start_cr 1
 
@@ -105,6 +114,7 @@ else
 fi
 
 start_sdnc
+controller_api_wait_for_status_ok 200 ricsim_g1_1
 
 sleep_wait 120 "Let A1PMS cofiguration take effect"
 
@@ -172,9 +182,14 @@ echo "Register a service"
 a1pms_api_put_service 201 "serv1" 0 "$CR_SERVICE_APP_PATH_0/1"
 
 TEST_DURATION=$((24*3600*$DAYS))
+
 TEST_START=$SECONDS
 
-A1PMS_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    A1PMS_INTERFACES="REST REST_PARALLEL"
+else
+    A1PMS_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
+fi
 
 MR_MESSAGES=0
 
@@ -342,12 +357,16 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
       a1pms_equal json:policy-instances $INSTANCES
 
-      mr_equal requests_submitted $MR_MESSAGES
-      mr_equal requests_fetched $MR_MESSAGES
-      mr_equal responses_submitted $MR_MESSAGES
-      mr_equal responses_fetched $MR_MESSAGES
-      mr_equal current_requests 0
-      mr_equal current_responses 0
+      if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+         :
+      else
+         mr_equal requests_submitted $MR_MESSAGES
+         mr_equal requests_fetched $MR_MESSAGES
+         mr_equal responses_submitted $MR_MESSAGES
+         mr_equal responses_fetched $MR_MESSAGES
+         mr_equal current_requests 0
+         mr_equal current_responses 0
+      fi
 
 
       for ((i=1; i<=$NUM_RICS; i++))

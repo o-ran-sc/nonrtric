@@ -1,0 +1,5 @@
+.tmp.json
+.dockererr
+.env
+fakedir
+gen_docker-compose*

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -221,8 +221,7 @@ ICS_ALIVE_URL="/status"                                  # Base path for alive c
 ICS_COMPOSE_DIR="ics"                                    # Dir in simulator_group for docker-compose
 ICS_CONFIG_MOUNT_PATH=/opt/app/information-coordinator-service/config # Internal container path for configuration
 ICS_CONFIG_FILE=application.yaml                         # Config file name
-ICS_VERSION="V1-2"                                       # Version where the types are added in the producer registration
-ICS_FEATURE_LEVEL="INFO-TYPES"                           # Space separated list of features
+ICS_FEATURE_LEVEL=""                                     # Space separated list of features
 
 MR_DMAAP_APP_NAME="message-router"                       # Name for the Dmaap MR
 MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
@@ -305,7 +304,7 @@ SDNC_PWD="admin"                                         # SNDC PWD
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
 SDNC_API_URL="/rests/operations/A1-ADAPTER-API:"         # Base url path for SNDC API (for upgraded sdnc)
 #SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
-SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
+SDNC_ALIVE_URL="/apidoc/explorer/index.html"             # Base url path for SNDC API docs (for alive check)
 SDNC_COMPOSE_DIR="sdnc"
 SDNC_COMPOSE_FILE="docker-compose-2.yml"
 SDNC_KUBE_APP_FILE="app2.yaml"

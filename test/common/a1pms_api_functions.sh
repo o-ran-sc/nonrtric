@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -457,16 +457,16 @@ start_stopped_a1pms() {
 
 
 # Function to perpare the consul configuration according to the current simulator configuration
-# args: SDNC|NOSDNC <output-file>
+# args: SDNC|NOSDNC <output-file> [ <sim-group> <adapter-class> ]
 # (Function for test scripts)
 prepare_a1pms_config() {
-  	echo -e $BOLD"Prepare Consul config"$EBOLD
+  	echo -e $BOLD"Prepare A1PMS config"$EBOLD
 
 	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
 
-	if [ $# != 2 ];  then
+	if [ $# != 2 ] && [ $# != 4 ];  then
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
+    	__print_err "need two or four args,  SDNC|NOSDNC <output-file> [ <sim-group> <adapter-class> ]" $@
 		exit 1
 	fi
 
@@ -491,23 +491,26 @@ prepare_a1pms_config() {
 		config_json=$config_json"\n                     }"
 		config_json=$config_json"\n   ],"
 	fi
-
-	config_json=$config_json"\n   \"streams_publishes\": {"
-	config_json=$config_json"\n                            \"dmaap_publisher\": {"
-	config_json=$config_json"\n                              \"type\": \"message-router\","
-	config_json=$config_json"\n                              \"dmaap_info\": {"
-	config_json=$config_json"\n                                \"topic_url\": \"$MR_SERVICE_PATH$MR_WRITE_URL\""
-	config_json=$config_json"\n                              }"
-	config_json=$config_json"\n                            }"
-	config_json=$config_json"\n   },"
-	config_json=$config_json"\n   \"streams_subscribes\": {"
-	config_json=$config_json"\n                             \"dmaap_subscriber\": {"
-	config_json=$config_json"\n                               \"type\": \"message-router\","
-	config_json=$config_json"\n                               \"dmaap_info\": {"
-	config_json=$config_json"\n                                   \"topic_url\": \"$MR_SERVICE_PATH$MR_READ_URL\""
-	config_json=$config_json"\n                                 }"
-	config_json=$config_json"\n                               }"
-	config_json=$config_json"\n   },"
+	if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+		:
+	else
+		config_json=$config_json"\n   \"streams_publishes\": {"
+		config_json=$config_json"\n                            \"dmaap_publisher\": {"
+		config_json=$config_json"\n                              \"type\": \"message-router\","
+		config_json=$config_json"\n                              \"dmaap_info\": {"
+		config_json=$config_json"\n                                \"topic_url\": \"$MR_SERVICE_PATH$MR_WRITE_URL\""
+		config_json=$config_json"\n                              }"
+		config_json=$config_json"\n                            }"
+		config_json=$config_json"\n   },"
+		config_json=$config_json"\n   \"streams_subscribes\": {"
+		config_json=$config_json"\n                             \"dmaap_subscriber\": {"
+		config_json=$config_json"\n                               \"type\": \"message-router\","
+		config_json=$config_json"\n                               \"dmaap_info\": {"
+		config_json=$config_json"\n                                   \"topic_url\": \"$MR_SERVICE_PATH$MR_READ_URL\""
+		config_json=$config_json"\n                                 }"
+		config_json=$config_json"\n                               }"
+		config_json=$config_json"\n   },"
+	fi
 
 	config_json=$config_json"\n   \"ric\": ["
 
@@ -524,16 +527,35 @@ prepare_a1pms_config() {
 				fi
 			done
 		fi
+		result=$(kubectl $KUBECONF get pods -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.items[?(@.metadata.labels.autotest=="RICMEDIATORSIM")].metadata.name}')
+		oranrics=""
+		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
+			for im in $result; do
+				if [[ $im != *"-0" ]]; then
+					ric_subdomain=$(kubectl $KUBECONF get pod $im -n $KUBE_A1SIM_NAMESPACE -o jsonpath='{.spec.subdomain}')
+					rics=$rics" "$im"."$ric_subdomain"."$KUBE_A1SIM_NAMESPACE
+					oranrics=$oranrics" "$im"."$ric_subdomain"."$KUBE_A1SIM_NAMESPACE
+					let ric_cntr=ric_cntr+1
+				fi
+			done
+		fi
 		if [ $ric_cntr -eq 0 ]; then
 			echo $YELLOW"Warning: No rics found for the configuration"$EYELLOW
 		fi
 	else
-		rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})
+		rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "label=a1sim" --filter "status=running" --format {{.Names}})
 		if [ $? -ne 0 ] || [ -z "$rics" ]; then
 			echo -e $RED" FAIL - the names of the running RIC Simulator cannot be retrieved." $ERED
 			((RES_CONF_FAIL++))
 			return 1
 		fi
+		oranrics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "label=orana1sim" --filter "status=running" --format {{.Names}})
+		if [ $? -ne 0 ] || [ -z "$rics" ]; then
+			echo -e $RED" FAIL - the names of the running RIC Simulator cannot be retrieved." $ERED
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+		rics="$rics $oranrics"
 	fi
 	cntr=0
 	for ric in $rics; do
@@ -553,7 +575,23 @@ prepare_a1pms_config() {
 		fi
 		echo " Found a1 sim: "$ric_id
 		config_json=$config_json"\n            \"name\": \"$ric_id\","
-		config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://$ric:$RIC_SIM_PORT\","
+
+		xricfound=0
+		for xric in $oranrics; do
+			if [ $xric == $ric ]; then
+				xricfound=1
+			fi
+		done
+		if [ $xricfound -eq 0 ]; then
+			config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://$ric:$RIC_SIM_PORT\","
+		else
+			config_json=$config_json"\n            \"baseUrl\": \"$RICMEDIATOR_SIM_HTTPX://$ric:$RICMEDIATOR_SIM_PORT\","
+		fi
+		if [ ! -z "$3" ]; then
+			if [[ $ric == "$3"* ]]; then
+			config_json=$config_json"\n            \"customAdapterClass\": \"$4\","
+			fi
+		fi
 		if [ $1 == "SDNC" ]; then
 			config_json=$config_json"\n            \"controller\": \"$SDNC_APP_NAME\","
 		fi

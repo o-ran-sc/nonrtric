@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -450,11 +450,8 @@ prodstub_check_jobdata_2() {
     	__log_test_fail_general "Template file "$7" for jobdata, does not exist"
         return 1
     fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		targetJson="{\"info_job_identity\":\"$3\",\"info_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"info_job_data\":$jobfile,\"last_updated\":\"????\"}"
-	else
-		targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"ei_job_data\":$jobfile,\"last_updated\":\"????\"}"
-    fi
+	targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"ei_job_data\":$jobfile,\"last_updated\":\"????\"}"
+
 	file="./tmp/.p.json"
 	echo "$targetJson" > $file
 
