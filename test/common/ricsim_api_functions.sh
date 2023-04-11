@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ __RICSIM_store_docker_logs() {
 		done
 	else
 
-		rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --format {{.Names}})
+		rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "status=running" --filter "label=a1sim" --format {{.Names}})
 		for ric in $rics; do
 			docker logs $ric > $1$2_$ric.log 2>&1
 		done
@@ -286,7 +286,8 @@ start_ric_simulators() {
 		export DOCKER_SIM_NWNAME
 		export RIC_SIM_DISPLAY_NAME
 
-		docker_args=" --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
+		echo -e $BOLD$YELLOW" Warning: Using docker compose --force-recreate "$EYELLOW$EBOLD
+		docker_args="--force-recreate --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
 
 		#Create a list of contsiner names
 		#Will be <ricsim-prefix>_<service-name>_<index>
@@ -358,7 +359,7 @@ __find_sim_host() {
 }
 
 # Generate a UUID to use as prefix for policy ids
-generate_policy_uuid() {
+sim_generate_policy_uuid() {
 	UUID=$(python3 -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')
 	#Reduce length to make space for serial id, uses 'a' as marker where the serial id is added
 	UUID=${UUID:0:${#UUID}-4}"a"

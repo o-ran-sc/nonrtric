@@ -1,5 +1,5 @@
 #  ============LICENSE_START=======================================================
-#  Copyright (C) 2020-2022 Nordix Foundation
+#  Copyright (C) 2020-2023 Nordix Foundation
 #  ================================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ spec:
       initContainers:
       - name: init-kafka
         image: busybox
-        command: ['sh', '-c', 'until nslookup $MR_ZOOKEEPER_APP_NAME; do echo waiting for $MR_ZOOKEEPER_APP_NAME; sleep 2; done;']
+        command: ['sh', '-c', 'until nslookup $MR_ZOOKEEPER_APP_NAME.$KUBE_ONAP_NAMESPACE.svc.cluster.local; do echo waiting for $MR_ZOOKEEPER_APP_NAME; sleep 2; done;']
       volumes:
       - configMap:
           defaultMode: 420
@@ -184,7 +184,7 @@ spec:
       initContainers:
       - name: init-dmaap-mr
         image: busybox
-        command: ['sh', '-c', 'until nslookup $MR_KAFKA_APP_NAME; do echo waiting for $MR_KAFKA_APP_NAME; sleep 2; done;']
+        command: ['sh', '-c', 'until nslookup $MR_KAFKA_APP_NAME.$KUBE_ONAP_NAMESPACE.svc.cluster.local; do echo waiting for $MR_KAFKA_APP_NAME; sleep 2; done;']
       volumes:
       - configMap:
           defaultMode: 420

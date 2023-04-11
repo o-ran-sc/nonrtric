@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-22023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -322,8 +322,8 @@ TEST_SEQUENCE_NR=1
 # Function to log the start of a test case
 __log_test_start() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
-	echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${FUNCNAME[1]}" $@ $EBOLD
-    echo "TEST $TEST_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): ${FUNCNAME[1]}" $@ >> $HTTPLOG
+	echo -e $BOLD"TEST $TEST_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: ${FUNCNAME[1]}" $@ $EBOLD
+    echo "TEST $TEST_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: ${FUNCNAME[1]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 	((TEST_SEQUENCE_NR++))
 }
@@ -367,6 +367,12 @@ __log_test_fail_not_supported() {
 	__check_stop_at_error
 }
 
+# Function to log a test case that is not supported but will not fail
+__log_test_info_not_supported() {
+	echo -e $YELLOW" INFO, function not supported"$YELLOW
+	__print_current_stats
+}
+
 # General function to log a passed test case
 __log_test_pass() {
 	if [ $# -gt 0 ]; then
@@ -383,8 +389,8 @@ CONF_SEQUENCE_NR=1
 # Function to log the start of a configuration setup
 __log_conf_start() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
-	echo -e $BOLD"CONF $CONF_SEQUENCE_NR (${BASH_LINENO[1]}): "${FUNCNAME[1]} $@ $EBOLD
-	echo "CONF $CONF_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): "${FUNCNAME[1]} $@  >> $HTTPLOG
+	echo -e $BOLD"CONF $CONF_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: "${FUNCNAME[1]} $@ $EBOLD
+	echo "CONF $CONF_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: "${FUNCNAME[1]} $@  >> $HTTPLOG
 	((CONF_SEQUENCE_NR++))
 }
 
@@ -1535,10 +1541,11 @@ __check_and_pull_image() {
 	elif [ $1 == "remote" ] || [ $1 == "remote-remove" ]; then
 		if [ $1 == "remote-remove" ]; then
 			if [ $RUNMODE == "DOCKER" ]; then
+
 				echo -ne "  Attempt to stop and remove container(s), if running - ${SAMELINE}"
 				tmp=$(docker ps -aq --filter name=${3} --filter network=${DOCKER_SIM_NWNAME})
 				if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-					docker stop $tmp &> ./tmp/.dockererr
+					docker stop -t 0 $tmp &> ./tmp/.dockererr
 					if [ $? -ne 0 ]; then
 						((IMAGE_ERR++))
 						echo ""
@@ -1550,7 +1557,7 @@ __check_and_pull_image() {
 				echo -ne "  Attempt to stop and remove container(s), if running - "$GREEN"stopped"$EGREEN"${SAMELINE}"
 				tmp=$(docker ps -aq --filter name=${3} --filter network=${DOCKER_SIM_NWNAME}) &> /dev/null
 				if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-					docker rm $tmp &> ./tmp/.dockererr
+					docker rm -f $tmp &> ./tmp/.dockererr
 					if [ $? -ne 0 ]; then
 						((IMAGE_ERR++))
 						echo ""
@@ -1697,24 +1704,32 @@ setup_testenvironment() {
 
 	# The following sequence pull the configured images
 	echo -e $BOLD"Pulling configured images, if needed"$EBOLD
+	__exclude_check=0
 	if [ ! -z "$IMAGE_REPO_ADR" ] && [ $IMAGE_REPO_POLICY == "local" ]; then
-		echo -e $YELLOW" Excluding all remote image check/pull when running with image repo: $IMAGE_REPO_ADR and image policy $IMAGE_REPO_POLICY"$EYELLOW
-	else
-		for imagename in $APP_SHORT_NAMES; do
-			__check_included_image $imagename
-			incl=$?
-			__check_project_image $imagename
-			proj=$?
-			if [ $incl -eq 0 ]; then
-				if [ $proj -eq 0 ]; then
-					START_ARG_MOD=$START_ARG
-					__check_image_local_override $imagename
-					if [ $? -eq 1 ]; then
-						START_ARG_MOD="local"
-					fi
-				else
-					START_ARG_MOD=$START_ARG
+		echo -e $YELLOW" Excluding all remote image check/pull (unless local override) when running with image repo: $IMAGE_REPO_ADR and image policy: $IMAGE_REPO_POLICY"$EYELLOW
+		__exclude_check=1
+	fi
+	for imagename in $APP_SHORT_NAMES; do
+		__check_included_image $imagename
+		incl=$?
+		__check_project_image $imagename
+		proj=$?
+		if [ $incl -eq 0 ]; then
+			if [ $proj -eq 0 ]; then
+				START_ARG_MOD=$START_ARG
+				__check_image_local_override $imagename
+				if [ $? -eq 1 ]; then
+					START_ARG_MOD="local"
 				fi
+			else
+				START_ARG_MOD=$START_ARG
+			fi
+			__exclude_image_check=0
+			if [ $__exclude_check == 1 ] && [ "$START_ARG_MOD" != "local" ]; then
+				# For to handle locally built images,  overriding remote images
+				__exclude_image_check=1
+			fi
+			if [ $__exclude_image_check == 0 ]; then
 				__check_image_local_build $imagename
 				#No pull of images built locally
 				if [ $? -ne 0 ]; then
@@ -1728,11 +1743,12 @@ setup_testenvironment() {
 					function_pointer="__"$imagename"_imagepull"
 					$function_pointer $START_ARG_MOD $START_ARG
 				fi
-			else
-				echo -e $YELLOW" Excluding $imagename image from image check/pull"$EYELLOW
 			fi
-		done
-	fi
+		else
+			echo -e $YELLOW" Excluding $imagename image from image check/pull"$EYELLOW
+		fi
+	done
+
 
 	#Errors in image setting - exit
 	if [ $IMAGE_ERR -ne 0 ]; then
@@ -1822,8 +1838,8 @@ setup_testenvironment() {
 
 		# Create a table of the images used in the script - from remote repo
 		echo -e $BOLD"Remote repo images used in this test script"$EBOLD
-		echo -e $YELLOW"-- Note: These image will be pulled when the container starts. Images not managed by the test engine --"$EYELLOW
-
+		echo -e $YELLOW"-- Note: These image will be pulled when the container starts. Images not managed by the test engine "$EYELLOW
+		echo -e $YELLOW"-- Note: Images with local override will however be re-tagged and managed by the test engine "$EYELLOW
 		docker_tmp_file=./tmp/.docker-images-table
 		format_string="{{.Repository}}\\t{{.Tag}}"
 		echo -e "Application\tRepository\tTag" > $docker_tmp_file
@@ -2327,7 +2343,7 @@ __kube_scale_all_resources() {
 		result=$(kubectl $KUBECONF get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
 		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
 			for resid in $result; do
-				echo -ne "  Ordered caling $restype $resid in namespace $namespace with label $labelname=$labelid to 0"$SAMELINE
+				echo -ne "  Ordered scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0"$SAMELINE
 				kubectl $KUBECONF scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
 				echo -e "  Ordered scaling $restype $resid in namespace $namespace with label $labelname=$labelid to 0 $GREEN OK $EGREEN"
 			done
@@ -3240,8 +3256,8 @@ __var_test() {
 			checkjsonarraycount=1
 		fi
 
-		echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
-        echo "TEST $TEST_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds" >> $HTTPLOG
+		echo -e $BOLD"TEST $TEST_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
+        echo "TEST $TEST_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: ${1}, ${3} ${4} ${5} within ${6} seconds" >> $HTTPLOG
 
 		((RES_TEST++))
 		((TEST_SEQUENCE_NR++))
@@ -3316,8 +3332,8 @@ __var_test() {
 			checkjsonarraycount=1
 		fi
 
-		echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}"$EBOLD
-		echo "TEST $TEST_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}" >> $HTTPLOG
+		echo -e $BOLD"TEST $TEST_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}: ${1}, ${3} ${4} ${5}"$EBOLD
+		echo "TEST $TEST_SEQUENCE_NR - (${BASH_LINENO[1]}) - ${TIMESTAMP}:  ${1}, ${3} ${4} ${5}" >> $HTTPLOG
 		((RES_TEST++))
 		((TEST_SEQUENCE_NR++))
 		if [ $checkjsonarraycount -eq 0 ]; then

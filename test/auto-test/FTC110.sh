@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 use_cr_http
 use_simulator_http
@@ -59,7 +59,11 @@ start_ric_simulators ricsim_g1 1  OSC_2.1.0
 start_ric_simulators ricsim_g2 1  STD_1.1.3
 start_ric_simulators ricsim_g3 1  STD_2.0.0
 
-start_mr
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    start_mr
+fi
 
 start_cr 1
 
@@ -82,7 +86,11 @@ fi
 
 set_a1pms_debug
 
-mr_equal requests_submitted 0
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    mr_equal requests_submitted 0
+fi
 
 sleep_wait 120 "Let A1PMS cofiguration take effect"
 
@@ -228,7 +236,11 @@ sim_equal ricsim_g3_1 num_instances 0
 
 a1pms_api_get_service_ids 200
 
-mr_equal requests_submitted 0
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    mr_equal requests_submitted 0
+fi
 
 check_a1pms_logs
 

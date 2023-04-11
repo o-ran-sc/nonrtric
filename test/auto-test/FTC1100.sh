@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -49,8 +49,6 @@ SUPPORTED_RUNMODES="DOCKER KUBE"
 setup_testenvironment
 
 #### TEST BEGIN ####
-
-FLAT_A1_EI="1"
 
 clean_environment
 
@@ -336,313 +334,174 @@ ics_api_a1_get_type_ids 200 EMPTY
 ics_api_a1_get_type 404 test-type
 
 ics_api_edp_get_type_ids 200 EMPTY
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_type 404 test-type
-else
-    ics_api_edp_get_type_2 404 test-type
-fi
+ics_api_edp_get_type_2 404 test-type
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 EMPTY
-    ics_api_edp_get_producer 404 test-prod
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE EMPTY
-    ics_api_edp_get_producer_2 404 test-prod
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE EMPTY
+ics_api_edp_get_producer_2 404 test-prod
+
 ics_api_edp_get_producer_status 404 test-prod
 
 ics_api_edp_delete_producer 404 test-prod
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_ids 404 test-type NOWNER
-    ics_api_a1_get_job_ids 404 test-type test-owner
+ics_api_a1_get_job_ids 200 test-type NOWNER EMPTY
+ics_api_a1_get_job_ids 200 test-type test-owner EMPTY
 
-    ics_api_a1_get_job 404 test-type test-job
+ics_api_a1_get_job 404 test-job
 
-    ics_api_a1_get_job_status 404 test-type test-job
-else
-    ics_api_a1_get_job_ids 200 test-type NOWNER EMPTY
-    ics_api_a1_get_job_ids 200 test-type test-owner EMPTY
+ics_api_a1_get_job_status 404 test-job
 
-    ics_api_a1_get_job 404 test-job
+ics_api_a1_delete_job 404 test-job
 
-    ics_api_a1_get_job_status 404 test-job
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE EMPTY
+ics_api_edp_get_producer_2 404 test-prod
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_delete_job 404 test-type test-job
-else
-    ics_api_a1_delete_job 404 test-job
-fi
-
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_jobs 404 test-prod
-else
-    ics_api_edp_get_producer_jobs_2 404 test-prod
-fi
-
-if [ $ICS_VERSION == "V1-2" ]; then
-    ics_api_edp_get_type_2 404 test-type
-    ics_api_edp_delete_type_2 404 test-type
-fi
+ics_api_edp_get_type_2 404 test-type
+ics_api_edp_delete_type_2 404 test-type
 
 ### Setup of producer/job and testing apis ###
 
 ## Setup prod-a
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
-    ics_api_edp_put_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
+ics_api_edp_get_type_ids 200 EMPTY
+ics_api_edp_get_type_2 404 type1
+ics_api_edp_put_producer_2 404 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+
+# Create type, delete and create again
+ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
+ics_api_edp_get_type_2 200 type1
+ics_api_edp_get_type_ids 200 type1
+ics_api_edp_delete_type_2 204 type1
+ics_api_edp_get_type_2 404 type1
+ics_api_edp_get_type_ids 200 EMPTY
+if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+    ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
 else
-    #V1-2
-    ics_api_edp_get_type_ids 200 EMPTY
-    ics_api_edp_get_type_2 404 type1
-    ics_api_edp_put_producer_2 404 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-
-    # Create type, delete and create again
     ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
-    ics_api_edp_get_type_2 200 type1
-    ics_api_edp_get_type_ids 200 type1
-    ics_api_edp_delete_type_2 204 type1
-    ics_api_edp_get_type_2 404 type1
-    ics_api_edp_get_type_ids 200 EMPTY
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
-        ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
-    else
-        ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
-    fi
-    ics_api_edp_get_type_ids 200 type1
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
-        ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
-    else
-        ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json
-    fi
-
-    ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-    ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-
-    if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-        cr_equal 0 received_callbacks 3 30
-        cr_equal 0 received_callbacks?id=type-status1 3
-        cr_api_check_all_ics_subscription_events 200 0 type-status1 type1 testdata/ics/ei-type-1.json REGISTERED type1 testdata/ics/ei-type-1.json DEREGISTERED type1 testdata/ics/ei-type-1.json REGISTERED
-    else
-        cr_equal 0 received_callbacks 0
-    fi
+fi
+ics_api_edp_get_type_ids 200 type1
+if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+    ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
+else
+    ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json
 fi
 
+ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal 0 received_callbacks 3 30
+    cr_equal 0 received_callbacks?id=type-status1 3
+    cr_api_check_all_ics_subscription_events 200 0 type-status1 type1 testdata/ics/ei-type-1.json REGISTERED type1 testdata/ics/ei-type-1.json DEREGISTERED type1 testdata/ics/ei-type-1.json REGISTERED
+else
+    cr_equal 0 received_callbacks 0
+fi
 
 ics_api_a1_get_type_ids 200 type1
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_type 200 type1 testdata/ics/ei-type-1.json
-else
-    ics_api_a1_get_type 200 type1 testdata/ics/empty-type.json
-fi
+ics_api_a1_get_type 200 type1 testdata/ics/empty-type.json
 
 ics_api_edp_get_type_ids 200 type1
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_type 200 type1 testdata/ics/ei-type-1.json prod-a
+if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+    ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
 else
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
-        ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
-    else
-        ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json
-    fi
+    ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json
 fi
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a
-    ics_api_edp_get_producer_ids_2 200 type1 prod-a
-    ics_api_edp_get_producer_ids_2 200 type2 EMPTY
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a
+ics_api_edp_get_producer_ids_2 200 type1 prod-a
+ics_api_edp_get_producer_ids_2 200 type2 EMPTY
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
-else
-    ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-fi
+ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 
 ics_api_edp_get_producer_status 200 prod-a ENABLED
 
 ics_api_a1_get_job_ids 200 type1 NOWNER EMPTY
 ics_api_a1_get_job_ids 200 type1 test-owner EMPTY
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job 404 type1 test-job
+ics_api_a1_get_job 404 test-job
 
-    ics_api_a1_get_job_status 404 type1 test-job
-else
-    ics_api_a1_get_job 404 test-job
+ics_api_a1_get_job_status 404 test-job
 
-    ics_api_a1_get_job_status 404 test-job
-fi
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_jobs 200 prod-a EMPTY
-else
-    ics_api_edp_get_producer_jobs_2 200 prod-a EMPTY
-fi
+ics_api_edp_get_producer_jobs_2 200 prod-a EMPTY
 
 ## Create a job for prod-a
 ## job1 - prod-a
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type1 job1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
 
 ics_api_a1_get_job_ids 200 type1 NOWNER job1
 ics_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
 
-if [ ! -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1
-fi
+ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job 200 type1 job1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
+ics_api_a1_get_job 200 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
 
-    ics_api_a1_get_job_status 200 type1 job1 ENABLED
-else
-    ics_api_a1_get_job 200 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
-
-    ics_api_a1_get_job_status 200 job1 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 ENABLED
 
 prodstub_equal create/prod-a/job1 1
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    ics_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-fi
+ics_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
+
 
 ## Create a second job for prod-a
 ## job2 - prod-a
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type1 job2 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
 ics_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ics_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
 ics_api_a1_get_job_ids 200 type1 ricsim_g3_2 job2
-if [ ! -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2
-fi
+ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job 200 type1 job2 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
+ics_api_a1_get_job 200 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
 
-    ics_api_a1_get_job_status 200 type1 job2 ENABLED
-else
-    ics_api_a1_get_job 200 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
-
-    ics_api_a1_get_job_status 200 job2 ENABLED
-fi
+ics_api_a1_get_job_status 200 job2 ENABLED
 
 prodstub_equal create/prod-a/job2 1
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    ics_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-fi
+ics_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
 
 ## Setup prod-b
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2 testdata/ics/ei-type-2.json
+ics_api_edp_put_type_2 201 type2 testdata/ics/ei-type-2.json
+ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
+if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
+    cr_equal 0 received_callbacks 4 30
+    cr_equal 0 received_callbacks?id=type-status1 4
+    cr_api_check_all_ics_subscription_events 200 0 type-status1 type2 testdata/ics/ei-type-2.json REGISTERED
 else
-    ics_api_edp_put_type_2 201 type2 testdata/ics/ei-type-2.json
-    ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
-    if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
-        cr_equal 0 received_callbacks 4 30
-        cr_equal 0 received_callbacks?id=type-status1 4
-        cr_api_check_all_ics_subscription_events 200 0 type-status1 type2 testdata/ics/ei-type-2.json REGISTERED
-    else
-        cr_equal 0 received_callbacks 0
-    fi
+    cr_equal 0 received_callbacks 0
 fi
 
 
 ics_api_a1_get_type_ids 200 type1 type2
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_type 200 type1 testdata/ics/ei-type-1.json
-    ics_api_a1_get_type 200 type2 testdata/ics/ei-type-2.json
-else
-    ics_api_a1_get_type 200 type1 testdata/ics/empty-type.json
-    ics_api_a1_get_type 200 type2 testdata/ics/empty-type.json
-fi
+
+ics_api_a1_get_type 200 type1 testdata/ics/empty-type.json
+ics_api_a1_get_type 200 type2 testdata/ics/empty-type.json
 
 ics_api_edp_get_type_ids 200 type1 type2
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_type 200 type1 testdata/ics/ei-type-1.json prod-a
-    ics_api_edp_get_type 200 type2 testdata/ics/ei-type-2.json prod-b
+if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
+    ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
 else
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
-        ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json testdata/ics/info-type-info.json
-    else
-        ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json
-    fi
-    ics_api_edp_get_type_2 200 type2 testdata/ics/ei-type-2.json
+    ics_api_edp_get_type_2 200 type1 testdata/ics/ei-type-1.json
 fi
+ics_api_edp_get_type_2 200 type2 testdata/ics/ei-type-2.json
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
-    ics_api_edp_get_producer 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2 testdata/ics/ei-type-2.json
-else
-    ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-    ics_api_edp_get_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
-fi
+ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+ics_api_edp_get_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
 
 ics_api_edp_get_producer_status 200 prod-b ENABLED
 
 ## Create job for prod-b
 ##  job3 - prod-b
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type2 job3 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
 
 prodstub_equal create/prod-b/job3 1
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
 
 ics_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ics_api_a1_get_job_ids 200 type2 NOWNER job3
@@ -650,46 +509,22 @@ ics_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
 ics_api_a1_get_job_ids 200 type1 ricsim_g3_2 job2
 ics_api_a1_get_job_ids 200 type2 ricsim_g3_3 job3
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job 200 type2 job3 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
+ics_api_a1_get_job 200 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
 
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-else
-    ics_api_a1_get_job 200 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
+ics_api_a1_get_job_status 200 job3 ENABLED
 
-    ics_api_a1_get_job_status 200 job3 ENABLED
-fi
+ics_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
+ics_api_edp_get_producer_jobs_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    ics_api_edp_get_producer_jobs 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-else
-    ics_api_edp_get_producer_jobs_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    ics_api_edp_get_producer_jobs_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-fi
 
 ## Setup prod-c (no types)
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c NOTYPE
-else
-    ics_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c NOTYPE
-fi
+ics_api_edp_put_producer_2 201 prod-c $CB_JOB/prod-c $CB_SV/prod-c NOTYPE
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
-    ics_api_edp_get_producer 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2 testdata/ics/ei-type-2.json
-    ics_api_edp_get_producer 200 prod-c $CB_JOB/prod-c $CB_SV/prod-c EMPTY
-else
-    ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-    ics_api_edp_get_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
-    ics_api_edp_get_producer_2 200 prod-c $CB_JOB/prod-c $CB_SV/prod-c EMPTY
-fi
+ics_api_edp_get_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+ics_api_edp_get_producer_2 200 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
+ics_api_edp_get_producer_2 200 prod-c $CB_JOB/prod-c $CB_SV/prod-c EMPTY
 
 ics_api_edp_get_producer_status 200 prod-c ENABLED
 
@@ -698,92 +533,40 @@ ics_api_edp_get_producer_status 200 prod-c ENABLED
 
 # Delete job then producer
 ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_delete_job 204 type2 job3
-else
-    ics_api_a1_delete_job 204 job3
-fi
+ics_api_a1_delete_job 204 job3
 
 ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
 
 ics_api_edp_delete_producer 204 prod-b
 
 ics_api_edp_get_producer_status 404 prod-b
 
 ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-c
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-c
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-c
 
 prodstub_equal delete/prod-b/job3 1
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 404 type2 job3 $TARGET3 ricsim_g3_3 testdata/ics/job-template.json
-else
-    if [ $ICS_VERSION == "V1-1" ]; then
-        ics_api_a1_put_job 404 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
-    else
-        ics_api_a1_put_job 201 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
-        ics_api_a1_get_job_status 200 job3 DISABLED
-    fi
-fi
+ics_api_a1_put_job 201 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template.json
+ics_api_a1_get_job_status 200 job3 DISABLED
 
 # Put producer then job
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2 testdata/ics/ei-type-2.json
-else
-    ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
-fi
+ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
 
 ics_api_edp_get_producer_status 200 prod-b ENABLED
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type2 job3 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-else
-    if [ $ICS_VERSION == "V1-1" ]; then
-        ics_api_a1_put_job 201 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template2.json
-    else
-        ics_api_a1_put_job 200 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template2.json
-    fi
-    ics_api_a1_get_job_status 200 job3 ENABLED
-fi
+    ics_api_a1_put_job 200 job3 type2 $TARGET3 ricsim_g3_3 $STATUS3 testdata/ics/job-template2.json
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-    else
-        prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-    fi
-fi
+ics_api_a1_get_job_status 200 job3 ENABLED
+
+prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
 
 ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_equal create/prod-b/job3 2
-else
-    prodstub_equal create/prod-b/job3 3
-fi
+prodstub_equal create/prod-b/job3 3
 prodstub_equal delete/prod-b/job3 1
 
 # Delete only the producer
@@ -792,17 +575,9 @@ ics_api_edp_delete_producer 204 prod-b
 ics_api_edp_get_producer_status 404 prod-b
 
 ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-c
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-c
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-c
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type2 job3 DISABLED
-else
-    ics_api_a1_get_job_status 200 job3 DISABLED
-fi
+ics_api_a1_get_job_status 200 job3 DISABLED
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 5 30
@@ -816,19 +591,11 @@ else
 fi
 
 # Re-create the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2 testdata/ics/ei-type-2.json
-else
-    ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
-fi
+ics_api_edp_put_producer_2 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2
 
 ics_api_edp_get_producer_status 200 prod-b ENABLED
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-else
-    ics_api_a1_get_job_status 200 job3 ENABLED
-fi
+ics_api_a1_get_job_status 200 job3 ENABLED
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 6 30
@@ -841,23 +608,11 @@ else
     cr_api_check_all_ics_events 200 0 job3-status ENABLED
 fi
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-    else
-        prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ics/job-template2.json
 
 ## Setup prod-d
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ics/ei-type-4.json
-else
-    ics_api_edp_put_type_2 201 type4 testdata/ics/ei-type-4.json
-    ics_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4
-fi
+ics_api_edp_put_type_2 201 type4 testdata/ics/ei-type-4.json
+ics_api_edp_put_producer_2 201 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 7 30
@@ -867,52 +622,24 @@ fi
 
 ics_api_a1_get_job_ids 200 type4 NOWNER EMPTY
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type4 job8 $TARGET8 ricsim_g3_4 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job8 type4 $TARGET8 ricsim_g3_4 $STATUS8 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job8 type4 $TARGET8 ricsim_g3_4 $STATUS8 testdata/ics/job-template.json
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_3 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ics/job-template.json
 
 prodstub_equal create/prod-d/job8 1
 prodstub_equal delete/prod-d/job8 0
 
 ics_api_a1_get_job_ids 200 type4 NOWNER job8
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-else
-    ics_api_a1_get_job_status 200 job8 ENABLED
-fi
+ics_api_a1_get_job_status 200 job8 ENABLED
 
 # Re-PUT the producer with zero types
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d NOTYPE
-else
-    ics_api_edp_put_producer_2 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d NOTYPE
-fi
+ics_api_edp_put_producer_2 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d NOTYPE
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_ids 404 type4 NOWNER
-else
-    ics_api_a1_get_job_ids 200 type4 NOWNER job8
-    ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3 job8
-fi
+ics_api_a1_get_job_ids 200 type4 NOWNER job8
+ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3 job8
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type4 job8 DISABLED
-else
-    ics_api_a1_get_job_status 200 job8 DISABLED
-fi
+ics_api_a1_get_job_status 200 job8 DISABLED
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 8 30
@@ -929,25 +656,13 @@ prodstub_equal create/prod-d/job8 1
 prodstub_equal delete/prod-d/job8 0
 
 ## Re-setup prod-d
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4 testdata/ics/ei-type-4.json
-else
-    ics_api_edp_put_type_2 200 type4 testdata/ics/ei-type-4.json
-    ics_api_edp_put_producer_2 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4
-fi
+ics_api_edp_put_type_2 200 type4 testdata/ics/ei-type-4.json
+ics_api_edp_put_producer_2 200 prod-d $CB_JOB/prod-d $CB_SV/prod-d type4
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_ids 404 type4 NOWNER
-else
-    ics_api_a1_get_job_ids 200 type4 NOWNER job8
-    ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3 job8
-fi
+ics_api_a1_get_job_ids 200 type4 NOWNER job8
+ics_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3 job8
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-else
-    ics_api_a1_get_job_status 200 job8 ENABLED
-fi
+ics_api_a1_get_job_status 200 job8 ENABLED
 
 ics_api_edp_get_producer_status 200 prod-a ENABLED
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -971,12 +686,8 @@ prodstub_equal create/prod-d/job8 2
 prodstub_equal delete/prod-d/job8 0
 
 ## Setup prod-e
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-e $CB_JOB/prod-e $CB_SV/prod-e type6 testdata/ics/ei-type-6.json
-else
-    ics_api_edp_put_type_2 201 type6 testdata/ics/ei-type-6.json
-    ics_api_edp_put_producer_2 201 prod-e $CB_JOB/prod-e $CB_SV/prod-e type6
-fi
+ics_api_edp_put_type_2 201 type6 testdata/ics/ei-type-6.json
+ics_api_edp_put_producer_2 201 prod-e $CB_JOB/prod-e $CB_SV/prod-e type6
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 11 30
@@ -986,40 +697,20 @@ fi
 
 ics_api_a1_get_job_ids 200 type6 NOWNER EMPTY
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type6 job10 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job10 type6 $TARGET10 ricsim_g3_4 $STATUS10 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job10 type6 $TARGET10 ricsim_g3_4 $STATUS10 testdata/ics/job-template.json
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_3 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
 
 prodstub_equal create/prod-e/job10 1
 prodstub_equal delete/prod-e/job10 0
 
 ics_api_a1_get_job_ids 200 type6 NOWNER job10
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 ## Setup prod-f
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-f $CB_JOB/prod-f $CB_SV/prod-f type6 testdata/ics/ei-type-6.json
-else
-    ics_api_edp_put_type_2 200 type6 testdata/ics/ei-type-6.json
-    ics_api_edp_put_producer_2 201 prod-f $CB_JOB/prod-f $CB_SV/prod-f type6
-fi
+ics_api_edp_put_type_2 200 type6 testdata/ics/ei-type-6.json
+ics_api_edp_put_producer_2 201 prod-f $CB_JOB/prod-f $CB_SV/prod-f type6
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 12 30
@@ -1029,34 +720,18 @@ fi
 
 ics_api_a1_get_job_ids 200 type6 NOWNER job10
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_3 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template.json
 
 prodstub_equal create/prod-f/job10 1
 prodstub_equal delete/prod-f/job10 0
 
 ics_api_a1_get_job_ids 200 type6 NOWNER job10
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 ## Status updates prod-a and jobs
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c prod-d prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d prod-e prod-f
 
 ics_api_edp_get_producer_status 200 prod-a ENABLED
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -1071,11 +746,7 @@ prodstub_arm_producer 200 prod-a 400
 # Wait for producer prod-a to go disabled
 ics_api_edp_get_producer_status 200 prod-a DISABLED 360
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c prod-d  prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d  prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d  prod-e prod-f
 
 ics_api_edp_get_producer_status 200 prod-a DISABLED
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -1085,19 +756,11 @@ ics_api_edp_get_producer_status 200 prod-e ENABLED
 ics_api_edp_get_producer_status 200 prod-f ENABLED
 
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 ENABLED
-    ics_api_a1_get_job_status 200 type1 job2 ENABLED
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job1 ENABLED
-    ics_api_a1_get_job_status 200 job2 ENABLED
-    ics_api_a1_get_job_status 200 job3 ENABLED
-    ics_api_a1_get_job_status 200 job8 ENABLED
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 ENABLED
+ics_api_a1_get_job_status 200 job2 ENABLED
+ics_api_a1_get_job_status 200 job3 ENABLED
+ics_api_a1_get_job_status 200 job8 ENABLED
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 # Arm producer prod-a for supervision
 prodstub_arm_producer 200 prod-a 200
@@ -1105,11 +768,7 @@ prodstub_arm_producer 200 prod-a 200
 # Wait for producer prod-a to go enabled
 ics_api_edp_get_producer_status 200 prod-a ENABLED 360
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c prod-d prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d prod-e prod-f
 
 ics_api_edp_get_producer_status 200 prod-a ENABLED
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -1118,19 +777,11 @@ ics_api_edp_get_producer_status 200 prod-d ENABLED
 ics_api_edp_get_producer_status 200 prod-e ENABLED
 ics_api_edp_get_producer_status 200 prod-f ENABLED
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 ENABLED
-    ics_api_a1_get_job_status 200 type1 job2 ENABLED
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job1 ENABLED
-    ics_api_a1_get_job_status 200 job2 ENABLED
-    ics_api_a1_get_job_status 200 job3 ENABLED
-    ics_api_a1_get_job_status 200 job8 ENABLED
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 ENABLED
+ics_api_a1_get_job_status 200 job2 ENABLED
+ics_api_a1_get_job_status 200 job3 ENABLED
+ics_api_a1_get_job_status 200 job8 ENABLED
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 # Arm producer prod-a for supervision failure
 prodstub_arm_producer 200 prod-a 400
@@ -1138,11 +789,7 @@ prodstub_arm_producer 200 prod-a 400
 # Wait for producer prod-a to go disabled
 ics_api_edp_get_producer_status 200 prod-a DISABLED 360
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-a prod-b prod-c prod-d prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-a prod-b prod-c prod-d prod-e prod-f
 
 ics_api_edp_get_producer_status 200 prod-a DISABLED
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -1151,32 +798,16 @@ ics_api_edp_get_producer_status 200 prod-d ENABLED
 ics_api_edp_get_producer_status 200 prod-e ENABLED
 ics_api_edp_get_producer_status 200 prod-f ENABLED
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 ENABLED
-    ics_api_a1_get_job_status 200 type1 job2 ENABLED
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job1 ENABLED
-    ics_api_a1_get_job_status 200 job2 ENABLED
-    ics_api_a1_get_job_status 200 job3 ENABLED
-    ics_api_a1_get_job_status 200 job8 ENABLED
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 ENABLED
+ics_api_a1_get_job_status 200 job2 ENABLED
+ics_api_a1_get_job_status 200 job3 ENABLED
+ics_api_a1_get_job_status 200 job8 ENABLED
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 # Wait for producer prod-a to be removed
-if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    ics_equal json:data-producer/v1/info-producers 5 1000
-else
-    ics_equal json:ei-producer/v1/eiproducers 5 1000
-fi
+ics_equal json:data-producer/v1/info-producers 5 1000
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e prod-f
 
 
 ics_api_edp_get_producer_status 404 prod-a
@@ -1186,19 +817,11 @@ ics_api_edp_get_producer_status 200 prod-d ENABLED
 ics_api_edp_get_producer_status 200 prod-e ENABLED
 ics_api_edp_get_producer_status 200 prod-f ENABLED
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 DISABLED
-    ics_api_a1_get_job_status 200 type1 job2 DISABLED
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job1 DISABLED
-    ics_api_a1_get_job_status 200 job2 DISABLED
-    ics_api_a1_get_job_status 200 job3 ENABLED
-    ics_api_a1_get_job_status 200 job8 ENABLED
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 DISABLED
+ics_api_a1_get_job_status 200 job2 DISABLED
+ics_api_a1_get_job_status 200 job3 ENABLED
+ics_api_a1_get_job_status 200 job8 ENABLED
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 14 30
@@ -1218,11 +841,7 @@ prodstub_arm_producer 200 prod-e 400
 
 ics_api_edp_get_producer_status 200 prod-e DISABLED 1000
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e prod-f
 
 ics_api_edp_get_producer_status 404 prod-a
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -1231,69 +850,37 @@ ics_api_edp_get_producer_status 200 prod-d ENABLED
 ics_api_edp_get_producer_status 200 prod-e DISABLED
 ics_api_edp_get_producer_status 200 prod-f ENABLED
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 DISABLED
-    ics_api_a1_get_job_status 200 type1 job2 DISABLED
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job1 DISABLED
-    ics_api_a1_get_job_status 200 job2 DISABLED
-    ics_api_a1_get_job_status 200 job3 ENABLED
-    ics_api_a1_get_job_status 200 job8 ENABLED
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 DISABLED
+ics_api_a1_get_job_status 200 job2 DISABLED
+ics_api_a1_get_job_status 200 job3 ENABLED
+ics_api_a1_get_job_status 200 job8 ENABLED
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 #Disable create for job10 in prod-e
 prodstub_arm_job_create 200 prod-e job10 400
 
 #Update tjob 10 - only prod-f will be updated
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 200 type6 job10 $TARGET10 ricsim_g3_4 testdata/ics/job-template2.json
-else
-    ics_api_a1_put_job 200 job10 type6 $TARGET10 ricsim_g3_4 $STATUS10 testdata/ics/job-template2.json
-fi
+ics_api_a1_put_job 200 job10 type6 $TARGET10 ricsim_g3_4 $STATUS10 testdata/ics/job-template2.json
 #Reset producer and job responses
 prodstub_arm_producer 200 prod-e 200
 prodstub_arm_job_create 200 prod-e job10 200
 
 ics_api_edp_get_producer_status 200 prod-e ENABLED 360
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e prod-f
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e prod-f
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e prod-f
 
 #Wait for job to be updated
 sleep_wait 120
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template2.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_2 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template2.json
-    else
-        prodstub_check_jobdata_3 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template2.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ics/job-template2.json
 
 prodstub_arm_producer 200 prod-f 400
 
 ics_api_edp_get_producer_status 200 prod-f DISABLED 360
 
-if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    ics_equal json:data-producer/v1/info-producers 4 1000
-else
-    ics_equal json:ei-producer/v1/eiproducers 4 1000
-fi
+ics_equal json:data-producer/v1/info-producers 4 1000
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e
-else
-    ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e
-fi
+ics_api_edp_get_producer_ids_2 200 NOTYPE prod-b prod-c prod-d prod-e
 
 ics_api_edp_get_producer_status 404 prod-a
 ics_api_edp_get_producer_status 200 prod-b ENABLED
@@ -1302,39 +889,16 @@ ics_api_edp_get_producer_status 200 prod-d ENABLED
 ics_api_edp_get_producer_status 200 prod-e ENABLED
 ics_api_edp_get_producer_status 404 prod-f
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 DISABLED
-    ics_api_a1_get_job_status 200 type1 job2 DISABLED
-    ics_api_a1_get_job_status 200 type2 job3 ENABLED
-    ics_api_a1_get_job_status 200 type4 job8 ENABLED
-    ics_api_a1_get_job_status 200 type6 job10 ENABLED
-else
-    ics_api_a1_get_job_status 200 job1 DISABLED
-    ics_api_a1_get_job_status 200 job2 DISABLED
-    ics_api_a1_get_job_status 200 job3 ENABLED
-    ics_api_a1_get_job_status 200 job8 ENABLED
-    ics_api_a1_get_job_status 200 job10 ENABLED
-fi
+ics_api_a1_get_job_status 200 job1 DISABLED
+ics_api_a1_get_job_status 200 job2 DISABLED
+ics_api_a1_get_job_status 200 job3 ENABLED
+ics_api_a1_get_job_status 200 job8 ENABLED
+ics_api_a1_get_job_status 200 job10 ENABLED
 
 if [[ "$ICS_FEATURE_LEVEL" == *"TYPE-SUBSCRIPTIONS"* ]]; then
     cr_equal 0 received_callbacks 14 30
 else
     cr_equal 0 received_callbacks 6 30
-fi
-
-
-if [[ "$ICS_FEATURE_LEVEL" != *"INFO-TYPES"* ]]; then
-
-    # End test if info types is not impl in tested version
-    check_ics_logs
-
-    store_logs END
-
-    #### TEST COMPLETE ####
-
-    print_result
-
-    auto_clean_environment
 fi
 
 
@@ -1863,11 +1427,7 @@ ics_api_idc_get_job_status2 200 job108 ENABLED 1 prod-id
 ics_api_idc_get_job_status2 200 job110 ENABLED 2 prod-ie prod-if
 
 # Wait for producer prod-ia to be removed
-if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    ics_equal json:data-producer/v1/info-producers 9 1000
-else
-    ics_equal json:ei-producer/v1/eiproducers 9 1000
-fi
+ics_equal json:data-producer/v1/info-producers 9 1000
 
 ics_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-if  prod-b prod-c prod-d prod-e
 
@@ -1945,11 +1505,7 @@ prodstub_arm_producer 200 prod-if 400
 
 ics_api_edp_get_producer_status 200 prod-if DISABLED 360
 
-if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-    ics_equal json:data-producer/v1/info-producers 8 1000
-else
-    ics_equal json:ei-producer/v1/eiproducers 8 1000
-fi
+ics_equal json:data-producer/v1/info-producers 8 1000
 
 ics_api_edp_get_producer_ids_2 200 NOTYPE prod-ib prod-ic prod-id prod-ie prod-b prod-c prod-d prod-e
 

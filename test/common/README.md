@@ -2871,7 +2871,7 @@ Translate ric name to kube host name.
 | --------- | ----------- |
 | `<ric-name>` | The name of the ric to translate into a host name (ip) |
 
-## Function: generate_policy_uuid ##
+## Function: sim_generate_policy_uuid ##
 
 Geneate a UUID prefix to use along with the policy instance number when creating/deleting policies. Sets the env var UUID.
 UUID is then automatically added to the policy id in GET/PUT/DELETE.
@@ -3152,7 +3152,7 @@ Checks the status of a policy
 
 ## License
 
-Copyright (C) 2020 Nordix Foundation. All rights reserved.
+Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

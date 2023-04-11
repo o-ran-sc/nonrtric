@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ TESTED_PROTOCOLS="HTTP HTTPS"
 NUM_RICS=20
 NUM_POLICIES_PER_RIC=500
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
@@ -71,15 +71,28 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
             use_simulator_https
-            use_mr_https
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+                :
+            else
+                use_mr_https
+            fi
             if [[ $interface = *"SDNC"* ]]; then
-                use_sdnc_https
+                if [[ "$SDNC_FEATURE_LEVEL" == *"NO_NB_HTTPS"* ]]; then
+                    deviation "SDNC does not support NB https"
+                    use_sdnc_http
+                else
+                    use_sdnc_https
+                fi
             fi
             use_a1pms_rest_https
         else
             use_cr_http
             use_simulator_http
-            use_mr_http
+            if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+                :
+            else
+                use_mr_http
+            fi
             if [[ $interface = *"SDNC"* ]]; then
                 use_sdnc_http
             fi
@@ -107,6 +120,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
+            controller_api_wait_for_status_ok 200 ricsim_g1_1
             prepare_a1pms_config      SDNC  ".a1pms_config.json"
         else
             prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
@@ -118,7 +132,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             a1pms_api_put_configuration 200 ".a1pms_config.json"
         fi
 
-        start_mr # Not used, but removes error messages from the a1pms log
+        if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+            :
+        else
+            start_mr #Just to prevent errors in the a1pms log...
+        fi
 
         start_cr 1
 

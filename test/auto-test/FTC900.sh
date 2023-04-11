@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -56,7 +56,11 @@ start_ric_simulators  $RIC_SIM_PREFIX"_g2" $STD_NUM_RICS STD_1.1.3
 
 start_ric_simulators  $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
 
-start_mr #Just to prevent errors in the a1pms log...
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    start_mr #Just to prevent errors in the a1pms log...
+fi
 
 start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
 
@@ -158,11 +162,11 @@ notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 # Create policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 2 $((2000+$i)) NOTRANSIENT $notificationurl testdata/OSC/pihw_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT $notificationurl testdata/OSC/piqos_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT $notificationurl testdata/OSC/pitsa_template.json 1
 done
 
@@ -177,11 +181,11 @@ done
 # Create policies in STD
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
 done
 

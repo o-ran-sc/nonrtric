@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -258,7 +258,7 @@ __execute_curl_to_chartmuseum() {
 		fi
 	fi
 	echo " CMD: $3 -skw %{http_code} $proxyflag" >> $HTTPLOG
-	res="$($3 -skw %{http_code} $proxyflag)"
+	res=$($3 -skw %{http_code} $proxyflag)
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then

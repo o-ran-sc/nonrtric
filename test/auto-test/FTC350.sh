@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 use_cr_http
 
@@ -73,13 +73,17 @@ for interface in $TESTED_VARIANTS ; do
 
     start_cr 1
 
-    start_mr
-
+    if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+        :
+    else
+        start_mr
+    fi
 
 
     # Create first config
     if [[ $interface = *"SDNC"* ]]; then
         start_sdnc
+        controller_api_wait_for_status_ok 200 ricsim_g1_1
         prepare_a1pms_config      SDNC  ".a1pms_config_initial.json"
     else
         prepare_a1pms_config      NOSDNC  ".a1pms_config_initial.json"

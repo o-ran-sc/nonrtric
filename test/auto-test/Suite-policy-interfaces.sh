@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - interface testing. A1PMS REST, DMAAP and SNDC controller resconf"
+TS_ONELINE_DESCR="Test suite - interface testing. A1PMS REST and SNDC controller resconf"
 
 . ../common/testsuite_common.sh
 

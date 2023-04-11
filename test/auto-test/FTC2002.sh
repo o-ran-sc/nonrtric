@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 #Test a1pms and simulator protocol versions (others are http only)
 NB_TESTED_PROTOCOLS="HTTP HTTPS"
@@ -75,10 +75,16 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         start_ric_simulators ricsim_g3 1  STD_2.0.0
 
         start_sdnc
+        controller_api_wait_for_status_ok 200 ricsim_g1_1
 
         if [ $__nb_httpx == "HTTPS" ]; then
             # "Using secure ports towards SDNC"
-            use_sdnc_https
+            if [[ "$SDNC_FEATURE_LEVEL" == *"NO_NB_HTTPS"* ]]; then
+                deviation "SDNC does not support NB https"
+                use_sdnc_http
+            else
+                use_sdnc_https
+            fi
         else
             #"Using non-secure ports towards SDNC"
             use_sdnc_http

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -54,12 +54,7 @@ use_ics_rest_https
 use_prod_stub_https
 use_dmaapmed_https
 
-if [ $ICS_VERSION == "V1-1" ]; then
-    use_rapp_catalogue_http # https not yet supported
-else
-    ########################################use_rapp_catalogue_https
-    use_rapp_catalogue_http
-fi
+use_rapp_catalogue_http
 
 echo -e "$RED CHECK WHY RC HTTPS DOES NOT WORK $ERED"
 
@@ -103,6 +98,7 @@ kafkapc_api_start_sending 200 "unauthenticated.dmaapadp_kafka.text"
 start_control_panel
 
 start_sdnc
+controller_api_wait_for_status_ok 200 a1-sim-std-1
 
 start_a1pms
 
@@ -234,9 +230,9 @@ a1pms_api_put_service 201 "Emergency-response-app" 0 "$CR_SERVICE_APP_PATH_0/ER-
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
     ricid=$((3+$i))
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid NOTYPE $((1200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD/pi1_template.json 1
 done
 
@@ -244,9 +240,9 @@ done
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
    ricid=$((5+$i))
-   generate_policy_uuid
+   sim_generate_policy_uuid
    a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS_0_2_0 $((2100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos_template.json 1
-   generate_policy_uuid
+   sim_generate_policy_uuid
    a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid STD_QOS2_0.1.0 $((2200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"std2" testdata/STD2/pi_qos2_template.json 1
 done
 
@@ -254,9 +250,9 @@ done
 for ((i=0; i<$OSC_NUM_RICS; i++))
 do
     ricid=$((1+$i))
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid 1 $((3100+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi1_template.json 1
-    generate_policy_uuid
+    sim_generate_policy_uuid
     a1pms_api_put_policy 201 "Emergency-response-app" ric$ricid 2 $((3200+$i)) NOTRANSIENT $CR_SERVICE_APP_PATH_0/"osc" testdata/OSC/pi2_template.json 1
 done
 
@@ -306,8 +302,6 @@ cr_api_reset 0   # Reset CR to count new events
 echo "ADD EVENT/STATUS CHECK"
 echo "ADD MR CHECK"
 
-FLAT_A1_EI="1"
-
 ics_api_admin_reset
 
 CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
@@ -328,60 +322,30 @@ prodstub_arm_job_create 200 prod-a job2
 ics_api_service_status 200
 
 ## Setup prod-a
-if [ $ICS_VERSION == "V1-1" ]; then
-    ics_api_edp_put_producer 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
+ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
+ics_api_edp_get_type_2 200 type1
 
-    ics_api_edp_get_producer 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1 testdata/ics/ei-type-1.json
-else
-    ics_api_edp_put_type_2 201 type1 testdata/ics/ei-type-1.json
-    ics_api_edp_get_type_2 200 type1
+ics_api_edp_get_type_ids 200 type1
 
-    ics_api_edp_get_type_ids 200 type1
-
-    ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-    ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
-fi
+ics_api_edp_put_producer_2 201 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
+ics_api_edp_put_producer_2 200 prod-a $CB_JOB/prod-a $CB_SV/prod-a type1
 
 ics_api_edp_get_producer_status 200 prod-a ENABLED
 
 
 ## Create a job for prod-a
 ## job1 - prod-a
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type1 job1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job1 type1 $TARGET1 ricsim_g3_1 $STATUS1 testdata/ics/job-template.json
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE3LEVEL" == *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_2 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ics/job-template.json
 
 ## Create a second job for prod-a
 ## job2 - prod-a
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_put_job 201 type1 job2 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
-fi
+ics_api_a1_put_job 201 job2 type1 $TARGET2 ricsim_g3_2 $STATUS2 testdata/ics/job-template.json
 
 # Check the job data in the producer
-if [ $ICS_VERSION == "V1-1" ]; then
-    prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-else
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-        prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    else
-        prodstub_check_jobdata_2 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
-    fi
-fi
+prodstub_check_jobdata_3 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ics/job-template.json
 
 # Dmaap mediator and adapter
 start_dmaapadp NOPROXY $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_CONFIG_FILE_TEMPLATE $SIM_GROUP/$DMAAP_ADP_COMPOSE_DIR/$DMAAP_ADP_DATA_FILE
@@ -451,13 +415,8 @@ start_stopped_ics
 
 # Check ICS status after restart
 
-if [  -z "$FLAT_A1_EI" ]; then
-    ics_api_a1_get_job_status 200 type1 job1 DISABLED
-    ics_api_a1_get_job_status 200 type1 job2 DISABLED
-else
-    ics_api_a1_get_job_status 200 job1 DISABLED
-    ics_api_a1_get_job_status 200 job2 DISABLED
-fi
+ics_api_a1_get_job_status 200 job1 DISABLED
+ics_api_a1_get_job_status 200 job2 DISABLED
 
 check_a1pms_logs
 check_ics_logs

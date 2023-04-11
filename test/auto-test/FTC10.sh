@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
+TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST"
 
 #App names to include in the test when running docker, space separated list
 DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM NGW KUBEPROXY"
@@ -43,7 +43,7 @@ setup_testenvironment
 
 #### TEST BEGIN ####
 
-generate_policy_uuid
+sim_generate_policy_uuid
 
 use_simulator_http
 use_mr_http
@@ -60,7 +60,11 @@ start_ric_simulators  ricsim_g2 5 STD_1.1.3
 
 start_ric_simulators ricsim_g3 1  STD_2.0.0
 
-start_mr
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    :
+else
+    start_mr
+fi
 
 start_cr 1
 
@@ -113,8 +117,11 @@ a1pms_api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notification
 
 sim_equal ricsim_g1_1 num_instances 1
 
-
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 
 a1pms_api_put_policy 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
@@ -128,7 +135,11 @@ a1pms_api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT $notific
 sim_equal ricsim_g2_1 num_instances 1
 
 
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 
 a1pms_api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 
@@ -140,7 +151,11 @@ a1pms_api_put_policy 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true $notific
 
 sim_equal ricsim_g3_1 num_instances 1
 
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 
 a1pms_api_put_policy 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos_template.json 1
 
@@ -156,7 +171,11 @@ a1pms_api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notification
 sim_equal ricsim_g1_1 num_instances 2
 
 
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 
 a1pms_api_put_policy 200 "service1" ricsim_g1_1 1 3000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
@@ -171,7 +190,11 @@ a1pms_api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT $notific
 sim_equal ricsim_g2_1 num_instances 2
 
 
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 
 a1pms_api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 
@@ -184,7 +207,11 @@ a1pms_api_put_policy 200 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true $notific
 sim_equal ricsim_g3_1 num_instances 2
 
 
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 
 a1pms_api_put_policy 200 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 true $notificationurl testdata/STD2/pi_qos_template.json 1
 
@@ -205,15 +232,27 @@ sim_equal ricsim_g3_1 num_instances 2
 
 # Remove policies
 
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 a1pms_api_delete_policy 204 2000
 use_a1pms_rest_http
 a1pms_api_delete_policy 204 3000
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 a1pms_api_delete_policy 204 2100
 use_a1pms_rest_http
 a1pms_api_delete_policy 204 3100
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 a1pms_api_delete_policy 204 2200
 use_a1pms_rest_http
 a1pms_api_delete_policy 204 3200
@@ -240,7 +279,11 @@ a1pms_api_get_policy 404 2200
 a1pms_api_get_policy 404 3200
 
 # Remove the service
-use_a1pms_dmaap_http
+if [[ "$A1PMS_FEATURE_LEVEL" == *"NO-DMAAP"* ]]; then
+    use_a1pms_rest_http
+else
+    use_a1pms_dmaap_http
+fi
 a1pms_api_delete_services 204 "service1"
 
 a1pms_api_get_services 404 "service1"

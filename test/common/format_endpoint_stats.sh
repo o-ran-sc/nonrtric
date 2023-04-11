@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -133,5 +133,6 @@ echo "===  Results: positive=2XX http status, negative=non 2XX http status - (ok
 echo "Method     Endpoint                                      Positive         Negative"
 cat $SUMMARYFILE | cut -c 4-
 
+echo "-- end of test report -- "
 exit 0
 

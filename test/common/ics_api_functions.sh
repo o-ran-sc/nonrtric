@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -505,43 +505,29 @@ ics_equal() {
 #Function prefix: ics_api_a1
 
 # API Test function: GET /A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs
-# args: <response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
-# args (flat uri structure): <response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
+# args: <response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
 # (Function for test scripts)
 ics_api_a1_get_job_ids() {
 	__log_test_start $@
 
-	if [ -z "$FLAT_A1_EI" ]; then
-		# Valid number of parameters 4,5,6 etc
-    	if [ $# -lt 3 ]; then
-			__print_err "<response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
-			return 1
-		fi
-	else
-		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
-		# Valid number of parameters 4,5,6 etc
-    	if [ $# -lt 3 ]; then
-			__print_err "<response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
-			return 1
-		fi
+	# Valid number of parameters 4,5,6 etc
+	if [ $# -lt 3 ]; then
+		__print_err "<response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
+		return 1
 	fi
 	search=""
 	if [ $3 != "NOWNER" ]; then
 		search="?owner="$3
 	fi
 
-	if [  -z "$FLAT_A1_EI" ]; then
-		query="/A1-EI/v1/eitypes/$2/eijobs$search"
-	else
-		if [ $2 != "NOTYPE" ]; then
-			if [ -z "$search" ]; then
-				search="?eiTypeId="$2
-			else
-				search=$search"&eiTypeId="$2
-			fi
+	if [ $2 != "NOTYPE" ]; then
+		if [ -z "$search" ]; then
+			search="?eiTypeId="$2
+		else
+			search=$search"&eiTypeId="$2
 		fi
-		query="/A1-EI/v1/eijobs$search"
 	fi
+	query="/A1-EI/v1/eijobs$search"
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
@@ -605,11 +591,7 @@ ics_api_a1_get_type() {
 			__log_test_fail_general "Schema file "$3", does not exist"
 			return 1
 		fi
-		if [ -z "$FLAT_A1_EI" ]; then
-			targetJson="{\"eiJobParametersSchema\":$schema}"
-		else
-			targetJson=$schema
-		fi
+		targetJson=$schema
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
@@ -668,121 +650,81 @@ ics_api_a1_get_type_ids() {
 }
 
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}​/status
-# args: <response-code> <type-id> <job-id> [<status>]
-# args (flat uri structure): <response-code> <job-id> [<status> [<timeout>]]
+# args: <response-code> <job-id> [<status> [<timeout>]]
 # (Function for test scripts)
 ics_api_a1_get_job_status() {
 	__log_test_start $@
 
-	if [ -z "$FLAT_A1_EI" ]; then
-		if [ $# -ne 3 ] && [ $# -ne 4 ]; then
-			__print_err "<response-code> <type-id> <job-id> [<status>]" $@
-			return 1
-		fi
+	if [ $# -lt 2 ] && [ $# -gt 4 ]; then
+		__print_err "<response-code> <job-id> [<status> [<timeout>]]" $@
+		return 1
+	fi
 
-		query="/A1-EI/v1/eitypes/$2/eijobs/$3/status"
+	query="/A1-EI/v1/eijobs/$2/status"
 
+	start=$SECONDS
+	for (( ; ; )); do
 		res="$(__do_curl_to_api ICS GET $query)"
 		status=${res:${#res}-3}
 
-		if [ $status -ne $1 ]; then
-			__log_test_fail_status_code $1 $status
-			return 1
-		fi
 		if [ $# -eq 4 ]; then
+			duration=$((SECONDS-start))
+			echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
+			if [ $duration -gt $4 ]; then
+				echo ""
+				duration=-1  #Last iteration
+			fi
+		else
+			duration=-1 #single test, no wait
+		fi
+
+		if [ $status -ne $1 ]; then
+			if [ $duration -eq -1 ]; then
+				__log_test_fail_status_code $1 $status
+				return 1
+			fi
+		fi
+		if [ $# -ge 3 ] && [ $status -eq $1 ]; then
 			body=${res:0:${#res}-3}
-			targetJson="{\"operationalState\": \"$4\"}"
+			targetJson="{\"eiJobStatus\": \"$3\"}"
 			echo " TARGET JSON: $targetJson" >> $HTTPLOG
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				__log_test_fail_body
-				return 1
-			fi
-		fi
-	else
-		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
-		if [ $# -lt 2 ] && [ $# -gt 4 ]; then
-			__print_err "<response-code> <job-id> [<status> [<timeout>]]" $@
-			return 1
-		fi
-
-		query="/A1-EI/v1/eijobs/$2/status"
-
-		start=$SECONDS
-		for (( ; ; )); do
-			res="$(__do_curl_to_api ICS GET $query)"
-			status=${res:${#res}-3}
-
-			if [ $# -eq 4 ]; then
-				duration=$((SECONDS-start))
-				echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
-				if [ $duration -gt $4 ]; then
-					echo ""
-					duration=-1  #Last iteration
-				fi
-			else
-				duration=-1 #single test, no wait
-			fi
-
-			if [ $status -ne $1 ]; then
 				if [ $duration -eq -1 ]; then
-					__log_test_fail_status_code $1 $status
+					__log_test_fail_body
 					return 1
 				fi
-			fi
-			if [ $# -ge 3 ] && [ $status -eq $1 ]; then
-				body=${res:0:${#res}-3}
-				targetJson="{\"eiJobStatus\": \"$3\"}"
-				echo " TARGET JSON: $targetJson" >> $HTTPLOG
-				res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-
-				if [ $res -ne 0 ]; then
-					if [ $duration -eq -1 ]; then
-						__log_test_fail_body
-						return 1
-					fi
-				else
-					duration=-1  #Goto pass
-				fi
-			fi
-			if [ $duration -eq -1 ]; then
-				if [ $# -eq 4 ]; then
-					echo ""
-				fi
-				__log_test_pass
-				return 0
 			else
-				sleep 1
+				duration=-1  #Goto pass
 			fi
-		done
-	fi
+		fi
+		if [ $duration -eq -1 ]; then
+			if [ $# -eq 4 ]; then
+				echo ""
+			fi
+			__log_test_pass
+			return 0
+		else
+			sleep 1
+		fi
+	done
 
 	__log_test_pass
 	return 0
 }
 
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
-# args: <response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]
-# args (flat uri structure): <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
+# args: <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
 # (Function for test scripts)
 ics_api_a1_get_job() {
 	__log_test_start $@
 
-	if [  -z "$FLAT_A1_EI" ]; then
-		if [ $# -ne 3 ] && [ $# -ne 6 ]; then
-			__print_err "<response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]" $@
-			return 1
-		fi
-		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
-	else
-		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
-		if [ $# -ne 2 ] && [ $# -ne 7 ]; then
-			__print_err "<response-code> <job-id> [<type-id> <target-url> <owner-id> <notification-url> <template-job-file>]" $@
-			return 1
-		fi
-		query="/A1-EI/v1/eijobs/$2"
+	if [ $# -ne 2 ] && [ $# -ne 7 ]; then
+		__print_err "<response-code> <job-id> [<type-id> <target-url> <owner-id> <notification-url> <template-job-file>]" $@
+		return 1
 	fi
+	query="/A1-EI/v1/eijobs/$2"
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
@@ -791,45 +733,23 @@ ics_api_a1_get_job() {
 		return 1
 	fi
 
-	if [  -z "$FLAT_A1_EI" ]; then
-		if [ $# -eq 6 ]; then
-			body=${res:0:${#res}-3}
+	if [ $# -eq 7 ]; then
+		body=${res:0:${#res}-3}
 
-			if [ -f $6 ]; then
-				jobfile=$(cat $6)
-				jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
-			else
-				__log_test_fail_general "Job template file "$6", does not exist"
-				return 1
-			fi
-			targetJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
-			echo " TARGET JSON: $targetJson" >> $HTTPLOG
-			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-
-			if [ $res -ne 0 ]; then
-				__log_test_fail_body
-				return 1
-			fi
+		if [ -f $7 ]; then
+			jobfile=$(cat $7)
+			jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
+		else
+			__log_test_fail_general "Job template file "$6", does not exist"
+			return 1
 		fi
-	else
-		if [ $# -eq 7 ]; then
-			body=${res:0:${#res}-3}
+		targetJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
-			if [ -f $7 ]; then
-				jobfile=$(cat $7)
-				jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
-			else
-				__log_test_fail_general "Job template file "$6", does not exist"
-				return 1
-			fi
-			targetJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
-			echo " TARGET JSON: $targetJson" >> $HTTPLOG
-			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-
-			if [ $res -ne 0 ]; then
-				__log_test_fail_body
-				return 1
-			fi
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
 		fi
 	fi
 
@@ -838,27 +758,16 @@ ics_api_a1_get_job() {
 }
 
 # API Test function: DELETE ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
-# args: <response-code> <type-id> <job-id>
-# args (flat uri structure): <response-code> <job-id>
+# args: <response-code> <job-id>
 # (Function for test scripts)
 ics_api_a1_delete_job() {
 	__log_test_start $@
 
-	if [  -z "$FLAT_A1_EI" ]; then
-		if [ $# -ne 3 ]; then
-			__print_err "<response-code> <type-id> <job-id>" $@
-			return 1
-		fi
-
-		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
-	else
-		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
-		if [ $# -ne 2 ]; then
-			__print_err "<response-code> <job-id>" $@
-			return 1
-		fi
-		query="/A1-EI/v1/eijobs/$2"
+	if [ $# -ne 2 ]; then
+		__print_err "<response-code> <job-id>" $@
+		return 1
 	fi
+	query="/A1-EI/v1/eijobs/$2"
     res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
@@ -872,50 +781,28 @@ ics_api_a1_delete_job() {
 }
 
 # API Test function: PUT ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
-# args: <response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>
-# args (flat uri structure): <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>
+# args <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>
 # (Function for test scripts)
 ics_api_a1_put_job() {
 	__log_test_start $@
 
-	if [  -z "$FLAT_A1_EI" ]; then
-		if [ $# -lt 6 ]; then
-			__print_err "<response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>" $@
-			return 1
-		fi
-		if [ -f $6 ]; then
-			jobfile=$(cat $6)
-			jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
-		else
-			__log_test_fail_general "Job template file "$6", does not exist"
-			return 1
-		fi
-
-		inputJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
-		file="./tmp/.p.json"
-		echo "$inputJson" > $file
-
-		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
-	else
-		echo -e $YELLOW"INTERFACE - FLAT URI STRUCTURE"$EYELLOW
-		if [ $# -lt 7 ]; then
-			__print_err "<response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>" $@
-			return 1
-		fi
-		if [ -f $7 ]; then
-			jobfile=$(cat $7)
-			jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
-		else
-			__log_test_fail_general "Job template file "$7", does not exist"
-			return 1
-		fi
-
-		inputJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
-		file="./tmp/.p.json"
-		echo "$inputJson" > $file
-
-		query="/A1-EI/v1/eijobs/$2"
+	if [ $# -lt 7 ]; then
+		__print_err "<response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>" $@
+		return 1
 	fi
+	if [ -f $7 ]; then
+		jobfile=$(cat $7)
+		jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
+	else
+		__log_test_fail_general "Job template file "$7", does not exist"
+		return 1
+	fi
+
+	inputJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+	file="./tmp/.p.json"
+	echo "$inputJson" > $file
+
+	query="/A1-EI/v1/eijobs/$2"
 
     res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
@@ -946,11 +833,7 @@ ics_api_edp_get_type_ids() {
 		__print_err "<response-code> [ EMPTY | <type-id>+]" $@
 		return 1
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-types"
-	else
-		query="/ei-producer/v1/eitypes"
-	fi
+	query="/data-producer/v1/info-types"
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
@@ -995,11 +878,7 @@ ics_api_edp_get_producer_status() {
 		__print_err "<response-code> <producer-id> [<status> [<timeout>]]" $@
 		return 1
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-producers/$2/status"
-	else
-		query="/ei-producer/v1/eiproducers/$2/status"
-	fi
+	query="/data-producer/v1/info-producers/$2/status"
 	start=$SECONDS
 	for (( ; ; )); do
 		res="$(__do_curl_to_api ICS GET $query)"
@@ -1108,17 +987,10 @@ ics_api_edp_get_producer_ids_2() {
 		__print_err "<response-code> [ ( NOTYPE | <type-id> ) [ EMPTY | <producer-id>+] ]" $@
 		return 1
 	fi
-    if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-producers"
-		if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
-			query=$query"?info_type_id=$2&infoTypeId=$2"  #info_type_id changed to infoTypeId in F-release.
-			                                              #Remove info_type_id when F-release is no longer supported
-		fi
-	else
-		query="/ei-producer/v1/eiproducers"
-		if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
-			query=$query"?ei_type_id=$2"
-		fi
+	query="/data-producer/v1/info-producers"
+	if [ $# -gt 1 ] && [ $2 != "NOTYPE" ]; then
+		query=$query"?info_type_id=$2&infoTypeId=$2"  #info_type_id changed to infoTypeId in F-release.
+														#Remove info_type_id when F-release is no longer supported
 	fi
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
@@ -1228,20 +1100,14 @@ ics_api_edp_get_type_2() {
 	if [ $# -eq 3 ]; then
 		paramError=0
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
-		if [ $# -eq 4 ]; then
-			paramError=0
-		fi
+	if [ $# -eq 4 ]; then
+		paramError=0
 	fi
     if [ $paramError -ne 0 ]; then
 		__print_err "<response-code> <type-id> [<job-schema-file> [ <info-type-info> ]]" $@
 		return 1
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-types/$2"
-	else
-		query="/ei-producer/v1/eitypes/$2"
-	fi
+	query="/data-producer/v1/info-types/$2"
 
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
@@ -1269,11 +1135,7 @@ ics_api_edp_get_type_2() {
 			fi
 			info_data=",\"info_type_information\":$info_data"
 		fi
-		if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-			targetJson="{\"info_job_data_schema\":$schema $info_data}"
-		else
-			targetJson="{\"ei_job_data_schema\":$schema}"
-		fi
+		targetJson="{\"info_job_data_schema\":$schema $info_data}"
 
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
@@ -1294,16 +1156,9 @@ ics_api_edp_get_type_2() {
 ics_api_edp_put_type_2() {
 	__log_test_start $@
 
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPE-INFO"* ]]; then
-		if [ $# -lt 3 ] || [ $# -gt 4 ]; then
-			__print_err "<response-code> <type-id> <job-schema-file> [ <info-type-info> ]" $@
-			return 1
-		fi
-	else
-		if [ $# -ne 3 ]; then
-			__print_err "<response-code> <type-id> <job-schema-file>" $@
-			return 1
-		fi
+	if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+		__print_err "<response-code> <type-id> <job-schema-file> [ <info-type-info> ]" $@
+		return 1
 	fi
 
 	if [ ! -f $3 ]; then
@@ -1322,21 +1177,12 @@ ics_api_edp_put_type_2() {
 		info_data=",\"info_type_information\":$info_data"
 	fi
 
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		schema=$(cat $3)
-		input_json="{\"info_job_data_schema\":$schema $info_data}"
-		file="./tmp/put_type.json"
-		echo $input_json > $file
+	schema=$(cat $3)
+	input_json="{\"info_job_data_schema\":$schema $info_data}"
+	file="./tmp/put_type.json"
+	echo $input_json > $file
 
-		query="/data-producer/v1/info-types/$2"
-	else
-		schema=$(cat $3)
-		input_json="{\"ei_job_data_schema\":$schema}"
-		file="./tmp/put_type.json"
-		echo $input_json > $file
-
-		query="/ei-producer/v1/eitypes/$2"
-	fi
+	query="/data-producer/v1/info-types/$2"
     res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
@@ -1361,11 +1207,7 @@ ics_api_edp_delete_type_2() {
 		return 1
 	fi
 
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-types/$2"
-	else
-		query="/ei-producer/v1/eitypes/$2"
-	fi
+	query="/data-producer/v1/info-types/$2"
     res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
@@ -1470,11 +1312,7 @@ ics_api_edp_get_producer_2() {
 		__print_err "<response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | <type-id>+) ]" $@
 		return 1
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-producers/$2"
-	else
-		query="/ei-producer/v1/eiproducers/$2"
-	fi
+	query="/data-producer/v1/info-producers/$2"
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
@@ -1497,11 +1335,7 @@ ics_api_edp_get_producer_2() {
 		fi
 		targetJson=$targetJson"]"
 		if [ $# -gt 4 ]; then
-			if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-				targetJson="{\"supported_info_types\":$targetJson,\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\"}"
-			else
-				targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\"}"
-			fi
+			targetJson="{\"supported_info_types\":$targetJson,\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\"}"
 		fi
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
@@ -1527,11 +1361,7 @@ ics_api_edp_delete_producer() {
 		__print_err "<response-code> <producer-id>" $@
 		return 1
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-producers/$2"
-	else
-		query="/ei-producer/v1/eiproducers/$2"
-	fi
+	query="/data-producer/v1/info-producers/$2"
     res="$(__do_curl_to_api ICS DELETE $query)"
     status=${res:${#res}-3}
 
@@ -1628,27 +1458,15 @@ ics_api_edp_put_producer_2() {
 			inputJson=$inputJson"\""${arr[$i]}"\""
 		done
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		inputJson="\"supported_info_types\":"$inputJson"]"
+	inputJson="\"supported_info_types\":"$inputJson"]"
 
-		inputJson=$inputJson",\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\""
+	inputJson=$inputJson",\"info_job_callback_url\": \"$3\",\"info_producer_supervision_callback_url\": \"$4\""
 
-		inputJson="{"$inputJson"}"
+	inputJson="{"$inputJson"}"
 
-		file="./tmp/.p.json"
-		echo "$inputJson" > $file
-		query="/data-producer/v1/info-producers/$2"
-	else
-		inputJson="\"supported_ei_types\":"$inputJson"]"
-
-		inputJson=$inputJson",\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\""
-
-		inputJson="{"$inputJson"}"
-
-		file="./tmp/.p.json"
-		echo "$inputJson" > $file
-		query="/ei-producer/v1/eiproducers/$2"
-	fi
+	file="./tmp/.p.json"
+	echo "$inputJson" > $file
+	query="/data-producer/v1/info-producers/$2"
     res="$(__do_curl_to_api ICS PUT $query $file)"
     status=${res:${#res}-3}
 
@@ -1748,11 +1566,7 @@ ics_api_edp_get_producer_jobs_2() {
 		__print_err "<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)" $@
 		return 1
 	fi
-	if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-		query="/data-producer/v1/info-producers/$2/info-jobs"
-	else
-		query="/ei-producer/v1/eiproducers/$2/eijobs"
-	fi
+	query="/data-producer/v1/info-producers/$2/info-jobs"
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 	if [ $status -ne $1 ]; then
@@ -1775,11 +1589,8 @@ ics_api_edp_get_producer_jobs_2() {
 					__log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
 					return 1
 				fi
-				if [[ "$ICS_FEATURE_LEVEL" == *"INFO-TYPES"* ]]; then
-					targetJson=$targetJson"{\"info_job_identity\":\"${arr[$i]}\",\"info_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"info_job_data\":$jobfile, \"last_updated\":\"????\"}"
-				else
-					targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile, \"last_updated\":\"????\"}"
-				fi
+				targetJson=$targetJson"{\"info_job_identity\":\"${arr[$i]}\",\"info_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"info_job_data\":$jobfile, \"last_updated\":\"????\"}"
+
 			done
 		fi
 		targetJson=$targetJson"]"
@@ -2405,11 +2216,7 @@ ics_api_idc_delete_subscription() {
 ics_api_admin_reset() {
 	__log_test_start $@
 
-	if [  -z "$FLAT_A1_EI" ]; then
-		query="/A1-EI/v1/eitypes/$2/eijobs"
-	else
-		query="/A1-EI/v1/eijobs"
-	fi
+	query="/A1-EI/v1/eijobs"
     res="$(__do_curl_to_api ICS GET $query)"
     status=${res:${#res}-3}
 
@@ -2426,18 +2233,14 @@ ics_api_admin_reset() {
 	list=$(echo ${list//\"/})
 	list=$list" "
 	for job in $list; do
-		if [  -z "$FLAT_A1_EI" ]; then
-			echo "Not supported for non-flat EI api"
-		else
-			query="/A1-EI/v1/eijobs/$job"
-			res="$(__do_curl_to_api ICS DELETE $query)"
-			status=${res:${#res}-3}
-			if [ $status -ne 204 ]; then
-				__log_test_fail_status_code $1 $status
-				return 1
-			fi
-			echo " Deleted job: "$job
+		query="/A1-EI/v1/eijobs/$job"
+		res="$(__do_curl_to_api ICS DELETE $query)"
+		status=${res:${#res}-3}
+		if [ $status -ne 204 ]; then
+			__log_test_fail_status_code $1 $status
+			return 1
 		fi
+		echo " Deleted job: "$job
 	done
 
 	__log_test_pass
