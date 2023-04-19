@@ -16,4 +16,4 @@
 ################################################################################
 
 A1PMS_ADAPTER_CLASS=""         # adapter java class
-A1PMS_ADAPTER_POLICY_NAME=""   # policy type for adaper
+A1PMS_ADAPTER_POLICY_NAME=""   # policy type for adapter

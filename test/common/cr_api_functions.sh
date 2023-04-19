@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains container/service managemnt functions test functions for the Callback Reciver
+# This is a script that contains container/service management functions test functions for the Callback Receiver
 
 
 ################ Test engine functions ################
@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __CR_imagesetup() {
-	__check_and_create_image_var CR "CR_IMAGE" "CR_IMAGE_BASE" "CR_IMAGE_TAG" LOCAL "$CR_DISPLAY_NAME"
+	__check_and_create_image_var CR "CR_IMAGE" "CR_IMAGE_BASE" "CR_IMAGE_TAG" LOCAL "$CR_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -44,7 +44,7 @@ __CR_imagepull() {
 __CR_imagebuild() {
 	cd ../cr
 	echo " Building CR - $CR_DISPLAY_NAME - image: $CR_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
+	docker build $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image CR_IMAGE
@@ -78,12 +78,12 @@ __CR_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __CR_kube_scale_zero_and_wait() {
 	echo -e $RED" CR app is not scaled in this state"$ERED
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __CR_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest CR
@@ -91,7 +91,7 @@ __CR_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __CR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		for podname in $(kubectl $KUBECONF get pods -n $KUBE_SIM_NAMESPACE -l "autotest=CR" -o custom-columns=":metadata.name"); do
@@ -112,11 +112,11 @@ __CR_initial_setup() {
 	use_cr_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__CR_statisics_setup() {
+__CR_statistics_setup() {
 	for ((CR_INSTANCE=MAX_CR_APP_COUNT; CR_INSTANCE>0; CR_INSTANCE-- )); do
 		if [ $RUNMODE == "KUBE" ]; then
 			CR_INSTANCE_KUBE=$(($CR_INSTANCE-1))
@@ -214,7 +214,7 @@ __cr_export_vars() {
 	export CR_APP_COUNT
 }
 
-# Start the Callback reciver in the simulator group
+# Start the Callback receiver in the simulator group
 # args: <app-count>
 # (Function for test scripts)
 start_cr() {
@@ -237,7 +237,7 @@ start_cr() {
 		__check_included_image "CR"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "CR"
 		retcode_p=$?
 
@@ -680,7 +680,7 @@ cr_api_reset() {
 # CR API: Check the contents of all json events for path
 # <response-code> <cr-path-id> <topic-url> (EMPTY | <json-msg>+ )
 # (Function for test scripts)
-cr_api_check_all_genric_json_events() {
+cr_api_check_all_generic_json_events() {
 	__log_test_start $@
 
 	if [ $# -lt 4 ]; then
@@ -736,7 +736,7 @@ cr_api_check_all_genric_json_events() {
 # CR API: Check a single (oldest) json event (or none if empty) for path
 # <response-code> <cr-path-id> <topic-url> (EMPTY | <json-msg> )
 # (Function for test scripts)
-cr_api_check_single_genric_json_event() {
+cr_api_check_single_generic_json_event() {
 	__log_test_start $@
 
 	if [ $# -ne 4 ]; then
@@ -783,7 +783,7 @@ cr_api_check_single_genric_json_event() {
 # The MD5 will generate different hash if ws is present or not in otherwise equivalent json
 # arg: <response-code> <cr-path-id> <topic-url> (EMPTY | <data-msg> )
 # (Function for test scripts)
-cr_api_check_single_genric_event_md5() {
+cr_api_check_single_generic_event_md5() {
 	__log_test_start $@
 
 	if [ $# -ne 4 ]; then
@@ -846,7 +846,7 @@ cr_api_check_single_genric_event_md5() {
 # The MD5 will generate different hash if ws/newlines is present or not in otherwise equivalent json
 # arg: <response-code> <cr-path-id> <topic-url> (EMPTY | <data-file> )
 # (Function for test scripts)
-cr_api_check_single_genric_event_md5_file() {
+cr_api_check_single_generic_event_md5_file() {
 	__log_test_start $@
 
 	if [ $# -ne 4 ]; then

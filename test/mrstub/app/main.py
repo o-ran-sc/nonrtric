@@ -544,7 +544,7 @@ def current_responses():
 
 ### Admin ###
 
-# Reset all messsages and counters
+# Reset all messages and counters
 @app.route('/reset',
     methods=['GET', 'POST', 'PUT'])
 def reset():

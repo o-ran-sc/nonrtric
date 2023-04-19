@@ -26,16 +26,16 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __MR_imagesetup() {
-	__check_and_create_image_var MR "MRSTUB_IMAGE" "MRSTUB_IMAGE_BASE" "MRSTUB_IMAGE_TAG" LOCAL "$MR_STUB_DISPLAY_NAME"
+	__check_and_create_image_var MR "MRSTUB_IMAGE" "MRSTUB_IMAGE_BASE" "MRSTUB_IMAGE_TAG" LOCAL "$MR_STUB_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Create the image var used during the test
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __DMAAPMR_imagesetup() {
-	__check_and_create_image_var DMAAPMR "ONAP_DMAAPMR_IMAGE"    "ONAP_DMAAPMR_IMAGE_BASE"  "ONAP_DMAAPMR_IMAGE_TAG"   REMOTE_RELEASE_ONAP "DMAAP Message Router"
-	__check_and_create_image_var DMAAPMR "ONAP_ZOOKEEPER_IMAGE" "ONAP_ZOOKEEPER_IMAGE_BASE" "ONAP_ZOOKEEPER_IMAGE_TAG" REMOTE_RELEASE_ONAP "ZooKeeper"
-	__check_and_create_image_var DMAAPMR "ONAP_KAFKA_IMAGE"     "ONAP_KAFKA_IMAGE_BASE"     "ONAP_KAFKA_IMAGE_TAG"     REMOTE_RELEASE_ONAP "Kafka"
+	__check_and_create_image_var DMAAPMR "ONAP_DMAAPMR_IMAGE"    "ONAP_DMAAPMR_IMAGE_BASE"  "ONAP_DMAAPMR_IMAGE_TAG"   REMOTE_RELEASE_ONAP "DMAAP Message Router" ""
+	__check_and_create_image_var DMAAPMR "ONAP_ZOOKEEPER_IMAGE" "ONAP_ZOOKEEPER_IMAGE_BASE" "ONAP_ZOOKEEPER_IMAGE_TAG" REMOTE_RELEASE_ONAP "ZooKeeper" ""
+	__check_and_create_image_var DMAAPMR "ONAP_KAFKA_IMAGE"     "ONAP_KAFKA_IMAGE_BASE"     "ONAP_KAFKA_IMAGE_TAG"     REMOTE_RELEASE_ONAP "Kafka" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -64,7 +64,7 @@ __DMAAPMR_imagepull() {
 __MR_imagebuild() {
 	cd ../mrstub
 	echo " Building MR - $MR_STUB_DISPLAY_NAME - image: $MRSTUB_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
+	docker build  $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image MRSTUB_IMAGE
@@ -130,24 +130,24 @@ __DMAAPMR_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __MR_kube_scale_zero_and_wait() {
 	echo -e " MR replicas kept as is"
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __DMAAPMR_kube_scale_zero_and_wait() {
 	echo -e " DMAAP replicas kept as is"
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __MR_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest MR
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __DMAAPMR_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest DMAAPMR
@@ -155,7 +155,7 @@ __DMAAPMR_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __MR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=MR" -n $KUBE_ONAP_NAMESPACE --tail=-1 > $1$2_mr_stub.log 2>&1
@@ -166,7 +166,7 @@ __MR_store_docker_logs() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __DMAAPMR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		for podname in $(kubectl $KUBECONF get pods -n $KUBE_ONAP_NAMESPACE -l "autotest=DMAAPMR" -o custom-columns=":metadata.name"); do
@@ -193,11 +193,11 @@ __DMAAPMR_initial_setup() {
 	:  # handle by __MR_initial_setup
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__MR_statisics_setup() {
+__MR_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "MR-STUB $MR_STUB_APP_NAME $KUBE_ONAP_NAMESPACE"
 	else
@@ -205,11 +205,11 @@ __MR_statisics_setup() {
 	fi
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__DMAAPMR_statisics_setup() {
+__DMAAPMR_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "KAFKA $MR_KAFKA_APP_NAME $KUBE_ONAP_NAMESPACE MESSAGE-ROUTER $MR_DMAAP_APP_NAME $KUBE_ONAP_NAMESPACE ZOOKEEPER $MR_ZOOKEEPER_APP_NAME $KUBE_ONAP_NAMESPACE"
 	else
@@ -302,7 +302,7 @@ __mr_set_protocoll() {
 	# Access via test script
 	MR_STUB_PATH=$MR_HTTPX"://"$MR_STUB_APP_NAME":"$INT_PORT  # access from script via proxy, docker
 	MR_DMAAP_PATH=$MR_HTTPX"://"$MR_DMAAP_APP_NAME":"$INT_PORT # access from script via proxy, docker
-	MR_DMAAP_ADAPTER_HTTP="" # Access to dmaap mr via proyx - set only if app is included
+	MR_DMAAP_ADAPTER_HTTP="" # Access to dmaap mr via proxy - set only if app is included
 
 	MR_SERVICE_PATH=$MR_STUB_PATH # access container->container, docker -  access pod->svc, kube
 	MR_KAFKA_SERVICE_PATH=""
@@ -316,7 +316,7 @@ __mr_set_protocoll() {
 		MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME":"$MR_ZOOKEEPER_PORT
 	fi
 
-	# For directing calls from script to e.g.A1PMS via message rounter
+	# For directing calls from script to e.g.A1PMS via message router
 	# These cases shall always go though the  mr-stub
 	MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME":"$2
 	MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME":"$4
@@ -345,7 +345,7 @@ __mr_set_protocoll() {
 			MR_ZOOKEEPER_SERVICE_PATH=$MR_ZOOKEEPER_APP_NAME"."$KUBE_ONAP_NAMESPACE":"$MR_ZOOKEEPER_PORT
 		fi
 
-		# For directing calls from script to e.g.A1PMS, via message rounter
+		# For directing calls from script to e.g.A1PMS, via message router
 		# These calls shall always go though the  mr-stub
 		MR_ADAPTER_HTTP="http://"$MR_STUB_APP_NAME.$KUBE_ONAP_NAMESPACE":"$3
 		MR_ADAPTER_HTTPS="https://"$MR_STUB_APP_NAME.$KUBE_ONAP_NAMESPACE":"$5
@@ -422,15 +422,15 @@ start_mr() {
 
 	if [ $RUNMODE == "KUBE" ]; then
 
-        # Table of possible combinations of included mr and included/prestarted dmaap-mr
-		# mr can never be prestarted
+        # Table of possible combinations of included mr and included/pre-started dmaap-mr
+		# mr can never be pre-started
 		# mr can be used stand alone
-		# if dmaapmr is included/prestarted, then mr is needed as well as frontend
+		# if dmaapmr is included/pre-started, then mr is needed as well as frontend
 
         # Inverted logic - 0 mean true, 1 means false
-		# mr prestarted      0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1
+		# mr pre-started     0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1
 		# mr included        0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1
-		# dmaap prestarted   0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1
+		# dmaap pre-started  0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1
 		# dmaap included     0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
 		# ==================================================
 		# OK                 1 1 1 1 1 0 1 1 1 0 1 1 1 0 1 1

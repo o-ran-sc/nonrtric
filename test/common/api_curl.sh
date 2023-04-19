@@ -19,7 +19,7 @@
 
 # Generic function to query the A1PMS/ICS via the REST or DMAAP interface.
 # Used by all other A1PMS/ICS api test functions
-# If operation sufffix is '_BATCH' the the send and get response is split in two sequences,
+# If operation suffix is '_BATCH' the the send and get response is split in two sequences,
 # one for sending the requests and one for receiving the response
 # but only when using the DMAAP interface
 # REST or DMAAP is controlled of the base url of $XX_ADAPTER

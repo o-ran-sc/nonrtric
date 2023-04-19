@@ -31,6 +31,7 @@ __print_args() {
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
 	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>] [--host-path-dir <local-host-dir>]"
 	echo "      [--kubecontext <context-name>] [--docker-host <docker-host-url>] [--docker-proxy <host-or-ip>]"
+	echo "      [--target-platform <platform> ]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -63,7 +64,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--override <file>     -  Override setting from the file supplied by --env-file"
 	echo "--pre-clean           -  Will clean kube resouces when running docker and vice versa"
 	echo "--gen-stats           -  Collect container/pod runtime statistics"
-	echo "--delete-namespaces   -  Delete kubernetes namespaces before starting tests - but only those created by the test scripts. Kube mode only. Ignored if running with prestarted apps."
+	echo "--delete-namespaces   -  Delete kubernetes namespaces before starting tests - but only those created by the test scripts. Kube mode only. Ignored if running with pre-started apps."
 	echo "--delete-containers   -  Delete docker containers before starting tests - but only those created by the test scripts. Docker mode only."
 	echo "--endpoint-stats      -  Collect endpoint statistics"
 	echo "--kubeconfig          -  Configure kubectl to use cluster specific cluster config file"
@@ -71,6 +72,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--kubecontext         -  Configure kubectl to use a certain context, e.g 'minikube'"
 	echo "--docker-host         -  Configure docker to use docker in e.g. a VM"
 	echo "--docker-proxy        -  Configure ip/host to docker when docker is running in a VM"
+	echo "--target-platform     -  Build and pull images for this target platform"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -109,7 +111,7 @@ echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
 # Var to hold 'auto' in case containers shall be stopped when test case ends
 AUTO_CLEAN=""
 
-# Var to indicate pre clean, if flag --pre-clean is set the script will clean kube resouces when running docker and vice versa
+# Var to indicate pre clean, if flag --pre-clean is set the script will clean kube resources when running docker and vice versa
 PRE_CLEAN="0"
 
 # Var to hold the app names to use local images for
@@ -131,7 +133,7 @@ USE_EXTERNAL_IMAGES=""
 STOP_AT_ERROR=0
 
 # The default value "DEV" indicate that development image tags (SNAPSHOT) and nexus repos (nexus port 10002) are used.
-# The value "RELEASE" indicate that relase image tag and nexus repos (nexus port) are used
+# The value "RELEASE" indicate that released image tag and nexus repos (nexus port) are used
 # Applies only to images defined in the test-env files with image names and tags defined as XXXX_RELEASE
 IMAGE_CATEGORY="DEV"
 
@@ -139,6 +141,12 @@ IMAGE_CATEGORY="DEV"
 #V1 names replicated containers <proj-name>_<service-name>_<index>
 #V2 names replicated containers <proj-name>-<service-name>-<index>
 DOCKER_COMPOSE_VERSION="V1"
+
+# Name of target platform, if set by start cmd
+IMAGE_TARGET_PLATFORM=""
+IMAGE_TARGET_PLATFORM_CMD_PARAM="" # Docker cmd param for setting target platform
+IMAGE_TARGET_PLATFORM_IMG_TAG=""  # Will be set to target platform if cmd parameter is set
+IMAGE_TARGET_PLATFORM_IMG_TAG=$(docker info --format '{{json  . }}' | jq -r .Architecture | sed 's/\//_/g')
 
 # Function to indent cmd output with one space
 indent1() { sed 's/^/ /'; }
@@ -249,7 +257,7 @@ exec &>  >(tee ${TCLOG})
 
 echo $(date) > $TESTLOGS/$ATC/endpoint_tc_start.log
 echo "$TC_ONELINE_DESCR" > $TESTLOGS/$ATC/endpoint_tc_slogan.log
-echo "Test failed" > $TESTLOGS/$ATC/endpoint_tc_end.log  # Will be overritten if test is ok
+echo "Test failed" > $TESTLOGS/$ATC/endpoint_tc_end.log  # Will be overwritten if test is ok
 
 #Variables for counting tests as well as passed and failed tests
 RES_TEST=0
@@ -261,7 +269,7 @@ RES_DEVIATION=0
 #Var to control if current stats shall be printed
 PRINT_CURRENT_STATS=0
 
-#Var to control if container/pod runtim statistics shall be collected
+#Var to control if container/pod runtime statistics shall be collected
 COLLECT_RUNTIME_STATS=0
 COLLECT_RUNTIME_STATS_PID=0
 
@@ -280,7 +288,7 @@ KUBECONF=""
 #Localhost, may be set to another host/ip by cmd parameter
 LOCALHOST_NAME="localhost"
 
-#Reseting vars related to token/keys used by kubeproxy when istio is enabled
+#Resetting vars related to token/keys used by kubeproxy when istio is enabled
 #The vars are populated if istio is used in the testcase
 KUBE_PROXY_CURL_JWT=""
 KUBE_PROXY_ISTIO_JWKS_KEYS=""
@@ -345,7 +353,7 @@ __log_test_fail_general() {
 
 # Function to log a test case failed due to incorrect response code
 __log_test_fail_status_code() {
-	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
+	echo -e $RED" FAIL. Expected status "$1", got "$2 $3 $ERED
 	((RES_FAIL++))
 	__print_current_stats
 	__check_stop_at_error
@@ -404,7 +412,7 @@ __log_conf_fail_general() {
 
 # Function to log a failed configuration setup due to incorrect response code
 __log_conf_fail_status_code() {
-	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
+	echo -e $RED" FAIL. Expected status "$1", got "$2 $3 $ERED
 	((RES_CONF_FAIL++))
 	__print_current_stats
 	__check_stop_at_error
@@ -479,7 +487,7 @@ TCTEST_START=$SECONDS
 #Vars to hold the start time and timer text for a custom timer
 TC_TIMER_STARTTIME=""
 TC_TIMER_TIMER_TEXT=""
-TC_TIMER_CURRENT_FAILS="" # Then numer of failed test when timer starts.
+TC_TIMER_CURRENT_FAILS="" # Then number of failed test when timer starts.
                           # Compared with the current number of fails at timer stop
 						  # to judge the measurement reliability
 
@@ -838,7 +846,7 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			else
 				if [ -z "KUBE_PRESTARTED_IMAGES" ]; then
 					DELETE_KUBE_NAMESPACES=0
-					echo "Option ignored - Delete namespaces (ignored when using prestarted apps)"
+					echo "Option ignored - Delete namespaces (ignored when using pre-started apps)"
 				else
 					DELETE_KUBE_NAMESPACES=1
 					echo "Option set - Delete namespaces"
@@ -982,6 +990,32 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 				echo "Option set - docker proxy set to: "$1
 				shift
 				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--target-platform" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No platform string found for : '--target-platform'"
+				fi
+			else
+				if [ "$1" != "linux/amd64" ]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="Only target platform 'linux/amd64' currently supported"
+					fi
+				else
+					export IMAGE_TARGET_PLATFORM=$1
+					export IMAGE_TARGET_PLATFORM_CMD_PARAM="--platform $1"
+					echo "Option set - Build and pull platform set to: "$1
+					IMAGE_TARGET_PLATFORM_IMG_TAG=$(echo "$1" | sed 's/\//_/g')
+					echo "Setting 'docker build' as alias for 'docker buildx'" | indent2
+					shift
+					foundparm=0
+				fi
 			fi
 		fi
 	fi
@@ -1225,11 +1259,11 @@ image_list_file="./tmp/.image-list"
 echo -e "Application\tApp short name\tImage\ttag\ttag-switch" > $image_list_file
 
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
-# arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name>
+# arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name> <target-platform>
 __check_and_create_image_var() {
-
-	if [ $# -ne 6 ]; then
-		echo "Expected arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name>"
+	echo $@
+	if [ $# -ne 7 ]; then
+		echo "Expected arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name> <target-platform>"
 		((IMAGE_ERR++))
 		return
 	fi
@@ -1245,7 +1279,9 @@ __check_and_create_image_var() {
 	image="${!3}"
 	tmptag=$4"_"$5
 	tag="${!tmptag}"
-
+	if [ ! -z "$7" ]; then
+		tag=$tag-$7   # add platform to tag - for local images built by the test script
+	fi
 	optional_image_repo_target=""
 
 	if [ -z $image ]; then
@@ -1574,7 +1610,7 @@ __check_and_pull_image() {
 		fi
 		if [ -z "$tmp_im" ]; then
 			echo -ne "  Pulling image${SAMELINE}"
-			out=$(docker pull $source_image)
+			out=$(docker $IMAGE_TARGET_PLATFORM_CMD_PARAM pull $source_image)
 			if [ $? -ne 0 ]; then
 				echo ""
 				echo -e "  Pulling image -$RED could not be pulled"$ERED
@@ -1915,7 +1951,7 @@ setup_testenvironment() {
 			function_pointer="__"$imagename"_initial_setup"
 			$function_pointer
 
-			function_pointer="__"$imagename"_statisics_setup"
+			function_pointer="__"$imagename"_statistics_setup"
 			LOG_STAT_ARGS=$LOG_STAT_ARGS" "$($function_pointer)
 		fi
 	done
@@ -2758,7 +2794,7 @@ __clean_kube() {
 		# This function is called and is expected to exist in the imported
 		# file for the ricsim test functions
 		# The resulting function impl shall scale the resources to 0
-		# For prestarted apps, the function waits until the resources are 0
+		# For pre-started apps, the function waits until the resources are 0
 		# For included (not prestated) apps, the scaling is just ordered
 		__check_prestarted_image $imagename
 		if [ $? -eq 0 ]; then

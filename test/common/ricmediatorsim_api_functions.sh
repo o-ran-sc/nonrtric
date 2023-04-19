@@ -25,8 +25,8 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __RICMEDIATORSIM_imagesetup() {
-	__check_and_create_image_var RICMEDIATORSIM "RICMEDIATOR_SIM_IMAGE" "RICMEDIATOR_SIM_IMAGE_BASE" "RICMEDIATOR_SIM_IMAGE_TAG" REMOTE_RELEASE_ORAN "$RICMEDIATOR_SIM_DISPLAY_NAME"
-	__check_and_create_image_var RICMEDIATORSIM "RICMEDIATOR_SIM_DB_IMAGE" "RICMEDIATOR_SIM_DB_IMAGE_BASE" "RICMEDIATOR_SIM_DB_IMAGE_TAG" REMOTE_RELEASE_ORAN "$RICMEDIATOR_SIM_DB_DISPLAY_NAME"
+	__check_and_create_image_var RICMEDIATORSIM "RICMEDIATOR_SIM_IMAGE" "RICMEDIATOR_SIM_IMAGE_BASE" "RICMEDIATOR_SIM_IMAGE_TAG" REMOTE_RELEASE_ORAN "$RICMEDIATOR_SIM_DISPLAY_NAME" ""
+	__check_and_create_image_var RICMEDIATORSIM "RICMEDIATOR_SIM_DB_IMAGE" "RICMEDIATOR_SIM_DB_IMAGE_BASE" "RICMEDIATOR_SIM_DB_IMAGE_TAG" REMOTE_RELEASE_ORAN "$RICMEDIATOR_SIM_DB_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -68,12 +68,12 @@ __RICMEDIATORSIM_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __RICMEDIATORSIM_kube_scale_zero_and_wait() {
 	__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app $KUBE_A1SIM_NAMESPACE"-neara1simulator"
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __RICMEDIATORSIM_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_A1SIM_NAMESPACE autotest RICMEDIATORSIM
@@ -81,7 +81,7 @@ __RICMEDIATORSIM_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __RICMEDIATORSIM_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		for podname in $(kubectl $KUBECONF get pods -n $KUBE_A1SIM_NAMESPACE -l "autotest=RICMEDIATORSIM" -o custom-columns=":metadata.name"); do
@@ -103,11 +103,11 @@ __RICMEDIATORSIM_initial_setup() {
 	use_ricmediator_simulator_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__RICMEDIATORSIM_statisics_setup() {
+__RICMEDIATORSIM_statistics_setup() {
 	for ((RICMEDIATOR_SIMINSTANCE=10; RICMEDIATOR_SIMINSTANCE>0; RICMEDIATOR_SIMINSTANCE-- )); do
 		if [ $RUNMODE == "KUBE" ]; then
 			RICMEDIATOR_SIMINSTANCE_KUBE=$(($RICMEDIATOR_SIMINSTANCE-1))
@@ -182,7 +182,7 @@ start_ricmediator_simulators() {
 		__check_included_image "RICMEDIATORSIM"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "RICMEDIATORSIM"
 		retcode_p=$?
 
@@ -300,7 +300,7 @@ start_ricmediator_simulators() {
 
 		docker_args=" --scale $RICMEDIATOR_SIMCOMPOSE_SERVICE_NAME=$2"
 
-		#Create a list of contsiner names
+		#Create a list of container names
 		#Will be <ricsim-prefix>_<service-name>_<index>
 		# or
 		# <ricsim-prefix>-<service-name>-<index>
@@ -376,7 +376,7 @@ nearsim_generate_policy_uuid() {
 	UUID=${UUID:0:${#UUID}-4}"a"
 }
 
-# Excute a curl cmd towards a ricsimulator and check the response code.
+# Execute a curl cmd towards a ricsimulator and check the response code.
 # args: <expected-response-code> <curl-cmd-string>
 __execute_curl_to_ricmediatorsim() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
@@ -423,14 +423,6 @@ __execute_curl_to_ricmediatorsim() {
 # (Function for test scripts)
 ricmediatorsim_equal() {
 	__log_test_fail_not_supported
-	# if [ $# -eq 3 ] || [ $# -eq 4 ]; then
-	# 	host=$(__find_ricmediatorsim_host $1)
-	# 	__var_test $1 "$host/counter/" $2 "=" $3 $4
-	# 	return 0
-	# else
-	# 	__print_err "needs three or four args: <ric-id> <sim-param> <target-value> [ timeout ]"
-	# 	return 1
-	# fi
 }
 
 # Print a variable value from the RICMEDIATOR sim.
@@ -438,12 +430,6 @@ ricmediatorsim_equal() {
 # (Function for test scripts)
 ricmediatorsim_print() {
 	__log_test_info_not_supported
-	# if [ $# != 2 ]; then
-    # 	__print_err "need two args, <ric-id> <sim-param>" $@
-	# 	exit 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $1)
-	# echo -e $BOLD"INFO(${BASH_LINENO[0]}): $1, $2 = $(__do_curl $host/counter/$2)"$EBOLD
 }
 
 # Tests if a variable value in the RICMEDIATOR simulator contains the target string and and optional timeout
@@ -455,14 +441,6 @@ ricmediatorsim_print() {
 # (Function for test scripts)
 ricmediatorsim_contains_str() {
 	__log_test_fail_not_supported
-	# if [ $# -eq 3 ] || [ $# -eq 4 ]; then
-	# 	host=$(__find_ricmediatorsim_host $1)
-	# 	__var_test $1 "$host/counter/" $2 "contain_str" $3 $4
-	# 	return 0
-	# else
-	# 	__print_err "needs three or four args: <ric-id> <sim-param> <target-value> [ timeout ]"
-	# 	return 1
-	# fi
 }
 
 # Simulator API: Put a policy type in a ric
@@ -500,15 +478,6 @@ ricmediatorsim_delete_policy_type() {
 # (Function for test scripts)
 ricmediatorsim_post_delete_instances() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 2 ]; then
-	# 	__print_err "<response-code> <ric-id>" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} "$host"/deleteinstances"
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
 
 # Simulator API: Delete all (instances/types/statuses/settings), for one ric
@@ -516,15 +485,6 @@ ricmediatorsim_post_delete_instances() {
 # (Function for test scripts)
 ricmediatorsim_post_delete_all() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 2 ]; then
-	# 	__print_err "<response-code> <numericic-id>" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} "$host"/deleteall"
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
 
 # Simulator API: Set (or reset) response code for next A1 message, for one ric
@@ -532,18 +492,6 @@ ricmediatorsim_post_delete_all() {
 # (Function for test scripts)
 ricmediatorsim_post_forcedresponse() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 3 ]; then
-	# 	__print_err "<response-code> <ric-id> <forced_response_code>" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} "$host"/forceresponse"
-	# if [ $# -eq 3 ]; then
-	# 	curlString=$curlString"?code="$3
-	# fi
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
 
 # Simulator API: Set (or reset) A1 response delay, for one ric
@@ -551,16 +499,4 @@ ricmediatorsim_post_forcedresponse() {
 # (Function for test scripts)
 ricmediatorsim_post_forcedelay() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 3 ]; then
-	# 	__print_err "<response-code> <ric-id> [<delay-in-seconds>]" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} $host/forcedelay"
-	# if [ $# -eq 3 ]; then
-	# 	curlString=$curlString"?delay="$3
-	# fi
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }

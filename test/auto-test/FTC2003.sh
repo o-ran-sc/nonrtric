@@ -24,7 +24,7 @@ DOCKER_INCLUDED_IMAGES="CR MR ICS HTTPPROXY KUBEPROXY DMAAPADP"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" CR MR ICS HTTPPROXY KUBEPROXY DMAAPADP"
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -117,8 +117,8 @@ done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
-    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_generic_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
+    cr_api_check_single_generic_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
 done
 
 cr_contains_str 0 remote_hosts $HTTP_PROXY_APP_NAME

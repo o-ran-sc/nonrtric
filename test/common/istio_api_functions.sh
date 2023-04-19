@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains function to handle helm on localhost
+# This is a script that contain functions to handle istio configuration
 
 
 ################ Test engine functions ################
@@ -60,12 +60,12 @@ __ISTIO_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __ISTIO_kube_scale_zero_and_wait() {
 	:
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __ISTIO_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ISTIO
@@ -78,7 +78,7 @@ __ISTIO_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __ISTIO_store_docker_logs() {
 	:
 }
@@ -92,11 +92,11 @@ __ISTIO_initial_setup() {
 	KUBE_PROXY_ISTIO_JWKS_KEYS=$ISTIO_GENERIC_JWKS_KEY
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__ISTIO_statisics_setup() {
+__ISTIO_statistics_setup() {
 	:
 }
 
@@ -194,11 +194,11 @@ istio_req_auth_by_jwks() {
 }
 
 # Authorization policy - by realm
-# args: <app> <namespace> <realam> [<client-id> <client-role>]
+# args: <app> <namespace> <realm> [<client-id> <client-role>]
 istio_auth_policy_by_realm() {
 	__log_conf_start $@
     if [ $# -ne 3 ] && [ $# -ne 5 ]; then
-        __print_err "<app> <namespace> <realam> [<client-id> <client-role>]" $@
+        __print_err "<app> <namespace> <realm> [<client-id> <client-role>]" $@
         return 1
     fi
 	name="ap-realm-"$3"-"$1"-"$2

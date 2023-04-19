@@ -33,8 +33,8 @@ __SDNC_imagesetup() {
 			sdnc_suffix_tag="REMOTE_RELEASE_ONAP"
 		fi
 	done
-	__check_and_create_image_var SDNC "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $sdnc_suffix_tag "$SDNC_DISPLAY_NAME"
-	__check_and_create_image_var SDNC "SDNC_DB_IMAGE" "SDNC_DB_IMAGE_BASE" "SDNC_DB_IMAGE_TAG" REMOTE_PROXY "SDNC DB"
+	__check_and_create_image_var SDNC "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $sdnc_suffix_tag "$SDNC_DISPLAY_NAME" ""
+	__check_and_create_image_var SDNC "SDNC_DB_IMAGE" "SDNC_DB_IMAGE_BASE" "SDNC_DB_IMAGE_TAG" REMOTE_PROXY "SDNC DB" ""
 
 }
 
@@ -77,12 +77,12 @@ __SDNC_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __SDNC_kube_scale_zero_and_wait() {
 	echo -e " SDNC replicas kept as is"
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __SDNC_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_SDNC_NAMESPACE autotest SDNC
@@ -90,7 +90,7 @@ __SDNC_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __SDNC_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=SDNC" -n $KUBE_SDNC_NAMESPACE --tail=-1 > $1$2_SDNC.log 2>&1
@@ -108,11 +108,11 @@ __SDNC_initial_setup() {
 	use_sdnc_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__SDNC_statisics_setup() {
+__SDNC_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "SDNC $SDNC_APP_NAME $KUBE_SDNC_NAMESPACE"
 	else
@@ -198,7 +198,7 @@ start_sdnc() {
 		__check_included_image "SDNC"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "SDNC"
 		retcode_p=$?
 

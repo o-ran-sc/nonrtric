@@ -63,7 +63,7 @@ JOB_DATA="/jobdata/<string:producer_id>/<string:job_id>"
 
 STATUS="/status"
 
-#Constsants
+#Constants
 APPL_JSON='application/json'
 UNKNOWN_QUERY_PARAMETERS="Unknown query parameter(s)"
 RETURNING_CONFIGURED_RESP="returning configured response code"
@@ -185,7 +185,7 @@ def index():
 
 # Arm the create callback with a response code
 # Omitting the query parameter switch to response back to the standard 200/201 response
-# URI and parameters (PUT): /arm/create/<producer_id>/<job_id>[?response=<resonsecode>]
+# URI and parameters (PUT): /arm/create/<producer_id>/<job_id>[?response=<repsonsecode>]
 # Setting
 # response: 200 (400 if incorrect query params)
 @app.route(ARM_CREATE_RESPONSE,
@@ -218,7 +218,7 @@ def arm_create(producer_id, job_id):
 
 # Arm the delete callback with a response code
 # Omitting the query parameter switch to response back to the standard 204 response
-# URI and parameters (PUT): /arm/delete/<producer_id>/<job-id>[?response=<resonsecode>]
+# URI and parameters (PUT): /arm/delete/<producer_id>/<job-id>[?response=<responsecode>]
 # response: 200 (400 if incorrect query params)
 @app.route(ARM_DELETE_RESPONSE,
      methods=['PUT'])
@@ -239,7 +239,7 @@ def arm_delete(producer_id, job_id):
 
     job_dict=setup_callback_dict(producer_id, job_id)
 
-    if (arm_response is None): #Reset the response depening if a job exists or not
+    if (arm_response is None): #Reset the response depending if a job exists or not
         if (job_dict['json'] is None):
             job_dict['delete_response']=404
         else:
@@ -251,7 +251,7 @@ def arm_delete(producer_id, job_id):
 
 # Arm the supervision callback with a response code
 # Omitting the query parameter switch to response back to the standard 200 response
-# URI and parameters (PUT): /arm/supervision/<producer_id>[?response=<resonsecode>]
+# URI and parameters (PUT): /arm/supervision/<producer_id>[?response=<responsecode>]
 # response: 200 (400 if incorrect query params)
 @app.route(ARM_SUPERVISION_RESPONSE,
      methods=['PUT'])

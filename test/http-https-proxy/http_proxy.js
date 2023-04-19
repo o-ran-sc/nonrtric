@@ -30,9 +30,9 @@ const fs = require('fs');
 const proxyport = 8080;
 // Proxy server port for https
 const proxyporthttps = 8433;
-// Proyx server alive check, port for http
+// Proxy server alive check, port for http
 const aliveport = 8081;
-// Proyx server alive check,  port for https
+// Proxy server alive check,  port for https
 const aliveporthttps = 8434;
 
 // Default https destination port
@@ -112,7 +112,7 @@ function httpclientrequest(clientrequest, clientresponse) {
     }
   );
 
-  // Handle the connection and data transfer between source and desitnation
+  // Handle the connection and data transfer between source and destination
   proxyrequest.on('error', function (error) {
     clientresponse.writeHead(500);
     stats['http-requests-failed']++;
@@ -158,7 +158,7 @@ function addhttpsconnect(httpserver) {
         }
       );
 
-      // Handle the connection and data transfer between source and desitnation
+      // Handle the connection and data transfer between source and destination
       proxysocket.on('data', function (chunk) {
         socketrequest.write(chunk);
       });
@@ -191,7 +191,7 @@ function addhttpsconnect(httpserver) {
 function main() {
 
   // -------------------- Alive server ----------------------------------
-  // Responde with '200' and statistics for any path (except for GET|PUT|DELETE on /debug) on the alive address
+  // Respond with '200' and statistics for any path (except for GET|PUT|DELETE on /debug) on the alive address
   const alivelistener = function (req, res) {
     if (req.url == "/debug") {
       if (req.method == "GET") {

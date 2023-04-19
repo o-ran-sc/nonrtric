@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __A1PMS_imagesetup() {
-	__check_and_create_image_var A1PMS "A1PMS_IMAGE" "A1PMS_IMAGE_BASE" "A1PMS_IMAGE_TAG" $1 "$A1PMS_DISPLAY_NAME"
+	__check_and_create_image_var A1PMS "A1PMS_IMAGE" "A1PMS_IMAGE_BASE" "A1PMS_IMAGE_TAG" $1 "$A1PMS_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -62,12 +62,12 @@ __A1PMS_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __A1PMS_kube_scale_zero_and_wait() {
 	__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app "$KUBE_NONRTRIC_NAMESPACE"-policymanagementservice
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __A1PMS_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest A1PMS
@@ -75,7 +75,7 @@ __A1PMS_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __A1PMS_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=A1PMS" -n $KUBE_NONRTRIC_NAMESPACE --tail=-1 > $1$2_a1pms.log 2>&1
@@ -92,11 +92,11 @@ __A1PMS_initial_setup() {
 	export A1PMS_SIDECAR_JWT_FILE=""
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__A1PMS_statisics_setup() {
+__A1PMS_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "A1PMS $A1PMS_APP_NAME $KUBE_NONRTRIC_NAMESPACE"
 	else
@@ -238,7 +238,7 @@ start_a1pms() {
 		__check_included_image "A1PMS"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "A1PMS"
 		retcode_p=$?
 
@@ -456,13 +456,13 @@ start_stopped_a1pms() {
 }
 
 
-# Function to perpare the consul configuration according to the current simulator configuration
+# Function to prepare the a1pms configuration according to the current simulator configuration
 # args: SDNC|NOSDNC <output-file> [ <sim-group> <adapter-class> ]
 # (Function for test scripts)
 prepare_a1pms_config() {
   	echo -e $BOLD"Prepare A1PMS config"$EBOLD
 
-	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
+	echo " Writing a1pms config for "$A1PMS_APP_NAME" to file: "$2
 
 	if [ $# != 2 ] && [ $# != 4 ];  then
 		((RES_CONF_FAIL++))
