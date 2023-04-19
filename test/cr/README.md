@@ -23,12 +23,12 @@ The control interface can be used by any test script.
 The following REST operations are available:
 
 >Send a message to CR<br>
-This method puts a request message from A1PMS to notify that sychronization between A1PMS and certain RIC happens.<br>
+This method puts a request message from A1PMS to notify that synchronization between A1PMS and certain RIC happens.<br>
 ```URI and payload, (PUT or POST): /callbacks/<id> <json messages>```<br>
 ```response: OK 200 or 500 for other errors```
 
 >Fetch one message for an id from CR<br>
-This method fetches the oldes message for an id, and removes the message.<br>
+This method fetches the oldest message for an id, and removes the message.<br>
 ```URI and payload, (GET): /get-event/<id>```<br>
 ```response:  <json messages> 200 or 500 for other errors```
 
@@ -37,7 +37,7 @@ This method fetches all message in an array for an id, and removes all messages.
 ```URI and payload, (GET): /get-all-events/<id>```<br>
 ```response:  <json array of json messages> 200 or 500 for other errors```
 
->Dump all currently wating callback messages in CR<br>
+>Dump all currently waiting callback messages in CR<br>
 This method fetches all message in an array for an id. Messages are left intact in the CR.<br>
 ```URI and payload, (GET): /db```<br>
 ```response:  <json> 200```
@@ -67,7 +67,7 @@ file "key.crt" is the key file
 file "generate_cert_and_key.sh" is a shell script to generate certificate and key
 file "pass" stores the password when you run the shell script
 
-This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
+This certificates/key can be overridden by mounting a volume when using "docker run" or "docker-compose"
 In 'docker run', use field:<br>
 >```-v "$PWD/certificate:/usr/src/app/cert"```<br/>
 

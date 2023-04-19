@@ -31,7 +31,7 @@ if [ $USE_ISTIO -eq 0 ]; then
 else
     KUBE_INCLUDED_IMAGES="PRODSTUB CR ICS RICSIM CP HTTPPROXY KUBEPROXY NGW KEYCLOAK ISTIO AUTHSIDECAR"
 fi
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if

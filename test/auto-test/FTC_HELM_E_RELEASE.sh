@@ -26,7 +26,7 @@ DOCKER_INCLUDED_IMAGES="" # Not used -  KUBE only test script
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" MR DMAAPMR CR  PRODSTUB KUBEPROXY KAFKAPC"
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" A1PMS RICSIM CP ICS RC SDNC DMAAPMED DMAAPADP"
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -125,7 +125,7 @@ rapp_cat_api_get_services 200 "Emergency-response-app" v1 "Emergency-response-ap
 #Check the number of services
 rc_equal json:services 1
 
-sleep_wait 120 "Let A1PMS cofiguration take effect"
+sleep_wait 120 "Let A1PMS configuration take effect"
 
 a1_a1pms_api_get_status 200
 
@@ -165,14 +165,14 @@ done
 #Check the number of schemas
 a1pms_equal json:policy-types 1
 
-# Load the polictypes in STD 2
+# Load the policytypes in STD 2
 for ((i=0; i<$STD_NUM_RICS; i++))
 do
    sim_put_policy_type 201 "a1-sim-std2-"$i STD_QOS_0_2_0 testdata/STD2/sim_qos.json
    sim_put_policy_type 201 "a1-sim-std2-"$i STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
 done
 
-# Load the polictypes in OSC
+# Load the policytypes in OSC
 for ((i=0; i<$OSC_NUM_RICS; i++))
 do
     sim_put_policy_type 201 "a1-sim-osc-"$i 1 testdata/OSC/sim_1.json
@@ -400,12 +400,12 @@ done
 
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    cr_api_check_single_genric_json_event 200 0 jobx-data$i '{"msg":"msg-0"}'
-    cr_api_check_single_genric_json_event 200 0 jobx-data$i '{"msg":"msg-2"}'
-    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
-    cr_api_check_single_genric_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
-    cr_api_check_single_genric_json_event 200 0 jobz-data$i 'Message-------4'
-    cr_api_check_single_genric_json_event 200 0 jobz-data$i 'Message-------6'
+    cr_api_check_single_generic_json_event 200 0 jobx-data$i '{"msg":"msg-0"}'
+    cr_api_check_single_generic_json_event 200 0 jobx-data$i '{"msg":"msg-2"}'
+    cr_api_check_single_generic_json_event 200 0 joby-data$i '{"msg":"msg-1"}'
+    cr_api_check_single_generic_json_event 200 0 joby-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_generic_json_event 200 0 jobz-data$i 'Message-------4'
+    cr_api_check_single_generic_json_event 200 0 jobz-data$i 'Message-------6'
 done
 
 

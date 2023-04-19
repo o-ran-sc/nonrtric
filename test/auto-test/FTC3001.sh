@@ -25,7 +25,7 @@ DOCKER_INCLUDED_IMAGES="ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR KAFKAPC HT
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR KAFKAPC HTTPPROXY"
 
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -144,7 +144,7 @@ ics_api_idc_get_type_ids 200 $adp_med_type_list
 start_timer "Create adapter (kafka) jobs: $NUM_JOBS"
 for ((i=1; i<=$NUM_JOBS; i++))
 do
-    # Max buffer timeout for is about 160 sec for Adator jobs"
+    # Max buffer timeout for is about 160 sec for Adapter jobs"
     adp_timeout=$(($i*1000))
     if [[ "$DMAAP_ADP_FEATURE_LEVEL" == *"FILTERSPEC"* ]]; then
         deviation "It is possible to give filter without filtertype without error indication"
@@ -219,7 +219,7 @@ do
     kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text$i/counters/sent 3 30
 done
 
-# Wait for data recetption, adapter kafka
+# Wait for data reception, adapter kafka
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$EXPECTED_BATCHES_DELIV))
 
@@ -235,8 +235,8 @@ print_timer
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i  'Message-------1'$i
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i  'Message-------3'$i
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-kafka-data$i  'Message-------1'$i
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-kafka-data$i  'Message-------3'$i
 done
 
 if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
@@ -255,7 +255,7 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
         kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text$i/counters/sent 2 30
     done
 
-    # Wait for data recetption, adapter kafka
+    # Wait for data reception, adapter kafka
 
     EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$PREV_DATA_DELIV))
     EXPECTED_BATCHES_DELIV=$(($NUM_JOBS/$NUM_CR+$PREV_BATCHES_DELIV))
@@ -273,8 +273,8 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     for ((i=1; i<=$NUM_JOBS; i++))
     do
         cr_index=$(($i%$NUM_CR))
-        cr_api_check_single_genric_event_md5 200 $cr_index job-med-kafka-data$i  'Message-------0'$i
-        cr_api_check_single_genric_event_md5 200 $cr_index job-med-kafka-data$i  'Message-------2'$i
+        cr_api_check_single_generic_event_md5 200 $cr_index job-med-kafka-data$i  'Message-------0'$i
+        cr_api_check_single_generic_event_md5 200 $cr_index job-med-kafka-data$i  'Message-------2'$i
     done
 fi
 

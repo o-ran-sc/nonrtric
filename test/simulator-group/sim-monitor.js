@@ -48,7 +48,7 @@ function getSimCtr(url, index, cb) {
 
     try {
         http.get(url, (resp) => {
-            // A chunk of data has been recieved.
+            // A chunk of data has been received.
             resp.on('data', (chunk) => {
                 data += chunk;
             });
@@ -73,7 +73,7 @@ function getSimCtr(url, index, cb) {
 }
 
 
-//Format a comma separated list of data to a html-safe string with fixed fieldsizes
+//Format a comma separated list of data to a html-safe string with fixed field sizes
 function formatDataRow(commaList) {
 	var str = "";
 	var tmp=commaList.split(',');
@@ -89,7 +89,7 @@ function formatDataRow(commaList) {
 	return str;
 }
 
-//Format a comma separated list of ids to a html-safe string with fixed fieldsizes
+//Format a comma separated list of ids to a html-safe string with fixed field sizes
 function formatIdRow(commaList) {
 	var str = "";
 	var tmp=commaList.split(',');

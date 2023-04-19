@@ -43,7 +43,7 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 # The variable is created by removing the suffix "_BASE" from the base image variable name.
 # Example: A1PMS_IMAGE_BASE -> A1PMS_IMAGE
 # This var will point to the local or remote image depending on cmd line arguments.
-# In addition, the repo and the image tag version are selected from the list of image tags based on the cmd line argurment.
+# In addition, the repo and the image tag version are selected from the list of image tags based on the cmd line argument.
 # For images built by the script, only tag #1 shall be specified
 # For project images, only tag #1, #2, #3 and #4 shall be specified
 # For ORAN images (non project), only tag #5 shall be specified
@@ -59,7 +59,7 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 #############################################################################
 # Note:
-# The imgage tags for a1pms and sdnc are updated AFTER the release.
+# The image tags for a1pms and sdnc are updated AFTER the release.
 # This means that the latest staging/snapshot images for these two components have
 # version one step (0.0.1 - bug-level) higher than the
 # latest release image version.
@@ -273,7 +273,7 @@ PROD_STUB_INTERNAL_PORT=8092                             # Producer stub contain
 PROD_STUB_EXTERNAL_SECURE_PORT=8093                      # Producer stub container external secure port (host -> container)
 PROD_STUB_INTERNAL_SECURE_PORT=8093                      # Producer stub container internal secure port (container -> container)
 PROD_STUB_JOB_CALLBACK="/callbacks/job"                  # Callback path for job create/update/delete
-PROD_STUB_SUPERVISION_CALLBACK="/callbacks/supervision"  # Callback path for producre supervision
+PROD_STUB_SUPERVISION_CALLBACK="/callbacks/supervision"  # Callback path for producer supervision
 PROD_STUB_ALIVE_URL="/"                                  # Base path for alive check
 PROD_STUB_COMPOSE_DIR="prodstub"                         # Dir in simulator_group for docker-compose
 
@@ -295,7 +295,7 @@ SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 C
 SDNC_DISPLAY_NAME="SDNC A1 Controller"
 SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
 SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
-SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
+SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external secure port (host -> container)
 SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
 SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
 SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
@@ -328,7 +328,7 @@ CONTROL_PANEL_DISPLAY_NAME="Non-RT RIC Control Panel"
 CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container internal port (container -> container)
 CONTROL_PANEL_EXTERNAL_SECURE_PORT=8880                  # Control Panel container external port (host -> container)
-CONTROL_PANEL_INTERNAL_SECURE_PORT=8082                  # Control Panel container intternal port (container -> container)
+CONTROL_PANEL_INTERNAL_SECURE_PORT=8082                  # Control Panel container internal port (container -> container)
 CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"  # Path the application log in the Control Panel container
 CONTROL_PANEL_ALIVE_URL="/"                              # Base path for alive check
 CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_group for docker-compose
@@ -378,10 +378,10 @@ KUBE_PROXY_WEB_INTERNAL_PORT=8081                        # Kube Http Proxy conta
 KUBE_PROXY_WEB_EXTERNAL_SECURE_PORT=8783                 # Kube Proxy container external secure port (host -> container)
 KUBE_PROXY_WEB_INTERNAL_SECURE_PORT=8434                 # Kube Proxy container internal secure port (container -> container
 
-KUBE_PROXY_DOCKER_EXTERNAL_PORT=8732                     # Kube Http Proxy container external port, doocker (host -> container)
-KUBE_PROXY_DOCKER_EXTERNAL_SECURE_PORT=8784              # Kube Proxy container external secure port, doocker (host -> container)
-KUBE_PROXY_WEB_DOCKER_EXTERNAL_PORT=8733                 # Kube Http Proxy container external port, doocker (host -> container)
-KUBE_PROXY_WEB_DOCKER_EXTERNAL_SECURE_PORT=8785          # Kube Proxy container external secure port, doocker (host -> container)
+KUBE_PROXY_DOCKER_EXTERNAL_PORT=8732                     # Kube Http Proxy container external port, docker (host -> container)
+KUBE_PROXY_DOCKER_EXTERNAL_SECURE_PORT=8784              # Kube Proxy container external secure port, docker (host -> container)
+KUBE_PROXY_WEB_DOCKER_EXTERNAL_PORT=8733                 # Kube Http Proxy container external port, docker (host -> container)
+KUBE_PROXY_WEB_DOCKER_EXTERNAL_SECURE_PORT=8785          # Kube Proxy container external secure port, docker (host -> container)
 
 KUBE_PROXY_PATH=""                                       # Proxy url path, will be set if proxy is started
 KUBE_PROXY_ALIVE_URL="/"                                 # Base path for alive check
@@ -396,4 +396,4 @@ PVC_CLEANER_COMPOSE_DIR="pvc-cleaner"                   # Dir in simulator_group
 ########################################
 
 UUID=""                                                  # UUID used as prefix to the policy id to simulate a real UUID
-                                                         # Testscript need to set the UUID to use other this empty prefix is used
+                                                         # Test script need to set the UUID to use other this empty prefix is used

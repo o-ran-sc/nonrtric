@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __PRODSTUB_imagesetup() {
-	__check_and_create_image_var PRODSTUB "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL "$PROD_STUB_DISPLAY_NAME"
+	__check_and_create_image_var PRODSTUB "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL "$PROD_STUB_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -44,7 +44,7 @@ __PRODSTUB_imagepull() {
 __PRODSTUB_imagebuild() {
 	cd ../prodstub
 	echo " Building PRODSTUB - $PROD_STUB_DISPLAY_NAME - image: $PROD_STUB_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
+	docker build  $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image PROD_STUB_IMAGE
@@ -78,12 +78,12 @@ __PRODSTUB_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __PRODSTUB_kube_scale_zero_and_wait() {
 	echo -e $RED" PRODSTUB app is not scaled in this state"$ERED
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __PRODSTUB_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
@@ -91,7 +91,7 @@ __PRODSTUB_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __PRODSTUB_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=PRODSTUB" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_prodstub.log 2>&1
@@ -107,11 +107,11 @@ __PRODSTUB_initial_setup() {
 	use_prod_stub_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__PRODSTUB_statisics_setup() {
+__PRODSTUB_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "PRODSTUB $PROD_STUB_APP_NAME $KUBE_SIM_NAMESPACE"
 	else
@@ -193,7 +193,7 @@ start_prod_stub() {
 		__check_included_image "PRODSTUB"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "PRODSTUB"
 		retcode_p=$?
 
@@ -261,7 +261,7 @@ start_prod_stub() {
     return 0
 }
 
-# Excute a curl cmd towards the prodstub simulator and check the response code.
+# Execute a curl cmd towards the prodstub simulator and check the response code.
 # args: TEST|CONF <expected-response-code> <curl-cmd-string> [<json-file-to-compare-output>]
 __execute_curl_to_prodstub() {
     TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
