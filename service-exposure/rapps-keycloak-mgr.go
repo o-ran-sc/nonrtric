@@ -117,13 +117,23 @@ var token Jwttoken
 var flowAlias string = "x509 direct grant"
 
 func createClient(res http.ResponseWriter, req *http.Request) {
-	query := req.URL.Query()
-	realmName := query.Get("realm")
-	clientName := query.Get("name")
-	role := query.Get("role")
-	authType := query.Get("authType")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		panic(err.Error())
+	}
+	keyVal := make(map[string]string)
+	json.Unmarshal(body, &keyVal)
+	realmName := keyVal["realm"]
+	clientName := keyVal["name"]
+	role := keyVal["role"]
+	authType := keyVal["authType"]
+	tlsCrt := keyVal["tlsCrt"]
+	email := keyVal["email"]
+	subjectDN := keyVal["subjectDN"]
+	mappingSource := keyVal["mappingSource"]
+
 	var msg string
-	msg, err := create(realmName, clientName, role, authType)
+	msg, err = create(realmName, clientName, role, authType, tlsCrt, email, subjectDN, mappingSource)
 	if err != nil {
 		msg = err.Error()
 	}
@@ -197,7 +207,7 @@ func sendRequest(method, url string, data []byte) (int, string) {
 	return resp.StatusCode, respString
 }
 
-func create(realmName, clientName, clientRoleName, authType string) (string, error) {
+func create(realmName, clientName, clientRoleName, authType, tlsCrt, email, subjectDN, mappingSource string) (string, error) {
 	getAdminToken()
 	var userId string = ""
 	var jsonValue []byte = []byte{}
@@ -220,13 +230,13 @@ func create(realmName, clientName, clientRoleName, authType string) (string, err
 	if authType == "client-x509" {
 		flowId = getFlowId(realmName)
 		if flowId == "" {
-			createx509Flow(realmName)
+			createx509Flow(realmName, mappingSource)
 			flowId = getFlowId(realmName)
 		}
 		newUser := User{
 			ID:       realmName + "user",
 			Username: realmName + "user",
-			Email:    "client@mail.com",
+			Email:    email,
 			Enabled:  true,
 		}
 		restUrl = keycloakUrl + "/admin/realms/" + realmName + "/users"
@@ -235,7 +245,7 @@ func create(realmName, clientName, clientRoleName, authType string) (string, err
 		userId = getUserId(realmName, realmName+"user")
 	}
 
-	newClient := getClient(authType, clientName, flowId)
+	newClient := getClient(authType, clientName, flowId, tlsCrt, subjectDN)
 	restUrl = keycloakUrl + "/admin/realms/" + realmName + "/clients"
 	jsonValue, _ = json.Marshal(newClient)
 	statusCode, _ = sendRequest("POST", restUrl, jsonValue)
@@ -302,7 +312,7 @@ func create(realmName, clientName, clientRoleName, authType string) (string, err
 	return clientSecret, nil
 }
 
-func getClient(authType, clientName, flowId string) Client {
+func getClient(authType, clientName, flowId, tlsCrt, subjectDN string) Client {
 	var newClient Client
 	newClient.ClientID = clientName
 	newClient.Enabled = true
@@ -320,12 +330,12 @@ func getClient(authType, clientName, flowId string) Client {
 		newClient.Attributes = map[string]string{
 			"use.refresh.tokens":                   "true",
 			"client_credentials.use_refresh_token": "true",
-			"x509.subjectdn":                       ".*client@mail.com.*",
+			"x509.subjectdn":                       ".*" + subjectDN + ".*",
 			"x509.allow.regex.pattern.comparison":  "true"}
 		newClient.AuthenticationFlowBindingOverrides = map[string]string{
 			"direct_grant": flowId}
 	} else {
-		jwksString, publicKey, kid := pemtojwks.CreateJWKS("/certs/client.crt")
+		jwksString, publicKey, kid := pemtojwks.CreateJWKS(tlsCrt)
 		newClient.Attributes = map[string]string{
 			"token.endpoint.auth.signing.alg":      "RS256",
 			"jwt.credential.public.key":            publicKey,
@@ -353,7 +363,7 @@ func getClientInfo(realmName, clientName string) (string, string) {
 	return clientId, clientSecret
 }
 
-func createx509Flow(realmName string) {
+func createx509Flow(realmName, mappingSource string) {
 	var jsonValue []byte = []byte{}
 	authenticationFlowRepresentation := AuthenticationFlowRepresentation{
 		Alias:                   flowAlias,
@@ -397,7 +407,7 @@ func createx509Flow(realmName string) {
 			"x509-cert-auth.mapper-selection":               "Username or Email",
 			"x509-cert-auth.revalidate-certificate-enabled": "false",
 			"x509-cert-auth.crldp-checking-enabled":         "false",
-			"x509-cert-auth.mapping-source-selection":       "Subject's e-mail",
+			"x509-cert-auth.mapping-source-selection":       mappingSource,
 			"x509-cert-auth.ocsp-checking-enabled":          "false",
 		},
 	}

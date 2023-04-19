@@ -1,25 +1,26 @@
 // -
-//   ========================LICENSE_START=================================
-//   O-RAN-SC
-//   %%
-//   Copyright (C) 2022-2023: Nordix Foundation
-//   %%
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
 //
-//        http://www.apache.org/licenses/LICENSE-2.0
+//	========================LICENSE_START=================================
+//	O-RAN-SC
+//	%%
+//	Copyright (C) 2022-2023: Nordix Foundation
+//	%%
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
-//   ========================LICENSE_END===================================
+//	     http://www.apache.org/licenses/LICENSE-2.0
 //
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//	========================LICENSE_END===================================
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -29,11 +30,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubernetes "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"net"
 	"net/http"
 	"net/url"
 	"rapps/utils/generatejwt"
-	"context"
-	"net"
 	"time"
 )
 
@@ -55,6 +55,9 @@ var realmName string
 var clientId string
 var namespace string
 var authenticator string
+var tlsCrt string
+var tlsKey string
+var caCrt string
 var healthy bool = true
 var jwt Jwttoken
 
@@ -70,6 +73,9 @@ func getToken(res http.ResponseWriter, req *http.Request) {
 	clientId = req.Header.Get("client")
 	realmName = req.Header.Get("realm")
 	namespace = req.Header.Get("ns")
+	tlsCrt = req.Header.Get("tlsCrt")
+	tlsKey = req.Header.Get("tlsKey")
+	caCrt = req.Header.Get("caCrt")
 	keycloakUrl := "http://" + keycloakHost + ":" + keycloakPort + "/realms/" + realmName + "/protocol/openid-connect/token"
 	fmt.Printf("Making token request to %s\n", keycloakUrl)
 	res.Header().Set("Content-type", "application/json")
@@ -80,7 +86,7 @@ func getToken(res http.ResponseWriter, req *http.Request) {
 	} else if authenticator == "client-x509" {
 		keycloakPort = "443"
 		keycloakUrl := "https://" + keycloakAlias + ":" + keycloakPort + "/realms/" + realmName + "/protocol/openid-connect/token"
-		resp, err = getx509Token(keycloakUrl, clientId)
+		resp, err = getx509Token(keycloakUrl, clientId, tlsCrt, tlsKey, caCrt)
 	} else {
 		resp, err = getSecretToken(keycloakUrl, clientId)
 	}
@@ -121,14 +127,12 @@ func getJwtToken(keycloakUrl, clientId string) (*http.Response, error) {
 }
 
 func getClientAssertion() string {
-	//aud := "http://" + keycloakHost + ":" + keycloakPort + "/auth/realms/" + realmName
-	//aud := "http://keycloak/auth/realms/" + realmName
 	aud := "https://keycloak:8443/realms/" + realmName
-	clientAssertion := generatejwt.CreateJWT("/certs/client.key", "", clientId, aud)
+	clientAssertion := generatejwt.CreateJWT(tlsKey, "", clientId, aud)
 	return clientAssertion
 }
 
-func getx509Token(keycloakUrl, clientId string) (*http.Response, error) {
+func getx509Token(keycloakUrl, clientId, tlsCrt, tlsKey, caCrt string) (*http.Response, error) {
 	var resp = &http.Response{}
 	var err error
 
@@ -139,11 +143,11 @@ func getx509Token(keycloakUrl, clientId string) (*http.Response, error) {
 }
 
 func getClient() *http.Client {
-	caCert, _ := ioutil.ReadFile("/certs/rootCA.crt")
+	caCert, _ := ioutil.ReadFile(caCrt)
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
 
-	cert, _ := tls.LoadX509KeyPair("/certs/client.crt", "/certs/client.key")
+	cert, _ := tls.LoadX509KeyPair(tlsCrt, tlsKey)
 
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,

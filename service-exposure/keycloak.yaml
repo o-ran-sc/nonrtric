@@ -1,6 +1,6 @@
 #
 # ============LICENSE_START=======================================================
-#  Copyright (C) 2022-2023 Nordix Foundation.
+#  Copyright (C) 2022-23 Nordix Foundation.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: keycloak 
+  name: keycloak
   namespace: default
 ---
 apiVersion: v1
@@ -29,14 +29,16 @@ metadata:
   name: keycloak
   labels:
     app: keycloak
+    app.kubernetes.io/instance: keycloak
+    app.kubernetes.io/name: keycloak
 spec:
   type: ExternalName
-  externalName: keycloak.local 
+  externalName: keycloak.local
   ports:
   - name: http
     port: 8080
     targetPort: 8080
-    nodePort: 31560 
+    nodePort: 31560
   - name: https
     port: 8443
     targetPort: 8443
@@ -52,6 +54,8 @@ metadata:
   namespace: default
   labels:
     app: keycloak
+    app.kubernetes.io/instance: keycloak
+    app.kubernetes.io/name: keycloak
 spec:
   replicas: 1
   selector:
@@ -61,52 +65,58 @@ spec:
     metadata:
       labels:
         app: keycloak
+        app.kubernetes.io/instance: keycloak
+        app.kubernetes.io/name: keycloak
     spec:
       initContainers:
       - name: init-postgres
         image: busybox
-        imagePullPolicy: IfNotPresent 
+        imagePullPolicy: IfNotPresent
         command: ['sh', '-c', 'until nc -vz postgres 5432; do echo waiting for postgres db; sleep 2; done;']
-      serviceAccountName: keycloak 
+      serviceAccountName: keycloak
       containers:
       - name: keycloak
         image: quay.io/keycloak/keycloak:latest
-        imagePullPolicy: IfNotPresent 
-        args: [ 
+        imagePullPolicy: IfNotPresent
+        args: [
                 'start',
-                '--https-key-store-file=/etc/x509/https/server.keystore',
-                '--https-key-store-password=changeit',
-                '--https-key-store-type=PKCS12',
-                '--https-trust-store-file=/etc/x509/https/server.truststore',
-                '--https-trust-store-password=changeit',
-                '--https-trust-store-type=PKCS12',
+                '--https-key-store-file=/etc/x509/https/keystore.jks',
+                '--https-key-store-password=$(KC_KEYSTORE_PASSWORD)',
+                '--https-key-store-type=JKS',
+                '--https-trust-store-file=/etc/x509/https/truststore.jks',
+                '--https-trust-store-password=$(KC_KEYSTORE_PASSWORD)',
+                '--https-trust-store-type=JKS',
                 '--https-client-auth=request',
                 '--http-enabled=true'
               ]
-
         env:
-        - name : X509_CA_BUNDLE 
-          value: /etc/x509/https/rootCA.crt 
-        - name : KEYCLOAK_ADMIN 
-          value: admin 
-        - name : KEYCLOAK_ADMIN_PASSWORD 
-          value: admin 
-        - name : KC_DB 
-          value: postgres 
-        - name : KC_DB_URL 
-          value: "jdbc:postgresql://postgres:5432/keycloak"  
+        - name : KEYCLOAK_ADMIN
+          value: admin
+        - name : KEYCLOAK_ADMIN_PASSWORD
+          value: admin
+        - name : KC_DB
+          value: postgres
+        - name : KC_DB_URL
+          value: "jdbc:postgresql://postgres:5432/keycloak"
         - name : KC_DB_USERNAME
           value: keycloak
         - name : KC_DB_PASSWORD
           value: keycloak
         - name : KC_HOSTNAME
-          value: keycloak 
-        - name : MY_PROVIDER_JAR_URL 
-          value: /opt/jboss/keycloak/standalone/deployments/authz-js-policies.jar 
+          value: keycloak
+        - name:  KC_DB_URL_DATABASE
+          value: keycloak
+        - name : MY_PROVIDER_JAR_URL
+          value: /opt/jboss/keycloak/standalone/deployments/authz-js-policies.jar
         - name: KC_HEALTH_ENABLED
           value: "true"
-        - name: KC_METRICS_ENABLED 
+        - name: KC_METRICS_ENABLED
           value: "true"
+        - name: KC_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cm-keycloak-jwk-pw
+              key: password
         ports:
         - name: http
           containerPort: 8080
@@ -114,22 +124,22 @@ spec:
           containerPort: 8443
         readinessProbe:
           httpGet:
-            scheme: HTTPS 
-            path: /health/ready 
+            scheme: HTTPS
+            path: /health/ready
             port: 8443
         volumeMounts:
-        - name: keycloak-certs 
-          mountPath: /etc/x509/https 
-        - name: authz-js-policies 
-          mountPath: /opt/jboss/keycloak/standalone/deployments/authz-js-policies.jar 
+        - name: keycloak-certs
+          mountPath: /etc/x509/https
+          readOnly: true
+        - name: authz-js-policies
+          mountPath: /opt/jboss/keycloak/standalone/deployments/authz-js-policies.jar
       volumes:
-      - name: keycloak-certs 
+      - name: keycloak-certs
+        secret:
+          secretName: cm-keycloak-server-certs
+      - name: authz-js-policies
         hostPath:
-           path: /var/keycloak/certs 
-           type: Directory
-      - name: authz-js-policies 
-        hostPath:
-           path: /var/keycloak/deployments/authz-js-policies.jar 
+           path: /var/keycloak/deployments/authz-js-policies.jar
            type: File
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -183,7 +193,7 @@ spec:
   hosts:
   - "*"
   gateways:
-  - kcgateway 
+  - kcgateway
   http:
   - name: "keycloak-routes"
     match:
