@@ -456,13 +456,13 @@ start_stopped_a1pms() {
 }
 
 
-# Function to perpare the consul configuration according to the current simulator configuration
+# Function to perpare the a1pms configuration according to the current simulator configuration
 # args: SDNC|NOSDNC <output-file> [ <sim-group> <adapter-class> ]
 # (Function for test scripts)
 prepare_a1pms_config() {
   	echo -e $BOLD"Prepare A1PMS config"$EBOLD
 
-	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
+	echo " Writing a1pms config for "$A1PMS_APP_NAME" to file: "$2
 
 	if [ $# != 2 ] && [ $# != 4 ];  then
 		((RES_CONF_FAIL++))

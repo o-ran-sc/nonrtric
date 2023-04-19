@@ -500,15 +500,6 @@ ricmediatorsim_delete_policy_type() {
 # (Function for test scripts)
 ricmediatorsim_post_delete_instances() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 2 ]; then
-	# 	__print_err "<response-code> <ric-id>" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} "$host"/deleteinstances"
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
 
 # Simulator API: Delete all (instances/types/statuses/settings), for one ric
@@ -516,15 +507,6 @@ ricmediatorsim_post_delete_instances() {
 # (Function for test scripts)
 ricmediatorsim_post_delete_all() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 2 ]; then
-	# 	__print_err "<response-code> <numericic-id>" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} "$host"/deleteall"
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
 
 # Simulator API: Set (or reset) response code for next A1 message, for one ric
@@ -532,18 +514,6 @@ ricmediatorsim_post_delete_all() {
 # (Function for test scripts)
 ricmediatorsim_post_forcedresponse() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 3 ]; then
-	# 	__print_err "<response-code> <ric-id> <forced_response_code>" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} "$host"/forceresponse"
-	# if [ $# -eq 3 ]; then
-	# 	curlString=$curlString"?code="$3
-	# fi
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
 
 # Simulator API: Set (or reset) A1 response delay, for one ric
@@ -551,16 +521,4 @@ ricmediatorsim_post_forcedresponse() {
 # (Function for test scripts)
 ricmediatorsim_post_forcedelay() {
 	__log_test_fail_not_supported
-	# __log_conf_start $@
-	# if [ $# -ne 3 ]; then
-	# 	__print_err "<response-code> <ric-id> [<delay-in-seconds>]" $@
-	# 	return 1
-	# fi
-	# host=$(__find_ricmediatorsim_host $2)
-    # curlString="curl -X POST -skw %{http_code} $host/forcedelay"
-	# if [ $# -eq 3 ]; then
-	# 	curlString=$curlString"?delay="$3
-	# fi
-    # __execute_curl_to_ricmediatorsim $1 "$curlString"
-	# return $?
 }
