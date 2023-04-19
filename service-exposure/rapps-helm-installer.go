@@ -1,25 +1,26 @@
 // -
-//   ========================LICENSE_START=================================
-//   O-RAN-SC
-//   %%
-//   Copyright (C) 2022-2023: Nordix Foundation
-//   %%
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
 //
-//        http://www.apache.org/licenses/LICENSE-2.0
+//	========================LICENSE_START=================================
+//	O-RAN-SC
+//	%%
+//	Copyright (C) 2022-23: Nordix Foundation
+//	%%
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
-//   ========================LICENSE_END===================================
+//	     http://www.apache.org/licenses/LICENSE-2.0
 //
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//	========================LICENSE_END===================================
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -42,12 +43,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var settings *cli.EnvSettings
 var chartRequested *chart.Chart
-
-//var url string
 var repoName string
 var chartName string
 var releaseName string
@@ -70,6 +70,12 @@ type Rapp struct {
 	Realm           string
 	Client          string
 	Authenticator   string
+	CaCrt           string
+	TlsCrt          string
+	TlsKey          string
+	Email           string
+	SubjectDN       string
+	MappingSource   string
 	Roles           []struct {
 		Role   string
 		Grants []string
@@ -147,6 +153,16 @@ func installSecurity(rapp Rapp) error {
 	realm := rapp.Realm
 	client := rapp.Client
 	authenticator := rapp.Authenticator
+	caCrt := rapp.CaCrt
+	tlsCrt := rapp.TlsCrt
+	tlsKey := rapp.TlsKey
+	email := rapp.Email
+	subjectDN := rapp.SubjectDN
+	mappingSource := rapp.MappingSource
+
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+	}
 
 	if !rapp.SecurityEnabled {
 		return nil
@@ -155,11 +171,19 @@ func installSecurity(rapp Rapp) error {
 	if rapp.Type == "provider" {
 		// keycloak client setup
 		fmt.Println("Setting up keycloak")
-		url = "http://rapps-keycloak-mgr.default/create?"
-		params = "realm=" + realm + "&name=" + client + "&role=" + role + "&authType=" + authenticator
-		url += params
-		_, err := http.Get(url)
+		url = "http://rapps-keycloak-mgr.default/create"
+		values := map[string]string{"realm": realm, "name": client, "role": role, "authType": authenticator,
+			"tlsCrt": tlsCrt, "email": email, "subjectDN": subjectDN, "mappingSource": mappingSource}
+		jsonValue, _ := json.Marshal(values)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
 		if err != nil {
+			fmt.Printf("Got error %s", err.Error())
+		}
+		req.Header.Set("Content-type", "application/json")
+		resp, err := httpClient.Do(req)
+		fmt.Println("Keycloak response status:", resp.Status)
+		if err != nil {
+			fmt.Printf("Got error %s", err.Error())
 			return err
 		} else {
 			fmt.Println("Setting up istio")
@@ -175,7 +199,8 @@ func installSecurity(rapp Rapp) error {
 	} else {
 		fmt.Println("Setting up istio")
 		url = "http://rapps-istio-mgr.default/create-filter?"
-		params = "name=" + chartName + "&realm=" + realm + "&client=" + client + "&authType=" + authenticator
+		params = "name=" + chartName + "&realm=" + realm + "&client=" + client + "&authType=" + authenticator +
+			"&tlsCrt=" + tlsCrt + "&tlsKey=" + tlsKey + "&caCrt=" + caCrt
 		url += params
 		_, err := http.Get(url)
 		if err != nil {
@@ -272,7 +297,6 @@ func runList(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	//flag.StringVar(&url, "url", "http://chartmuseum:8080", "ChartMuseum url")
 	flag.StringVar(&repoName, "repoName", "local-dev", "Repository name")
 	flag.StringVar(&namespace, "namespace", "istio-nonrtric", "namespace for install")
 	flag.Parse()
@@ -341,10 +365,10 @@ func dryRun() (*action.Install, error) {
 
 	install := action.NewInstall(actionConfig)
 
-	fmt.Printf("Repo Name: %s\n",repoName)
-	fmt.Printf("Chart Name: %s\n",chartName)
+	fmt.Printf("Repo Name: %s\n", repoName)
+	fmt.Printf("Chart Name: %s\n", chartName)
 	cp, err := install.ChartPathOptions.LocateChart(fmt.Sprintf("%s/%s", repoName, chartName), settings)
-	fmt.Printf("Chart location: %s\n",cp)
+	fmt.Printf("Chart location: %s\n", cp)
 
 	chartRequested, err = loader.Load(cp)
 
@@ -540,7 +564,7 @@ func registrerRapp(chartName, chartType string) {
 	id serial PRIMARY KEY,
 	name VARCHAR ( 50 ) UNIQUE NOT NULL,
 	type VARCHAR ( 50 ) NOT NULL,
-	created_on TIMESTAMP DEFAULT NOW() 
+	created_on TIMESTAMP DEFAULT NOW()
         );`
 	_, err = db.Exec(createStmt)
 	if err != nil {
