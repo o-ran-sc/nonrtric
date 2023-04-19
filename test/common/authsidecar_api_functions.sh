@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __AUTHSIDECAR_imagesetup() {
-	__check_and_create_image_var AUTHSIDECAR "AUTHSIDECAR_IMAGE" "AUTHSIDECAR_IMAGE_BASE" "AUTHSIDECAR_IMAGE_TAG" $1 "$AUTHSIDECAR_DISPLAY_NAME"
+	__check_and_create_image_var AUTHSIDECAR "AUTHSIDECAR_IMAGE" "AUTHSIDECAR_IMAGE_BASE" "AUTHSIDECAR_IMAGE_TAG" $1 "$AUTHSIDECAR_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

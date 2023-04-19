@@ -25,7 +25,7 @@
 # arg: [<image-tag-suffix>] (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __HELMMANAGER_imagesetup() {
-	__check_and_create_image_var HELMMANAGER "HELM_MANAGER_IMAGE" "HELM_MANAGER_IMAGE_BASE" "HELM_MANAGER_IMAGE_TAG" $1 "$HELM_MANAGER_DISPLAY_NAME"
+	__check_and_create_image_var HELMMANAGER "HELM_MANAGER_IMAGE" "HELM_MANAGER_IMAGE_BASE" "HELM_MANAGER_IMAGE_TAG" $1 "$HELM_MANAGER_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

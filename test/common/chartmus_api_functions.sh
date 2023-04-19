@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __CHARTMUS_imagesetup() {
-	__check_and_create_image_var CHARTMUS "CHART_MUS_IMAGE" "CHART_MUS_IMAGE_BASE" "CHART_MUS_IMAGE_TAG" REMOTE_OTHER "$CHART_MUS_DISPLAY_NAME"
+	__check_and_create_image_var CHARTMUS "CHART_MUS_IMAGE" "CHART_MUS_IMAGE_BASE" "CHART_MUS_IMAGE_TAG" REMOTE_OTHER "$CHART_MUS_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

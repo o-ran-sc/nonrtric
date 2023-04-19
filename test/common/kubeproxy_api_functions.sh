@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __KUBEPROXY_imagesetup() {
-	__check_and_create_image_var KUBEPROXY "KUBE_PROXY_IMAGE" "KUBE_PROXY_IMAGE_BASE" "KUBE_PROXY_IMAGE_TAG" LOCAL "$KUBE_PROXY_DISPLAY_NAME"
+	__check_and_create_image_var KUBEPROXY "KUBE_PROXY_IMAGE" "KUBE_PROXY_IMAGE_BASE" "KUBE_PROXY_IMAGE_TAG" LOCAL "$KUBE_PROXY_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -44,7 +44,7 @@ __KUBEPROXY_imagepull() {
 __KUBEPROXY_imagebuild() {
 	cd ../http-https-proxy
 	echo " Building KUBEPROXY - $KUBE_PROXY_DISPLAY_NAME - image: $KUBE_PROXY_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $KUBE_PROXY_IMAGE . &> .dockererr
+	docker build  $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $KUBE_PROXY_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image KUBE_PROXY_IMAGE

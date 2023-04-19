@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __KAFKAPC_imagesetup() {
-	__check_and_create_image_var KAFKAPC "KAFKAPC_IMAGE" "KAFKAPC_IMAGE_BASE" "KAFKAPC_IMAGE_TAG" LOCAL "$KAFKAPC_DISPLAY_NAME"
+	__check_and_create_image_var KAFKAPC "KAFKAPC_IMAGE" "KAFKAPC_IMAGE_BASE" "KAFKAPC_IMAGE_TAG" LOCAL "$KAFKAPC_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -44,7 +44,7 @@ __KAFKAPC_imagebuild() {
 
 	cd ../$KAFKAPC_BUILD_DIR
 	echo " Building KAFKAPC - $KAFKAPC_DISPLAY_NAME - image: $KAFKAPC_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $KAFKAPC_IMAGE . &> .dockererr
+	docker build  $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $KAFKAPC_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image KAFKAPC_IMAGE

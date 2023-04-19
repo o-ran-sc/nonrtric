@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __DMAAPMED_imagesetup() {
-	__check_and_create_image_var DMAAPMED "DMAAP_MED_IMAGE" "DMAAP_MED_IMAGE_BASE" "DMAAP_MED_IMAGE_TAG" $1 "$DMAAP_MED_DISPLAY_NAME"
+	__check_and_create_image_var DMAAPMED "DMAAP_MED_IMAGE" "DMAAP_MED_IMAGE_BASE" "DMAAP_MED_IMAGE_TAG" $1 "$DMAAP_MED_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

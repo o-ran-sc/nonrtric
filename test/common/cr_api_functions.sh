@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __CR_imagesetup() {
-	__check_and_create_image_var CR "CR_IMAGE" "CR_IMAGE_BASE" "CR_IMAGE_TAG" LOCAL "$CR_DISPLAY_NAME"
+	__check_and_create_image_var CR "CR_IMAGE" "CR_IMAGE_BASE" "CR_IMAGE_TAG" LOCAL "$CR_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -44,7 +44,7 @@ __CR_imagepull() {
 __CR_imagebuild() {
 	cd ../cr
 	echo " Building CR - $CR_DISPLAY_NAME - image: $CR_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
+	docker build $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image CR_IMAGE

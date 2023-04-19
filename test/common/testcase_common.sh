@@ -31,6 +31,7 @@ __print_args() {
 	echo "      [--override <override-environment-filename>] [--pre-clean] [--gen-stats] [--delete-namespaces]"
 	echo "      [--delete-containers] [--endpoint-stats] [--kubeconfig <config-file>] [--host-path-dir <local-host-dir>]"
 	echo "      [--kubecontext <context-name>] [--docker-host <docker-host-url>] [--docker-proxy <host-or-ip>]"
+	echo "      [--target-platform <platform> ]"
 }
 
 if [ $# -eq 1 ] && [ "$1" == "help" ]; then
@@ -71,6 +72,7 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "--kubecontext         -  Configure kubectl to use a certain context, e.g 'minikube'"
 	echo "--docker-host         -  Configure docker to use docker in e.g. a VM"
 	echo "--docker-proxy        -  Configure ip/host to docker when docker is running in a VM"
+	echo "--target-platform     -  Build and pull imgages for this target platform"
 	echo ""
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
@@ -139,6 +141,12 @@ IMAGE_CATEGORY="DEV"
 #V1 names replicated containers <proj-name>_<service-name>_<index>
 #V2 names replicated containers <proj-name>-<service-name>-<index>
 DOCKER_COMPOSE_VERSION="V1"
+
+# Name of target platform, if set by start cmd
+IMAGE_TARGET_PLATFORM=""
+IMAGE_TARGET_PLATFORM_CMD_PARAM="" # Docker cmd param for setting target platform
+IMAGE_TARGET_PLATFORM_IMG_TAG=""  # Will be set to target plafform if cmd parameter is set
+IMAGE_TARGET_PLATFORM_IMG_TAG=$(docker info --format '{{json  . }}' | jq -r .Architecture | sed 's/\//_/g')
 
 # Function to indent cmd output with one space
 indent1() { sed 's/^/ /'; }
@@ -985,6 +993,32 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			fi
 		fi
 	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--target-platform" ]; then
+			shift;
+			if [ -z "$1" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No platform string found for : '--target-platform'"
+				fi
+			else
+				if [ "$1" != "linux/amd64" ]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="Only target platform 'linux/amd64' currently supported"
+					fi
+				else
+					export IMAGE_TARGET_PLATFORM=$1
+					export IMAGE_TARGET_PLATFORM_CMD_PARAM="--platform $1"
+					echo "Option set - Build and pull platform set to: "$1
+					IMAGE_TARGET_PLATFORM_IMG_TAG=$(echo "$1" | sed 's/\//_/g')
+					echo "Setting 'docker build' as alias for 'docker buildx'" | indent2
+					shift
+					foundparm=0
+				fi
+			fi
+		fi
+	fi
 done
 echo ""
 
@@ -1225,11 +1259,11 @@ image_list_file="./tmp/.image-list"
 echo -e "Application\tApp short name\tImage\ttag\ttag-switch" > $image_list_file
 
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
-# arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name>
+# arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name> <target-platform>
 __check_and_create_image_var() {
-
-	if [ $# -ne 6 ]; then
-		echo "Expected arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name>"
+	echo $@
+	if [ $# -ne 7 ]; then
+		echo "Expected arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name> <target-platform>"
 		((IMAGE_ERR++))
 		return
 	fi
@@ -1245,7 +1279,9 @@ __check_and_create_image_var() {
 	image="${!3}"
 	tmptag=$4"_"$5
 	tag="${!tmptag}"
-
+	if [ ! -z "$7" ]; then
+		tag=$tag-$7   # add platform to tag - for local images built by the test script
+	fi
 	optional_image_repo_target=""
 
 	if [ -z $image ]; then
@@ -1574,7 +1610,7 @@ __check_and_pull_image() {
 		fi
 		if [ -z "$tmp_im" ]; then
 			echo -ne "  Pulling image${SAMELINE}"
-			out=$(docker pull $source_image)
+			out=$(docker $IMAGE_TARGET_PLATFORM_CMD_PARAM pull $source_image)
 			if [ $? -ne 0 ]; then
 				echo ""
 				echo -e "  Pulling image -$RED could not be pulled"$ERED

@@ -33,8 +33,8 @@ __SDNC_imagesetup() {
 			sdnc_suffix_tag="REMOTE_RELEASE_ONAP"
 		fi
 	done
-	__check_and_create_image_var SDNC "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $sdnc_suffix_tag "$SDNC_DISPLAY_NAME"
-	__check_and_create_image_var SDNC "SDNC_DB_IMAGE" "SDNC_DB_IMAGE_BASE" "SDNC_DB_IMAGE_TAG" REMOTE_PROXY "SDNC DB"
+	__check_and_create_image_var SDNC "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $sdnc_suffix_tag "$SDNC_DISPLAY_NAME" ""
+	__check_and_create_image_var SDNC "SDNC_DB_IMAGE" "SDNC_DB_IMAGE_BASE" "SDNC_DB_IMAGE_TAG" REMOTE_PROXY "SDNC DB" ""
 
 }
 

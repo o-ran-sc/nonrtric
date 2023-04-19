@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __RICSIM_imagesetup() {
-	__check_and_create_image_var RICSIM "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $1 "$RIC_SIM_DISPLAY_NAME"
+	__check_and_create_image_var RICSIM "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $1 "$RIC_SIM_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

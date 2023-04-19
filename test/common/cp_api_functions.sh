@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __CP_imagesetup() {
-	__check_and_create_image_var CP "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_IMAGE_BASE" "CONTROL_PANEL_IMAGE_TAG" $1 "$CONTROL_PANEL_DISPLAY_NAME"
+	__check_and_create_image_var CP "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_IMAGE_BASE" "CONTROL_PANEL_IMAGE_TAG" $1 "$CONTROL_PANEL_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

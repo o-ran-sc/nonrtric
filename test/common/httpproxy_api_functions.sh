@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __HTTPPROXY_imagesetup() {
-	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" LOCAL "$HTTP_PROXY_DISPLAY_NAME"
+	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" LOCAL "$HTTP_PROXY_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -43,7 +43,7 @@ __HTTPPROXY_imagepull() {
 __HTTPPROXY_imagebuild() {
 	cd ../$HTTP_PROXY_BUILD_DIR       # Note: Reusing same impl as for kube proxy
 	echo " Building HTTPPROXY - $HTTP_PROXY_DISPLAY_NAME - image: $HTTP_PROXY_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $HTTP_PROXY_IMAGE . &> .dockererr
+	docker build $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $HTTP_PROXY_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image HTTP_PROXY_IMAGE

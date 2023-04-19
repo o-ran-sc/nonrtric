@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains function to handle helm on localhost
+# This is a script that contain functions to handle istio configuration
 
 
 ################ Test engine functions ################

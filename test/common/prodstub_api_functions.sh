@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __PRODSTUB_imagesetup() {
-	__check_and_create_image_var PRODSTUB "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL "$PROD_STUB_DISPLAY_NAME"
+	__check_and_create_image_var PRODSTUB "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL "$PROD_STUB_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -44,7 +44,7 @@ __PRODSTUB_imagepull() {
 __PRODSTUB_imagebuild() {
 	cd ../prodstub
 	echo " Building PRODSTUB - $PROD_STUB_DISPLAY_NAME - image: $PROD_STUB_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
+	docker build  $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image PROD_STUB_IMAGE

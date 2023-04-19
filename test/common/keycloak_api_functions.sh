@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __KEYCLOAK_imagesetup() {
-	__check_and_create_image_var KEYCLOAK "KEYCLOAK_IMAGE" "KEYCLOAK_IMAGE_BASE" "KEYCLOAK_IMAGE_TAG" REMOTE_OTHER "$KEYCLOAK_DISPLAY_NAME"
+	__check_and_create_image_var KEYCLOAK "KEYCLOAK_IMAGE" "KEYCLOAK_IMAGE_BASE" "KEYCLOAK_IMAGE_TAG" REMOTE_OTHER "$KEYCLOAK_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

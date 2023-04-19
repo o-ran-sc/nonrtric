@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __PVCCLEANER_imagesetup() {
-	__check_and_create_image_var PVCCLEANER "PVC_CLEANER_IMAGE" "PVC_CLEANER_IMAGE_BASE" "PVC_CLEANER_IMAGE_TAG" REMOTE_PROXY "$PVC_CLEANER_DISPLAY_NAME"
+	__check_and_create_image_var PVCCLEANER "PVC_CLEANER_IMAGE" "PVC_CLEANER_IMAGE_BASE" "PVC_CLEANER_IMAGE_TAG" REMOTE_PROXY "$PVC_CLEANER_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

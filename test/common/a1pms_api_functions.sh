@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __A1PMS_imagesetup() {
-	__check_and_create_image_var A1PMS "A1PMS_IMAGE" "A1PMS_IMAGE_BASE" "A1PMS_IMAGE_TAG" $1 "$A1PMS_DISPLAY_NAME"
+	__check_and_create_image_var A1PMS "A1PMS_IMAGE" "A1PMS_IMAGE_BASE" "A1PMS_IMAGE_TAG" $1 "$A1PMS_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -456,13 +456,13 @@ start_stopped_a1pms() {
 }
 
 
-# Function to perpare the consul configuration according to the current simulator configuration
+# Function to perpare the a1pms configuration according to the current simulator configuration
 # args: SDNC|NOSDNC <output-file> [ <sim-group> <adapter-class> ]
 # (Function for test scripts)
 prepare_a1pms_config() {
   	echo -e $BOLD"Prepare A1PMS config"$EBOLD
 
-	echo " Writing consul config for "$A1PMS_APP_NAME" to file: "$2
+	echo " Writing a1pms config for "$A1PMS_APP_NAME" to file: "$2
 
 	if [ $# != 2 ] && [ $# != 4 ];  then
 		((RES_CONF_FAIL++))

@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __NGW_imagesetup() {
-	__check_and_create_image_var NGW "NRT_GATEWAY_IMAGE" "NRT_GATEWAY_IMAGE_BASE" "NRT_GATEWAY_IMAGE_TAG" $1 "$NRT_GATEWAY_DISPLAY_NAME"
+	__check_and_create_image_var NGW "NRT_GATEWAY_IMAGE" "NRT_GATEWAY_IMAGE_BASE" "NRT_GATEWAY_IMAGE_TAG" $1 "$NRT_GATEWAY_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image

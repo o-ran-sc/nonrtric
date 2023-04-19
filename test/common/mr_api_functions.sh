@@ -26,16 +26,16 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __MR_imagesetup() {
-	__check_and_create_image_var MR "MRSTUB_IMAGE" "MRSTUB_IMAGE_BASE" "MRSTUB_IMAGE_TAG" LOCAL "$MR_STUB_DISPLAY_NAME"
+	__check_and_create_image_var MR "MRSTUB_IMAGE" "MRSTUB_IMAGE_BASE" "MRSTUB_IMAGE_TAG" LOCAL "$MR_STUB_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Create the image var used during the test
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __DMAAPMR_imagesetup() {
-	__check_and_create_image_var DMAAPMR "ONAP_DMAAPMR_IMAGE"    "ONAP_DMAAPMR_IMAGE_BASE"  "ONAP_DMAAPMR_IMAGE_TAG"   REMOTE_RELEASE_ONAP "DMAAP Message Router"
-	__check_and_create_image_var DMAAPMR "ONAP_ZOOKEEPER_IMAGE" "ONAP_ZOOKEEPER_IMAGE_BASE" "ONAP_ZOOKEEPER_IMAGE_TAG" REMOTE_RELEASE_ONAP "ZooKeeper"
-	__check_and_create_image_var DMAAPMR "ONAP_KAFKA_IMAGE"     "ONAP_KAFKA_IMAGE_BASE"     "ONAP_KAFKA_IMAGE_TAG"     REMOTE_RELEASE_ONAP "Kafka"
+	__check_and_create_image_var DMAAPMR "ONAP_DMAAPMR_IMAGE"    "ONAP_DMAAPMR_IMAGE_BASE"  "ONAP_DMAAPMR_IMAGE_TAG"   REMOTE_RELEASE_ONAP "DMAAP Message Router" ""
+	__check_and_create_image_var DMAAPMR "ONAP_ZOOKEEPER_IMAGE" "ONAP_ZOOKEEPER_IMAGE_BASE" "ONAP_ZOOKEEPER_IMAGE_TAG" REMOTE_RELEASE_ONAP "ZooKeeper" ""
+	__check_and_create_image_var DMAAPMR "ONAP_KAFKA_IMAGE"     "ONAP_KAFKA_IMAGE_BASE"     "ONAP_KAFKA_IMAGE_TAG"     REMOTE_RELEASE_ONAP "Kafka" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -64,7 +64,7 @@ __DMAAPMR_imagepull() {
 __MR_imagebuild() {
 	cd ../mrstub
 	echo " Building MR - $MR_STUB_DISPLAY_NAME - image: $MRSTUB_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
+	docker build  $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image MRSTUB_IMAGE
