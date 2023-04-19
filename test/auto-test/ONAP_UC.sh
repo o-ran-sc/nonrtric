@@ -24,7 +24,7 @@ DOCKER_INCLUDED_IMAGES="CP CR MR DMAAPMR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR DMAAPMR A1PMS RICSIM SDNC KUBEPROXY NGW"
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -131,7 +131,7 @@ for interface in $TESTED_VARIANTS ; do
     if [ $RUNMODE == "KUBE" ]; then
         a1pms_load_config                       ".a1pms_config.json"
     else
-        #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+        #Temporary switch to http/https if dmaap use. Otherwise it is not possible to push config
         if [ $__httpx == "HTTPS" ]; then
             use_a1pms_rest_https
         else
@@ -181,7 +181,7 @@ for interface in $TESTED_VARIANTS ; do
     ## REQ: Synchronize A1 Policy Information in RAN
     #################################################################
 
-    # Load the polictypes in osc
+    # Load the policytypes in osc
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
         sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 100 demo-testdata/OSC/sim_qos.json
@@ -204,7 +204,7 @@ for interface in $TESTED_VARIANTS ; do
     done
 
 
-    # Load the polictypes in std
+    # Load the policytypes in std
     for ((i=1; i<=$STD_NUM_RICS; i++))
     do
         sim_put_policy_type 201 $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 demo-testdata/STD2/sim_qos.json

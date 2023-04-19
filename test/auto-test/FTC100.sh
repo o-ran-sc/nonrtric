@@ -31,7 +31,7 @@ if [ $USE_ISTIO -eq 0 ]; then
 else
     KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW KEYCLOAK ISTIO AUTHSIDECAR"
 fi
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -248,7 +248,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $RUNMODE == "KUBE" ]; then
             a1pms_load_config                       ".a1pms_config.json"
         else
-            #Temporary switch to http/https if dmaap use. Otherwise it is not possibble to push config
+            #Temporary switch to http/https if dmaap use. Otherwise it is not possible to push config
             if [ $__httpx == "HTTPS" ]; then
                 use_a1pms_rest_https
             else
@@ -299,7 +299,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############## Health check ################"
         echo "############################################"
 
-        sleep_wait 120 "Let A1PMS cofiguration take effect"
+        sleep_wait 120 "Let A1PMS configuration take effect"
 
         a1pms_api_get_status 200
 

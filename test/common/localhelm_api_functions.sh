@@ -60,12 +60,12 @@ __LOCALHELM_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __LOCALHELM_kube_scale_zero_and_wait() {
 	:
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __LOCALHELM_kube_delete_all() {
 	:
@@ -73,7 +73,7 @@ __LOCALHELM_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __LOCALHELM_store_docker_logs() {
 	:
 }
@@ -85,11 +85,11 @@ __LOCALHELM_initial_setup() {
 	:
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__LOCALHELM_statisics_setup() {
+__LOCALHELM_statistics_setup() {
 	:
 }
 

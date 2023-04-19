@@ -2,7 +2,7 @@
 
 The http proxy is a generic http proxy which is able to proxy both http and https destination calls.
 The call to the proxy (to control the proxy call) also supports both http and https (https is using a self signed cert).
-The main usage for the proxy is as a gateway to all services and pod inside a kubernetest cluster.
+The main usage for the proxy is as a gateway to all services and pod inside a kubernetes cluster.
 However, it can be used a basic standard http proxy as well.
 
 ## Ports and certificates

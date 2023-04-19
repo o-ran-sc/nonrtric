@@ -40,13 +40,13 @@ import (
 
 // Note: consumer 'group' and consumer 'user' both uses hardcoded values specific to this interface
 //    globalCounters      var holding the "global counters"
-//      recieved          number of received messages from all topics                             (int)
+//      received          number of received messages from all topics                             (int)
 //      sent              number of sent messages to all topics                                   (int)
 //    topics              var holding all topic related info
 //      <topic-name>      name of a topic (present after topic is created)
 //        content-type    data type of the topic                                                  (string)
 //        counters
-//          recieved      number of received messages from the topic                              (int)
+//          received      number of received messages from the topic                              (int)
 //          sent          number of sent messages to the topic                                    (int)
 //        messages
 //          send          messages waiting to be sent (set when sending is started)               (fifo)
