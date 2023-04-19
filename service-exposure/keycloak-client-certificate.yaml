@@ -1,6 +1,6 @@
 #
 # ============LICENSE_START=======================================================
-#  Copyright (C) 2022-23 Nordix Foundation.
+#  Copyright (C) 2023 Nordix Foundation.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,29 +17,41 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
-  name: jwt-proxy-webhook
+  name: keycloak-client-cert
   namespace: default
-  annotations:
-    cert-manager.io/inject-ca-from: default/webhook-server-cert
-webhooks:
-  - name: rapps-webhook.default.svc.cluster.local
-    admissionReviewVersions:
-      - "v1beta1"
-    sideEffects: "None"
-    timeoutSeconds: 30
-    objectSelector:
-      matchLabels:
-        app.kubernetes.io/name: rapp-helloworld-invoker1
-    clientConfig:
-      service:
-        name: jwt-proxy-admission-controller 
-        namespace: default
-        path: "/inject-sidecar"
-    rules:
-      - operations: [ "CREATE" ]
-        apiGroups: [""]
-        apiVersions: ["v1"]
-        resources: ["pods"]
+spec:
+  secretName: cm-keycloak-client-certs
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  subject:
+    organizations:
+      - oran
+    organizationalUnits:
+      - oran
+    countries:
+      - IE
+    localities:
+      - Dublin
+    streetAddresses:
+      - Main Street
+  commonName: keycloak
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - client auth
+  dnsNames:
+    - keycloak.default
+    - keycloak
+    - keycloak.est.tech
+  emailAddresses:
+    - client@mail.com
+  issuerRef:
+    name: cm-ca-issuer
+    kind: Issuer
+    group: cert-manager.io

@@ -1,22 +1,22 @@
 // -
-//   ========================LICENSE_START=================================
-//   O-RAN-SC
-//   %%
-//   Copyright (C) 2022: Nordix Foundation
-//   %%
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
 //
-//        http://www.apache.org/licenses/LICENSE-2.0
+//	========================LICENSE_START=================================
+//	O-RAN-SC
+//	%%
+//	Copyright (C) 2022-23: Nordix Foundation
+//	%%
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
-//   ========================LICENSE_END===================================
+//	     http://www.apache.org/licenses/LICENSE-2.0
 //
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//	========================LICENSE_END===================================
 package main
 
 import (
@@ -34,10 +34,10 @@ import (
 )
 
 type ServerParameters struct {
-	port      string // webhook server port
-	certFile  string // path to the x509 cert
-	keyFile   string // path to the x509 private key
-	hostPath  string // path to the x509 private key
+	port     string // webhook server port
+	certFile string // path to the x509 cert
+	keyFile  string // path to the x509 private key
+	secret   string
 }
 
 type patchOperation struct {
@@ -56,7 +56,7 @@ func main() {
 	flag.StringVar(&parameters.port, "port", "8443", "Webhook server port.")
 	flag.StringVar(&parameters.certFile, "tlsCertFile", "/certs/tls.crt", "File containing the x509 certificate")
 	flag.StringVar(&parameters.keyFile, "tlsKeyFile", "/certs/tls.key", "File containing the x509 private key")
-	flag.StringVar(&parameters.hostPath, "hostPath", "/var/rapps/certs", "Host Path containing rapp cert files")
+	flag.StringVar(&parameters.secret, "secret", "cm-keycloak-client-certs", "Secret containing rapp cert files")
 	flag.Parse()
 
 	http.HandleFunc("/inject-sidecar", HandleSideCarInjection)
@@ -137,16 +137,13 @@ func HandleSideCarInjection(w http.ResponseWriter, r *http.Request) {
 		Value: containers,
 	})
 
-	pathType := v1.HostPathDirectoryOrCreate
-	pathTypePtr := &pathType
 	var volumes []v1.Volume
 	volumes = append(volumes, pod.Spec.Volumes...)
 	volume := v1.Volume{
 		Name: "certsdir",
 		VolumeSource: v1.VolumeSource{
-			HostPath: &v1.HostPathVolumeSource{
-				Path: parameters.hostPath,
-				Type: pathTypePtr,
+			Secret: &v1.SecretVolumeSource{
+				SecretName: parameters.secret,
 			},
 		},
 	}
@@ -154,9 +151,9 @@ func HandleSideCarInjection(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(volumes)
 
 	patches = append(patches, patchOperation{
-	        Op:    "add",
-	        Path:  "/spec/volumes",
-	        Value: volumes,
+		Op:    "add",
+		Path:  "/spec/volumes",
+		Value: volumes,
 	})
 	fmt.Println(patches)
 
