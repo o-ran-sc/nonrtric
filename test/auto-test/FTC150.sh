@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http
 DOCKER_INCLUDED_IMAGES="RICSIM SDNC KUBEPROXY"
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" RICSIM SDNC KUBEPROXY"
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=" "
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if

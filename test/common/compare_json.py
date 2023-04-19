@@ -15,7 +15,7 @@
 #  ============LICENSE_END=================================================
 #
 
-# This script compare two jsons for eqaulity, taken into account that the parameter values
+# This script compare two jsons for equality, taken into account that the parameter values
 # marked with '????' are not checked (only the parameter name need to exist)
 # Example of target json with '????'
 # [
@@ -57,7 +57,7 @@ def compare_json_list(list1, list2):
 
     return True
 
-# Deep compare of two json obects
+# Deep compare of two json objects
 # If a parameter value in the target json is set to '????' then the result json value is not checked for the that parameter
 # Return true for equal json, false for not equal json
 def compare_json_obj(obj1, obj2):

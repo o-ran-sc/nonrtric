@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __RICSIM_imagesetup() {
-	__check_and_create_image_var RICSIM "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $1 "$RIC_SIM_DISPLAY_NAME"
+	__check_and_create_image_var RICSIM "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $1 "$RIC_SIM_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -55,13 +55,13 @@ __RICSIM_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __RICSIM_kube_scale_zero_and_wait() {
 	#__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app $KUBE_A1SIM_NAMESPACE"-"$RIC_SIM_PREFIX
 	__kube_scale_and_wait_all_resources $KUBE_A1SIM_NAMESPACE app $KUBE_A1SIM_NAMESPACE"-a1simulator"
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __RICSIM_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_A1SIM_NAMESPACE autotest RICSIM
@@ -69,7 +69,7 @@ __RICSIM_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __RICSIM_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		for podname in $(kubectl $KUBECONF get pods -n $KUBE_A1SIM_NAMESPACE -l "autotest=RICSIM" -o custom-columns=":metadata.name"); do
@@ -91,11 +91,11 @@ __RICSIM_initial_setup() {
 	use_simulator_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__RICSIM_statisics_setup() {
+__RICSIM_statistics_setup() {
 	for ((RICSIM_INSTANCE=10; RICSIM_INSTANCE>0; RICSIM_INSTANCE-- )); do
 		if [ $RUNMODE == "KUBE" ]; then
 			RICSIM_INSTANCE_KUBE=$(($RICSIM_INSTANCE-1))
@@ -171,7 +171,7 @@ start_ric_simulators() {
 		__check_included_image "RICSIM"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "RICSIM"
 		retcode_p=$?
 
@@ -209,7 +209,7 @@ start_ric_simulators() {
 	fi
 
 	echo " $2 simulators using basename: $1 on interface: $3"
-	#Set env var for simulator count and A1 interface vesion for the given group
+	#Set env var for simulator count and A1 interface version for the given group
 	if [ $1 == "$RIC1" ]; then
 		G1_COUNT=$2
 	elif [ $1 == "$RIC2" ]; then
@@ -289,7 +289,7 @@ start_ric_simulators() {
 		echo -e $BOLD$YELLOW" Warning: Using docker compose --force-recreate "$EYELLOW$EBOLD
 		docker_args="--force-recreate --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
 
-		#Create a list of contsiner names
+		#Create a list of container names
 		#Will be <ricsim-prefix>_<service-name>_<index>
 		# or
 		# <ricsim-prefix>-<service-name>-<index>
@@ -365,7 +365,7 @@ sim_generate_policy_uuid() {
 	UUID=${UUID:0:${#UUID}-4}"a"
 }
 
-# Excute a curl cmd towards a ricsimulator and check the response code.
+# Execute a curl cmd towards a ricsimulator and check the response code.
 # args: <expected-response-code> <curl-cmd-string>
 __execute_curl_to_sim() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG

@@ -229,7 +229,7 @@ def events_write_mr(id):
     global cntr_msg_callbacks
     global cntr_batch_callbacks
 
-    storeas=request.args.get('storeas') #If set, store payload as a md5 hascode and dont log the payload
+    storeas=request.args.get('storeas') #If set, store payload as a md5 hash code and dont log the payload
                                         #Large payloads will otherwise overload the server
     try:
         print("Received callback (mr) for id: "+id +", content-type="+request.content_type)
@@ -308,7 +308,7 @@ def events_write_text(id):
     global cntr_msg_callbacks
     global cntr_batch_callbacks
 
-    storeas=request.args.get('storeas') #If set, store payload as a md5 hascode and dont log the payload
+    storeas=request.args.get('storeas') #If set, store payload as a md5 hash code and dont log the payload
                                         #Large payloads will otherwise overload the server
     try:
         print("Received callback for id: "+id +", content-type="+request.content_type)
@@ -446,7 +446,7 @@ def remote_hosts():
 
 
 #Set force delay response, in seconds, for all callbacks
-#/froceesponse?delay=<seconds>
+#/forceresponse?delay=<seconds>
 @app.route('/forcedelay', methods=['POST'])
 def forcedelay():
 
@@ -469,7 +469,7 @@ def do_delay():
       return Response("Force delay : " + str(forced_settings['delay']) + " sec failed", 500, mimetype=MIME_TEXT)
 ### Admin ###
 
-# Reset all messsages and counters
+# Reset all messages and counters
 @app.route('/reset',
     methods=['GET', 'POST', 'PUT'])
 def reset():

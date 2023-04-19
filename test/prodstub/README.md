@@ -2,7 +2,7 @@
 
 The producer stub is intended for function tests of simulate data producers.
 The simulator handles the callbacks for supervision of producers as well as create/update and delete jobs.
-As an intial step, the indended job and producers, with supported types, are setup (armed) in the simulator.
+As an initial step, the intended job and producers, with supported types, are setup (armed) in the simulator.
 In addition, specific response codes can configured for each callback request.
 
 ## Ports and certificates
@@ -16,7 +16,7 @@ The certificate and key shall be placed in the same dir and the dir shall be mou
 | 8093     | https |
 
 The dir cert contains a self-signed cert. Use the script generate_cert_and_key.sh to generate a new certificate and key. The password of the certificate must be set 'test'.
-The same urls are availables on both the http port 8092 and the https port 8093. If using curl and https, the flag -k shall be given to make curl ignore checking the certificate.
+The same urls are available on both the http port 8092 and the https port 8093. If using curl and https, the flag -k shall be given to make curl ignore checking the certificate.
 
 ### Prodstub interface
 
@@ -42,16 +42,16 @@ The following REST operations are available:
 
 >Arm a job create<br>
 This method arms a job for creation and sets an optional response code for create/update<br>
-```URI and payload, (PUT): /arm/create/<producer_id>/<job_id>[?response=<resonsecode>]```<br>
+```URI and payload, (PUT): /arm/create/<producer_id>/<job_id>[?response=<responsecode>]```<br>
 ```response: 200 or 400 for other errors```
 >Arm a job delete<br>
 This method arms a job for deletion and sets an optional response code for delete<br>
-```URI and payload, (PUT): /arm/delete/<producer_id>/<job_id>[?response=<resonsecode>]```<br>
+```URI and payload, (PUT): /arm/delete/<producer_id>/<job_id>[?response=<responsecode>]```<br>
 ```response: 200 or 400 for other errors```
 
 >Arm a producer supervision<br>
 This method arms a supervision and sets an optional response code for supervision calls<br>
-```URI and payload, (PUT): /arm/delete/<producer_id>[?response=<resonsecode>]```<br>
+```URI and payload, (PUT): /arm/delete/<producer_id>[?response=<responsecode>]```<br>
 ```response: 200 or 400 for other errors```
 
 >Arm a type for a producer<br>
@@ -121,12 +121,12 @@ file "key.crt" is the key file
 file "generate_cert_and_key.sh" is a shell script to generate certificate and key
 file "pass" stores the password when you run the shell script
 
->Start the container without specifing external certificates:<br>
+>Start the container without specifying external certificates:<br>
 ```docker run --rm -it --p 8092:8092 -p 8093:8093 producer-stub```
 
 It will listen to http 8092 port and https 8093 port(using default certificates) at the same time.
 
-This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
+This certificates/key can be overridden by mounting a volume when using "docker run" or "docker-compose"
 In 'docker run', use field:
 >```-v "$PWD/certificate:/usr/src/app/cert"```
 

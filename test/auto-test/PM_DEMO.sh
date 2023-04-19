@@ -24,7 +24,7 @@ DOCKER_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC NGW KUBEPROXY"
 
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES="CP CR MR A1PMS RICSIM SDNC KUBEPROXY NGW"
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -100,7 +100,7 @@ else
     a1pms_api_put_configuration 200 ".a1pms_config.json"
 fi
 
-sleep_wait 120 "Let A1PMS cofiguration take effect"
+sleep_wait 120 "Let A1PMS configuration take effect"
 
 a1pms_api_get_status 200
 
@@ -124,7 +124,7 @@ do
 done
 
 
-# Load the polictypes in osc
+# Load the policytypes in osc
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
     sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 100 demo-testdata/OSC/sim_qos.json
@@ -148,7 +148,7 @@ do
 done
 
 
-# Load the polictypes in std
+# Load the policytypes in std
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     sim_put_policy_type 201 $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 demo-testdata/STD2/sim_qos.json

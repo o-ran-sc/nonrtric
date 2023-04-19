@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __AUTHSIDECAR_imagesetup() {
-	__check_and_create_image_var AUTHSIDECAR "AUTHSIDECAR_IMAGE" "AUTHSIDECAR_IMAGE_BASE" "AUTHSIDECAR_IMAGE_TAG" $1 "$AUTHSIDECAR_DISPLAY_NAME"
+	__check_and_create_image_var AUTHSIDECAR "AUTHSIDECAR_IMAGE" "AUTHSIDECAR_IMAGE_BASE" "AUTHSIDECAR_IMAGE_TAG" $1 "$AUTHSIDECAR_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -63,12 +63,12 @@ __AUTHSIDECAR_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __AUTHSIDECAR_kube_scale_zero_and_wait() {
 	:
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __AUTHSIDECAR_kube_delete_all() {
 	:
@@ -76,7 +76,7 @@ __AUTHSIDECAR_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __AUTHSIDECAR_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=AUTHSIDECAR" -A --tail=-1 > $1$2_authsidecar.log 2>&1
@@ -90,11 +90,11 @@ __AUTHSIDECAR_initial_setup() {
 	:
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__AUTHSIDECAR_statisics_setup() {
+__AUTHSIDECAR_statistics_setup() {
 	echo ""
 }
 
@@ -106,4 +106,4 @@ __AUTHSIDECAR_test_requirements() {
 
 #######################################################
 
-# This app is intended as a sidecard container - no specific test functions
+# This app is intended as a sidecar container - no specific test functions

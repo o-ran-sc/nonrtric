@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __KEYCLOAK_imagesetup() {
-	__check_and_create_image_var KEYCLOAK "KEYCLOAK_IMAGE" "KEYCLOAK_IMAGE_BASE" "KEYCLOAK_IMAGE_TAG" REMOTE_OTHER "$KEYCLOAK_DISPLAY_NAME"
+	__check_and_create_image_var KEYCLOAK "KEYCLOAK_IMAGE" "KEYCLOAK_IMAGE_BASE" "KEYCLOAK_IMAGE_TAG" REMOTE_OTHER "$KEYCLOAK_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -63,12 +63,12 @@ __KEYCLOAK_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __KEYCLOAK_kube_scale_zero_and_wait() {
 	echo -e $RED" KEYCLOAK app is not scaled in this state"$ERED
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __KEYCLOAK_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_KEYCLOAK_NAMESPACE autotest KEYCLOAK
@@ -76,7 +76,7 @@ __KEYCLOAK_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __KEYCLOAK_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=KEYCLOAK" -n $KUBE_KEYCLOAK_NAMESPACE --tail=-1 > $1$2_keycloak.log 2>&1
@@ -92,11 +92,11 @@ __KEYCLOAK_initial_setup() {
 	use_keycloak_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__KEYCLOAK_statisics_setup() {
+__KEYCLOAK_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "KEYCLOAK $KEYCLOAK_APP_NAME $KUBE_KEYCLOAK_NAMESPACE"
 	else
@@ -191,7 +191,7 @@ start_keycloak() {
 		__check_included_image "KEYCLOAK"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "KEYCLOAK"
 		retcode_p=$?
 
@@ -247,7 +247,7 @@ start_keycloak() {
     return 0
 }
 
-# Excute a curl cmd towards the keycloak and check the response code is 2XX.
+# Execute a curl cmd towards the keycloak and check the response code is 2XX.
 # args: <curl-cmd-string>
 # resp: <returned-payload> if return code is 0 otherwise <error-info>
 __execute_curl_to_keycloak() {
@@ -280,7 +280,7 @@ __execute_curl_to_keycloak() {
 	return 0
 }
 
-# Excute a curl cmd towards the keycloak and check the response code is 2XX.
+# Execute a curl cmd towards the keycloak and check the response code is 2XX.
 # args: <operation> <url> <token> <json>
 # resp: <returned-payload> if return code is 0 otherwise <error-info>
 __execute_curl_to_keycloak2() {
@@ -561,18 +561,6 @@ keycloak_api_map_client_roles() {
 		return 1
 	fi
 
-
-
-
-    # while [ $# -gt 0 ]; do
-	# 	__json='{"name":"'$1'"}'
-	# 	res=$(__execute_curl_to_keycloak2 POST "$KEYCLOAK_SERVICE_PATH$KEYCLOAK_REALM_URL_PREFIX/$__realm/clients/$__c_id/roles" "$__KEYCLOAK_ADMIN_TOKEN" "$__json")
-	# 	if [ $? -ne 0 ]; then
-	# 		__log_conf_fail_general " Fatal error when adding client role, response: "$?
-	# 		return 1
-	# 	fi
-	# 	shift
-	# done
 	__log_conf_ok
 	return 0
 }
