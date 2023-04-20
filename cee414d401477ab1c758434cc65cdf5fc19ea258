@@ -22,6 +22,30 @@
       },
       "revId": "cee414d401477ab1c758434cc65cdf5fc19ea258",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e7a174b_4cd7c760",
+        "filename": "service-exposure/cert-manager.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2023-04-20T14:32:10Z",
+      "side": 1,
+      "message": "Done, the line has been removed",
+      "parentUuid": "dbe16473_226438a9",
+      "range": {
+        "startLine": 35,
+        "startChar": 1,
+        "endLine": 35,
+        "endChar": 8
+      },
+      "revId": "cee414d401477ab1c758434cc65cdf5fc19ea258",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
