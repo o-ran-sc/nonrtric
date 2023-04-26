@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains container/service managemnt functions for Http Proxy
+# This is a script that contains container/service management functions for Http Proxy
 
 ################ Test engine functions ################
 
@@ -25,7 +25,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __HTTPPROXY_imagesetup() {
-	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" LOCAL "$HTTP_PROXY_DISPLAY_NAME"
+	__check_and_create_image_var HTTPPROXY "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" LOCAL "$HTTP_PROXY_DISPLAY_NAME" $IMAGE_TARGET_PLATFORM_IMG_TAG
 }
 
 # Pull image from remote repo or use locally built image
@@ -43,7 +43,7 @@ __HTTPPROXY_imagepull() {
 __HTTPPROXY_imagebuild() {
 	cd ../$HTTP_PROXY_BUILD_DIR       # Note: Reusing same impl as for kube proxy
 	echo " Building HTTPPROXY - $HTTP_PROXY_DISPLAY_NAME - image: $HTTP_PROXY_IMAGE"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $HTTP_PROXY_IMAGE . &> .dockererr
+	docker build $IMAGE_TARGET_PLATFORM_CMD_PARAM --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $HTTP_PROXY_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN"  Build Ok"$EGREEN
 		__retag_and_push_image HTTP_PROXY_IMAGE
@@ -77,12 +77,12 @@ __HTTPPROXY_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __HTTPPROXY_kube_scale_zero_and_wait() {
 	echo -e $RED" HTTPPROXY app is not scaled in this state"$ERED
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __HTTPPROXY_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest HTTPPROXY
@@ -90,7 +90,7 @@ __HTTPPROXY_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __HTTPPROXY_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=HTTPPROXY" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_httpproxy.log 2>&1
@@ -106,11 +106,11 @@ __HTTPPROXY_initial_setup() {
 	use_http_proxy_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__HTTPPROXY_statisics_setup() {
+__HTTPPROXY_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "HTTPPROXY $HTTP_PROXY_APP_NAME $KUBE_SIM_NAMESPACE"
 	else
@@ -198,7 +198,7 @@ start_http_proxy() {
 		__check_included_image "HTTPPROXY"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "HTTPPROXY"
 		retcode_p=$?
 

@@ -25,7 +25,7 @@ DOCKER_INCLUDED_IMAGES="ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR KAFKAPC"
 #App names to include in the test when running kubernetes, space separated list
 KUBE_INCLUDED_IMAGES=" ICS DMAAPMED DMAAPADP KUBEPROXY MR DMAAPMR CR KAFKAPC"
 
-#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+#Pre-started app (not started by script) to include in the test when running kubernetes, space separated list
 KUBE_PRESTARTED_IMAGES=""
 
 #Ignore image in DOCKER_INCLUDED_IMAGES, KUBE_INCLUDED_IMAGES if
@@ -243,11 +243,11 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-data$i ./tmp/data_for_dmaap_test.json
 done
 
 
@@ -307,11 +307,11 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-adp-kafka-data$i ./tmp/data_for_dmaap_test.txt
 done
 
 ## Send json file via message-router to mediator
@@ -365,11 +365,11 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
-    cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
+    cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-data$i ./tmp/data_for_dmaap_test.json
 done
 
 if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
@@ -429,11 +429,11 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     for ((i=1; i<=$NUM_JOBS; i++))
     do
         cr_index=$(($i%$NUM_CR))
-        cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
-        cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
-        cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
-        cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
-        cr_api_check_single_genric_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
+        cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
+        cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
+        cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
+        cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
+        cr_api_check_single_generic_event_md5_file 200 $cr_index job-med-kafka-data$i ./tmp/data_for_dmaap_test.txt
     done
 fi
 
@@ -450,7 +450,7 @@ mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-3"}'
 
 DATA_DELIV_JOBS=7 #Each job will eventually get 5+2 msgs
 
-# Wait for data recetption, adapter
+# Wait for data reception, adapter
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter, 2 json per job"
 for ((i=0; i<$NUM_CR; i++))
@@ -464,7 +464,7 @@ kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Mes
 kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------3'
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 7 30
 
-# Wait for data recetption, adapter kafka
+# Wait for data reception, adapter kafka
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter kafka, 2 strings per job"
 for ((i=0; i<$NUM_CR; i++))
@@ -492,7 +492,7 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     kafkapc_api_post_msg 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" 'Message-------2'
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 7 30
 
-    # Wait for data recetption, adapter kafka
+    # Wait for data reception, adapter kafka
     EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
     start_timer "Data delivery mediator kafka, 2 strings per job"
     for ((i=0; i<$NUM_CR; i++))
@@ -518,15 +518,15 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
-    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-0"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-2"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-1"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-3"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------1'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------3'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-0"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-2"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-1"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-3"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------1'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------3'
     if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
-        cr_api_check_single_genric_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------0'
-        cr_api_check_single_genric_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------2'
+        cr_api_check_single_generic_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------0'
+        cr_api_check_single_generic_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------2'
     fi
 done
 
@@ -541,7 +541,7 @@ done
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-5"}'
 mr_api_send_json "/events/unauthenticated.dmaapadp.json" '{"msg":"msg-7"}'
 
-# Wait for data recetption, adapter
+# Wait for data reception, adapter
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter with $SEC_DELAY seconds delay in consumer, 2 json per job"
 for ((i=0; i<$NUM_CR; i++))
@@ -556,7 +556,7 @@ kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Mes
 kafkapc_api_post_msg 200 "unauthenticated.dmaapadp_kafka.text" "text/plain" 'Message-------7'
 kafkapc_equal topics/unauthenticated.dmaapadp_kafka.text/counters/sent 9 30
 
-# Wait for data recetption, adapter kafka
+# Wait for data reception, adapter kafka
 EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
 start_timer "Data delivery adapter kafka with $SEC_DELAY seconds delay in consumer, 2 strings per job"
 for ((i=0; i<$NUM_CR; i++))
@@ -585,7 +585,7 @@ if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
     kafkapc_api_post_msg 200 "unauthenticated.dmaapmed_kafka.text" "text/plain" 'Message-------6'
     kafkapc_equal topics/unauthenticated.dmaapmed_kafka.text/counters/sent 9 30
 
-    # Wait for data recetption, mediator kafka
+    # Wait for data reception, mediator kafka
     EXPECTED_DATA_DELIV=$(($NUM_JOBS*2/$NUM_CR+$EXPECTED_DATA_DELIV))
     start_timer "Data delivery mediator kafka with $SEC_DELAY seconds delay in consumer, 2 strings per job"
     for ((i=0; i<$NUM_CR; i++))
@@ -611,15 +611,15 @@ done
 for ((i=1; i<=$NUM_JOBS; i++))
 do
     cr_index=$(($i%$NUM_CR))
-    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-4"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-6"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-5"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-7"}'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------5'
-    cr_api_check_single_genric_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------7'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-4"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-med-data$i '{"msg":"msg-6"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-5"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-data$i '{"msg":"msg-7"}'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------5'
+    cr_api_check_single_generic_event_md5 200 $cr_index job-adp-kafka-data$i 'Message-------7'
     if [[ "$DMAAP_MED_FEATURE_LEVEL" == *"KAFKATYPES"* ]]; then
-        cr_api_check_single_genric_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------4'
-        cr_api_check_single_genric_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------6'
+        cr_api_check_single_generic_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------4'
+        cr_api_check_single_generic_event_md5 200 $cr_index job-med-kafka-data$i 'Message-------6'
     fi
 done
 

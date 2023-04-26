@@ -26,7 +26,7 @@
 # arg: <image-tag-suffix> (selects staging, snapshot, release etc)
 # <image-tag-suffix> is present only for images with staging, snapshot,release tags
 __CHARTMUS_imagesetup() {
-	__check_and_create_image_var CHARTMUS "CHART_MUS_IMAGE" "CHART_MUS_IMAGE_BASE" "CHART_MUS_IMAGE_TAG" REMOTE_OTHER "$CHART_MUS_DISPLAY_NAME"
+	__check_and_create_image_var CHARTMUS "CHART_MUS_IMAGE" "CHART_MUS_IMAGE_BASE" "CHART_MUS_IMAGE_TAG" REMOTE_OTHER "$CHART_MUS_DISPLAY_NAME" ""
 }
 
 # Pull image from remote repo or use locally built image
@@ -63,12 +63,12 @@ __CHARTMUS_kube_scale_zero() {
 }
 
 # Scale kubernetes resources to zero and wait until this has been accomplished, if relevant. If not relevant to scale, then do no action.
-# This function is called for prestarted apps not managed by the test script.
+# This function is called for pre-started apps not managed by the test script.
 __CHARTMUS_kube_scale_zero_and_wait() {
 	echo -e $RED" CHARTMUS app is not scaled in this state"$ERED
 }
 
-# Delete all kube resouces for the app
+# Delete all kube resources for the app
 # This function is called for apps managed by the test script.
 __CHARTMUS_kube_delete_all() {
 	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest CHARTMUS
@@ -76,7 +76,7 @@ __CHARTMUS_kube_delete_all() {
 
 # Store docker logs
 # This function is called for apps managed by the test script.
-# args: <log-dir> <file-prexix>
+# args: <log-dir> <file-prefix>
 __CHARTMUS_store_docker_logs() {
 	if [ $RUNMODE == "KUBE" ]; then
 		kubectl $KUBECONF  logs -l "autotest=CHARTMUS" -n $KUBE_SIM_NAMESPACE --tail=-1 > $1$2_chartmuseum.log 2>&1
@@ -92,11 +92,11 @@ __CHARTMUS_initial_setup() {
 	use_chart_mus_http
 }
 
-# Set app short-name, app name and namespace for logging runtime statistics of kubernets pods or docker containers
+# Set app short-name, app name and namespace for logging runtime statistics of kubernetes pods or docker containers
 # For docker, the namespace shall be excluded
-# This function is called for apps managed by the test script as well as for prestarted apps.
+# This function is called for apps managed by the test script as well as for pre-started apps.
 # args: -
-__CHARTMUS_statisics_setup() {
+__CHARTMUS_statistics_setup() {
 	if [ $RUNMODE == "KUBE" ]; then
 		echo "CHARTMUS $CHART_MUS_APP_NAME $KUBE_SIM_NAMESPACE"
 	else
@@ -184,7 +184,7 @@ start_chart_museum() {
 		__check_included_image "CHARTMUS"
 		retcode_i=$?
 
-		# Check if app shall only be used by the testscipt
+		# Check if app shall only be used by the test script
 		__check_prestarted_image "CHARTMUS"
 		retcode_p=$?
 
@@ -244,7 +244,7 @@ start_chart_museum() {
     return 0
 }
 
-# Excute a curl cmd towards the chartmuseum simulator and check the response code.
+# Execute a curl cmd towards the chartmuseum simulator and check the response code.
 # args: TEST|CONF <expected-response-code> <curl-cmd-string>
 __execute_curl_to_chartmuseum() {
     TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")

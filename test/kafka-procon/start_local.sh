@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-echo "This script requires golang to be installed and a running kafka instance on (or availble to) localhost"
+echo "This script requires golang to be installed and a running kafka instance on (or available to) localhost"
 
 # Script to build and start app locally
 if [ $# -ne 1 ]; then
