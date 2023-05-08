@@ -1175,6 +1175,16 @@ if [ $? -ne 0 ] || [ -z "$tmp" ]; then
 fi
 echo " python3 is installed and using version: $(python3 --version)"
 
+tmp=$(type jq)
+if [ $? -ne 0 ]; then
+	echo -e $RED"command utility jq (cmd-line json processor) is not installed"$ERED
+	exit 1
+fi
+tmp=$(type envsubst)
+if [ $? -ne 0 ]; then
+	echo -e $RED"command utility envsubst (env var substitution in files) is not installed"$ERED
+	exit 1
+fi
 tmp=$(which docker)
 if [ $? -ne 0 ] || [ -z "$tmp" ]; then
 	echo -e $RED"docker is required to run the test environment, pls install"$ERED
@@ -1261,7 +1271,6 @@ echo -e "Application\tApp short name\tImage\ttag\ttag-switch" > $image_list_file
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
 # arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name> <target-platform>
 __check_and_create_image_var() {
-	echo $@
 	if [ $# -ne 7 ]; then
 		echo "Expected arg: <app-short-name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <image name> <target-platform>"
 		((IMAGE_ERR++))
