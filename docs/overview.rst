@@ -160,18 +160,14 @@ Implementation:
 - Repo: *portal/nonrtric-controlpanel*.
 
 
-Non-RT-RIC (Kong) Service Exposure Prototyping
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Non-RT-RIC Service Exposure Security Architecture Prototyping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Support Apps to use NONRTRIC, SMO and other App interfaces.
 A building block for coming releases as the R1 Interface concept matures .
 
 - Support dynamic registration and exposure of service interfaces to Non-RT-RIC applications (& NONRTRIC Control panel).
-- Extends a static gateway function specifically for NONRTRIC Control panel (described above).
-- Initial version based on `Kong API Gateway <https://docs.konghq.com/gateway-oss>`_ function.
-- Initial exposure candidates include A1 (NONRTRIC) services & O1 (OAM/SMO) services.
-
-NONRTRIC Kubernetes deployment - including Kong configurations can be found in the OSC `it/dep <https://gerrit.o-ran-sc.org/r/gitweb?p=it/dep.git;a=tree;f=nonrtric/helm/nonrtric>`_ Gerrit repo.
+- The architecture and componets are defined in :doc:`Non-RT RIC Security Architecture Prototyping (Documentation site) <service-exposure/se-overview/>`. 
 
 DMaaP/Kafka Information Producer Adapters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
