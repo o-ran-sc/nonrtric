@@ -16,3 +16,4 @@ Non-RT RIC
    ./requirements.rst
    ./installation-guide.rst
    ./release-notes.rst
+   ./service-exposure/se-overview.rst
