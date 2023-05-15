@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ce13080_94b31490",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-05-15T09:20:37Z",
+      "side": 1,
+      "message": "Will need to configure RTD to pick up this ...",
+      "revId": "7f1ba322abacfbccf567b93a5f89c4ca1e55e93b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
