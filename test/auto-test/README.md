@@ -39,7 +39,6 @@ Note that onap test uses components from onap combined with released oran compon
 In general, the test scripts support the current ongoing release as well as two previous releases.
 
 
-
 ORAN F-RELEASE
 =========
 >```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-f-release.sh  --use-release-image SDNC```
@@ -52,7 +51,7 @@ ORAN G-RELEASE
 
 >```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-g-release.sh  --use-release-image SDNC```
 
-ORAN H-RELEASE - current on master (april 2023)
+ORAN H-RELEASE - current on master (may 2023 - release image does not exist yet)
 =========
 >```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-h-release.sh```
 
@@ -73,11 +72,83 @@ ONAP KOHN
 >```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-kohn.sh```
 
 
-ONAP LONDON - current on master (april 2023)
+ONAP LONDON - current on master (may 2023 - release image does not exist yet)
 =============
 >```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-onap-london.sh```
 
 >```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-onap-london.sh```
+
+
+## Useful features
+
+There are a fair amount of additional flags that can be used to configure the test setup. See a detailed descriptions of all flags in `test/common/README.md`.
+
+
+### Stop at first error
+In general, the test script will continue to try to make all tests even if there are failures. For debugging it might be needed to stop when the first test fails. In this case, add the flag below to stop test execution at the first failed test:
+`--stop-at-error`
+
+### Test released images
+
+Tests are normally carried out on staging images. However, for testing the released images (when the images are available in the nexus report) the flag `release` shall be added to command. See also the below section to further tailor which image version (local/staging/snapshot) to use.
+
+### Use other image builds
+As default, all tests of the project images are carried out on the staging images (unless the `release` flag is given -  then released versions of the project images are used).
+In some cases, for example a locally built image or a snapshot image for one or more components can be used for testing together with staging or released images.
+
+The following flags can be used to switch image for one more individual components to use local image, remote snapshot image, remote staging image or or remote release image.
+
+`--use-local-image`
+`--use-snapshot-image`
+`--use-staging-image`
+`--use-release-image`
+
+The flag shall be followed by a space separated list of app names.
+Example of using a local image for A1 Policy Management Service :
+`--use-local-image A1PMS`
+
+The app names that can use other image are listed in the test engine configuration, see env var `AVAILABLE_IMAGES_OVERRIDE`in file `test/common/testengine-config.sh`
+
+### Temporary overriding env vars in a testprofile
+
+Each release has its own test profile, see files `common/test_env-<release-name>.sh`
+For debugging it is possible to override one or more settings in the profile given to the test script.
+Add the flag and file with env vars to override: `--override <override-environment-filename>`. The desired env vars shall be specified in the same way as in the test profile.
+
+### Use other image builds from external repo for A1PMS or other app
+It is possible to replace images with images from other external repos (other than oran and onap nexus repos).
+Modify the file `common/override_external_a1pms.sh` with the desired values. A login to the image repo may be required prior to running the test.
+Add the flag and the file: `--override common/override_external_a1pms.sh` to the command.
+In addition, tell the test script to use the overridden env vars by adding the flag `--use-external-image A1PMS`
+
+Example of running a1pms from external image repo using a test suite (a set of testscripts) and create endpoint statistics.
+
+`./Suite-short-alternative-a1pms.sh remote-remove  docker  --env-file ../common/test_env-onap-london.sh --override common/override_external_a1pms.sh --use-external-image A1PMS --print-stats --endpoint-stats`
+
+When the test suite is executed and all test are "PASS", a test report can be created with the following command - (only A1PMS is currently supported).
+The list of IDs shall be same as used in the test suite - in this case: `FTC1 FTC10 FTC100 FTC110 FTC2001`
+
+`./format_endpoint_stats.sh log A1PMS <overall test description> <space separated list of TC-IDs>`
+
+The report is printed to standard out in plain text (can be piped to a file)
+
+## Running test with external or multi node kubernetes
+The test script manages the images to use in each test run. When running locally using docker desktop etc, the image registry reside on the local machine and the test script can then pull the configured images to that registry which is then used by the test script.
+However, for external or multi node kubernetes clusters then each node in the cluster pull the external (nexus) images directly from the external repos. Images built locally cannot be used since the local registry is not accessible.
+The solution is to use another external registry as a temporary registry.
+Basically, the test script pulls the images, re-tag them and pushes them to the temporary registry. Locally built images are also pushed to the same report.
+All pods started by the script will then pull correct images from the temporary registry (a docker hub registry works fine - requires login to push images though). In this way, the test script has full control over which images are actually used and it is also guaranteed that multiple pod using the same image version actually use the same image.
+
+In addition, the kubernetes config file shall be downloaded from the master node of the cluster prior to the test - the config file is used by the command kubectrl to access the cluster.
+
+The following flags shall be added to the command: `--kubeconfig <config-file> --image-repo <repo-address> --repo-policy local\|remote`
+The image repo flag shall be the name of the repo (in case of docker hub -  e.g. "myprivateregistry") and repo policy shall be set to `remote` indicating that all images shall use the temporary registry.
+
+
+### Print test stats
+A test script will normally run all test even if there are failures. Detailed info about total test time, number of test, number of failed test etc the flag `--print-stats` can be added. Then the detailed info is printed for each test.
+
+
 ## Test case categories
 
 The test script are number using these basic categories where 0-999 are related to the policy management and 1000-1999 are related to information management. 2000-2999 are for southbound http proxy. There are also demo test cases that test more or less all components. These test scripts does not use the numbering scheme below.
