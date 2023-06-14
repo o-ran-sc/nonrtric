@@ -33,14 +33,14 @@ These are the components that make up the Non-RT-RIC:
 * `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. :doc:`Documentation site <a1policymanagementservice:index>`.
 * `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_.
 * `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_. :doc:`Documentation site <simulator:index>`.
-* `Non-RT-RIC (Spring Cloud) Service Gateway <#non-rt-ric-spring-cloud-service-gateway>`_.
-* `Non-RT-RIC (Kong) Service Exposure Prototyping <#non-rt-ric-kong-service-exposure-prototyping>`_.
-* `DMaaP/Kafka Information Producer Adapters <#dmaap-kafka-information-producer-adapters>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
-* `Initial Non-RT-RIC App Catalogue <#initial-non-rt-ric-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
-* `Initial K8S Helm Chart LCM Manager <#id5>`_. :doc:`Documentation site <helmmanager:index>`.
-* `Authentication Support <#id6>`_. :doc:`Documentation site <authtokenfetch:index>`.
+* `Non-RT-RIC (Spring Cloud) Service Gateway <#spring-cloud-service-gateway>`_.
+* `Non-RT-RIC Service Exposure Security Architecture Prototyping <#service-exposure-security-architecture-prototyping>`_. :doc:`Documentation site <service-exposure/se-overview/>`. 
+* `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
+* `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
+* `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. :doc:`Documentation site <helmmanager:index>`.
 * `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>`.
-* `Test Framework <#id7>`_.
+* `Authentication Support <#authentication-support-keycloak>`_. :doc:`Documentation site <authtokenfetch:index>`.
+* `Test Framework <#non-rt-ric-test-framework>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
   * "Helloworld" O-RU Fronthaul Recovery use case. :doc:`Documentation site <orufhrecovery:index>`.
@@ -146,8 +146,8 @@ Implementation:
 - Repo: *sim/a1-interface*.
 - Documentation at the :doc:`A1 Simulator documentation site <simulator:index>`.
 
-Non-RT-RIC (Spring Cloud) Service Gateway
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(Spring Cloud) Service Gateway
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Support Apps to use A1 Services.
 
 - `Spring Cloud Gateway <https://cloud.spring.io/spring-cloud-gateway>`_ provides the library to build a basic API gateway.
@@ -160,8 +160,8 @@ Implementation:
 - Repo: *portal/nonrtric-controlpanel*.
 
 
-Non-RT-RIC Service Exposure Security Architecture Prototyping
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Service Exposure Security Architecture Prototyping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Support Apps to use NONRTRIC, SMO and other App interfaces.
 A building block for coming releases as the R1 Interface concept matures .
@@ -169,8 +169,8 @@ A building block for coming releases as the R1 Interface concept matures .
 - Support dynamic registration and exposure of service interfaces to Non-RT-RIC applications (& NONRTRIC Control panel).
 - The architecture and componets are defined in :doc:`Non-RT RIC Security Architecture Prototyping (Documentation site) <service-exposure/se-overview/>`. 
 
-DMaaP/Kafka Information Producer Adapters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DMaaP Information Producer Adapters (Kafka)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Configurable mediators to take information from DMaaP and Kafka and present it as a coordinated Information Producer.
 
@@ -185,8 +185,8 @@ Implementation:
 - Implementation in Java Spring (DMaaP Adapter), repo: *nonrtric/plt/dmaapadapter*, see :doc:`DMaaP Adapter documentation site <dmaapadapter:index>`.
 - Implementation in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see :doc:`DMaaP Mediator Producer documentation site <dmaapmediatorproducer:index>`.
 
-Initial Non-RT-RIC App Catalogue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Initial App Catalogue
+~~~~~~~~~~~~~~~~~~~~~
 
 Register for Non-RT-RIC Apps.
 
@@ -200,8 +200,8 @@ Implementation:
 - Repo: *nonrtric/plt/rappcatalogue*
 - Documentation at the :doc:`rApp Catalogue documentation site <rappcatalogue:index>`.
 
-Initial K8S Helm Chart LCM Manager
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Initial Kubernetes Helm Chart LCM Manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Onboard, start, stop, and modify Non-RT-RIC App µServices as Helm Charts.
 *A building block for coming releases as the R-APP concept matures*.
@@ -236,8 +236,8 @@ Implementation:
 - Repo: *nonrtric/plt/sme*
 - Documentation at the :doc:`Service Management & Exposure (SME) documentation site <sme:index>`.
 
-Authentication Support
-~~~~~~~~~~~~~~~~~~~~~~
+Authentication Support (Keycloak)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The auth-token-fetch provides support for authentication.
 It is intended to be used as a sidecar and does the authentication procedure, gets and saves the access token
@@ -264,8 +264,8 @@ The auth-token-fetch is configured by the following environment variables.
 * AUTH_SERVICE_URL - the URL to the authentication service (Keycloak)
 * REFRESH_MARGIN_SECONDS - how long in advance before the authorization token expires it is refreshed
 
-Test Framework
-~~~~~~~~~~~~~~
+Non-RT-RIC Test Framework
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A full test environment with extensive test cases/scripts can be found in the ``test`` directory in the *nonrtric* source code.
 

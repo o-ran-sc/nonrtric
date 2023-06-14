@@ -179,3 +179,7 @@ This is an example of a provider and invoker running in a cluster:
 
 .. image:: ./se-rapp-jwt.png
    :width: 1000pt
+
+
+.. note:: Security for service registry and management using the 3GPP Common API framework is available here:
+     :doc:`Service Management & Exposure (SME) documentation site <sme:index>`.
