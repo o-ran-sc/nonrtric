@@ -18,18 +18,18 @@ from docs_conf.conf import *
 
 #branch configuration
 
-controlpanelbranch = 'latest'
-simulatorbranch = 'latest'
-dmaapmediatorproducerbranch = 'latest'
-dmaapadapterbranch = 'latest'
-informationcoordinatorservicebranch = 'latest'
-rappcataloguebranch = 'latest'
-helmmanagerbranch = 'latest'
+controlpanelbranch = 'h-release'
+simulatorbranch = 'h-release'
+dmaapmediatorproducerbranch = 'h-release'
+dmaapadapterbranch = 'h-release'
+informationcoordinatorservicebranch = 'h-release'
+rappcataloguebranch = 'h-release'
+helmmanagerbranch = 'h-release'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
-authtokenfetchbranch = 'latest'
-a1policymanagementservicebranch = 'latest'
-smebranch = 'latest'
+authtokenfetchbranch = 'h-release'
+a1policymanagementservicebranch = 'h-release'
+smebranch = 'h-release'
 onapbranch = 'latest'
 
 linkcheck_ignore = [
