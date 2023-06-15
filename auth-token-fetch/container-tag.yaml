@@ -19,4 +19,4 @@
 # By default this file is in the docker build directory,
 # but the location can configured in the JJB template.
 ---
-tag: 1.1.0
+tag: 1.2.0
