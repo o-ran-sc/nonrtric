@@ -24,7 +24,7 @@ formats:
   - htmlzip
 
 build:
-  image: latest
+  image: h-release
 
 python:
   version: 3.7
