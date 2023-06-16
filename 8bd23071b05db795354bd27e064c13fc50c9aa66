@@ -102,6 +102,24 @@
       "message": "Tested some links",
       "revId": "8bd23071b05db795354bd27e064c13fc50c9aa66",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e3fcb30_39706210",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-06-16T10:11:38Z",
+      "side": 1,
+      "message": "Looks like I forgot to apply a fix for something in informationcoordinatorservice (h-release branch) that I broke during the version roll. E.g see https://gerrit.o-ran-sc.org/r/c/nonrtric/plt/a1policymanagementservice/+/11392 Line 25 of https://gerrit.o-ran-sc.org/r/gitweb?p\u003dnonrtric/plt/informationcoordinatorservice.git;a\u003dblob;f\u003d.readthedocs.yaml;h\u003d06934394fb30c92d2f9bccbf760f242a56672f47;hb\u003drefs/heads/h-release replace \u0027h-release\u0027 with \u0027latest\u0027",
+      "parentUuid": "96fd7b83_8bc16a54",
+      "revId": "8bd23071b05db795354bd27e064c13fc50c9aa66",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
