@@ -120,6 +120,24 @@
       "parentUuid": "96fd7b83_8bc16a54",
       "revId": "8bd23071b05db795354bd27e064c13fc50c9aa66",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8955cede_2e511f00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001589
+      },
+      "writtenOn": "2023-06-16T11:57:06Z",
+      "side": 1,
+      "message": "Review is available here: https://gerrit.o-ran-sc.org/r/c/nonrtric/plt/informationcoordinatorservice/+/11402",
+      "parentUuid": "4e3fcb30_39706210",
+      "revId": "8bd23071b05db795354bd27e064c13fc50c9aa66",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
