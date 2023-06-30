@@ -30,7 +30,7 @@ orufhrecoverybranch = 'latest'
 authtokenfetchbranch = 'h-release'
 a1policymanagementservicebranch = 'h-release'
 smebranch = 'h-release'
-onapbranch = 'latest'
+onapbranch = 'london'
 
 linkcheck_ignore = [
     'http://localhost.*',
