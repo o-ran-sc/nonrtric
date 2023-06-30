@@ -9,7 +9,10 @@ Release-Notes
 
 This document provides the release notes for the release of the different parts of the Non-RT RIC.
 
-Since release F the products has been moved to separate repos. The release notes for the products  can now be found:
+Prior to release F several functions were homed in this repository, and released from here. 
+Currently the only function released from here is the "Auth Token Fetch" utility image (see below).
+
+Functions, previously here, but now with their own repos have their own release notes:
 
 * :doc:`Non-RT-RIC Control Panel <controlpanel:release-notes>`.
 * :doc:`Information Coordinator Service <informationcoordinatorservice:release-notes>`.
@@ -18,7 +21,6 @@ Since release F the products has been moved to separate repos. The release notes
 * DMaaP/Kafka Information Producer Adapters. :doc:`DMaaPAdapter <dmaapadapter:release-notes>`. :doc:`DMaaP Mediator Producer <dmaapmediatorproducer:release-notes>`.
 * :doc:`Non-RT-RIC App Catalogue <rappcatalogue:release-notes>`.
 * :doc:`K8S Helm Chart LCM Manager <helmmanager:release-notes>`.
-* :doc:`Auth Token Fetch <authtokenfetch:release-notes>`.
 * :doc:`Service Management & Exposure (SME) <sme:release-notes>`.
 * Use Cases:
 
@@ -166,7 +168,7 @@ F Release
 | **Project**                 | Non-RT RIC                                        |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
-| **Repo/commit-ID**          | nonrtric/3db8626c0900dc391b8e810541de9761c78043d8 |
+| **Repo/commit-ID**          | nonrtric/46f2c66ed30ceef4cedd7992b88c9563df0f24a5 |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
 | **Release designation**     | F                                                 |
@@ -176,6 +178,26 @@ F Release
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
 | **Purpose of the delivery** | First version of nonrtric-plt-auth-token-fetch    |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+
+H Release
+---------
++-----------------------------+---------------------------------------------------+
+| **Project**                 | Non-RT RIC                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Repo/commit-ID**          | nonrtric/3db8626c0900dc391b8e810541de9761c78043d8 |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release designation**     | H                                                 |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Release date**            | 2023-06-16                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Purpose of the delivery** | nonrtric-plt-auth-token-fetch:1.1.1               |
+|                             | Updated Springboot version                        |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
 
