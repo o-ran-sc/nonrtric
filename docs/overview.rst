@@ -39,7 +39,7 @@ These are the components that make up the Non-RT-RIC:
 * `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
 * `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. :doc:`Documentation site <helmmanager:index>`.
 * `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>`.
-* `Authentication Support <#authentication-support-keycloak>`_. :doc:`Documentation site <authtokenfetch:index>`.
+* `Authentication Support <#authentication-support-keycloak>`_.
 * `Test Framework <#non-rt-ric-test-framework>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
