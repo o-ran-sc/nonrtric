@@ -103,15 +103,9 @@ __RICSIM_statistics_setup() {
 			echo -n " RICSIM_G2_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
 			echo -n " RICSIM_G3_$RICSIM_INSTANCE_KUBE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE_KUBE $KUBE_A1SIM_NAMESPACE "
 		else
-			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-				echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g1_$RICSIM_INSTANCE "
-				echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g2_$RICSIM_INSTANCE "
-				echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}_g3_$RICSIM_INSTANCE "
-			else
-				echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g1-$RICSIM_INSTANCE "
-				echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE "
-				echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE "
-			fi
+			echo -n " RICSIM_G1_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g1-$RICSIM_INSTANCE "
+			echo -n " RICSIM_G2_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g2-$RICSIM_INSTANCE "
+			echo -n " RICSIM_G3_$RICSIM_INSTANCE ${RIC_SIM_PREFIX}-g3-$RICSIM_INSTANCE "
 		fi
 	done
 }
@@ -290,16 +284,10 @@ start_ric_simulators() {
 		docker_args="--force-recreate --scale $RICSIM_COMPOSE_SERVICE_NAME=$2"
 
 		#Create a list of container names
-		#Will be <ricsim-prefix>_<service-name>_<index>
-		# or
-		# <ricsim-prefix>-<service-name>-<index>
+		#Will be <ricsim-prefix>-<service-name>-<index>
 		app_data=""
 		cntr=1
-		if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-			app_name_prefix=$RIC_SIM_PREFIX"_"$RICSIM_COMPOSE_SERVICE_NAME"_"
-		else
-			app_name_prefix=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"
-		fi
+		app_name_prefix=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"
 		while [ $cntr -le $2 ]; do
 			app=$app_name_prefix$cntr
 			app_data="$app_data $app"
@@ -310,11 +298,7 @@ start_ric_simulators() {
 
 		cntr=1
 		while [ $cntr -le $2 ]; do
-			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-				app=$RIC_SIM_PREFIX"_"$RICSIM_COMPOSE_SERVICE_NAME"_"$cntr
-			else
-				app=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"$cntr
-			fi
+			app=$RIC_SIM_PREFIX"-"$RICSIM_COMPOSE_SERVICE_NAME"-"$cntr
 			__check_service_start $app $RIC_SIM_HTTPX"://"$app:$RIC_SIM_PORT$RIC_SIM_ALIVE_URL
 			let cntr=cntr+1
 		done
@@ -348,12 +332,8 @@ __find_sim_host() {
 		fi
 		echo $RIC_SIM_HTTPX"://"$ricname.$ric_setname.$KUBE_A1SIM_NAMESPACE":"$RIC_SIM_PORT
 	else
-		if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-			echo $RIC_SIM_HTTPX"://"$1":"$RIC_SIM_PORT
-		else
-			ricname=$(echo "$1" | tr '_' '-')
-			echo $RIC_SIM_HTTPX"://"$ricname":"$RIC_SIM_PORT
-		fi
+		ricname=$(echo "$1" | tr '_' '-')
+		echo $RIC_SIM_HTTPX"://"$ricname":"$RIC_SIM_PORT
 
 	fi
 }

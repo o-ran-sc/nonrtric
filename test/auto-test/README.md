@@ -10,7 +10,7 @@ FTC is short for Function Test Case. In addition, there are also other test scri
 
 To list all test case files with a s short description, do `grep TC_ONELINE_DESCR *.sh` for a complete list.
 
-The requirements, in terms of the execution environment, to run a script or a suite is to have docker, docker-compose and python3 installed (the scripts warns if not installed). As an option, the scripts can also be executed in a Minikube or Kubernetes installation. The additional requirement is to have a clean minikube/kubernetes installation, preferably with the kube dashboard installed.
+The requirements, in terms of the execution environment, to run a script or a suite is to have docker, docker-compose (v2+) and python3 installed (the scripts warns if not installed). As an option, the scripts can also be executed in a Minikube or Kubernetes installation. The additional requirement is to have a clean minikube/kubernetes installation, preferably with the kube dashboard installed.
 The scripts have been tested to work on both MacOS and Ubuntu using docker. They should work also in git-bash on windows (for docker) but only partly verified. Running using minikube has only been verified on Ubuntu and running on kubernetes has been verified on MacOS and Ubuntu. Successful sample tests has been made on google cloud.
 
 ## Configuration

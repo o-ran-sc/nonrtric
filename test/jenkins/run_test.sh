@@ -22,7 +22,8 @@
 echo "--> run_integration.sh"
 
 # Install docker-compose
-curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o ./docker-compose
+DOCKER_C_VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq .name -r)
+curl -L "https://github.com/docker/compose/releases/download/${DOCKER_C_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o ./docker-compose
 chmod +x docker-compose
 export PATH=$PATH:`pwd`
 

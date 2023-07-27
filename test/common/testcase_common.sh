@@ -137,10 +137,10 @@ STOP_AT_ERROR=0
 # Applies only to images defined in the test-env files with image names and tags defined as XXXX_RELEASE
 IMAGE_CATEGORY="DEV"
 
-#Var to indicate docker-compose version, V1 or V2
+#Var to indicate docker-compose version, V1 or V2. V1 is not supported. 
 #V1 names replicated containers <proj-name>_<service-name>_<index>
 #V2 names replicated containers <proj-name>-<service-name>-<index>
-DOCKER_COMPOSE_VERSION="V1"
+DOCKER_COMPOSE_VERSION="V2"
 
 # Name of target platform, if set by start cmd
 IMAGE_TARGET_PLATFORM=""
@@ -1196,13 +1196,16 @@ echo  "  $(docker version --format 'Client version {{.Client.Version}} Server ve
 if [ $RUNMODE == "DOCKER" ]; then
 	tmp=$(which docker-compose)
 	if [ $? -ne 0 ] || [ -z "$tmp" ]; then
-		echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
+		echo -e $RED"docker-compose (v.2+) is required to run the test environment, pls install"$ERED
 		exit 1
 	else
 		tmp=$(docker-compose version)
 		echo " docker-compose installed and using version $tmp"
 		if [[ "$tmp" == *'v2'* ]]; then
 			DOCKER_COMPOSE_VERSION="V2"
+		else
+			echo -e $RED"docker-compose version $tmp is not supported. Only version v2 is supported, pls install"$ERED
+			exit 1
 		fi
 	fi
 fi
@@ -2972,11 +2975,7 @@ __start_container() {
 
 	envsubst < $compose_file > "gen_"$compose_file
 	compose_file="gen_"$compose_file
-	if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-		docker_compose_cmd="docker-compose"
-	else
-		docker_compose_cmd="docker compose"
-	fi
+	docker_compose_cmd="docker compose"
 
 	if [ "$compose_args" == "NODOCKERARGS" ]; then
 		$docker_compose_cmd -f $compose_file up -d &> .dockererr

@@ -122,11 +122,7 @@ __CR_statistics_setup() {
 			CR_INSTANCE_KUBE=$(($CR_INSTANCE-1))
 			echo -n " CR-$CR_INSTANCE_KUBE $CR_APP_NAME-$CR_INSTANCE_KUBE $KUBE_SIM_NAMESPACE "
 		else
-			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-				echo -n " CR_$CR_INSTANCE ${CR_APP_NAME}_cr_$CR_INSTANCE "
-			else
-				echo -n " CR_$CR_INSTANCE ${CR_APP_NAME}-cr-$CR_INSTANCE "
-			fi
+			echo -n " CR_$CR_INSTANCE ${CR_APP_NAME}-cr-$CR_INSTANCE "
 		fi
 	done
 }
@@ -171,11 +167,7 @@ __cr_set_protocoll() {
 	for ((CR_INSTANCE=0; CR_INSTANCE<$MAX_CR_APP_COUNT; CR_INSTANCE++ )); do
 		CR_DOCKER_INSTANCE=$(($CR_INSTANCE+1))
 		# CR_SERVICE_PATH is the base path to cr
-		if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-			__CR_SERVICE_PATH=$1"://"$CR_APP_NAME"_cr_"${CR_DOCKER_INSTANCE}":"$2  # docker access, container->container and script->container via proxy
-		else
-			__CR_SERVICE_PATH=$1"://"$CR_APP_NAME"-cr-"${CR_DOCKER_INSTANCE}":"$2  # docker access, container->container and script->container via proxy
-		fi
+		__CR_SERVICE_PATH=$1"://"$CR_APP_NAME"-cr-"${CR_DOCKER_INSTANCE}":"$2  # docker access, container->container and script->container via proxy
 		if [ $RUNMODE == "KUBE" ]; then
 			__CR_SERVICE_PATH=$1"://"$CR_APP_NAME"-"$CR_INSTANCE.$CR_APP_NAME"."$KUBE_SIM_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
 		fi
@@ -299,11 +291,7 @@ start_cr() {
 		app_data=""
 		cntr=1
 		while [ $cntr -le $CR_APP_COUNT ]; do
-			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-				app=$CR_APP_NAME"_cr_"$cntr
-			else
-				app=$CR_APP_NAME"-cr-"$cntr
-			fi
+			app=$CR_APP_NAME"-cr-"$cntr
 			app_data="$app_data $app"
 			let cntr=cntr+1
 		done
@@ -315,11 +303,7 @@ start_cr() {
 		cntr=1   #Counter for docker instance, starts on 1
 		cntr2=0  #Couter for env var name, starts with 0 to be compablible with kube
 		while [ $cntr -le $CR_APP_COUNT ]; do
-			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-				app=$CR_APP_NAME"_cr_"$cntr
-			else
-				app=$CR_APP_NAME"-cr-"$cntr
-			fi
+			app=$CR_APP_NAME"-cr-"$cntr
 			__dynvar="CR_SERVICE_PATH_"$cntr2
 			__check_service_start $app ${!__dynvar}$CR_ALIVE_URL
 			let cntr=cntr+1

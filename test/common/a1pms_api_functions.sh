@@ -567,13 +567,9 @@ prepare_a1pms_config() {
 			ric_id=${ric%.*.*} #extract pod id from full hosthame
 			ric_id=$(echo "$ric_id" | tr '-' '_')
 		else
-			if [ $DOCKER_COMPOSE_VERSION == "V1" ]; then
-				ric_id=$ric
-			else
-				ric_id=$(echo "$ric" | tr '-' '_')  #ric id still needs underscore as it is different from the container name
-			fi
+			ric_id=$(echo "$ric" | tr '-' '_')  #ric var still needs underscore as it is different from the container name
 		fi
-		echo " Found a1 sim: "$ric_id
+		echo " Found a1 sim: "$ric 
 		config_json=$config_json"\n            \"name\": \"$ric_id\","
 
 		xricfound=0
