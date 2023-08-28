@@ -1,5 +1,5 @@
 #  ============LICENSE_START=======================================================
-#  Copyright (C) 2020-2022 Nordix Foundation
+#  Copyright (C) 2020-2023 Nordix Foundation
 #  ================================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 #  SPDX-License-Identifier: Apache-2.0
 #  ============LICENSE_END=========================================================
 ---
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 version: 2
 
 formats:
   - htmlzip
 
 build:
-  image: latest
+  os: ubuntu-20.04
+  tools:
+    python: "3.8"
 
 python:
-  version: 3.7
   install:
-    - requirements: docs/requirements-docs.txt
+  - requirements: docs/requirements-docs.txt
 
 sphinx:
   configuration: docs/conf.py
