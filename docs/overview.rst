@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: CC-BY-4.0
 .. Copyright (C) 2021 Nordix
 
-.. |archpic| image:: ./images/nonrtric-architecture-F.png
+.. |archpic| image:: ./images/nonrtric-architecture-H.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
 
 Summary
@@ -73,6 +73,7 @@ The ICS is a data subscription service which decouples data producers from data 
 A data consumer can have several active data subscriptions (Information Job). One Information Job consists of the type of data to produce and additional parameters, which may be different for different data types. These parameters are not defined or limited by this service.
 
 Maintains a registry of:
+
 - Information Types / schemas
 - Information Producers
 - Information Consumers
@@ -263,6 +264,22 @@ The auth-token-fetch is configured by the following environment variables.
 * OUTPUT_FILE - the path where the fetched authorization token is stored, example: "/tmp/authToken.txt"
 * AUTH_SERVICE_URL - the URL to the authentication service (Keycloak)
 * REFRESH_MARGIN_SECONDS - how long in advance before the authorization token expires it is refreshed
+
+RAN Performance Monitoring Functions (File-based PM)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Functions to collect/parse/filter/store/forward file-based & event-based RAN PM data
+
+- End-to-end tool-chain to collection, parsing, filtering and delivery of file-based RAN PM observability data.
+- PM report data format defined by 3GPP (TS 32.432 and 3GPP TS 32.435)
+- High performance, fully scalable
+- Subscribers (e.g. rApps) can subscribe for chosen measurement types from specific resources in the network
+
+Implementation:
+
+- Implemented in Go, Java and Python
+- Repo: *nonrtric/plt/ranpm*
+- Documentation at the :doc:`Non-RT RIC RAN PM Usecase / Functions documentation site <ranpm:index>`.
 
 Non-RT-RIC Test Framework
 ~~~~~~~~~~~~~~~~~~~~~~~~~
