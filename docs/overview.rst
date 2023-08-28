@@ -1,6 +1,6 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
-.. Copyright (C) 2021 Nordix
+.. Copyright (C) 2023 Nordix
 
 .. |archpic| image:: ./images/nonrtric-architecture-H.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
@@ -267,12 +267,16 @@ The auth-token-fetch is configured by the following environment variables.
 
 RAN Performance Monitoring Functions (File-based PM)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Functions to collect/parse/filter/store/forward file-based & event-based RAN PM data
+
+Functions to collect/parse/filter/store/forward file-based & event-based RAN PM data:
+
 - End-to-end tool-chain to collection, parsing, filtering and delivery of file-based RAN PM observability data.
 - PM report data format defined by 3GPP (TS 32.432 and 3GPP TS 32.435)
 - High performance, fully scalable
 - Subscribers (e.g. rApps) can subscribe for chosen measurement types from specific resources in the network
+
 Implementation:
+
 - Implemented in Go, Java and Python
 - Repo: *nonrtric/plt/ranpm*
 - Documentation at the :doc:`Non-RT RIC RAN PM Usecase / Functions documentation site <ranpm:index>`.
