@@ -34,7 +34,7 @@ The test scripts produce quite a number of logs; all container logs, a log of al
 
 To test all components on a very basic level, run the demo test script(s) for the desired release.
 Note that oran tests only include components from oran (exception is the onap sdnc).
-Note that onap test uses components from onap combined with released oran components available at that onap release (e.g. London contains onap images from London and oran images (released images from g-release).
+Note that onap test uses components from onap combined with released oran components available at that onap release (e.g. London contains onap images from London and oran images (released images from h-release).
 
 In general, the test scripts support the current ongoing release as well as two previous releases.
 
@@ -51,11 +51,11 @@ ORAN G-RELEASE
 
 >```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-g-release.sh  --use-release-image SDNC```
 
-ORAN H-RELEASE - current on master (may 2023 - release image does not exist yet)
+ORAN H-RELEASE
 =========
->```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-h-release.sh```
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-h-release.sh --use-release-image SDNC```
 
->```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-h-release.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-h-release.sh --use-release-image SDNC```
 
 
 ONAP JAKARTA
@@ -72,7 +72,7 @@ ONAP KOHN
 >```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-kohn.sh```
 
 
-ONAP LONDON - current on master (may 2023 - release image does not exist yet)
+ONAP LONDON
 =============
 >```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-onap-london.sh```
 
