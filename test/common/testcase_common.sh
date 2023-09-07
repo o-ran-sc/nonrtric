@@ -1199,7 +1199,7 @@ if [ $RUNMODE == "DOCKER" ]; then
 		echo -e $RED"docker-compose (v.2+) is required to run the test environment, pls install"$ERED
 		exit 1
 	else
-		tmp=$(docker-compose version)
+		tmp=$(docker-compose -v)
 		echo " docker-compose installed and using version $tmp"
 		if [[ "$tmp" == *'v2'* ]]; then
 			DOCKER_COMPOSE_VERSION="V2"
