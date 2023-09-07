@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - This suite will cover the components(A1PMS, ICS, rApp, Southbound http proxy) for the verify job"
+TS_ONELINE_DESCR="Test suite - This suite will cover the components(A1PMS, ICS, rApp) for the verify job"
 
 . ../common/testsuite_common.sh
 
@@ -28,7 +28,6 @@ suite_setup
 ./FTC150.sh $@
 ./FTC110.sh $@
 ./FTC2001.sh $@
-./FTC3001.sh $@
 
 ##########################################
 
