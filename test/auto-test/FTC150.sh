@@ -128,8 +128,8 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000
 
-        VAL='NOT IN EFFECT'
-        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "false"
+        VAL='NOT_ENFORCED'
+        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "OTHER_REASON"
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
 
         RESP=202
