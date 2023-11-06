@@ -543,22 +543,16 @@ prepare_a1pms_config() {
 			echo $YELLOW"Warning: No rics found for the configuration"$EYELLOW
 		fi
 	else
+	    rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "label=a1sim" --filter "status=running" --format {{.Names}})
 		oranrics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "label=orana1sim" --filter "status=running" --format {{.Names}})
-		if [ $? -ne 0 ] || [ -z "$oranrics" ]; then
-			echo -e $RED" FAIL - the names of the running RIC Simulator cannot be retrieved." $ERED
-			((RES_CONF_FAIL++))
-			return 1
-		fi
-		
-		rics=$(docker ps --filter "name=$RIC_SIM_PREFIX" --filter "network=$DOCKER_SIM_NWNAME" --filter "label=a1sim" --filter "status=running" --format {{.Names}})
-		if [[ "$oranrics" == "" ]]; then	
-			if [ $? -ne 0 ] || [ -z "$rics" ]; then
-				echo -e $RED" FAIL - the names of the running RIC Simulator cannot be retrieved." $ERED
-				((RES_CONF_FAIL++))
-				return 1
-			fi
-		fi
+
 		rics="$rics $oranrics"
+
+		if [ $? -ne 0 ] || [ -z "$rics" ]; then
+			echo -e $RED" FAIL - the names of the running RIC Simulator or ORAN RIC cannot be retrieved." $ERED
+			((RES_CONF_FAIL++))
+			exit 1
+		fi
 	fi
 	cntr=0
 	for ric in $rics; do
