@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW "
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ORAN-I-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -150,7 +151,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
 
-        ricmediatorsim_put_policy_type 201 ricsim_g4_1 1 testdata/OSC/sim_1.json
+        ricmediatorsim_put_policy_type 201 ricsim_g4_1 1 testdata/STD2/sim_qos.json
 
         a1pms_equal json:rics 4 300
 
