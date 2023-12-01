@@ -86,27 +86,27 @@ SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.5.1"
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-# ICS image and tag - using g release
+# ICS image and tag - using h release
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
-ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.4.1"
+ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.5.0"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
-# Control Panel image and tag - using g release
+# Control Panel image and tag - using h release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.4.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.5.0"
 
-# Gateway image and tags - used g release
+# Gateway image and tags - used h release
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.2.0"
 
-# RAPP Catalogue image and tags - used g release
+# RAPP Catalogue image and tags - used h release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.1.0"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.2.0"
 
 
-# Near RT RIC Simulator image and tags - used g release
+# Near RT RIC Simulator image and tags - used h release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.4.0"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.5.0"
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
