@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,7 +18,7 @@
 #  ============LICENSE_END=================================================
 #
 #Profile for ONAP honolulu release
-TEST_ENV_PROFILE="ONAP-JAKARTA"
+TEST_ENV_PROFILE="ONAP-MONTREAL"
 FLAVOUR="ONAP"
 
 ########################################
@@ -69,44 +70,44 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # A1PMS image and tags
 A1PMS_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="1.3.3-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.3-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="1.3.3-STAGING-latest" #Will use snapshot repo
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.3.3"
+A1PMS_IMAGE_TAG_LOCAL="1.6.1-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.6.1-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="1.6.1-STAGING-latest" #Will use snapshot repo
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.6.1"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.3.3-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.3-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.3.3-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.3.2"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.5.1-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.1-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.5.1-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.5.1"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
 SDNC_DB_IMAGE_BASE="mariadb"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
-# ICS image and tag - using e release
-ICS_IMAGE_BASE="o-ran-sc/nonrtric-information-coordinator-service"
-ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.2.1"
+# ICS image and tag - using g release
+ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
+ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.4.1"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
-# Control Panel image and tag - using e release
+# Control Panel image and tag - using g release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.3.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.4.0"
 
-# Gateway image and tags - used e release
+# Gateway image and tags - used g release
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
 NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
 
-# RAPP Catalogue image and tags - used e release
-RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.2"
+# RAPP Catalogue image and tags - used g release
+RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.1.0"
 
 
-# Near RT RIC Simulator image and tags - used e release
+# Near RT RIC Simulator image and tags - used g release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.2.0"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.4.0"
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
@@ -202,7 +203,9 @@ A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container f
 A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
 A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
-A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
+A1PMS_FEATURE_LEVEL="NO-DMAAP ADAPTER-CLASS"               # Space separated list of features
+A1PMS_ADAPTER_CLASS=""                                     # Class name set by override file
+A1PMS_ADAPTER_POLICY_NAME=""                               # Policy name set by override file
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container
@@ -311,7 +314,7 @@ SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
 #SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
-SDNC_FEATURE_LEVEL="TRANS_RESP_CODE"                     # Space separated list of features
+SDNC_FEATURE_LEVEL="TRANS_RESP_CODE NO_NB_HTTPS"         # Space separated list of features
                                                          # TRANS_RESP_CODE: SDNC return southbound response code
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
@@ -396,4 +399,4 @@ PVC_CLEANER_COMPOSE_DIR="pvc-cleaner"                   # Dir in simulator_group
 ########################################
 
 UUID=""                                                  # UUID used as prefix to the policy id to simulate a real UUID
-                                                         # Test script need to set the UUID to use other this empty prefix is used
+                                                         # Testscript need to set the UUID to use other this empty prefix is used

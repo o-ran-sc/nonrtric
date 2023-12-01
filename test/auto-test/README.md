@@ -1,3 +1,20 @@
+#  ============LICENSE_START===============================================
+#  Copyright (C) 2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+
 # Overview
 
 The bash scripts in this dir are intended for function test of the Non-RT RIC in different configurations, using simulators when needed for the external interfaces.
@@ -22,7 +39,7 @@ If temporary changes are needed to the settings in a profile file, use an overri
 
 A test script, for example FTC1, is executed from the cmd line using the script filename and one or more parameters:
 
- >```./FTC1.sh remote docker --env-file ../common/test_env-oran-h-release.sh```
+ >```./FTC1.sh remote docker --env-file ../common/test_env-oran-i-release.sh```
 
 Note that this script will use the staging images. Once the release images are available,add the parameter "release" to run with released images.
 
@@ -34,16 +51,10 @@ The test scripts produce quite a number of logs; all container logs, a log of al
 
 To test all components on a very basic level, run the demo test script(s) for the desired release.
 Note that oran tests only include components from oran (exception is the onap sdnc).
-Note that onap test uses components from onap combined with released oran components available at that onap release (e.g. London contains onap images from London and oran images (released images from h-release).
+Note that onap test uses components from onap combined with released oran components available at that onap release (e.g. Montreal contains onap images from Montreal and oran images (released images from i-release).
 
 In general, the test scripts support the current ongoing release as well as two previous releases.
 
-
-ORAN F-RELEASE
-=========
->```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-f-release.sh  --use-release-image SDNC```
-
->```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-f-release.sh  --use-release-image SDNC```
 
 ORAN G-RELEASE
 =========
@@ -53,16 +64,15 @@ ORAN G-RELEASE
 
 ORAN H-RELEASE
 =========
->```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-h-release.sh --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-h-release.sh  --use-release-image SDNC```
 
->```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-h-release.sh --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-h-release.sh  --use-release-image SDNC```
 
+ORAN I-RELEASE
+=========
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-i-release.sh --use-release-image SDNC```
 
-ONAP JAKARTA
-=============
->```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-jakarta.sh```
-
->```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-jakarta.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-i-release.sh --use-release-image SDNC```
 
 
 ONAP KOHN
@@ -74,9 +84,16 @@ ONAP KOHN
 
 ONAP LONDON
 =============
->```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-onap-london.sh```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-london.sh```
 
->```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-onap-london.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-london.sh```
+
+
+ONAP MONTREAL
+=============
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-onap-montreal.sh```
+
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-onap-montreal.sh```
 
 
 ## Useful features
@@ -139,7 +156,7 @@ The solution is to use another external registry as a temporary registry.
 Basically, the test script pulls the images, re-tag them and pushes them to the temporary registry. Locally built images are also pushed to the same report.
 All pods started by the script will then pull correct images from the temporary registry (a docker hub registry works fine - requires login to push images though). In this way, the test script has full control over which images are actually used and it is also guaranteed that multiple pod using the same image version actually use the same image.
 
-In addition, the kubernetes config file shall be downloaded from the master node of the cluster prior to the test - the config file is used by the command kubectrl to access the cluster.
+In addition, the kubernetes config file shall be downloaded from the master node of the cluster prior to the test - the config file is used by the command kubectl to access the cluster.
 
 The following flags shall be added to the command: `--kubeconfig <config-file> --image-repo <repo-address> --repo-policy local\|remote`
 The image repo flag shall be the name of the repo (in case of docker hub -  e.g. "myprivateregistry") and repo policy shall be set to `remote` indicating that all images shall use the temporary registry.
@@ -225,20 +242,3 @@ print_result
 store_logs          END
 
 ```
-
------------------------------------------------------------
-
-## License
-
-Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.

@@ -433,7 +433,7 @@ ricmediatorsim_put_policy_type() {
 		return 1
 	fi
 	host=$(__find_ricmediatorsim_host $2)
-    curlString="curl -X PUT -skw %{http_code} "$host"/a1-p/policytypes/"$3" -H Content-Type:application/json --data-binary @"$4
+    curlString="curl -X PUT -skw %{http_code} "$host"/A1-P/v2/policytypes/"$3" -H Content-Type:application/json --data-binary @"$4
 	__execute_curl_to_ricmediatorsim $1 "$curlString"
 	return $?
 }
@@ -448,7 +448,7 @@ ricmediatorsim_delete_policy_type() {
 		return 1
 	fi
 	host=$(__find_ricmediatorsim_host $2)
-    curlString="curl -X DELETE -skw %{http_code} "$host"/a1-p/policytypes/"$3
+    curlString="curl -X DELETE -skw %{http_code} "$host"/A1-P/v2/policytypes/"$3
     __execute_curl_to_ricmediatorsim $1 "$curlString"
 	return $?
 }

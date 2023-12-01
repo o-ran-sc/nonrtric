@@ -2,6 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,8 +17,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ORAN Cherry
-TEST_ENV_PROFILE="ORAN-F-RELEASE"
+#Profile for ORAN H release
+TEST_ENV_PROFILE="ORAN-I-RELEASE"
 FLAVOUR="ORAN"
 
 ########################################
@@ -60,38 +61,38 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 # A1PMS base image and tags
 A1PMS_IMAGE_BASE="o-ran-sc/nonrtric-plt-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="2.4.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="2.4.1"
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.4.1"
+A1PMS_IMAGE_TAG_LOCAL="2.7.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.7.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="2.7.0"
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.7.0"
 
 # ICS image and tags
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
-ICS_IMAGE_TAG_LOCAL="1.3.2-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.2-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE="1.3.2"
-ICS_IMAGE_TAG_REMOTE_RELEASE="1.3.1"
+ICS_IMAGE_TAG_LOCAL="1.6.0-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.6.0-SNAPSHOT"
+ICS_IMAGE_TAG_REMOTE="1.6.0"
+ICS_IMAGE_TAG_REMOTE_RELEASE="1.6.0"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 #Control Panel image and tags
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_LOCAL="2.3.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.0-SNAPSHOT"
-CONTROL_PANEL_IMAGE_TAG_REMOTE="2.3.0"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.3.0"
+CONTROL_PANEL_IMAGE_TAG_LOCAL="2.5.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.0-SNAPSHOT"
+CONTROL_PANEL_IMAGE_TAG_REMOTE="2.5.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
 
 
 # Gateway image and tags
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
-NRT_GATEWAY_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-NRT_GATEWAY_IMAGE_TAG_REMOTE="1.1.0"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+NRT_GATEWAY_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+NRT_GATEWAY_IMAGE_TAG_REMOTE="1.2.0"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 
-# SDNC A1 Controller image and tags - Note using released ONAP image
+# SDNC A1 Controller image and tags - Note using released honolulu ONAP image
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.2.5"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.4.2"
 #No local image for ONAP SDNC, remote release image always used
 
 # ORAN SDNC adapter kept as reference
@@ -116,46 +117,54 @@ SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
 # RAPP Catalogue image and tags
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
-RAPP_CAT_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-RAPP_CAT_IMAGE_TAG_REMOTE="1.1.0"
-RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+RAPP_CAT_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+RAPP_CAT_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+RAPP_CAT_IMAGE_TAG_REMOTE="1.2.0"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 
-# Near RT RIC Simulator image and tags - same version as cherry
+# Near RT RIC Simulator image and tags
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
 RIC_SIM_IMAGE_TAG_LOCAL="latest"
-RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.2-SNAPSHOT"
-RIC_SIM_IMAGE_TAG_REMOTE="2.3.2"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.3.1"
+RIC_SIM_IMAGE_TAG_REMOTE_SNAPSHOT="2.6.1-SNAPSHOT"
+RIC_SIM_IMAGE_TAG_REMOTE="2.6.1"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.6.1"
+
+# ORAN Near RT RIC Simulator image and tags
+RICMEDIATOR_SIM_IMAGE_BASE="o-ran-sc/ric-plt-a1"
+RICMEDIATOR_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="3.2.1"
+
+# ORAN Near RT RIC Simulator DB image and tags
+RICMEDIATOR_SIM_DB_IMAGE_BASE="o-ran-sc/ric-plt-dbaas"
+RICMEDIATOR_SIM_DB_IMAGE_TAG_REMOTE_RELEASE_ORAN="0.6.2"
 
 # DMAAP Mediator Service
 DMAAP_MED_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapmediatorproducer"
-DMAAP_MED_IMAGE_TAG_LOCAL="1.1.0-SNAPSHOT"
-DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.0-SNAPSHOT"
-DMAAP_MED_IMAGE_TAG_REMOTE="1.1.0"
-DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.1.0"
+DMAAP_MED_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
+DMAAP_MED_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
+DMAAP_MED_IMAGE_TAG_REMOTE="1.2.0"
+DMAAP_MED_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 # DMAAP Adapter Service
 DMAAP_ADP_IMAGE_BASE="o-ran-sc/nonrtric-plt-dmaapadapter"
-DMAAP_ADP_IMAGE_TAG_LOCAL="1.1.1-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.1-SNAPSHOT"
-DMAAP_ADP_IMAGE_TAG_REMOTE="1.1.1"
-DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
+DMAAP_ADP_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.0-SNAPSHOT"
+DMAAP_ADP_IMAGE_TAG_REMOTE="1.3.0"
+DMAAP_ADP_IMAGE_TAG_REMOTE_RELEASE="1.3.0"
 
 # Helm Manager
 HELM_MANAGER_IMAGE_BASE="o-ran-sc/nonrtric-plt-helmmanager"
-HELM_MANAGER_IMAGE_TAG_LOCAL="1.2.0-SNAPSHOT"
-HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.2.0-SNAPSHOT"
-HELM_MANAGER_IMAGE_TAG_REMOTE="1.2.0"
-HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
+HELM_MANAGER_IMAGE_TAG_LOCAL="1.3.0-SNAPSHOT"
+HELM_MANAGER_IMAGE_TAG_REMOTE_SNAPSHOT="1.3.0-SNAPSHOT"
+HELM_MANAGER_IMAGE_TAG_REMOTE="1.3.0"
+HELM_MANAGER_IMAGE_TAG_REMOTE_RELEASE="1.3.0"
 
 # Auth sidecar
 AUTHSIDECAR_IMAGE_BASE="o-ran-sc/nonrtric-auth-token-fetch"
-AUTHSIDECAR_IMAGE_TAG_LOCAL="1.0.0-SNAPSHOT"
-AUTHSIDECAR_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.0-SNAPSHOT"
-AUTHSIDECAR_IMAGE_TAG_REMOTE="1.0.0"
-AUTHSIDECAR_IMAGE_TAG_REMOTE_RELEASE="1.0.0"
+AUTHSIDECAR_IMAGE_TAG_LOCAL="1.1.1-SNAPSHOT"
+AUTHSIDECAR_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.1-SNAPSHOT"
+AUTHSIDECAR_IMAGE_TAG_REMOTE="1.1.1"
+AUTHSIDECAR_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
@@ -278,7 +287,9 @@ A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container f
 A1PMS_CONFIG_FILE="application.yaml"                       # Container config file name
 A1PMS_DATA_FILE="application_configuration.json"           # Container data file name
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
-A1PMS_FEATURE_LEVEL=""                                     # Space separated list of features
+A1PMS_FEATURE_LEVEL="NO-DMAAP ADAPTER-CLASS"               # Space separated list of features
+A1PMS_ADAPTER_CLASS=""                                     # Class name set by override file
+A1PMS_ADAPTER_POLICY_NAME=""                               # Policy name set by override file
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
@@ -359,13 +370,31 @@ RIC_SIM_PREFIX="ricsim"                                  # Prefix added to ric c
                                                          # This prefix can be changed from the command line
 RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
                                                          # (external ports allocated by docker)
-RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
+RIC_SIM_INTERNAL_SECURE_PORT=8185                       # RIC Simulator container internal secure port (container -> container).
                                                          # (external ports allocated by docker)
 RIC_SIM_CERT_MOUNT_DIR="./cert"
 
 RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
 RIC_SIM_ALIVE_URL="/"                                    # Base path for alive check
 RIC_SIM_COMMON_SVC_NAME=""                               # Name of svc if one common svc is used for all ric sim groups (stateful sets)
+
+RICMEDIATOR_SIM_DISPLAY_NAME="ORAN Near-RT RIC A1 Simulator"
+RICMEDIATOR_SIM_DB_DISPLAY_NAME="ORAN Near-RT RIC A1 Simulator DB"
+RICMEDIATOR_SIM_BASE="g"                                     # Base name of the RIC Simulator container, shall be the group code
+                                                         # Note, a prefix is added to each container name by the .env file in the 'ric' dir
+RICMEDIATOR_SIM_PREFIX="ricsim"                              # Prefix added to ric container name, added in the .env file in the 'ric' dir
+                                                         # This prefix can be changed from the command line
+RICMEDIATOR_SIM_INTERNAL_PORT=10000                      # RIC Simulator container internal port (container -> container).
+                                                         # (external ports allocated by docker)
+RICMEDIATOR_SIM_INTERNAL_SECURE_PORT=10001               # RIC Simulator container internal secure port (container -> container).
+                                                         # (external ports allocated by docker)
+                                                         # This port number is not supported by app, kept only for consistency with other ric sims
+RICMEDIATOR_SIM_CERT_MOUNT_DIR="./cert"
+
+RICMEDIATOR_SIM_COMPOSE_DIR="ricmediator"                # Dir in simulator group for docker compose
+RICMEDIATOR_SIM_ALIVE_URL="/A1-P/v2/healthcheck"         # Base path for alive check
+RICMEDIATOR_SIM_COMMON_SVC_NAME=""                       # Name of svc if one common svc is used for all ric sim groups (stateful sets)
+
 
 # For ONAP sdnc
 SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
@@ -487,9 +516,9 @@ DMAAP_ADP_CONFIG_MOUNT_PATH="/opt/app/dmaap-adapter-service/config" # Internal c
 DMAAP_ADP_DATA_MOUNT_PATH="/opt/app/dmaap-adapter-service/data" # Path in container for data file
 DMAAP_ADP_DATA_FILE="application_configuration.json"  # Container data file name
 DMAAP_ADP_CONFIG_FILE=application.yaml                   # Config file name
-DMAAP_ADP_CONFIG_FILE_TEMPLATE=application1.yaml         # Template config file name
-DMAAP_ADP_FEATURE_LEVEL="GENERATED_PROD_NAME"            # Space separated list of features
-
+DMAAP_ADP_CONFIG_FILE_TEMPLATE=application2.yaml         # Template config file name
+DMAAP_ADP_FEATURE_LEVEL="GENERATED_PROD_NAME FILTERSPEC FILTERSCHEMA"            # Space separated list of features
+                                                         # FILTERSCHEMA corrected type schema from rel h
 DMAAP_MED_APP_NAME="dmaapmediatorservice"                # Name for Dmaap Mediator container
 DMAAP_MED_DISPLAY_NAME="Dmaap Mediator Service"          # Display name for Dmaap Mediator container
 DMAAP_MED_EXTERNAL_PORT=8085                             # Dmaap Mediator container external port (host -> container)
@@ -503,8 +532,10 @@ DMAAP_MED_COMPOSE_DIR="dmaapmed"                         # Dir in simulator_grou
 DMAAP_MED_DATA_MOUNT_PATH="/configs"                     # Path in container for data file
 DMAAP_MED_HOST_DATA_FILE="type_config_1.json"            # Host data file name
 DMAAP_MED_CONTR_DATA_FILE="type_config.json"             # Container data file name
-DMAAP_MED_FEATURE_LEVEL="KAFKATYPES"                     # Space separated list of features
+DMAAP_MED_FEATURE_LEVEL="KAFKATYPES FILTERSCHEMA"        # Space separated list of features
                                                          # KAFKATYPES support for kafka type from rel f
+                                                         # FILTERSCHEMA corrected kafka type schema from rel h
+
 KAFKAPC_APP_NAME="kafka-procon"                          # Name for the Kafka procon
 KAFKAPC_DISPLAY_NAME="Kafka Producer/Consumer"
 KAFKAPC_EXTERNAL_PORT=8096                               # Kafka procon container external port (host -> container)
