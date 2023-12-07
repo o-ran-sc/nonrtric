@@ -19,6 +19,6 @@
 
 #Builds the mrstub container and starts it in interactive mode
 
-docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/  -t mrstub .
+docker build -t mrstub .
 
 docker run --rm --name=dmaap-mr -it -p 3904:3904 -p 3905:3905 -v "$PWD/cert:/usr/src/app/cert" mrstub
