@@ -22,6 +22,6 @@
 NAME="producer-stub-test"
 IMAGE_NAME="producer-stub-test-image"
 
-docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t $IMAGE_NAME .
+docker build -t $IMAGE_NAME .
 
 docker run --rm -it -p 8992:8092 -p 8993:8093 --name $NAME $IMAGE_NAME
