@@ -112,6 +112,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8112b810_ac50f05e",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/HelloWorldApplication.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-12-08T13:33:54Z",
+      "side": 1,
+      "message": "Please add a simple unit test in /test/servicestub/src/test/java/org/oran/helloworld/ so mvn test has something to do for the verify jenkins job.",
+      "range": {
+        "startLine": 20,
+        "startChar": 1,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e4eb909d_50ae459a",
         "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
         "patchSetId": 1
