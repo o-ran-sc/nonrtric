@@ -41,6 +41,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "95bd3e55_399e7e94",
+        "filename": "test/servicestub/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1002202
+      },
+      "writtenOn": "2023-12-08T14:54:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47fef5c5_a1e92e09",
+      "range": {
+        "startLine": 47,
+        "startChar": 33,
+        "endLine": 47,
+        "endChar": 37
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e6e6602d_6c0447d8",
@@ -54,6 +78,30 @@
       "writtenOn": "2023-12-08T13:29:12Z",
       "side": 1,
       "message": "see comment in pom",
+      "range": {
+        "startLine": 44,
+        "startChar": 10,
+        "endLine": 44,
+        "endChar": 20
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1bb5d21_a015cb0e",
+        "filename": "test/servicestub/hello-world-chart/Chart.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002202
+      },
+      "writtenOn": "2023-12-08T14:54:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6e6602d_6c0447d8",
       "range": {
         "startLine": 44,
         "startChar": 10,
@@ -87,6 +135,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "afa67294_2ff600b8",
+        "filename": "test/servicestub/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1002202
+      },
+      "writtenOn": "2023-12-08T14:54:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abd1a209_7a731b43",
+      "range": {
+        "startLine": 30,
+        "startChar": 13,
+        "endLine": 30,
+        "endChar": 25
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "921a8c49_a7aa693e",
@@ -100,6 +172,30 @@
       "writtenOn": "2023-12-08T13:29:12Z",
       "side": 1,
       "message": "suggest also hit \"localhost:8080/helloworld/\"",
+      "range": {
+        "startLine": 33,
+        "startChar": 26,
+        "endLine": 33,
+        "endChar": 52
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0317ef62_db97816a",
+        "filename": "test/servicestub/service-stub-build-start.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1002202
+      },
+      "writtenOn": "2023-12-08T14:54:14Z",
+      "side": 1,
+      "message": "http://localhost:8080/helloworld will return \n\nHello World from service stub\n\nservice-stub-build-start.sh will also do curl for both endpoints during docker run.",
+      "parentUuid": "921a8c49_a7aa693e",
       "range": {
         "startLine": 33,
         "startChar": 26,
@@ -133,6 +229,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c21d64f9_762b436b",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/HelloWorldApplication.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1002202
+      },
+      "writtenOn": "2023-12-08T14:54:14Z",
+      "side": 1,
+      "message": "HelloWorldControllerTest class added with 2 unit tests for two endpoints.",
+      "parentUuid": "8112b810_ac50f05e",
+      "range": {
+        "startLine": 20,
+        "startChar": 1,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4eb909d_50ae459a",
@@ -146,6 +266,30 @@
       "writtenOn": "2023-12-08T13:29:12Z",
       "side": 1,
       "message": "suggest also adding an endpoint for @RequestMapping(\"/\") with \nreturn \"Hello World from service stub\"; \n\n... or something similar.",
+      "range": {
+        "startLine": 30,
+        "startChar": 3,
+        "endLine": 30,
+        "endChar": 28
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "304c835c_eb2ed6b8",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1002202
+      },
+      "writtenOn": "2023-12-08T14:54:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4eb909d_50ae459a",
       "range": {
         "startLine": 30,
         "startChar": 3,
