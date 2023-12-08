@@ -16,6 +16,121 @@
       "message": "Adding Rohith, to check changes in cr and prodstub",
       "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47fef5c5_a1e92e09",
+        "filename": "test/servicestub/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-12-08T13:29:12Z",
+      "side": 1,
+      "message": "see comment in pom",
+      "range": {
+        "startLine": 47,
+        "startChar": 33,
+        "endLine": 47,
+        "endChar": 37
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6e6602d_6c0447d8",
+        "filename": "test/servicestub/hello-world-chart/Chart.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-12-08T13:29:12Z",
+      "side": 1,
+      "message": "see comment in pom",
+      "range": {
+        "startLine": 44,
+        "startChar": 10,
+        "endLine": 44,
+        "endChar": 20
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abd1a209_7a731b43",
+        "filename": "test/servicestub/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-12-08T13:29:12Z",
+      "side": 1,
+      "message": "maybe align all version numbers to the same value initially. \n0.1.0 is probably OK.",
+      "range": {
+        "startLine": 30,
+        "startChar": 13,
+        "endLine": 30,
+        "endChar": 25
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "921a8c49_a7aa693e",
+        "filename": "test/servicestub/service-stub-build-start.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-12-08T13:29:12Z",
+      "side": 1,
+      "message": "suggest also hit \"localhost:8080/helloworld/\"",
+      "range": {
+        "startLine": 33,
+        "startChar": 26,
+        "endLine": 33,
+        "endChar": 52
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4eb909d_50ae459a",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2023-12-08T13:29:12Z",
+      "side": 1,
+      "message": "suggest also adding an endpoint for @RequestMapping(\"/\") with \nreturn \"Hello World from service stub\"; \n\n... or something similar.",
+      "range": {
+        "startLine": 30,
+        "startChar": 3,
+        "endLine": 30,
+        "endChar": 28
+      },
+      "revId": "bc80a023fa99496e565e455c6817e4b2d130b800",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
