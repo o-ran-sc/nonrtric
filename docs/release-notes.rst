@@ -19,7 +19,7 @@ Functions, previously here, but now with their own repos have their own release 
 * :doc:`Information Coordinator Service <informationcoordinatorservice:release-notes>`.
 * :doc:`A1 Policy Management Service <a1policymanagementservice:release-notes>`.
 * :doc:`Near-RT RIC A1 Simulator <simulator:release-notes>`.
-* DMaaP/Kafka Information Producer Adapters. :doc:`DMaaPAdapter <dmaapadapter:release-notes>`. :doc:`DMaaP Mediator Producer <dmaapmediatorproducer:release-notes>`.
+* DMaaP/Kafka Information Producer Adapters. :doc:`DMaaP Adapter <dmaapadapter:release-notes>`. :doc:`DMaaP Mediator Producer <dmaapmediatorproducer:release-notes>`.
 * :doc:`Non-RT-RIC App Catalogue <rappcatalogue:release-notes>`.
 * :doc:`K8S Helm Chart LCM Manager <helmmanager:release-notes>`.
 * :doc:`Service Management & Exposure (SME) <sme:release-notes>`.
@@ -29,6 +29,9 @@ Functions, previously here, but now with their own repos have their own release 
   * :doc:`"Helloworld" O-DU Slice Assurance use case <ransliceassurance:release-notes>`.
 
 
+
+Release-Notes for just the nonrtric repo
+========================================
 
 Bronze
 ------
@@ -199,6 +202,20 @@ H Release
 +-----------------------------+---------------------------------------------------+
 | **Purpose of the delivery** | nonrtric-plt-auth-token-fetch:1.1.1               |
 |                             | Updated Springboot version                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+
+I Release
+---------
++-----------------------------+---------------------------------------------------+
+| **Project**                 | Non-RT RIC                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Repo/commit-ID**          | nonrtric                                          |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Note**                    | No new images released from this repo for         |
+|                             |     the I Release.                                |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
 
