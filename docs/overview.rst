@@ -1,6 +1,7 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
-.. Copyright (C) 2021 Nordix
+.. Copyright (C) 2021-2023 Nordix Foundation. All rights Reserved
+.. Copyright (C) 2023 OpenInfra Foundation Europe. All Rights Reserved
 
 .. |archpic| image:: ./images/nonrtric-architecture-H.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
@@ -12,16 +13,17 @@ The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automa
 
 The primary goal of the Non-RealTime RIC is to support non-real-time radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of near-RealTime RIC functions in the RAN to achieve higher-level non-real-time objectives.
 
-Non-RealTime RIC functions include service and policy management, RAN analytics and model-training for the near-RealTime RICs.
+Non-RealTime RIC functions include service and policy management and RAN analytics for the RAN.
 The Non-RealTime RIC platform hosts and coordinates rApps (Non-RT RIC applications) to perform Non-RealTime RIC tasks.
 The Non-RealTime RIC also hosts the new R1 interface (between rApps and SMO/Non-RealTime-RIC services).
 
 The O-RAN-SC (OSC) NONRTRIC project provides concepts, architecture and reference implementations as defined and described by the `O-RAN Alliance <https://www.o-ran.org>`_ architecture.
 The OSC NONRTRIC implementation communicates with near-RealTime RIC elements in the RAN via the A1 interface. Using the A1 interface the NONRTRIC will facilitate the provision of policies for individual UEs or groups of UEs; monitor and provide basic feedback on policy state from near-RealTime RICs; provide enrichment information as required by near-RealTime RICs; and facilitate ML model training, distribution and inference in cooperation with the near-RealTime RICs.
+The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp and underlying SMo by way of the R1 Interface. 
 
 |archpic|
 
-Find detailed description of the NONRTRIC project see the `O-RAN SC NONRTRIC Project Wiki <https://wiki.o-ran-sc.org/display/RICNR/>`_.
+Find detailed description of the NONRTRIC project see the `O-RAN SC NONRTRIC Project Wiki <nonrtricwiki_>`_.
 
 NONRTRIC components
 -------------------
@@ -38,8 +40,10 @@ These are the components that make up the Non-RT-RIC:
 * `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
 * `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
 * `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. :doc:`Documentation site <helmmanager:index>`.
-* `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>`.
+* `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_. :doc:`Documentation site <sme:index>`.
 * `Authentication Support <#authentication-support-keycloak>`_.
+* `RApp Manager Service <#rapp-manager-service>`_ :doc:`rApp Manager documentation site <rappmanager:index>`.
+* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`_  :doc:`Non-RT RIC RAN PM Usecase / Functions documentation site <ranpm:index>`.
 * `Test Framework <#non-rt-ric-test-framework>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
@@ -62,7 +66,6 @@ Implementation:
 
 - Frontend: Angular framework
 - Repo: *portal/nonrtric-controlpanel*
-- `Wiki <https://wiki.o-ran-sc.org/display/RICNR/>`_ to set up in your local environment.
 - Documentation at the :doc:`NONRTRIC-Portal documentation site <controlpanel:index>`.
 
 Information Coordination Service
@@ -117,6 +120,7 @@ Implementation:
 
 A1/SDNC Controller & A1 Adapter (Controller plugin)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Mediation point for A1 interface termination in SMO/NONRTRIC.
 
 - Implemented as CCSDK OSGI Feature/Bundles.
@@ -168,7 +172,9 @@ Support Apps to use NONRTRIC, SMO and other App interfaces.
 A building block for coming releases as the R1 Interface concept matures .
 
 - Support dynamic registration and exposure of service interfaces to Non-RT-RIC applications (& NONRTRIC Control panel).
-- The architecture and componets are defined in :doc:`Non-RT RIC Security Architecture Prototyping (Documentation site) <service-exposure/se-overview/>`. 
+- The architecture and components are defined in :doc:`Non-RT RIC Security Architecture Prototyping (Documentation site) <service-exposure/se-overview/>`. 
+- Works with the CAPIF `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>` functions.
+
 
 DMaaP Information Producer Adapters (Kafka)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -197,7 +203,7 @@ Register for Non-RT-RIC Apps.
 
 Implementation:
 
-- Implemented as a Java Spring Boot application.
+- Implemented as a Java Spring Boot application and in Python.
 - Repo: *nonrtric/plt/rappcatalogue*
 - Documentation at the :doc:`rApp Catalogue documentation site <rappcatalogue:index>`.
 
@@ -219,8 +225,8 @@ Implementation:
 - Repo: *nonrtric/plt/helmmanager*
 - Documentation at the :doc:`Helm Manager documentation site <helmmanager:index>`.
 
-Service Management and Exposure
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Service Management and Exposure (CAPIF)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An initial implementation of the CAPIF Core service. It implements the following CAPIF APIs:
 
@@ -264,6 +270,22 @@ The auth-token-fetch is configured by the following environment variables.
 * OUTPUT_FILE - the path where the fetched authorization token is stored, example: "/tmp/authToken.txt"
 * AUTH_SERVICE_URL - the URL to the authentication service (Keycloak)
 * REFRESH_MARGIN_SECONDS - how long in advance before the authorization token expires it is refreshed
+
+RApp Manager Service
+~~~~~~~~~~~~~~~~~~~~
+
+Early version of a service to manage rApps and rApp instances. 
+
+- Manages the entire lifecycle and state of rApp and thie instances
+- Integrated with NONRTRIC Data Management & Exposure functions (ICS)
+- Integrates with NONRTRIC Service registration and discovery functions (SME CAPIF)
+- Also add new ONAP ACM participants to handle rApp composition elements
+
+Implementation:
+
+- Implemented as a Java Spring Boot application.
+- Repo: *nonrtric/plt/rappmanager*
+- Documentation at the :doc:`Non-RT RIC rApp Manager documentation site <rappmanager:index>`.
 
 RAN Performance Monitoring Functions (File-based PM)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
