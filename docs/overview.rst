@@ -3,7 +3,7 @@
 .. Copyright (C) 2021-2023 Nordix Foundation. All rights Reserved
 .. Copyright (C) 2023 OpenInfra Foundation Europe. All Rights Reserved
 
-.. |archpic| image:: ./images/nonrtric-architecture-H.png
+.. |archpic| image:: ./images/nonrtric-architecture-I.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
 
 Summary
@@ -25,25 +25,25 @@ The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp 
 
 Find detailed description of the NONRTRIC project see the `O-RAN SC NONRTRIC Project Wiki <nonrtricwiki_>`_.
 
-NONRTRIC components
+NONRTRIC Components
 -------------------
 
 These are the components that make up the Non-RT-RIC:
 
-* `Non-RT-RIC Control Panel <#non-rt-ric-control-panel-nonrtric-dashboard>`_. :doc:`Documentation site <controlpanel:index>`.
-* `Information Coordinator Service <#information-coordination-service>`_. :doc:`Documentation site <informationcoordinatorservice:index>`.
-* `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. :doc:`Documentation site <a1policymanagementservice:index>`.
+* `Non-RT-RIC Control Panel <#non-rt-ric-control-panel-nonrtric-dashboard>`_. *(:doc:`Documentation site <controlpanel:index>`)*.
+* `Information Coordinator Service <#information-coordination-service>`_. *(:doc:`Documentation site <informationcoordinatorservice:index>`)*.
+* `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. *(:doc:`Documentation site <a1policymanagementservice:index>`)*.
 * `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_.
-* `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_. :doc:`Documentation site <simulator:index>`.
+* `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_. *(:doc:`Documentation site <simulator:index>`)*.
 * `Non-RT-RIC (Spring Cloud) Service Gateway <#spring-cloud-service-gateway>`_.
-* `Non-RT-RIC Service Exposure Security Architecture Prototyping <#service-exposure-security-architecture-prototyping>`_. :doc:`Documentation site <service-exposure/se-overview/>`. 
-* `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_. :doc:`Documentation site adapter <dmaapadapter:index>`. :doc:`Documentation site mediator <dmaapmediatorproducer:index>`.
-* `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. :doc:`Documentation site <rappcatalogue:index>`.
-* `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. :doc:`Documentation site <helmmanager:index>`.
-* `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_. :doc:`Documentation site <sme:index>`.
+* `Non-RT-RIC Service Exposure Security Architecture Prototyping <#service-exposure-security-architecture-prototyping>`_. *(:doc:`Documentation site <service-exposure/se-overview/>`)*. 
+* `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_. *(:doc:`Documentation site adapter <dmaapadapter:index>`)*, *(:doc:`Documentation site mediator <dmaapmediatorproducer:index>`)*.
+* `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. *(:doc:`Documentation site <rappcatalogue:index>`)*.
+* `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. *(:doc:`Documentation site <helmmanager:index>`)*.
+* `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_. *(:doc:`Documentation site <sme:index>`)*.
 * `Authentication Support <#authentication-support-keycloak>`_.
-* `RApp Manager Service <#rapp-manager-service>`_ :doc:`rApp Manager documentation site <rappmanager:index>`.
-* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`_  :doc:`Non-RT RIC RAN PM Usecase / Functions documentation site <ranpm:index>`.
+* `RApp Manager Service <#rapp-manager-service>`_. *(:doc:`Documentation site <rappmanager:index>`)*.
+* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`_  *(:doc:`Documentation site <ranpm:index>`)*.
 * `Test Framework <#non-rt-ric-test-framework>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
@@ -210,10 +210,10 @@ Implementation:
 Initial Kubernetes Helm Chart LCM Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Onboard, start, stop, and modify Non-RT-RIC App µServices as Helm Charts.
-*A building block for coming releases as the R-APP concept matures*.
+Onboard, start, stop, and modify Non-RT-RIC App microservices as Helm Charts.
+*A building block for coming releases as the RAPP concept matures*.
 
-- Interfaces that accepts Non-RT-RIC App µServices Helm Charts.
+- Interfaces that accepts Non-RT-RIC App microservices Helm Charts.
 - Support basic LCM operations.
 - Onboard, Start, Stop, Modify, Monitor.
 - Initial version co-developed with v. similar functions in ONAP.

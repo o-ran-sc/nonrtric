@@ -17,10 +17,6 @@ issue_tracking:
 mailing_list:
     type: 'groups.io'
     url: 'https://lists.o-ran-sc.org/g/discuss'
-realtime_discussion:
-    type: 'irc'
-    server: 'freenode.net'
-    channel: '#o-ran-sc'
 meetings:
     - type: 'zoom'
       agenda: ''
@@ -28,21 +24,11 @@ meetings:
       server: 'n/a'
       channel: 'n/a'
       repeats: 'weekly'
-      time: 'Mondays, 13:00 UTC'
+      time: 'Tuesdays, 14:00 UTC / 15:00'
 repositories:
     - 'nonrtric'
 committers:
     - <<: *oran_nonrtric_ptl
-    - name: 'Patrik Buhr'
-      email: 'patrik.buhr@est.tech'
-      company: 'Ericsson Software Technology'
-      id: 'PatrikBuhr'
-      timezone: 'Sweden/Stockholm'
-    - name: 'Bjorn Magnusson'
-      email: 'bjorn.magnusson@est.tech'
-      company: 'Ericsson Software Technology'
-      id: 'BjornMagnussonXA'
-      timezone: 'Sweden/Stockholm'
 tsc:
     # yamllint disable-line rule:line-length
     approval: 'https://wiki.o-ran-sc.org/display/TOC/2019+08+07'
