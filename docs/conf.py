@@ -1,5 +1,6 @@
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2019-2022 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2019-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,14 +17,15 @@
 
 from docs_conf.conf import *
 
-#branch configuration
-
+## Update here to configure which branch is used. 
+#branch configurations
 controlpanelbranch = 'latest'
 simulatorbranch = 'latest'
 dmaapmediatorproducerbranch = 'latest'
 dmaapadapterbranch = 'latest'
 informationcoordinatorservicebranch = 'latest'
 rappcataloguebranch = 'latest'
+rappmanagerbranch = 'latest'
 helmmanagerbranch = 'latest'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
@@ -32,6 +34,15 @@ a1policymanagementservicebranch = 'latest'
 smebranch = 'latest'
 ranpmbranch = 'latest'
 onapbranch = 'latest'
+# Add some useful links available in every page
+rst_epilog = """
+.. _nonrtricwiki: https://wiki.o-ran-sc.org/display/RICNR/
+.. _nonrtricwikidevguide: https://wiki.o-ran-sc.org/display/RICNR/Release+I
+.. _nonrtricwikik8s: https://wiki.o-ran-sc.org/display/RICNR/Release+I+-+Run+in+Kubernetes
+.. _nonrtricwikidocker: https://wiki.o-ran-sc.org/display/RICNR/Release+I+-+Run+in+Docker
+"""
+## 
+
 
 linkcheck_ignore = [
     'http://localhost.*',
@@ -53,6 +64,7 @@ intersphinx_mapping['dmaapmediatorproducer'] = ('https://docs.o-ran-sc.org/proje
 intersphinx_mapping['dmaapadapter'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-dmaapadapter/en/%s' % dmaapadapterbranch, None)
 intersphinx_mapping['informationcoordinatorservice'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-informationcoordinatorservice/en/%s' % informationcoordinatorservicebranch, None)
 intersphinx_mapping['rappcatalogue'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-rappcatalogue/en/%s' % rappcataloguebranch, None)
+intersphinx_mapping['rappmanager'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-rappmanager/en/%s' % rappmanagerbranch, None)
 intersphinx_mapping['helmmanager'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-plt-helmmanager/en/%s' % helmmanagerbranch, None)
 intersphinx_mapping['ransliceassurance'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-ransliceassurance/en/%s' % ransliceassurancebranch, None)
 intersphinx_mapping['orufhrecovery'] = ('https://docs.o-ran-sc.org/projects/o-ran-sc-nonrtric-rapp-orufhrecovery/en/%s' % orufhrecoverybranch, None)
