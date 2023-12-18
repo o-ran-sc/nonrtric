@@ -24,6 +24,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9ada71e_f5383617",
+        "filename": "test/auto-test/FTC1_A1PMS_ADAPTER.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ea98d287_2261645f",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 22
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "65cfe584_5fc41b5f",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-12-18T12:45:08Z",
       "side": 1,
       "message": "2020-2023",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 22
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fff02ae_303334f7",
+        "filename": "test/auto-test/FTC1_RICMEDIATOR.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "65cfe584_5fc41b5f",
       "range": {
         "startLine": 4,
         "startChar": 17,
@@ -70,6 +118,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ec2bca6_0aa3baf1",
+        "filename": "test/auto-test/FTC3000.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f3d084f4_7ec67e8c",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 22
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c7f4b4c0_c3ce32a4",
@@ -83,6 +155,30 @@
       "writtenOn": "2023-12-18T12:45:08Z",
       "side": 1,
       "message": "2020-2023",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 22
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74a2d55f_9c312c01",
+        "filename": "test/auto-test/FTC3001.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c7f4b4c0_c3ce32a4",
       "range": {
         "startLine": 4,
         "startChar": 17,
@@ -116,6 +212,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae520c52_c82b7416",
+        "filename": "test/auto-test/FTC4000.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "de859153_67b90d3a",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 22
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b4b36c7_d91c7a06",
@@ -139,6 +259,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "363099af_605e6f96",
+        "filename": "test/auto-test/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5b4b36c7_d91c7a06",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 22
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a5566ec_84ceacc3",
@@ -152,6 +296,30 @@
       "writtenOn": "2023-12-18T12:45:08Z",
       "side": 1,
       "message": "Changes to use the STD_V2 payload instead of OSC should be added along with this?",
+      "range": {
+        "startLine": 436,
+        "startChar": 54,
+        "endLine": 436,
+        "endChar": 62
+      },
+      "revId": "222048ff2983b23551a6f26bf9ba60335dc962f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffd3059a_97e8128c",
+        "filename": "test/common/ricmediatorsim_api_functions.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2023-12-18T13:27:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a5566ec_84ceacc3",
       "range": {
         "startLine": 436,
         "startChar": 54,
