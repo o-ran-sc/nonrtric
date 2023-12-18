@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2f3486e_1ec6db6f",
+        "filename": "test/auto-test/FTC1_RICMEDIATORONLY.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1001877
+      },
+      "writtenOn": "2023-12-18T15:42:54Z",
+      "side": 1,
+      "message": "2023",
+      "range": {
+        "startLine": 3,
+        "startChar": 17,
+        "endLine": 3,
+        "endChar": 26
+      },
+      "revId": "091bfbc86d95cb18b8b834b2e57f43d84d1803ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d3cad04_a535293c",
+        "filename": "test/auto-test/FTC4000.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1001877
+      },
+      "writtenOn": "2023-12-18T15:42:54Z",
+      "side": 1,
+      "message": "2021-2023",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 26
+      },
+      "revId": "091bfbc86d95cb18b8b834b2e57f43d84d1803ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
