@@ -1,6 +1,7 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. Copyright (C) 2021 Nordix
+.. Copyright (C) 2021-2023 Nordix
+.. Copyright (C) 2023 OpenInfra Foundation Europe. All Rights Reserved
 
 .. _api_docs:
 
@@ -16,3 +17,4 @@ Descriptions of the APIs to the Non-RT RIC functions can be found in the repos f
 * A1 Policy Management Service :doc:`API Docs <onapa1policymanagementservice:offeredapis/offeredapis>`.
 * Information Coordinator Service :doc:`API Docs <informationcoordinatorservice:api-docs>`.
 * rApp Catalogue :doc:`API Docs <rappcatalogue:api-docs>`.
+* rApp Manager Service :doc:`API Docs <rappmanager:api-docs>`.
