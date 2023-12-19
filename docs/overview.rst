@@ -42,8 +42,8 @@ These are the components that make up the Non-RT-RIC:
 * `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_.  (:doc:`Documentation site <helmmanager:index>`).
 * `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_.  (:doc:`Documentation site <sme:index>`).
 * `Authentication Support <#authentication-support-keycloak>`_.
-* `RApp Manager Service <#rapp-manager-service>`_.  (:doc:`Documentation site <rappmanager:index>`).
-* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`_   (:doc:`Documentation site <ranpm:index>`).
+* `RApp Manager Service <#rapp-manager-service>`__.  (:doc:`Documentation site <rappmanager:index>`).
+* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`__   (:doc:`Documentation site <ranpm:index>`).
 * `Test Framework <#non-rt-ric-test-framework>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
