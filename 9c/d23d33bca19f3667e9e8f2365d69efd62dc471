@@ -1,0 +1,9 @@
+Code-Review+2: John Keeney <john.keeney@est.tech>
+Code-Review+1: Denis G Noonan <denis.noonan@est.tech>
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Verified+1: ORAN Required GHA <releng+oran.required.gha@linuxfoundation.org>
+Submitted-by: John Keeney <john.keeney@est.tech>
+Submitted-at: Tue, 19 Dec 2023 16:12:50 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/nonrtric/+/12410
+Project: nonrtric
+Branch: refs/heads/i-release
