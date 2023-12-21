@@ -43,7 +43,7 @@ public class HelloWorldControllerTest {
     public void testHelloWorldEndpoint() throws Exception {
         when(helloWorldController.helloWorld()).thenReturn("Hello World from service stub\n");
 
-        mockMvc.perform(get("/helloworld"))
+        mockMvc.perform(get("/v1/helloworld"))
             .andExpect(status().isOk())
             .andExpect(content().string("Hello World from service stub\n"));
     }
@@ -52,7 +52,7 @@ public class HelloWorldControllerTest {
     public void testHelloWorldSmeEndpoint() throws Exception {
         when(helloWorldController.helloWorldSme()).thenReturn("Hello World from SME\n");
 
-        mockMvc.perform(get("/helloworld/sme"))
+        mockMvc.perform(get("/v1/helloworld/sme"))
             .andExpect(status().isOk())
             .andExpect(content().string("Hello World from SME\n"));
     }

@@ -30,11 +30,11 @@ docker run --rm -d -p 8080:8080 --name $NAME $IMAGE_NAME
 sleep 10
 
 echo "Make an HTTP request to the Hello World endpoint and display the response"
-response=$(curl -s http://localhost:8080/helloworld/sme)
+response=$(curl -s http://localhost:8080/v1/helloworld/sme)
 
-echo "Response from the /helloworld/sme endpoint: "
+echo "Response from the /v1/helloworld/sme endpoint: "
 echo "$response"
 
-response2=$(curl -s http://localhost:8080/helloworld)
-echo "Response from the /helloworld endpoint: "
+response2=$(curl -s http://localhost:8080/v1/helloworld)
+echo "Response from the /v1/helloworld endpoint: "
 echo "$response2"

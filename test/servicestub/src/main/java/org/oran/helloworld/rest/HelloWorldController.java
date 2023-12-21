@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/helloworld")
+@RequestMapping("/v1/helloworld")
 public class HelloWorldController {
 
     @RequestMapping("")
