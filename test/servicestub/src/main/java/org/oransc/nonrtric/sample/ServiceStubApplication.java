@@ -18,21 +18,14 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oran.helloworld.rest;
+package org.oransc.nonrtric.sample;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@RestController
-@RequestMapping("/v1/helloworld")
-public class HelloWorldController {
-
-    @RequestMapping("")
-    public String helloWorld() {
-        return "Hello World from service stub\n";
-    }
-    @RequestMapping("/sme")
-    public String helloWorldSme() {
-        return "Hello World from SME\n";
+@SpringBootApplication(scanBasePackages = "org.oransc.nonrtric.sample")
+public class ServiceStubApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceStubApplication.class, args);
     }
 }
