@@ -4,7 +4,7 @@
 #   ========================LICENSE_START=================================
 #   O-RAN-SC
 #   %%
-#   Copyright (C) 2023: OpenInfra Foundation Europe.
+#   Copyright (C) 2023-2024: OpenInfra Foundation Europe.
 #   %%
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ docker run --rm -d -p 8080:8080 --name $NAME $IMAGE_NAME
 sleep 10
 
 echo "Make an HTTP request to the Hello World endpoint and display the response"
-response=$(curl -s http://localhost:8080/v1/helloworld/sme)
+response=$(curl -s http://localhost:8080/helloworld/v1/sme)
 
-echo "Response from the /v1/helloworld/sme endpoint: "
+echo "Response from the /helloworld/v1/sme endpoint: "
 echo "$response"
 
-response2=$(curl -s http://localhost:8080/v1/helloworld)
-echo "Response from the /v1/helloworld endpoint: "
+response2=$(curl -s http://localhost:8080/helloworld/v1)
+echo "Response from the /helloworld/v1 endpoint: "
 echo "$response2"

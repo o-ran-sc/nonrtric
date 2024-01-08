@@ -19,8 +19,8 @@ wait for a few seconds to ensure the Spring Boot application is fully initialize
 Hello World endpoint and display the response:
 
 ```bash
-  response=$(curl -s http://localhost:8080/helloworld/sme)
-  echo "Response from the Hello World endpoint:"
+  response=$(curl -s http://localhost:8080/helloworld/v1/sme)
+  echo "Response from the Hello World SME endpoint:"
   echo "$response"
 ```
 
@@ -33,5 +33,5 @@ To stop and remove the Docker container:
 
 ## Additional Information
 
-- The Hello World endpoint is available at http://localhost:8080/helloworld/sme.
+- The Hello World SME endpoint is available at http://localhost:8080/helloworld/v1/sme.
 

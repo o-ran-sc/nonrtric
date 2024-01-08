@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * O-RAN-SC
  * %%
- * Copyright (C) 2023 OpenInfra Foundation Europe.
+ * Copyright (C) 2023-2024 OpenInfra Foundation Europe.
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class HelloWorldControllerTest {
     public void testHelloWorldEndpoint() throws Exception {
         when(helloWorldController.helloWorld()).thenReturn("Hello World from service stub\n");
 
-        mockMvc.perform(get("/v1/helloworld"))
+        mockMvc.perform(get("/helloworld/v1"))
             .andExpect(status().isOk())
             .andExpect(content().string("Hello World from service stub\n"));
     }
@@ -52,8 +52,17 @@ public class HelloWorldControllerTest {
     public void testHelloWorldSmeEndpoint() throws Exception {
         when(helloWorldController.helloWorldSme()).thenReturn("Hello World from SME\n");
 
-        mockMvc.perform(get("/v1/helloworld/sme"))
+        mockMvc.perform(get("/helloworld/v1/sme"))
             .andExpect(status().isOk())
             .andExpect(content().string("Hello World from SME\n"));
+    }
+
+    @Test
+    public void testHelloWorld2Endpoint() throws Exception {
+        when(helloWorldController.helloWorld2()).thenReturn("Hello World 2!\n");
+
+        mockMvc.perform(get("/helloworld2/v1"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Hello World 2!\n"));
     }
 }

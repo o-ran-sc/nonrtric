@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * O-RAN-SC
  * %%
- * Copyright (C) 2023 OpenInfra Foundation Europe.
+ * Copyright (C) 2023-2024 OpenInfra Foundation Europe.
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v1/helloworld")
 public class HelloWorldController {
 
-    @RequestMapping("")
+    @RequestMapping("/helloworld/v1")
     public String helloWorld() {
         return "Hello World from service stub\n";
     }
-    @RequestMapping("/sme")
+
+    @RequestMapping("/helloworld/v1/sme")
     public String helloWorldSme() {
         return "Hello World from SME\n";
+    }
+
+    @RequestMapping("/helloworld2/v1")
+    public String helloWorld2() {
+        return "Hello World 2!\n";
     }
 }
