@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b663994_fed6f545",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-08T14:23:22Z",
+      "side": 1,
+      "message": "package probably should be org.oransc.nonrtric.sample",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 16
+      },
+      "revId": "315896597d7b9b6b8376508894eac1f12b00bae6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d8efc29_e663ebb4",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-08T14:23:22Z",
+      "side": 1,
+      "message": "Please add a log output for each request.",
+      "range": {
+        "startLine": 27,
+        "startChar": 13,
+        "endLine": 27,
+        "endChar": 34
+      },
+      "revId": "315896597d7b9b6b8376508894eac1f12b00bae6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45b3dab2_a99304ae",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-08T14:23:22Z",
+      "side": 1,
+      "message": "Suggest adding (HttpServletRequest request) here so you can get the path in the request ... then maybe print it out / log it. \nSee below ..",
+      "range": {
+        "startLine": 30,
+        "startChar": 28,
+        "endLine": 30,
+        "endChar": 31
+      },
+      "revId": "315896597d7b9b6b8376508894eac1f12b00bae6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d44c64de_62b322ab",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-08T14:23:22Z",
+      "side": 1,
+      "message": "maybe add the  path in the response message/body. \nThe message will then be more informative and well defined for different paths.\nIt would also be easier to test - where response is more related to the request.",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 45
+      },
+      "revId": "315896597d7b9b6b8376508894eac1f12b00bae6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d56239ae_381ee785",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-08T14:23:22Z",
+      "side": 1,
+      "message": "Please add a couple of v2 paths too.",
+      "range": {
+        "startLine": 34,
+        "startChar": 33,
+        "endLine": 34,
+        "endChar": 35
+      },
+      "revId": "315896597d7b9b6b8376508894eac1f12b00bae6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7caf53dd_af6e206d",
+        "filename": "test/servicestub/src/main/java/org/oran/helloworld/rest/HelloWorldController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-08T14:23:22Z",
+      "side": 1,
+      "message": "maybe \"sme\" is not ideal here.  perhaps something more more intuitive ... e.g. \"subpath1\"",
+      "range": {
+        "startLine": 34,
+        "startChar": 36,
+        "endLine": 34,
+        "endChar": 39
+      },
+      "revId": "315896597d7b9b6b8376508894eac1f12b00bae6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
