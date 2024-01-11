@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4370d28a_bcb6ad60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-01-11T13:47:10Z",
+      "side": 1,
+      "message": "Looks good. \nWill add a small no-op change in another review to verify that that the RTD job runs correctly \nhttps://readthedocs.org/projects/o-ran-sc-nonrtric/builds/",
+      "revId": "b593154ee3bcca6835e768e7d8336d0837530434",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
