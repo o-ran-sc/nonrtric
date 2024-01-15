@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d16bcb79_bfc7b4a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-01-15T09:50:14Z",
+      "side": 1,
+      "message": "looks fine for me apart from the comment on year 2024",
+      "revId": "49792860343008d15f41433335a478b638077c46",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11b9a754_493fedde",
