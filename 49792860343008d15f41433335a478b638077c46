@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11b9a754_493fedde",
+        "filename": "docs/api-docs.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-01-15T09:43:45Z",
+      "side": 1,
+      "message": "2024 for OpenInfra as the file has been updated?",
+      "revId": "49792860343008d15f41433335a478b638077c46",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
