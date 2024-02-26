@@ -1,7 +1,6 @@
 #!/bin/bash
-################################################################################
-#   Copyright (c) 2023 Nordix Foundation.                                      #
-#   Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.       #
+################################################################################                                     
+#   Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.       #                                                               
 #   Licensed under the Apache License, Version 2.0 (the "License");            #
 #   you may not use this file except in compliance with the License.           #
 #   You may obtain a copy of the License at                                    #
@@ -14,5 +13,7 @@
 #   See the License for the specific language governing permissions and        #
 #   limitations under the License.                                             #
 ################################################################################
-A1PMS_ADAPTER_CLASS=""         # Adapter Java class
-A1PMS_ADAPTER_POLICY_TYPE=""   # Policy type for adapter
+
+A1PMS_NOSDNC_ADAPTER_CLASS="org.onap.ccsdk.oran.a1policymanagementservice.clients.A1MediatorAdapterI"  # Adapter Java class
+A1PMS_SDNC_ADAPTER_CLASS="org.onap.ccsdk.oran.a1policymanagementservice.clients.A1MediatorAdapterICCSDK"  # Adapter Java class
+A1PMS_ADAPTER_POLICY_TYPE="1" # Policy type for adapter
