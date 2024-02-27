@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2bd83a2_12dbb936",
+        "filename": "test/auto-test/FTC1_MEDIATOR_ADAPTER.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1001877
+      },
+      "writtenOn": "2024-02-27T14:31:42Z",
+      "side": 1,
+      "message": "This is called in line 89 as well. Can this function called once to achieve the same ?",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 25
+      },
+      "revId": "82c88cc426bb77dad48229e9279f345b7cbba3e8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09a59d82_150d1032",
+        "filename": "test/auto-test/mediator-override-adapter.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1001877
+      },
+      "writtenOn": "2024-02-27T14:31:42Z",
+      "side": 1,
+      "message": "Whitespaces can be removed",
+      "range": {
+        "startLine": 3,
+        "startChar": 80,
+        "endLine": 3,
+        "endChar": 149
+      },
+      "revId": "82c88cc426bb77dad48229e9279f345b7cbba3e8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
