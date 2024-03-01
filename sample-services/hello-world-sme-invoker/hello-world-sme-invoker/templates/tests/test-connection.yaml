@@ -2,7 +2,7 @@
 #   ========================LICENSE_START=================================
 #   O-RAN-SC
 #   %%
-#   Copyright (C) 2023: OpenInfra Foundation Europe
+#   Copyright (C) 2024: OpenInfra Foundation Europe
 #   %%
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,12 +18,18 @@
 #   ========================LICENSE_END===================================
 #
 
-version: "3.0"
-
-services:
-  hello-world:
-    build: 
-      context: ./
-      dockerfile: Dockerfile
-    ports:
-      - 8080:8080
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "hello-world-sme-invoker.fullname" . }}-test-connection"
+  labels:
+    {{- include "hello-world-sme-invoker.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "hello-world-sme-invoker.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
