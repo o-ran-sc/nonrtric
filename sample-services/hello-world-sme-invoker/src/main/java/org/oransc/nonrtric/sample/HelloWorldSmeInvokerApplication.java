@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * O-RAN-SC
  * %%
- * Copyright (C) 2023 OpenInfra Foundation Europe.
+ * Copyright (C) 2024 OpenInfra Foundation Europe.
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,18 @@ package org.oransc.nonrtric.sample;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication(scanBasePackages = "org.oransc.nonrtric.sample")
-public class ServiceStubApplication {
+public class HelloWorldSmeInvokerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ServiceStubApplication.class, args);
+        SpringApplication.run(HelloWorldSmeInvokerApplication.class, args);
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
     }
 }

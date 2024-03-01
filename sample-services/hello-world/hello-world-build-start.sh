@@ -1,8 +1,10 @@
+#!/bin/bash
+
 # -
 #   ========================LICENSE_START=================================
 #   O-RAN-SC
 #   %%
-#   Copyright (C) 2023: OpenInfra Foundation Europe
+#   Copyright (C) 2023-2024: OpenInfra Foundation Europe.
 #   %%
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,12 +20,16 @@
 #   ========================LICENSE_END===================================
 #
 
-image:
-  repository: nonrtric-hello-world
-  tag: latest
+NAME="hello-world"
+IMAGE_NAME="nonrtric-hello-world"
 
-service:
-  name: hello-world
-  type: NodePort
-  port: 8080
+docker build -t $IMAGE_NAME:latest .
 
+docker run --rm -d -p 8080:8080 --name $NAME $IMAGE_NAME
+
+sleep 10
+
+echo "Make an HTTP request to the Hello World endpoint and display the response"
+response=$(curl -s http://localhost:8080/helloworld/v1)
+echo "Response from the /helloworld/v1 endpoint: "
+echo "$response"

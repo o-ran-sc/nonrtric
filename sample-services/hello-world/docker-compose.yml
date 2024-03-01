@@ -23,7 +23,7 @@ version: "3.0"
 services:
   hello-world:
     build: 
-      context: ./
+      context: ../../sample-services/hello-world
       dockerfile: Dockerfile
     ports:
       - 8080:8080

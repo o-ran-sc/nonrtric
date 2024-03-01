@@ -1,7 +1,7 @@
-# Hello World Service Stub
+# Hello World Service
 
 This repository contains a Spring Boot application serving a Hello World endpoint. The application can be built and 
-run using the provided script - ``service-stub-build-start.sh``.
+run using the provided script - ``hello-world-build-start.sh``.
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ run using the provided script - ``service-stub-build-start.sh``.
 Run the script:
 
 ```bash
-  ./service-stub-build-start.sh
+  ./hello-world-build-start.sh
 ```
 
 The script will build a Docker image and run a container with the Hello World service. After the container starts, 
@@ -19,19 +19,19 @@ wait for a few seconds to ensure the Spring Boot application is fully initialize
 Hello World endpoint and display the response:
 
 ```bash
-  response=$(curl -s http://localhost:8080/helloworld/v1/sme)
-  echo "Response from the Hello World SME endpoint:"
+  response=$(curl -s http://localhost:8080/helloworld/v1)
+  echo "Response from the Hello World endpoint:"
   echo "$response"
 ```
 
 To stop and remove the Docker container:
 
 ```bash
-  docker stop service-stub-hello-world-test
-  docker rm service-stub-hello-world-test
+  docker stop hello-world
+  docker rm hello-world
 ```
 
 ## Additional Information
 
-- The Hello World SME endpoint is available at http://localhost:8080/helloworld/v1/sme.
+- The Hello World endpoint is available at http://localhost:8080/helloworld/v1.
 

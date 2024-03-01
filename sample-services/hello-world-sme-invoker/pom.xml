@@ -4,7 +4,7 @@
 * ========================LICENSE_START=================================
 * O-RAN-SC
 * %%
-* Copyright (C) 2023 OpenInfra Foundation Europe.
+* Copyright (C) 2024 OpenInfra Foundation Europe.
 * %%
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.3</version>
     </parent>
 
     <groupId>org.o-ran-sc.nonrtric.plt</groupId>
-    <artifactId>hello-world</artifactId>
+    <artifactId>hello-world-sme-invoker</artifactId>
     <version>0.1.0</version>
 
     <properties>
