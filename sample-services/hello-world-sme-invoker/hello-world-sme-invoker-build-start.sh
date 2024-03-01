@@ -1,8 +1,10 @@
+#!/bin/bash
+
 # -
 #   ========================LICENSE_START=================================
 #   O-RAN-SC
 #   %%
-#   Copyright (C) 2023: OpenInfra Foundation Europe
+#   Copyright (C) 2024: OpenInfra Foundation Europe.
 #   %%
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,18 +20,16 @@
 #   ========================LICENSE_END===================================
 #
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: "{{ include "hello-world-chart.fullname" . }}-test-connection"
-  labels:
-    {{- include "hello-world-chart.labels" . | nindent 4 }}
-  annotations:
-    "helm.sh/hook": test
-spec:
-  containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "hello-world-chart.fullname" . }}:{{ .Values.service.port }}']
-  restartPolicy: Never
+NAME="hello-world-sme-invoker"
+IMAGE_NAME="hello-world-sme-invoker"
+
+docker build -t $IMAGE_NAME:latest .
+
+docker run --rm -d -p 8080:8080 --name $NAME $IMAGE_NAME
+
+sleep 10
+
+echo "Make an HTTP request to the Hello World Sme Invoker endpoint and display the response"
+response=$(curl -s http://localhost:8080/helloworld/v1/sme)
+echo "Response from the /helloworld/v1/sme endpoint: "
+echo "$response"
