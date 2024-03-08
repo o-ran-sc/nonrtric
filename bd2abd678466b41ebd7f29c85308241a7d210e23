@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5dc452a_8bf27b44",
+        "filename": "sample-services/hello-world-sme-invoker/hello-world-sme-invoker/values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1001877
+      },
+      "writtenOn": "2024-03-08T13:38:35Z",
+      "side": 1,
+      "message": "This image gets created in staging repo. Can we use staging repo port instead of snapshot port?",
+      "range": {
+        "startLine": 22,
+        "startChar": 34,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "bd2abd678466b41ebd7f29c85308241a7d210e23",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
