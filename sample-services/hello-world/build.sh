@@ -29,7 +29,7 @@ if [ $# -ne 1 ] && [ $# -ne 2 ]; then
     print_usage
 fi
 
-IMAGE_NAME="nonrtric-sample-helloworld"
+IMAGE_NAME="o-ran-sc/nonrtric-sample-helloworld"
 IMAGE_TAG="latest"
 REPO=""
 if [ $1 == "no-push" ]; then
