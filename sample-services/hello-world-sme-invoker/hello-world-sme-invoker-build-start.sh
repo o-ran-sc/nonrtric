@@ -21,7 +21,7 @@
 #
 
 NAME="hello-world-sme-invoker"
-IMAGE_NAME="nonrtric-sample-helloworld-sme-invoker"
+IMAGE_NAME="o-ran-sc/nonrtric-sample-helloworld-sme-invoker"
 
 docker build -t $IMAGE_NAME:latest .
 

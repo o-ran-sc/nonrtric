@@ -19,7 +19,7 @@
 #
 
 image:
-  repository: nexus3.o-ran-sc.org:10003/nonrtric-sample-helloworld
+  repository: nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-sample-helloworld
   tag: latest
 
 service:

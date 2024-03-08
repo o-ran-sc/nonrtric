@@ -21,7 +21,7 @@
 #
 
 NAME="hello-world"
-IMAGE_NAME="nonrtric-sample-helloworld"
+IMAGE_NAME="o-ran-sc/nonrtric-sample-helloworld"
 
 docker build -t $IMAGE_NAME:latest .
 

@@ -19,7 +19,7 @@
 #
 
 image:
-  repository: nexus3.o-ran-sc.org:10003/nonrtric-sample-helloworld-sme-invoker
+  repository: nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-sample-helloworld-sme-invoker
   tag: latest
 
 service:
