@@ -22,6 +22,52 @@
       },
       "revId": "bd2abd678466b41ebd7f29c85308241a7d210e23",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b95755b_4647e62d",
+        "filename": "sample-services/hello-world-sme-invoker/hello-world-sme-invoker/values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-03-11T10:34:11Z",
+      "side": 1,
+      "message": "Maybe add a comment suggesting to use a released image (and port number) if one is avaialble, or use a local/staging image in a development environment ??",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 22,
+        "endChar": 12
+      },
+      "revId": "bd2abd678466b41ebd7f29c85308241a7d210e23",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6beb97a0_b486c64b",
+        "filename": "sample-services/hello-world/hello-world-chart/values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-03-11T10:34:11Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 22,
+        "endChar": 12
+      },
+      "revId": "bd2abd678466b41ebd7f29c85308241a7d210e23",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
