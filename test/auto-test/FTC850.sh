@@ -182,6 +182,21 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
         done
 
+
+        start_timer "GET $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
+
+        a1pms_api_get_policy_parallel 200 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+
+        print_timer "GET $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
+
+        INSTANCES=$(($NUM_RICS*$NUM_POLICIES_PER_RIC))
+        a1pms_equal json:policies $INSTANCES
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
+        done
+
         start_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
         a1pms_api_delete_policy_parallel 204 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
