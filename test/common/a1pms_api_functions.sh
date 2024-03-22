@@ -1403,7 +1403,7 @@ a1pms_api_delete_policy_parallel() {
 
 	#if [ $A1PMS_ADAPTER != $RESTBASE ] && [ $A1PMS_ADAPTER != $RESTBASE_SECURE ]; then
 	if [ $A1PMS_ADAPTER_TYPE != "REST" ]; then
-		echo " Info - a1pms_api_delete_policy_parallel uses only the a1pms REST interface - create over dmaap in parallel is not supported"
+		echo " Info - a1pms_api_delete_policy_parallel uses only the a1pms REST interface - delete over dmaap in parallel is not supported"
 		echo " Info - will execute over a1pms REST"
 	fi
 
@@ -1455,6 +1455,84 @@ a1pms_api_delete_policy_parallel() {
 	done
 	if [ -z $msg ]; then
 		__collect_endpoint_stats "A1PMS" 03 "DELETE" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $resp_code $(($count*$num_rics))
+		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
+		return 0
+	fi
+
+	__log_test_fail_general "One of more processes failed to execute"
+	return 1
+}
+
+# API Test function: GET /policy and V2 GET /v2/policies/{policy_id}, to run in i parallel for a number of rics
+# args: <response-code> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>
+# (Function for test scripts)
+a1pms_api_get_policy_parallel() {
+	__log_test_start $@
+
+    if [ $# -ne 5 ]; then
+        __print_err " <response-code> <ric-id-base> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>" $@
+        return 1
+    fi
+	resp_code=$1; shift;
+	num_rics=$1; shift;
+	start_id=$1; shift;
+	count=$1; shift;
+	pids=$1; shift;
+
+	#if [ $A1PMS_ADAPTER != $RESTBASE ] && [ $A1PMS_ADAPTER != $RESTBASE_SECURE ]; then
+	if [ $A1PMS_ADAPTER_TYPE != "REST" ]; then
+		echo " Info - a1pms_api_get_policy_parallel uses only the a1pms REST interface - GET over dmaap in parallel is not supported"
+		echo " Info - will execute over a1pms REST"
+	fi
+
+	if [ "$A1PMS_VERSION" == "V2" ]; then
+		query="$A1PMS_API_PREFIX/v2/policies/"
+	else
+		query="/policy"
+	fi
+
+	urlbase=${A1PMS_ADAPTER}${query}
+
+	httpproxy="NOPROXY"
+	if [ ! -z "$KUBE_PROXY_PATH" ]; then
+		httpproxy=$KUBE_PROXY_PATH
+	fi
+
+	for ((i=1; i<=$pids; i++))
+	do
+		uuid=$UUID
+		if [ -z "$uuid" ]; then
+			uuid="NOUUID"
+		fi
+		echo "" > "./tmp/.pid${i}.get.res.txt"
+		echo $resp_code $urlbase $num_rics $uuid $start_id $count $pids $i $httpproxy> "./tmp/.pid${i}.get.txt"
+		echo $i
+	done  | xargs -n 1 -I{} -P $pids bash -c '{
+		arg=$(echo {})
+		echo " Parallel process $arg started"
+		tmp=$(< "./tmp/.pid${arg}.get.txt")
+		python3 ../common/get_policies_process.py $tmp > ./tmp/.pid${arg}.get.res.txt
+	}'
+	msg=""
+	for ((i=1; i<=$pids; i++))
+	do
+		file="./tmp/.pid${i}.get.res.txt"
+		tmp=$(< $file)
+		if [ -z "$tmp" ]; then
+			echo " Process $i : unknown result (result file empty"
+			msg="failed"
+		else
+			res=${tmp:0:1}
+			if [ $res == "0" ]; then
+				echo " Process $i : OK - "${tmp:1}
+			else
+				echo " Process $i : failed - "${tmp:1}
+				msg="failed"
+			fi
+		fi
+	done
+	if [ -z $msg ]; then
+		__collect_endpoint_stats "A1PMS" 03 "GET" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $resp_code $(($count*$num_rics))
 		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
