@@ -2,7 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2023-2024 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -173,6 +173,21 @@ for __httpx in $TESTED_PROTOCOLS ; do
         a1pms_api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
 
         print_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
+
+        INSTANCES=$(($NUM_RICS*$NUM_POLICIES_PER_RIC))
+        a1pms_equal json:policies $INSTANCES
+
+        for ((i=1; i<=$NUM_RICS; i++))
+        do
+            sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
+        done
+
+
+        start_timer "GET $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
+
+        a1pms_api_get_policy_parallel 200 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+
+        print_timer "GET $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
         INSTANCES=$(($NUM_RICS*$NUM_POLICIES_PER_RIC))
         a1pms_equal json:policies $INSTANCES
