@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ae31fcf_7362e28c",
+        "filename": "test/auto-test/FTC850.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2024-03-25T09:58:38Z",
+      "side": 1,
+      "message": "License to be updated.",
+      "revId": "53f25723a42433d531f09ed634029a400cb0ef21",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64735801_44d4dcda",
+        "filename": "test/common/a1pms_api_functions.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002209
+      },
+      "writtenOn": "2024-03-25T09:58:38Z",
+      "side": 1,
+      "message": "License to be updated.",
+      "revId": "53f25723a42433d531f09ed634029a400cb0ef21",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
