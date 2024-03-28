@@ -21,7 +21,7 @@
 image:
   # use a released image (and port number) if one is available, or use a local/staging image in a development environment
   repository: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-sample-helloworld-sme-invoker
-  tag: latest
+  tag: 0.1.0
 
 service:
   name: hello-world-sme-invoker
