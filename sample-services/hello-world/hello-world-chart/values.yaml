@@ -2,7 +2,7 @@
 #   ========================LICENSE_START=================================
 #   O-RAN-SC
 #   %%
-#   Copyright (C) 2023: OpenInfra Foundation Europe
+#   Copyright (C) 2023-2024: OpenInfra Foundation Europe
 #   %%
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 image:
   # use a released image (and port number) if one is available, or use a local/staging image in a development environment.
   repository: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-sample-helloworld
-  tag: latest
+  tag: 0.1.0
 
 service:
   name: hello-world

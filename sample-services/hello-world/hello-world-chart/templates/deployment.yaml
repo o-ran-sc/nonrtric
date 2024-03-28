@@ -2,7 +2,7 @@
 #   ========================LICENSE_START=================================
 #   O-RAN-SC
 #   %%
-#   Copyright (C) 2023: OpenInfra Foundation Europe
+#   Copyright (C) 2023-2024: OpenInfra Foundation Europe
 #   %%
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,18 +21,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hello-world-chart.fullname" . }}
-  labels:
-    {{- include "hello-world-chart.labels" . | nindent 4 }}
+  name: hello-world-chart-deployment
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "hello-world-chart.selectorLabels" . | nindent 8 }}
+      app: hello-world-chart-container
   template:
     metadata:
       labels:
-        {{- include "hello-world-chart.selectorLabels" . | nindent 12 }}
+        app: hello-world-chart-container
     spec:
       containers:
         - name: {{ .Chart.Name }}

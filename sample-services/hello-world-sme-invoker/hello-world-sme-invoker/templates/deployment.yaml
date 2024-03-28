@@ -21,18 +21,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hello-world-sme-invoker.fullname" . }}
-  labels:
-    {{- include "hello-world-sme-invoker.labels" . | nindent 4 }}
+  name: hello-world-sme-invoker-deployment
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "hello-world-sme-invoker.selectorLabels" . | nindent 8 }}
+      app: hello-world-sme-invoker-container
   template:
     metadata:
       labels:
-        {{- include "hello-world-sme-invoker.selectorLabels" . | nindent 12 }}
+        app: hello-world-sme-invoker-container
     spec:
       containers:
         - name: {{ .Chart.Name }}
