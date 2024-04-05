@@ -1,0 +1,7 @@
+server:
+  port : 8081
+spring:
+  application:
+    name: demoConsumer
+    time: 1000
+    time_out_ms: 2000

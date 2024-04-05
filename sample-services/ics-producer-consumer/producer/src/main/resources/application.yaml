@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: demoProducer
+    time: 1000
+    time_out_ms: 2000
