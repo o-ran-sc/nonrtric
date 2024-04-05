@@ -1,0 +1,48 @@
+################################################################################
+#   Copyright (c) 2021 Nordix Foundation.                                      #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+################################################################################
+
+server:
+  port: 9090
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        ssl:
+          useInsecureTrustManager: true
+        wiretap: true
+      httpserver:
+        wiretap: true
+      routes:
+      - id: A1-EI
+        uri: http://informationcoordinatorservice:8083
+        predicates:
+        - Path=/data-producer/**,/data-consumer/**
+management:
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "gateway,loggers,logfile,health,info,metrics,threaddump,heapdump"
+logging:
+  level:
+    ROOT: ERROR
+    org.springframework: ERROR
+    org.springframework.cloud.gateway: INFO
+    reactor.netty: INFO
+  file:
+    name: /var/log/nonrtric-gateway/application.log
