@@ -1,0 +1,83 @@
+#  ============LICENSE_START===============================================
+#  Copyright (C) 2019-2022 Nordix Foundation. All rights reserved.
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+#
+
+spring:
+  profiles:
+    active: prod
+  main:
+    allow-bean-definition-overriding: true
+  aop:
+    auto: false
+springdoc:
+  show-actuator: true
+management:
+  endpoints:
+    web:
+      exposure:
+        # Enabling of springboot actuator features. See springboot documentation.
+        include: "loggers,logfile,health,info,metrics,threaddump,heapdump,shutdown"
+  endpoint:
+    shutdown:
+      enabled: true
+lifecycle:
+  timeout-per-shutdown-phase: "20s"
+logging:
+  # Configuration of logging
+  level:
+    ROOT: INFO
+    org.springframework: INFO
+    org.springframework.data: INFO
+    org.springframework.web.reactive.function.client.ExchangeFunctions: INFO
+    org.oransc.ics: DEBUG
+  file:
+    name: /var/log/information-coordinator-service/application.log
+server:
+   # Configuration of the HTTP/REST server. The parameters are defined and handeled by the springboot framework.
+   # See springboot documentation.
+   port : 8434
+   http-port: 8083
+   ssl:
+      key-store-type: JKS
+      key-store-password: policy_agent
+      key-store: /opt/app/information-coordinator-service/etc/cert/keystore.jks
+      key-password: policy_agent
+      key-alias: policy_agent
+   shutdown: "graceful"
+app:
+  webclient:
+    # Configuration of the trust store used for the HTTP client (outgoing requests)
+    # The file location and the password for the truststore is only relevant if trust-store-used == true
+    # Note that the same keystore as for the server is used.
+    trust-store-used: false
+    trust-store-password: policy_agent
+    trust-store: /opt/app/information-coordinator-service/etc/cert/truststore.jks
+    # Configuration of usage of HTTP Proxy for the southbound accesses.
+    # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
+    http.proxy-host:
+    http.proxy-port: 0
+  vardata-directory: /var/information-coordinator-service
+  # If the file name is empty, no authorization token is used
+  auth-token-file:
+  # A URL to authorization provider such as OPA. Each time a information job is accessed, a call to this
+  # authorization provider is done for access control. If this is empty, no fine grained access control is done.
+  info-job-authorization-agent:
+  # S3 object store usage is enabled by defining the bucket to use. This will override the vardata-directory parameter.
+  s3:
+    endpointOverride: http://localhost:9000
+    accessKeyId: minio
+    secretAccessKey: miniostorage
+    bucket:
