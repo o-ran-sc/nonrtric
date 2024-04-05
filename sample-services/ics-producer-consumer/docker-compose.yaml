@@ -1,0 +1,83 @@
+#  ========================LICENSE_START=================================
+#  O-RAN-SC
+#
+#  Copyright (C) 2024: OpenInfra Foundation Europe
+#  ========================================================================
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  ============LICENSE_END=================================================
+
+version: '2'
+
+networks:
+  my-network:
+    name: kafka
+    driver: bridge
+
+services:
+  kafka-zkless:
+    container_name: kafka-zkless
+    image: quay.io/strimzi/kafka:latest-kafka-2.8.1-amd64
+    command:
+      [
+        "sh",
+        "-c",
+        "export CLUSTER_ID=$$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh format -t $$CLUSTER_ID -c config/kraft/server.properties && bin/kafka-server-start.sh config/kraft/server.properties --override advertised.listeners=$${KAFKA_ADVERTISED_LISTENERS} --override listener.security.protocol.map=$${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP} --override listeners=$${KAFKA_LISTENERS}",
+      ]
+    ports:
+      - "9092:9092"
+    environment:
+      LOG_DIR: "/tmp/logs"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:29092,PLAINTEXT_HOST://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-zkless:29092,PLAINTEXT_HOST://kafka-zkless:9092
+    tty: true
+    stdin_open: true
+    networks:
+      - my-network
+
+  informationcoordinator:
+    image: nexus3.o-ran-sc.org:10001/o-ran-sc/nonrtric-plt-informationcoordinatorservice:1.6.0
+    container_name: informationcoordinatorservice
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./application.yaml:/opt/app/information-coordinator-service/config/application.yaml
+    networks:
+      - my-network
+
+  kafka-producer:
+    image: kafka-producer:latest
+    container_name: kafka-producer
+    environment:
+      - KAFKA_SERVERS=kafka-zkless:9092
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+
+  kafka-consumer:
+    image: kafka-consumer:latest
+    container_name: kafka-consumer
+    environment:
+      - KAFKA_SERVERS=kafka-zkless:9092
+    ports:
+      - "8081:8081"
+    networks:
+      - my-network
+
+  curl-client:
+    image: curlimages/curl:latest
+    container_name: curl-client
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - my-network
