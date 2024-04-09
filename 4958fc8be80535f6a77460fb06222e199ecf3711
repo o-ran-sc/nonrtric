@@ -16,6 +16,1757 @@
       "message": "Added some information in the README",
       "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d6b081a_3ba15631",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Most of the suggestions are repeats 😊",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01422f7_c183989e",
+        "filename": "sample-services/ics-producer-consumer/.gitignore",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14542ed4_d0a9c29b",
+        "filename": "sample-services/ics-producer-consumer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ad9e456_66c0cfa0",
+        "filename": "sample-services/ics-producer-consumer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Full stop?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db1a5a9e_d2c0b2c6",
+        "filename": "sample-services/ics-producer-consumer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "full stop?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "942a49ff_7242a2a8",
+        "filename": "sample-services/ics-producer-consumer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b2721b1_4544e570",
+        "filename": "sample-services/ics-producer-consumer/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19ffecd7_ef7b4703",
+        "filename": "sample-services/ics-producer-consumer/application.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d06a421_ec2e9e23",
+        "filename": "sample-services/ics-producer-consumer/consumer/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcb9807d_51ae9fd3",
+        "filename": "sample-services/ics-producer-consumer/consumer/Makefile",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89ae693a_693b184f",
+        "filename": "sample-services/ics-producer-consumer/consumer/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06077d95_74338f56",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/Application.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a2aed63_67498cea",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f32b035_075c9ae9",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/controllers/ConsumerController.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d7220ab_bf39aeac",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/controllers/ThreadsController.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "638eef03_fe784283",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/dme/ConsumerJobInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "190d3198_0b137f2f",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/dme/ConsumerStatusInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c3c5bad_95a7cae8",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/AbstractSimpleKafka.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60407195_8b51c34e",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/ApplicationMessageHandlerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "477e2776_095a25a5",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/KafkaMessageHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d4a1d4c_b6f1c4fb",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/KafkaMessageHandlerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ca6b3ec_b19a6e91",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/MessageHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "002d9917_670f1fd8",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/PropertiesHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a513886f_d3bcaf52",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/repository/InfoType.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91e3bb38_2bbebb79",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/repository/InfoTypes.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa1b7d22_f500128e",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/repository/Job.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fdbc53a_5a2058b5",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/repository/Jobs.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e37f1acc_a1f6afd6",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/resources/application.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "352e4739_e888cd01",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/resources/config.properties",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d49ad69a_07e0733b",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/resources/logback.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01c00a5_f4758d87",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/test/java/com/demo/consumer/SimpleConsumerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c22319f_2c354c88",
+        "filename": "sample-services/ics-producer-consumer/docker-compose.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "578df54f_31f6a0ed",
+        "filename": "sample-services/ics-producer-consumer/docker-compose.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Should commented out code be removed?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efbee317_7bdac656",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/.env",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c170e4c_f818d745",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a4181d8_185c055f",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/control-panel/config/nginx.conf",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ce032ac_1af05ee7",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/control-panel/docker-compose.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e3057a1_3e205883",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/docker-compose.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9a31e5d_775f2dea",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/nonrtric-gateway/config/application-nonrtricgateway.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d8701ed_16a060d8",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/nonrtric-gateway/docker-compose.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b194217_cb09e56a",
+        "filename": "sample-services/ics-producer-consumer/docker-composeRedPanda.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b01a68a9_f2d01092",
+        "filename": "sample-services/ics-producer-consumer/prerun.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "040fa68c_cf20e7a8",
+        "filename": "sample-services/ics-producer-consumer/prerun.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Can we assume Ubuntu? These instructions are distribution-specific.",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "183db481_0f565479",
+        "filename": "sample-services/ics-producer-consumer/prerun.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Can we assume Ubuntu?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "924c31a2_7d0a258b",
+        "filename": "sample-services/ics-producer-consumer/producer/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "075019a5_311e65cb",
+        "filename": "sample-services/ics-producer-consumer/producer/Makefile",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "934cb5e8_e8ab5996",
+        "filename": "sample-services/ics-producer-consumer/producer/docker-compose.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ff880ac_05e3fe8d",
+        "filename": "sample-services/ics-producer-consumer/producer/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcfc8913_4266179a",
+        "filename": "sample-services/ics-producer-consumer/producer/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5061cb83_f41d7728",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/Application.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6ffb0a2_f5d5c09f",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/controllers/ProducerController.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a65949f8_2bdd974e",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/controllers/ThreadsController.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22aefa46_dc8a9441",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/dme/ProducerInfoTypeInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf62f455_86593b4c",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/dme/ProducerJobInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59d169e3_e3b04750",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/dme/ProducerRegistrationInfo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d92225bf_5d07fe8f",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/AbstractSimpleKafka.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3df16c16_63dc0321",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/ApplicationMessageHandlerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7393cb71_d107f2d5",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/KafkaMessageHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "579a3252_c7446b21",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/KafkaMessageHandlerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59ab3bf6_f47363ea",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/MessageHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3775c64_8825a553",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/MessageHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Remove commented-out code?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a03768dd_ae4f34a2",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/PropertiesHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "124e2eb7_cdc907e5",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/producer/SimpleProducer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64add5eb_26c1c3e1",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/InfoType.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09ef5ac6_c4729ff8",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/InfoType.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93bbed22_50790fe7",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/InfoType.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "304368bb_30bcffe6",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/InfoTypes.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5387cedb_55f8b03c",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/InfoTypes.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24995199_a03b978e",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/InfoTypes.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24b51788_3b5a3e24",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Job.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2595ea58_cd79baec",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Job.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24c60d72_0f2016c8",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Job.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2daf769e_a40b438b",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Job.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "605fd5fd_4713d789",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Jobs.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c520966f_209c9fa0",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Jobs.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "297d47d0_697e3da3",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/repository/Jobs.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "795c7447_6f41bac0",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/resources/application.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20e5d9c9_a4b9e3bf",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/resources/config.properties",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84fbf94e_2d78bbea",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/resources/logback.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccce65c7_691b5034",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/SimpleProducerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ad21acd_90ecb9b3",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/SimpleProducerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c081252_6fad9f66",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/SimpleProducerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d37c968f_85c24972",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/SimpleProducerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abcaa72b_62ab7584",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/SimpleProducerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8dc7899_3f1cc2be",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/ThreadsControllerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1f42b42_ae37c35b",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/ThreadsControllerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "767fa87a_34d237da",
+        "filename": "sample-services/ics-producer-consumer/producer/src/test/java/com/demo/producer/ThreadsControllerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "extra space",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2685207b_c2324064",
+        "filename": "sample-services/ics-producer-consumer/red.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5ca6faf_7b955a2c",
+        "filename": "sample-services/ics-producer-consumer/red.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Do we need to remove commented-out code?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b9dfbdd_526de9b1",
+        "filename": "sample-services/ics-producer-consumer/runconsumer.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb599713_6bc7b28d",
+        "filename": "sample-services/ics-producer-consumer/runproducer.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6015e449_d99e6e9f",
+        "filename": "sample-services/ics-producer-consumer/runproducer.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Remove commented-out code?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5822f2b_f8c6e7ac",
+        "filename": "sample-services/ics-producer-consumer/start.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09292781_f00715ef",
+        "filename": "sample-services/ics-producer-consumer/start.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Remove commented-out code?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd568abb_c20b4c13",
+        "filename": "sample-services/ics-producer-consumer/start.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Remove commented-out code?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cb89dec_8bc8ee0b",
+        "filename": "sample-services/ics-producer-consumer/start.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Remove commented-out code?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4180bd3d_96bc798e",
+        "filename": "sample-services/ics-producer-consumer/stop.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "docker container stop? Modern usage.",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6834f3b6_80a0dc45",
+        "filename": "sample-services/ics-producer-consumer/stop.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8a155d3_b4dc7f9d",
+        "filename": "sample-services/ics-producer-consumer/stop.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "`docker container prune` is more precise.",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a3fc3b3_04c5402b",
+        "filename": "sample-services/ics-producer-consumer/utils.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "#   Copyright (C) 2024: OpenInfra Foundation Europe",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dffed831_1a33783a",
+        "filename": "sample-services/ics-producer-consumer/utils.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "This suggested command looks to be Debian specific. Will not run on Red Hat.",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc017c4a_b6279a38",
+        "filename": "sample-services/ics-producer-consumer/utils.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Debian-specific?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0f8d7c2_d4fa5584",
+        "filename": "sample-services/ics-producer-consumer/utils.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1002243
+      },
+      "writtenOn": "2024-04-09T14:00:50Z",
+      "side": 1,
+      "message": "Debian-specific?",
+      "revId": "4958fc8be80535f6a77460fb06222e199ecf3711",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
