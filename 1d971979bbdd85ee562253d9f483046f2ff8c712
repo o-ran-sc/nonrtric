@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "651b498e_b1b31a22",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: Can re-write this like below\n\n@Value(\"${spring.application.time_out_ms:2000}\")    \nprivate int TIME_OUT_MS;",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 5
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d678718_7824fa2c",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: Is there any specific reason to keep \u0027kafkaConsumer\u0027 object in a seperate variable instead of directly assign it to the Class Level variable that reduces the line 72 and further it calls?",
+      "range": {
+        "startLine": 69,
+        "startChar": 7,
+        "endLine": 69,
+        "endChar": 76
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac0d6eac_abbb7d70",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "I think Null check we are already doing at line 94, Can remove this",
+      "range": {
+        "startLine": 99,
+        "startChar": 7,
+        "endLine": 99,
+        "endChar": 44
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "902b392a_eaf4449f",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/AbstractSimpleKafka.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: Just a suggestion, I thought if we handle this exception at shutdown implementation, can be removed the try catch here and eventually \u0027throws Exception\u0027 statement for the constructor of both the parent and the sub class can be removed. Like updating code in simpleConsumer -\u003e shutdown method",
+      "range": {
+        "startLine": 33,
+        "startChar": 14,
+        "endLine": 37,
+        "endChar": 17
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "404209a2_05d5a832",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/PropertiesHelper.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: use Logger",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 45
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79f6da4a_97878cc1",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/resources/config.properties",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: I think serializer is not needed here as this config refers to consumer.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83955c18_98cf95fe",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/docker-compose.yaml",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: Are we using this docker-compose?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5e744d9_ab1e5697",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/AbstractSimpleKafka.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "Same as consumer",
+      "range": {
+        "startLine": 36,
+        "startChar": 15,
+        "endLine": 40,
+        "endChar": 17
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0a4223c_95cc1a26",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/producer/SimpleProducer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-04-11T12:48:52Z",
+      "side": 1,
+      "message": "NB: Same as consumer comment",
+      "range": {
+        "startLine": 44,
+        "startChar": 1,
+        "endLine": 49,
+        "endChar": 5
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
