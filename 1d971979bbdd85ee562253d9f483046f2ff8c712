@@ -24,6 +24,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "557bf053_10d19853",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "651b498e_b1b31a22",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 5
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d678718_7824fa2c",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-04-11T12:48:52Z",
       "side": 1,
       "message": "NB: Is there any specific reason to keep \u0027kafkaConsumer\u0027 object in a seperate variable instead of directly assign it to the Class Level variable that reduces the line 72 and further it calls?",
+      "range": {
+        "startLine": 69,
+        "startChar": 7,
+        "endLine": 69,
+        "endChar": 76
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6cfe2119_dc4a3d6f",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Because this method is mainly for tests since it produces a limited quantity of messages given in input the number of messages you want to consume",
+      "parentUuid": "2d678718_7824fa2c",
       "range": {
         "startLine": 69,
         "startChar": 7,
@@ -70,6 +118,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9627f9f_e67022e9",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/consumer/SimpleConsumer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac0d6eac_abbb7d70",
+      "range": {
+        "startLine": 99,
+        "startChar": 7,
+        "endLine": 99,
+        "endChar": 44
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "902b392a_eaf4449f",
@@ -83,6 +155,30 @@
       "writtenOn": "2024-04-11T12:48:52Z",
       "side": 1,
       "message": "NB: Just a suggestion, I thought if we handle this exception at shutdown implementation, can be removed the try catch here and eventually \u0027throws Exception\u0027 statement for the constructor of both the parent and the sub class can be removed. Like updating code in simpleConsumer -\u003e shutdown method",
+      "range": {
+        "startLine": 33,
+        "startChar": 14,
+        "endLine": 37,
+        "endChar": 17
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c6822ee_d9b73b7b",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/AbstractSimpleKafka.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "902b392a_eaf4449f",
       "range": {
         "startLine": 33,
         "startChar": 14,
@@ -116,6 +212,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89c98e92_7288f4d9",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/java/com/demo/consumer/messages/PropertiesHelper.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "404209a2_05d5a832",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 45
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79f6da4a_97878cc1",
@@ -129,6 +249,30 @@
       "writtenOn": "2024-04-11T12:48:52Z",
       "side": 1,
       "message": "NB: I think serializer is not needed here as this config refers to consumer.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de931f9f_020e2693",
+        "filename": "sample-services/ics-producer-consumer/consumer/src/main/resources/config.properties",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79f6da4a_97878cc1",
       "range": {
         "startLine": 39,
         "startChar": 0,
@@ -162,6 +306,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e81e5e9_6786ff77",
+        "filename": "sample-services/ics-producer-consumer/docker-compose/docker-compose.yaml",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Yes to start the nonrtric-controlpanel the .env file is on the same level of this DC so you need this one",
+      "parentUuid": "83955c18_98cf95fe",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d5e744d9_ab1e5697",
@@ -185,6 +353,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "76f49f6c_27dbf9e7",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/messages/AbstractSimpleKafka.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5e744d9_ab1e5697",
+      "range": {
+        "startLine": 36,
+        "startChar": 15,
+        "endLine": 40,
+        "endChar": 17
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0a4223c_95cc1a26",
@@ -198,6 +390,30 @@
       "writtenOn": "2024-04-11T12:48:52Z",
       "side": 1,
       "message": "NB: Same as consumer comment",
+      "range": {
+        "startLine": 44,
+        "startChar": 1,
+        "endLine": 49,
+        "endChar": 5
+      },
+      "revId": "1d971979bbdd85ee562253d9f483046f2ff8c712",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36f2df3f_19028372",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/producer/SimpleProducer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-12T15:48:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0a4223c_95cc1a26",
       "range": {
         "startLine": 44,
         "startChar": 1,
