@@ -75,6 +75,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6868cc1_40368315",
+        "filename": "sample-services/ics-producer-consumer/consumer/Dockerfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T10:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad57a338_fec598df",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 27
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92711344_83aa0727",
@@ -229,6 +253,30 @@
       "writtenOn": "2024-04-17T09:31:54Z",
       "side": 1,
       "message": "Need to add a file containertag.yaml (spelling?) \nRef other repos with dockerfiles. \nNeeded for gerrit job to build image.",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 27
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55b104f5_fa6bf475",
+        "filename": "sample-services/ics-producer-consumer/producer/Dockerfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T10:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ec12f20_c0eb6a9e",
       "range": {
         "startLine": 1,
         "startChar": 3,
