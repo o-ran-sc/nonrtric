@@ -35,6 +35,23 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "799bbc56_fc15682a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "In the new patch-set, tested locally.\nTo reflect the same names as the jjb",
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92711344_83aa0727",
@@ -48,6 +65,30 @@
       "writtenOn": "2024-04-16T19:13:14Z",
       "side": 1,
       "message": "\"o-ran-sc/nonrtric-sample-icsconsumer\"",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 27
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38475462_da3df2de",
+        "filename": "sample-services/ics-producer-consumer/consumer/Makefile",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92711344_83aa0727",
       "range": {
         "startLine": 20,
         "startChar": 12,
@@ -81,6 +122,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6b17245_3e98e37f",
+        "filename": "sample-services/ics-producer-consumer/docker-compose.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df544ac4_7e3e27ec",
+      "range": {
+        "startLine": 59,
+        "startChar": 17,
+        "endLine": 59,
+        "endChar": 25
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d0f3c9a_e27806b9",
@@ -94,6 +159,30 @@
       "writtenOn": "2024-04-16T19:13:14Z",
       "side": 1,
       "message": "not sure where this image is created?\no-ran-sc/nonrtric-sample-icsconsumer ?",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 33
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc95a999_9e0b1adc",
+        "filename": "sample-services/ics-producer-consumer/docker-compose.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d0f3c9a_e27806b9",
       "range": {
         "startLine": 69,
         "startChar": 10,
@@ -127,6 +216,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5c9d323_672bc515",
+        "filename": "sample-services/ics-producer-consumer/producer/Makefile",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f67fcaf_f6cfd73a",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 5
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1fb00ee2_a512fd8b",
@@ -140,6 +253,30 @@
       "writtenOn": "2024-04-16T19:13:14Z",
       "side": 1,
       "message": "check image name",
+      "range": {
+        "startLine": 141,
+        "startChar": 25,
+        "endLine": 141,
+        "endChar": 55
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13181b74_dd8913ab",
+        "filename": "sample-services/ics-producer-consumer/red.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "This is the container name that can be resolved to the IP, so in this case it can stay",
+      "parentUuid": "1fb00ee2_a512fd8b",
       "range": {
         "startLine": 141,
         "startChar": 25,
@@ -173,6 +310,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d620baab_2bd72b0c",
+        "filename": "sample-services/ics-producer-consumer/red.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Same",
+      "parentUuid": "5440c249_e3f9f1aa",
+      "range": {
+        "startLine": 142,
+        "startChar": 33,
+        "endLine": 142,
+        "endChar": 58
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "008952c6_5641e6fb",
@@ -186,6 +347,30 @@
       "writtenOn": "2024-04-16T19:13:14Z",
       "side": 1,
       "message": "check image names",
+      "range": {
+        "startLine": 180,
+        "startChar": 8,
+        "endLine": 180,
+        "endChar": 46
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad24555d_73e7a881",
+        "filename": "sample-services/ics-producer-consumer/red.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Same",
+      "parentUuid": "008952c6_5641e6fb",
       "range": {
         "startLine": 180,
         "startChar": 8,
@@ -219,6 +404,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f5f2a2c_0a48af35",
+        "filename": "sample-services/ics-producer-consumer/start.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Same",
+      "parentUuid": "dfcf5b8e_d0d383ce",
+      "range": {
+        "startLine": 87,
+        "startChar": 25,
+        "endLine": 87,
+        "endChar": 63
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4891513_bea4dea1",
@@ -232,6 +441,30 @@
       "writtenOn": "2024-04-16T19:13:14Z",
       "side": 1,
       "message": "check image name",
+      "range": {
+        "startLine": 110,
+        "startChar": 26,
+        "endLine": 110,
+        "endChar": 72
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "057aa8f9_d409dea8",
+        "filename": "sample-services/ics-producer-consumer/start.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-17T07:56:01Z",
+      "side": 1,
+      "message": "Same",
+      "parentUuid": "f4891513_bea4dea1",
       "range": {
         "startLine": 110,
         "startChar": 26,
