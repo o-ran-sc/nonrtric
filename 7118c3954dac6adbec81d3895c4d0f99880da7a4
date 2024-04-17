@@ -54,6 +54,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ad57a338_fec598df",
+        "filename": "sample-services/ics-producer-consumer/consumer/Dockerfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-04-17T09:31:54Z",
+      "side": 1,
+      "message": "Need coantainer tag.yamp file. \nref other repos with dockerfiles. \nNeeded for jenkins job to build images.",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 27
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "92711344_83aa0727",
         "filename": "sample-services/ics-producer-consumer/consumer/Makefile",
         "patchSetId": 7
@@ -188,6 +211,29 @@
         "startChar": 10,
         "endLine": 69,
         "endChar": 33
+      },
+      "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ec12f20_c0eb6a9e",
+        "filename": "sample-services/ics-producer-consumer/producer/Dockerfile",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-04-17T09:31:54Z",
+      "side": 1,
+      "message": "Need to add a file containertag.yaml (spelling?) \nRef other repos with dockerfiles. \nNeeded for gerrit job to build image.",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 27
       },
       "revId": "7118c3954dac6adbec81d3895c4d0f99880da7a4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
