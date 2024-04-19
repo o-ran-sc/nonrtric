@@ -36,10 +36,10 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           env:
-            - name: RAPP_INSTANCE_ID
-              value: "{{ .Values.environment.RAPP_INSTANCE_ID }}"
+            - name: APP_ID
+              value: "{{ .Values.environment.appId }}"
             - name: SME_DISCOVERY_ENDPOINT
-              value: "{{ .Values.environment.SME_DISCOVERY_ENDPOINT }}"
+              value: "{{ .Values.environment.smeDiscoveryEndpoint }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
