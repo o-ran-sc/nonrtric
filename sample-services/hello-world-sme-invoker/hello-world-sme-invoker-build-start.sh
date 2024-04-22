@@ -26,10 +26,3 @@ IMAGE_NAME="o-ran-sc/nonrtric-sample-helloworld-sme-invoker"
 docker build -t $IMAGE_NAME:latest .
 
 docker run --rm -d -p 8080:8080 --name $NAME $IMAGE_NAME
-
-sleep 10
-
-echo "Make an HTTP request to the Hello World Sme Invoker endpoint and display the response"
-response=$(curl -s http://localhost:8080/helloworld/v1/sme)
-echo "Response from the /helloworld/v1/sme endpoint: "
-echo "$response"

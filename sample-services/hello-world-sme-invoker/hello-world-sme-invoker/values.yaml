@@ -29,7 +29,7 @@ service:
   port: 8080
 
 environment:
-  appId: Invoker_Rapp_Id
-  smeDiscoveryEndpoint: capifcore.nonrtric.svc.cluster.local:8090/service-apis/v1/allServiceAPIs
+  appId:
+  smeDiscoveryEndpoint:
 
 
