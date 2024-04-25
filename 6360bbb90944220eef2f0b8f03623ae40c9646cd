@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f9e44fa_eb395747",
+        "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/Application.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-25T10:24:08Z",
+      "side": 1,
+      "message": "Added Event Listener to autostart the Producer/Consumer in the Application class",
+      "revId": "6360bbb90944220eef2f0b8f03623ae40c9646cd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
