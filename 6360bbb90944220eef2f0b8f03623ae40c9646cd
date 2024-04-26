@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ce9e4e28_76df9c29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-04-26T09:13:10Z",
+      "side": 1,
+      "message": "will submit at same time as https://gerrit.o-ran-sc.org/r/c/ci-management/+/12768",
+      "revId": "6360bbb90944220eef2f0b8f03623ae40c9646cd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3f9e44fa_eb395747",
         "filename": "sample-services/ics-producer-consumer/producer/src/main/java/com/demo/producer/Application.java",
         "patchSetId": 17
