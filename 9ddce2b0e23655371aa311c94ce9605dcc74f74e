@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "7d4ae736_396dadeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-04-26T09:11:23Z",
+      "side": 1,
+      "message": "Will submit at same time as https://gerrit.o-ran-sc.org/r/c/ci-management/+/12768",
+      "revId": "9ddce2b0e23655371aa311c94ce9605dcc74f74e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "33a745a3_124cc5fa",
         "filename": "sample-services/hello-world-sme-invoker/src/main/java/org/oransc/nonrtric/sample/rest/HelloWorldSmeInvokerComponent.java",
         "patchSetId": 1
