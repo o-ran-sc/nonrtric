@@ -35,6 +35,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "95040b78_25f9df1b",
+        "filename": "sample-services/ics-producer-consumer/consumer/Dockerfile",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-04-26T09:13:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "03f1d9e6_4a8b4a79",
+      "revId": "cca69e4d8fca29a3229bc005e8b2a5d32b06d3c7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3715d2b1_ff42bf85",
@@ -48,6 +66,30 @@
       "writtenOn": "2024-04-22T09:22:44Z",
       "side": 1,
       "message": "If you use docker-maven-plugin you don\u0027t need to build in the dockerfile.",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 17
+      },
+      "revId": "cca69e4d8fca29a3229bc005e8b2a5d32b06d3c7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca26220b_a1cc381a",
+        "filename": "sample-services/ics-producer-consumer/consumer/pom.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-04-26T09:13:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3715d2b1_ff42bf85",
       "range": {
         "startLine": 79,
         "startChar": 4,
