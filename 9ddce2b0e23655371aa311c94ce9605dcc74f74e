@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33a745a3_124cc5fa",
+        "filename": "sample-services/hello-world-sme-invoker/src/main/java/org/oransc/nonrtric/sample/rest/HelloWorldSmeInvokerComponent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-26T08:54:19Z",
+      "side": 1,
+      "message": "Is this interval okay as it is, or it could be beneficial to parametrize it?",
+      "range": {
+        "startLine": 46,
+        "startChar": 27,
+        "endLine": 46,
+        "endChar": 31
+      },
+      "revId": "9ddce2b0e23655371aa311c94ce9605dcc74f74e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
