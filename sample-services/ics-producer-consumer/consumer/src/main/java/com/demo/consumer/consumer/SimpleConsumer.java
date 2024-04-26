@@ -72,7 +72,6 @@ public class SimpleConsumer extends AbstractSimpleKafka {
         // make the consumer available for graceful shutdown
         setKafkaConsumer(consumer);
         consumer.assign(Collections.singleton(new TopicPartition(topicName, 0)));
-        //consumer.seekToBeginning(consumer.assignment()); //--from-beginning
         int recNum = numOfRecs;
         while (recNum > 0) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(TIME_OUT_MS));

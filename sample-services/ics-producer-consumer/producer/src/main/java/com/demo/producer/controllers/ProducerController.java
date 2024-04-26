@@ -47,13 +47,10 @@ import com.google.gson.GsonBuilder;
 @RequestMapping(path = "/producer", produces = "application/json")
 public class ProducerController {
     private static final Logger log = LoggerFactory.getLogger(ProducerController.class);
-
     private static Gson gson = new GsonBuilder().create();
-
     private final Jobs jobs;
     private final InfoTypes types;
     private String topicName = "mytopic";
-
 
     public ProducerController(@Autowired Jobs jobs, @Autowired InfoTypes types) {
         this.jobs = jobs;

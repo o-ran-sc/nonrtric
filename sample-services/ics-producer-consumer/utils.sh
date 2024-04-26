@@ -69,27 +69,44 @@ checkDockerCompose() {
     fi
 }
 
-# Function to wait for a Docker container to be running and log a specific string
+# Function to wait for a Docker container to be running and log a specific string with a maximum timeout of 20 minutes
 wait_for_container() {
     local container_name="$1"
     local log_string="$2"
+    local timeout=1200  # Timeout set to 20 minutes (20 minutes * 60 seconds)
+
+    local start_time=$(date +%s)
+    local end_time=$((start_time + timeout))
 
     while ! docker inspect "$container_name" &>/dev/null; do
         echo "Waiting for container '$container_name' to be created..."
         sleep 5
+        if [ "$(date +%s)" -ge "$end_time" ]; then
+            echo "Timeout: Container creation exceeded 20 minutes."
+            exit 1
+        fi
     done
 
     while [ "$(docker inspect -f '{{.State.Status}}' "$container_name")" != "running" ]; do
         echo "Waiting for container '$container_name' to be running..."
         sleep 5
+        if [ "$(date +%s)" -ge "$end_time" ]; then
+            echo "Timeout: Container start exceeded 20 minutes."
+            exit 1
+        fi
     done
 
     # Check container logs for the specified string
     while ! docker logs "$container_name" 2>&1 | grep "$log_string"; do
         echo "Waiting for '$log_string' in container logs of '$container_name'..."
         sleep 5
+        if [ "$(date +%s)" -ge "$end_time" ]; then
+            echo "Timeout: Log string not found within 20 minutes."
+            exit 1
+        fi
     done
 }
+
 
 space() {
     echo ""
