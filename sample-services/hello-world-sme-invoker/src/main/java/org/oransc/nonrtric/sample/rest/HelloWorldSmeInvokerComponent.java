@@ -60,24 +60,22 @@ public class HelloWorldSmeInvokerComponent {
                 throw new CapifAccessException("Unexpected error");
             }
 
-            //TODO The below should be uncommented once SME Manager provides an accessible URI
+            String helloWorldEndpoint = "";
+            List<String> apiSetEndpoints = getApiSetEndpoints(apiResponse, baseUrl);
+            if (apiSetEndpoints != null && !apiSetEndpoints.isEmpty()) {
+                helloWorldEndpoint = apiSetEndpoints.get(0);
+            }
 
-//            String helloWorldEndpoint = "";
-//            List<String> apiSetEndpoints = getApiSetEndpoints(apiResponse, baseUrl);
-//            if (apiSetEndpoints != null && !apiSetEndpoints.isEmpty()) {
-//                helloWorldEndpoint = apiSetEndpoints.get(0);
-//            }
-//
-//            if (helloWorldEndpoint != null && !helloWorldEndpoint.isEmpty()) {
-//                try {
-//                    String responseHelloWorld = restTemplate.getForObject(helloWorldEndpoint, String.class);
-//                    logger.info("Response :- ", responseHelloWorld);
-//                } catch (IllegalArgumentException e) {
-//                    throw new CapifAccessException("Error accessing the URL :- " + helloWorldEndpoint);
-//                } catch (Exception e) {
-//                    throw new CapifAccessException("Unexpected error");
-//                }
-//            }
+            if (helloWorldEndpoint != null && !helloWorldEndpoint.isEmpty()) {
+                try {
+                    String responseHelloWorld = restTemplate.getForObject(helloWorldEndpoint, String.class);
+                    logger.info("rApp SME Provider Response : {}", responseHelloWorld);
+                } catch (IllegalArgumentException e) {
+                    throw new CapifAccessException("Error accessing the URL :- " + helloWorldEndpoint);
+                } catch (Exception e) {
+                    throw new CapifAccessException("Unexpected error");
+                }
+            }
         }
     }
 
