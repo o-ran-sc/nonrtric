@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d19a545d_0c0919c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-04-29T14:28:06Z",
+      "side": 1,
+      "message": "Both images are on nexus in docker.staging",
+      "revId": "609c71cf4f7efab996a10af91910e6d19dc32665",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
