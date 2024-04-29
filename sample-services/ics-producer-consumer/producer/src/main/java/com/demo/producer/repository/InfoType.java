@@ -45,5 +45,4 @@ public class InfoType {
     @Getter
     @Setter
     private Object inputJobDefinition;
-
 }
