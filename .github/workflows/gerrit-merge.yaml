@@ -66,7 +66,6 @@ jobs:
           gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
           gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
           vote-type: clear
-          comment-only: true
       - name: Allow replication
         run: sleep 10s
 
@@ -119,4 +118,3 @@ jobs:
           gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
           gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
           vote-type: ${{ env.WORKFLOW_CONCLUSION }}
-          comment-only: true
