@@ -47,7 +47,7 @@ try:
     uuid=str(sys.argv[5])
     start=int(sys.argv[6])
     httpproxy="NOPROXY"
-    if ("/v2/" in baseurl):
+    if ("/v2/" in baseurl) or ("a1policymanagement/v1/" in baseurl):
         if len(sys.argv) != 16:
             print("1Expected 15 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid service type transient notification-url templatepath count pids pid_id proxy")
             print (sys.argv[1:])
@@ -116,20 +116,45 @@ try:
                                 data["policytype_id"]=pt
                             else:
                                 data["policytype_id"]=""
-                            if (noti != "NOURL"):
-                                data["status_notification_uri"]=noti
                             data["policy_data"]=json.loads(payload)
 
                             url_out=url
                             data_out=json.dumps(data)
+                            if proxydict is None:
+                                resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
+                            else:
+                                resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90, proxies=proxydict)
+
+                        elif ("a1policymanagement/v1/" in baseurl):
+                            url=baseurl
+
+                            data={}
+                            data["nearRtRicId"]=ric
+                            data["serviceId"]=serv
+                            if (trans != "NOTRANSIENT"):
+                                data["transient"]=trans
+                            if (pt != "NOTYPE"):
+                                data["policyTypeId"]=pt
+                            else:
+                                data["policyTypeId"]=""
+                            if (noti != "NOURL"):
+                                data["statusNotificationUri"]=noti
+                            data["policyObject"]=json.loads(payload)
+
+                            url_out=url
+                            data_out=json.dumps(data)
+                            if proxydict is None:
+                                resp=requests.post(url, data_out, headers=headers, verify=False, timeout=90)
+                            else:
+                                resp=requests.post(url, data_out, headers=headers, verify=False, timeout=90, proxies=proxydict)
                         else:
                             url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
                             url_out=url
                             data_out=json.dumps(json.loads(payload))
-                        if proxydict is None:
-                            resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
-                        else:
-                            resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90, proxies=proxydict)
+                            if proxydict is None:
+                                resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
+                            else:
+                                resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90, proxies=proxydict)
                         connect_ok=True
                     except Exception as e1:
                         if (retry_cnt > 1):

@@ -2863,15 +2863,15 @@ clean_environment() {
 	if [ $RUNMODE == "KUBE" ]; then
 		__clean_kube
 		if [ $PRE_CLEAN -eq 1 ]; then
-			echo " Cleaning docker resouces to free up resources, may take time..."
-			../common/clean_docker.sh 2>&1 > /dev/null
+			echo " Cleaning kubernetes resources to free up resources, may take time..."
+			../common/clean_kube.sh $KUBECONF 2>&1 > /dev/null
 			echo ""
 		fi
 	else
 		__clean_containers
 		if [ $PRE_CLEAN -eq 1 ]; then
-			echo " Cleaning kubernetes resouces to free up resources, may take time..."
-			../common/clean_kube.sh $KUBECONF 2>&1 > /dev/null
+			echo " Cleaning docker resources to free up resources, may take time..."
+			../common/clean_docker.sh 2>&1 > /dev/null
 			echo ""
 		fi
 	fi
