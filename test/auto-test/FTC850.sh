@@ -156,21 +156,33 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_put_policy_type 201 ricsim_g1_$i 1 testdata/OSC/sim_1.json
         done
 
-         a1pms_equal json:policy-types 1 300  #Wait for the a1pms to refresh types from the simulator
+        if [ "$A1PMS_VERSION" == "V2" ]; then
+          a1pms_equal json:policy-types 1 300  #Wait for the a1pms to refresh types from the simulator
+        elif [ "$A1PMS_VERSION" == "V3" ]; then
+          a1pms_equal json:policyTypes 20 300
+        fi
 
         a1pms_api_put_service 201 "serv1" 600 "$CR_SERVICE_APP_PATH_0/1"
 
         echo "Check the number of types in the a1pms for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))
         do
+          if [ "$A1PMS_VERSION" == "V2" ]; then
             a1pms_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+          elif [ "$A1PMS_VERSION" == "V3" ]; then
+            a1pms_equal json:policyTypes?nearRtRicId=ricsim_g1_$i 1 120
+          fi
         done
 
         START_ID=2000
 
         start_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        a1pms_api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
+        if [ "$A1PMS_VERSION" == "V3" ]; then
+          a1pms_api_post_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
+        else
+          a1pms_api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
+        fi
 
         print_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
@@ -182,10 +194,29 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_equal ricsim_g1_$i num_instances $NUM_POLICIES_PER_RIC
         done
 
+        if [ "$A1PMS_VERSION" == "V3" ]; then
+          allPolicyIds_file_path="./tmp/.policyIds.split.res.txt"
+          allPolicies_file_path="./tmp/.allPolicies.get.res.json"
+          res="$(__do_curl $A1PMS_SERVICE_PATH$A1PMS_API_PREFIX"/v1/policies")"
+          echo $res > "./tmp/.allPolicies.get.res.json"
+          jq -r '.[].policyId' $allPolicies_file_path > $allPolicyIds_file_path
+        fi
+
+        start_timer "Update $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
+
+        if [ "$A1PMS_VERSION" == "V3" ]; then
+          a1pms_api_update_policy_parallel 200 "serv1" ricsim_g1_ $NUM_RICS 1 14000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7 $allPolicyIds_file_path
+        fi
+
+        print_timer "Update $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
         start_timer "GET $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        a1pms_api_get_policy_parallel 200 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+        if [ "$A1PMS_VERSION" == "V3" ]; then
+          a1pms_api_get_policy_parallel_v3 200 $NUM_RICS $allPolicyIds_file_path $START_ID $NUM_POLICIES_PER_RIC 7
+        else
+          a1pms_api_get_policy_parallel 200 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+        fi
 
         print_timer "GET $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
@@ -199,7 +230,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        a1pms_api_delete_policy_parallel 204 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+        if [ "$A1PMS_VERSION" == "V3" ]; then
+          a1pms_api_delete_policy_parallel_v3 204 $NUM_RICS $allPolicyIds_file_path $START_ID $NUM_POLICIES_PER_RIC 7
+        else
+          a1pms_api_delete_policy_parallel 204 $NUM_RICS $START_ID $NUM_POLICIES_PER_RIC 7
+        fi
 
         print_timer "Delete $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
