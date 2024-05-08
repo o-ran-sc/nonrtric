@@ -24,6 +24,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "405c9803_a13dfa09",
+        "filename": "sample-services/ics-producer-consumer/helm-chart/ics-producer-consumer/templates/kafka-deployment.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-05-08T05:56:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f32a1d2f_f542f8ba",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 20
+      },
+      "revId": "6b8065f5c7ea3624d4e584b2981cce99c94ddb5b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1e7dbc1_1a3b5ee5",
@@ -47,6 +71,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e23bc36e_90b0b20a",
+        "filename": "sample-services/ics-producer-consumer/helm-chart/ics-producer-consumer/values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-05-08T05:56:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1e7dbc1_1a3b5ee5",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 19
+      },
+      "revId": "6b8065f5c7ea3624d4e584b2981cce99c94ddb5b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "73225ce5_4428670a",
@@ -60,6 +108,30 @@
       "writtenOn": "2024-05-07T15:15:20Z",
       "side": 1,
       "message": "Kafka deployment can be removed from here. rApp can expect the kafka to be available.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 19
+      },
+      "revId": "6b8065f5c7ea3624d4e584b2981cce99c94ddb5b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21a3a04a_c03c7776",
+        "filename": "sample-services/ics-producer-consumer/helm-chart/ics-producer-consumer/values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-05-08T05:56:48Z",
+      "side": 1,
+      "message": "Ack\n\nI took kafka deployment out, but kafka.host and kafka.port are being used by the consumer/producer to connect to whatever ip:port specified there.",
+      "parentUuid": "73225ce5_4428670a",
       "range": {
         "startLine": 40,
         "startChar": 0,
