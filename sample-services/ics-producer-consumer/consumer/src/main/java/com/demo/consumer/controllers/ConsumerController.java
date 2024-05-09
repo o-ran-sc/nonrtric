@@ -72,6 +72,18 @@ public class ConsumerController {
         }
     }
 
+    @PostMapping("/job")
+    public void jobCallbackNoId(@RequestBody String requestBody) {
+        ConsumerJobInfo request = gson.fromJson(requestBody, ConsumerJobInfo.class);
+        try {
+            log.info("Adding producer job info "+request.toString());
+            this.jobs.addJob(request.infoTypeId, types.getType(request.infoTypeId), request.owner,
+                    toJobParameters(request.jobDefinition));
+        } catch (Exception e) {
+            log.error("Error adding producer job info: " + request.toString(), e.getMessage());
+        }
+    }
+
     @PostMapping("/info-type-status")
     public void statusChange(@RequestBody String requestBody) {
         ConsumerStatusInfo request = gson.fromJson(requestBody, ConsumerStatusInfo.class);

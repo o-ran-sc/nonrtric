@@ -16,7 +16,7 @@
 #
 vars:
   time: 1000
-  autostart: true
+  autostart: false
   topic: mytopic #This topic is used only in autostart
 
 spring:

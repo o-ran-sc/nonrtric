@@ -18,8 +18,15 @@
 #!/bin/bash
 source utils.sh
 
-PREFIX="nexus3.o-ran-sc.org:10004"
-VERSION="0.0.1"
+cd ./producer/
+make build
+cd ../consumer/
+make build
+cd ..
+VERSION="latest"
+
+#PREFIX="nexus3.o-ran-sc.org:10004"
+#VERSION="0.0.1"
 
 # Create a network for Kafka Containers
 docker network create kafka-net
@@ -52,7 +59,7 @@ docker run -d \
   --name kafka-producer \
   -p 8080:8080 \
   -e KAFKA_SERVERS=kafka-zkless:9092 \
-  $PREFIX/o-ran-sc/nonrtric-sample-icsproducer:$VERSION
+  o-ran-sc/nonrtric-sample-icsproducer:$VERSION
 
 #Start Consumer
 docker run -d \
@@ -60,7 +67,7 @@ docker run -d \
   --name kafka-consumer \
   -p 8081:8081 \
   -e KAFKA_SERVERS=kafka-zkless:9092 \
-  $PREFIX/o-ran-sc/nonrtric-sample-icsconsumer:$VERSION
+  o-ran-sc/nonrtric-sample-icsconsumer:$VERSION
 
 # Wait for the Kafka container to be running
 wait_for_container "kafka-zkless" "Kafka Server started"
@@ -70,17 +77,6 @@ wait_for_container "kafka-consumer" "Started Application"
 # Once Kafka container is running, start the producers and consumers
 echo "Kafka container is up and running. Starting producer and consumer..."
 space
-
-#Using the autostart flag in the application.yaml
-echo "Start 1 Producer on mytopic"
-#curl -X GET http://localhost:8080/startProducer/mytopic
-space
-
-echo "Start 1 Consumer on mytopic"
-#curl -X GET http://localhost:8081/startConsumer/mytopic
-space
-
-sleep 10
 
 echo "Sending type1 to ICS"
 curl -X 'PUT' \
@@ -153,7 +149,36 @@ echo "Getting Consumer Subscription Job infos from ICS"
 curl -X 'GET' 'http://localhost:8083/data-consumer/v1/info-type-subscription/1' -H 'accept: application/json'
 space
 
-sleep 5
+#TEST To set kafka broker in the consumer
+curl -X 'POST' \
+  'http://localhost:8081/consumer/job/1' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "info_type_id": "type1",
+  "job_owner": "demo",
+  "job_definition": {
+    "deliveryInfo": {
+      "topic": "mytopic",
+      "bootStrapServers": "http://kafka-zkless:9092",
+      "numberOfMessages": 0
+    }
+  },
+  "job_result_uri": "http://kafka-producer:8080/producer/job",
+  "status_notification_uri": "http://kafka-producer:8080/producer/supervision"
+}'
+
+#Using the autostart flag in the application.yaml
+echo "Start 1 Producer on mytopic"
+curl -X GET http://localhost:8080/startProducer/mytopic
+space
+
+echo "Start 1 Consumer on mytopic"
+curl -X GET http://localhost:8081/startConsumer/mytopic
+space
+
+sleep 10
+
 echo "ICS Producer Docker logs "
 docker logs informationcoordinatorservice | grep -E 'o.o.i.c.r1producer.ProducerCallbacks|o.o.i.repository.InfoTypeSubscriptions'
 space
