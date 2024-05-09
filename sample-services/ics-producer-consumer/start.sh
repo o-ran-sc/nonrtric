@@ -71,17 +71,6 @@ wait_for_container "kafka-consumer" "Started Application"
 echo "Kafka container is up and running. Starting producer and consumer..."
 space
 
-#Using the autostart flag in the application.yaml
-echo "Start 1 Producer on mytopic"
-#curl -X GET http://localhost:8080/startProducer/mytopic
-space
-
-echo "Start 1 Consumer on mytopic"
-#curl -X GET http://localhost:8081/startConsumer/mytopic
-space
-
-sleep 10
-
 echo "Sending type1 to ICS"
 curl -X 'PUT' \
   'http://localhost:8083/data-producer/v1/info-types/type1' \
@@ -92,8 +81,10 @@ curl -X 'PUT' \
     "$schema":"http://json-schema.org/draft-07/schema#",
     "title":"STD_Type1_1.0.0",
     "description":"Type 1",
-    "type":"object"
-  }
+    "topic": "mytopic",
+    "bootStrapServers": "http://kafka-zkless:9092",
+    "numberOfMessages": 0
+    }
 }'
 
 echo "Getting types from ICS"
@@ -146,14 +137,43 @@ curl -X 'PUT' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "status_result_uri": "http://kafka-consumer:8081/info-type-status",
-  "owner": "owner"
+  "status_result_uri": "http://kafka-consumer:8081/consumer/info-type-status",
+  "owner": "demo"
 }'
 echo "Getting Consumer Subscription Job infos from ICS"
 curl -X 'GET' 'http://localhost:8083/data-consumer/v1/info-type-subscription/1' -H 'accept: application/json'
 space
 
-sleep 5
+#TEST To set kafka broker in the consumer
+curl -X 'POST' \
+  'http://localhost:8081/consumer/job/1' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "info_type_id": "type1",
+  "job_owner": "demo",
+  "job_definition": {
+    "deliveryInfo": {
+      "topic": "mytopic",
+      "bootStrapServers": "http://kafka-zkless:9092",
+      "numberOfMessages": 0
+    }
+  },
+  "job_result_uri": "http://kafka-producer:8080/producer/job",
+  "status_notification_uri": "http://kafka-producer:8080/producer/supervision"
+}'
+
+#Using the autostart flag in the application.yaml
+echo "Start 1 Producer on mytopic"
+curl -X GET http://localhost:8080/startProducer/mytopic
+space
+
+echo "Start 1 Consumer on mytopic"
+#curl -X GET http://localhost:8081/startConsumer/mytopic
+space
+
+sleep 10
+
 echo "ICS Producer Docker logs "
 docker logs informationcoordinatorservice | grep -E 'o.o.i.c.r1producer.ProducerCallbacks|o.o.i.repository.InfoTypeSubscriptions'
 space
