@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5988be49_b61ffcdc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2024-05-13T09:22:41Z",
+      "side": 1,
+      "message": "It can be merged after:\nhttps://gerrit.nordix.org/c/oransc/nonrtric/+/21087",
+      "revId": "b878753a6e9fa398d013522358ba609b64eb15b9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
