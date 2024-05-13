@@ -22,6 +22,7 @@ package com.demo.consumer.repository;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,9 +30,11 @@ import lombok.ToString;
 
 @ToString
 public class Job {
+    @AllArgsConstructor
     @Builder
     public static class Parameters {
 
+        @AllArgsConstructor
         @Builder
         @EqualsAndHashCode
         public static class KafkaDeliveryInfo {
