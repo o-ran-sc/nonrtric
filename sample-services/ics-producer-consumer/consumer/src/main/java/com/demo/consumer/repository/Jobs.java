@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.demo.consumer.messages.PropertiesHelper;
 import com.demo.consumer.repository.Job.Parameters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -55,7 +56,18 @@ public class Jobs {
 
     public void addJob(String id, InfoType type, String owner, Parameters parameters) {
         Job job = new Job(id, type, owner, parameters);
+        setKafkaServersEnvironment(job);
         this.put(job);
+    }
+
+    private void setKafkaServersEnvironment(Job job) {
+        String kafkaServers = job.getParameters().getDeliveryInfo().getBootStrapServers();
+        if (kafkaServers != null && !kafkaServers.isEmpty()) {
+            PropertiesHelper.setKafkaServers(kafkaServers);
+            logger.info("Setting variable bootStrapServers: {}", kafkaServers);
+        } else {
+            logger.warn("bootStrapServers is not set for job: {}", job.getId());
+        }
     }
 
     private synchronized void put(Job job) {

@@ -82,8 +82,7 @@ curl -X 'PUT' \
     "title":"STD_Type1_1.0.0",
     "description":"Type 1",
     "topic": "mytopic",
-    "bootStrapServers": "http://kafka-zkless:9092",
-    "numberOfMessages": 0
+    "bootStrapServers": "kafka-zkless:9092"
     }
 }'
 
@@ -119,8 +118,8 @@ curl -X 'PUT' \
   "job_definition": {
     "deliveryInfo": {
       "topic": "mytopic",
-      "bootStrapServers": "http://kafka-zkless:9092",
-      "numberOfMessages": 0
+      "bootStrapServers": "kafka-zkless:9092",
+      "numberOfMessages": 100
     }
   },
   "job_result_uri": "http://kafka-producer:8080/producer/job",
@@ -144,23 +143,20 @@ echo "Getting Consumer Subscription Job infos from ICS"
 curl -X 'GET' 'http://localhost:8083/data-consumer/v1/info-type-subscription/1' -H 'accept: application/json'
 space
 
-#TEST To set kafka broker in the consumer
-curl -X 'POST' \
-  'http://localhost:8081/consumer/job/1' \
+#To Set Kafka Broker in Consumer
+echo "Sending type1 to ICS to use the callback"
+curl -X 'PUT' \
+  'http://localhost:8083/data-producer/v1/info-types/type1' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "info_type_id": "type1",
-  "job_owner": "demo",
-  "job_definition": {
-    "deliveryInfo": {
-      "topic": "mytopic",
-      "bootStrapServers": "http://kafka-zkless:9092",
-      "numberOfMessages": 0
+  "info_job_data_schema": {
+    "$schema":"http://json-schema.org/draft-07/schema#",
+    "title":"STD_Type1_1.0.0",
+    "description":"Type 1",
+    "topic": "mytopic",
+    "bootStrapServers": "kafka-zkless:9092"
     }
-  },
-  "job_result_uri": "http://kafka-producer:8080/producer/job",
-  "status_notification_uri": "http://kafka-producer:8080/producer/supervision"
 }'
 
 #Using the autostart flag in the application.yaml
@@ -169,7 +165,7 @@ curl -X GET http://localhost:8080/startProducer/mytopic
 space
 
 echo "Start 1 Consumer on mytopic"
-#curl -X GET http://localhost:8081/startConsumer/mytopic
+curl -X GET http://localhost:8081/startConsumer/mytopic
 space
 
 sleep 10
