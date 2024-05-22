@@ -128,9 +128,14 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
         controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000
-
-        VAL='NOT_ENFORCED'
-        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "OTHER_REASON"
+        if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-I] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-M] ]]; then
+          VAL='NOT IN EFFECT'
+          VAL2="false"
+        else
+          VAL='NOT_ENFORCED'
+          VAL2="OTHER_REASON"
+        fi
+        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "$VAL2"
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
 
         RESP=202
