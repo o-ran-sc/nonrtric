@@ -51,6 +51,7 @@ fi
 cd "$TEST_DIRECTORY"
 sudo chmod 775 "$TEST_SCRIPT"
 "$TEST_SCRIPT" remote-remove docker release --env-file ../common/test_env-oran-h-release.sh
+exit_val=$?
 
 # Remove docker-compose after tests are done
 if command -v docker-compose &> /dev/null; then
@@ -62,3 +63,5 @@ if command -v jq &> /dev/null; then
     echo "Removing jq..."
     sudo apt-get remove -y jq
 fi
+
+exit $exit_val
