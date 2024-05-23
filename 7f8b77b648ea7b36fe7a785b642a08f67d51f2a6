@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bd5e5fe_0a735e2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-05-23T16:41:41Z",
+      "side": 1,
+      "message": "Please make that\u0027s all occurences.\nThanks",
+      "revId": "7f8b77b648ea7b36fe7a785b642a08f67d51f2a6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
