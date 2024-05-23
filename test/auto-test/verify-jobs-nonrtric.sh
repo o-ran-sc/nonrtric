@@ -51,6 +51,7 @@ fi
 cd "$TEST_DIRECTORY"
 sudo chmod 775 "$TEST_SCRIPT"
 "$TEST_SCRIPT" remote-remove docker release --env-file ../common/test_env-oran-h-release.sh
+TCSUITE_FAIL_CTR=$(< .tmp_tcsuite_fail_ctr)
 
 # Remove docker-compose after tests are done
 if command -v docker-compose &> /dev/null; then
@@ -61,4 +62,8 @@ fi
 if command -v jq &> /dev/null; then
     echo "Removing jq..."
     sudo apt-get remove -y jq
+fi
+
+if [ $TCSUITE_FAIL_CTR -ne 0 ]; then
+  exit 1;
 fi
