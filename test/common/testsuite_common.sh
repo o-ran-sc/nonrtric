@@ -94,8 +94,8 @@ suite_complete() {
 
     total=$((TCSUITE_PASS_CTR+TCSUITE_FAIL_CTR))
     if [ $TCSUITE_CTR -eq 0 ]; then
-		echo -e "\033[1mNo test cases seem to have executed. Check the script....\033[0m"
-	elif [ $total != $TCSUITE_CTR ]; then
+		    echo -e "\033[1mNo test cases seem to have executed. Check the script....\033[0m"
+	  elif [ $total != $TCSUITE_CTR ]; then
         echo -e "\033[1mTotal number of test cases does not match the sum of passed and failed test cases. Check the script....\033[0m"
     fi
     echo "Number of test cases : " $TCSUITE_CTR
@@ -108,7 +108,11 @@ suite_complete() {
     echo "FAIL test cases"
     cat .tmp_tcsuite_fail
     echo ""
-
-    echo "###################################      Test suite completed      ##############################"
-    echo "#################################################################################################"
+    if [ $TCSUITE_FAIL_CTR -ne 0 ]; then
+      echo "###################################      Test suite completed with Tests FAIL     ##############################"
+      echo "#################################################################################################"
+    else
+      echo "###################################      Test suite completed      ##############################"
+      echo "#################################################################################################"
+    fi
 }
