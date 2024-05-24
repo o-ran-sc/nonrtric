@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7efeb668_ca6127a8",
+        "filename": "test/auto-test/verify-jobs-nonrtric.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-05-24T13:04:02Z",
+      "side": 1,
+      "message": "In the next step we need to make these parameters configurable",
+      "range": {
+        "startLine": 53,
+        "startChar": 15,
+        "endLine": 53,
+        "endChar": 91
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47c5c1c6_49f1dc1a",
+        "filename": "test/auto-test/verify-jobs-nonrtric.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-05-24T13:04:02Z",
+      "side": 1,
+      "message": "This file is only created and used inside testsuite_common.sh .. so should not be used here. \n\nAnd $TEST_SCRIPT is a configurable parameter, so there is no guarantee that the configured script will even use testsuite_common.sh \n\nCan you capture the return value of running \"$TEST_SCRIPT\" instead? \nThen hope that the test scripts return non-zero on failure.",
+      "range": {
+        "startLine": 54,
+        "startChar": 21,
+        "endLine": 54,
+        "endChar": 42
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0879a835_7eb0e7ef",
+        "filename": "test/auto-test/verify-jobs-nonrtric.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-05-24T13:04:02Z",
+      "side": 1,
+      "message": "Perhaps exit with the result returned by \"$TEST_SCRIPT\" instead. \nOr use \u0027set -uo pipefail\u0027 at the top of the file to cause a failure in \"$TEST_SCRIPT\" or another step to result in a non-zero return value from this script.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 2
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88e6d83a_16c77e4c",
+        "filename": "test/common/testsuite_common.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-05-24T13:04:02Z",
+      "side": 1,
+      "message": "maybe add \n   return $TCSUITE_FAIL_CTR \nor something similar. Will return be zero for success, nonzero for error. \nBut if you do this, check if suite_complete() is used elsewhere in a way that might kill other testsuites immediately, e.g. if \"set -e ...\" is used in those suites.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 1
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
