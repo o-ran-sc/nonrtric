@@ -3055,7 +3055,7 @@ __check_service_start() {
 				#If response is too long, truncate
 				result="...response text too long, omitted"
 			fi
-			echo -ne " Waiting for {ENTITY} $BOLD${appname}$EBOLD service status on ${3}, result: $result${SAMELINE}"
+			echo -ne " Waiting for ${ENTITY} $BOLD${appname}$EBOLD service status on ${url}, result: $result${SAMELINE}"
 	   		echo -ne " The ${ENTITY} $BOLD${appname}$EBOLD$GREEN is alive$EGREEN, responds to service status:$GREEN $result $EGREEN on ${url} after $(($SECONDS-$TSTART)) seconds"
 	   		a1pmsst=true
 	   		break
