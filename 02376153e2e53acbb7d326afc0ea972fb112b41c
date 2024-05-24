@@ -47,6 +47,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "41de27ea_1751ce17",
+        "filename": "test/auto-test/verify-jobs-nonrtric.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-05-24T16:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47c5c1c6_49f1dc1a",
+      "range": {
+        "startLine": 54,
+        "startChar": 21,
+        "endLine": 54,
+        "endChar": 42
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0879a835_7eb0e7ef",
@@ -70,6 +94,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96396d43_36a46fc9",
+        "filename": "test/auto-test/verify-jobs-nonrtric.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-05-24T16:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0879a835_7eb0e7ef",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 2
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88e6d83a_16c77e4c",
@@ -83,6 +131,30 @@
       "writtenOn": "2024-05-24T13:04:02Z",
       "side": 1,
       "message": "maybe add \n   return $TCSUITE_FAIL_CTR \nor something similar. Will return be zero for success, nonzero for error. \nBut if you do this, check if suite_complete() is used elsewhere in a way that might kill other testsuites immediately, e.g. if \"set -e ...\" is used in those suites.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 1
+      },
+      "revId": "02376153e2e53acbb7d326afc0ea972fb112b41c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5bab014_7ab1e54b",
+        "filename": "test/common/testsuite_common.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-05-24T16:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88e6d83a_16c77e4c",
       "range": {
         "startLine": 118,
         "startChar": 0,
