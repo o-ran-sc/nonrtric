@@ -21,6 +21,11 @@
 TEST_DIRECTORY="test/auto-test"
 TEST_SCRIPT="./Suite-Verify-jobs.sh"
 DOCKER_COMPOSE_VERSION="v2.21.0"
+PULL_IMAGE_TYPE="remote-remove"
+RUN_MODE="docker"
+IMAGE_VERSION="release"
+ENV_FLAG="--env-file"
+ENV_FILE="../common/test_env-oran-h-release.sh"
 
 # Check if jq is installed, and install it if not
 if ! command -v jq &> /dev/null; then
@@ -50,7 +55,7 @@ fi
 
 cd "$TEST_DIRECTORY"
 sudo chmod 775 "$TEST_SCRIPT"
-"$TEST_SCRIPT" remote-remove docker release --env-file ../common/test_env-oran-h-release.sh
+"$TEST_SCRIPT" $PULL_IMAGE_TYPE $RUN_MODE $IMAGE_VERSION $ENV_FLAG $ENV_FILE
 exit_val=$?
 
 # Remove docker-compose after tests are done

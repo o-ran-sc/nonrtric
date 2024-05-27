@@ -492,10 +492,20 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         a1pms_api_get_policy_status 404 1
         a1pms_api_get_policy_status 404 2
-        VAL='NOT IN EFFECT'
-        a1pms_api_get_policy_status 200 5000 OSC "$VAL" "false"
+        if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-L] ]]; then
+          VAL='NOT IN EFFECT'
+          VAL2="false"
+          VAL3=EMPTY
+          VAL4=EMPTY
+        else
+          VAL="NOT_ENFORCED"
+          VAL2="OTHER_REASON"
+          VAL3="NOT_ENFORCED"
+          VAL4="OTHER_REASON"
+        fi
+        a1pms_api_get_policy_status 200 5000 OSC "$VAL" "$VAL2"
         a1pms_api_get_policy_status 200 5100 STD "UNDEFINED"
-        a1pms_api_get_policy_status 200 5200 STD2 EMPTY EMPTY
+        a1pms_api_get_policy_status 200 5200 STD2 $VAL3 $VAL4
 
 
         deviation "TR10 - a1pms allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"

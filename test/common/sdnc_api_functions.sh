@@ -588,7 +588,7 @@ controller_api_get_A1_policy_status() {
     if [ $# -ge 5 ] && [ $2 == "OSC" ]; then
         url="$ric_id/a1-p/policytypes/$4/policies/$UUID$5/status"
         if [ $# -gt 5 ]; then
-            if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-I] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-M] ]]; then
+            if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-L] ]]; then
               targetJson="{\"instance_status\":\"$6\""
               targetJson=$targetJson",\"has_been_deleted\":\"$7\""
               targetJson=$targetJson",\"created_at\":\"????\"}"

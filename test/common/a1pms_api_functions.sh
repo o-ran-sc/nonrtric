@@ -1830,11 +1830,18 @@ a1pms_api_get_policy_status() {
 		fi
 		targetJson=$targetJson"}"
 	elif [ "$3" == "OSC" ]; then
-		targetJson="{\"instance_status\":\"$4\""
-		if [ $# -eq 5 ]; then
-			targetJson=$targetJson",\"has_been_deleted\":\"$5\""
-		fi
-		targetJson=$targetJson",\"created_at\":\"????\"}"
+	  if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-L] ]]; then
+      targetJson="{\"instance_status\":\"$4\""
+      if [ $# -eq 5 ]; then
+        targetJson=$targetJson",\"has_been_deleted\":\"$5\""
+      fi
+      targetJson=$targetJson",\"created_at\":\"????\"}"
+    else
+      targetJson="{\"enforceStatus\":\"$4\""
+      if [ $# -eq 5 ]; then
+        targetJson=$targetJson",\"enforceReason\":\"$5\"}"
+      fi
+    fi
 	else
 		__print_err "<response-code> (STD <enforce-status> [<reason>])|(OSC <instance-status> <has-been-deleted>)" $@
 		return 1

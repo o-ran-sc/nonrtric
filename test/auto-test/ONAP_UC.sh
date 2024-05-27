@@ -283,11 +283,17 @@ for interface in $TESTED_VARIANTS ; do
     done
 
     # Check status OSC
-    VAL='NOT IN EFFECT'
+    if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-L] ]]; then
+      VAL='NOT IN EFFECT'
+      VAL2="false"
+    else
+      VAL='NOT_ENFORCED'
+      VAL2="OTHER_REASON"
+    fi
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
-        a1pms_api_get_policy_status 200 $((3000+$i)) OSC "$VAL" "false"
-        a1pms_api_get_policy_status 200 $((4000+$i)) OSC "$VAL" "false"
+        a1pms_api_get_policy_status 200 $((3000+$i)) OSC "$VAL" "$VAL2"
+        a1pms_api_get_policy_status 200 $((4000+$i)) OSC "$VAL" "$VAL2"
     done
 
     # Note: Status callback is not tested since this callback (http POST) is made from the

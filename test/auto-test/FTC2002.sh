@@ -143,7 +143,7 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000
 
-        if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-I]$  || $TEST_ENV_PROFILE =~ ^ONAP-[A-M]$ ]]; then
+        if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H]$  || $TEST_ENV_PROFILE =~ ^ONAP-[A-L]$ ]]; then
             VAL='NOT IN EFFECT'
             VAL2="false"
         else
