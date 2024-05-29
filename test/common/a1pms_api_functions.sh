@@ -865,10 +865,9 @@ a1pms_api_get_policies() {
 
 }
 
-# API Test function: GET /policy and V2 GET /v2/policies/{policy_id}
+# API Test function: GET /policy, V2 GET /v2/policies/{policy_id} and V3 GET a1policymanagement/v1/policies/{policy_id}
 # args: <response-code>  <policy-id> [<template-file>]
 # args(V2): <response-code> <policy-id> [ <template-file> <service-name> <ric-id> <policytype-id>|NOTYPE <transient> <notification-url>|NOURL ]
-
 # (Function for test scripts)
 a1pms_api_get_policy() {
   __log_test_start $@
@@ -879,6 +878,12 @@ a1pms_api_get_policy() {
       return 1
     fi
     query="/v2/policies/$UUID$2"
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    if [ $# -ne 2 ] && [ $# -ne 8 ]; then
+      __print_err "<response-code> <policy-id> [ <template-file> <service-name> <ric-id> <policytype-id>|NOTYPE <transient> <notification-url>|NOURL ]" $@
+      return 1
+    fi
+    query="/v1/policies/$UUID$2"
   else
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
       __print_err "<response-code>  <policy-id> [<template-file>] " $@
@@ -924,6 +929,20 @@ a1pms_api_get_policy() {
         return 1
       fi
     fi
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    if [ $# -eq 8 ]; then
+      #Create a policy json to compare with
+      body=${res:0:${#res}-3}
+      data=$(sed 's/XXX/'${2}'/g' $3)
+      targetJson=$data
+
+      echo "TARGET JSON: $targetJson" >>$HTTPLOG
+      res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+      if [ $res -ne 0 ]; then
+        __log_test_fail_body
+        return 1
+      fi
+    fi
   else
     if [ $# -eq 3 ]; then
       #Create a policy json to compare with
@@ -939,7 +958,7 @@ a1pms_api_get_policy() {
     fi
   fi
 
-  __collect_endpoint_stats "A1PMS" 01 "GET" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $status
+  __collect_endpoint_stats "A1PMS" 01 "GET" ${A1PMS_API_PREFIX}${query} ${status}
   __log_test_pass
   return 0
 }
@@ -951,7 +970,7 @@ a1pms_api_get_policy() {
 a1pms_api_put_policy() {
   __log_test_start $@
 
-  if [ "$A1PMS_VERSION" == "V2" ]; then
+  if [ "$A1PMS_VERSION" == "V2" ] || [ "$A1PMS_VERSION" == "V3" ]; then
     if [ $# -lt 8 ] || [ $# -gt 9 ]; then
       __print_err "<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]" $@
       return 1
@@ -1032,7 +1051,122 @@ a1pms_api_put_policy() {
     let count=$count+1
     echo -ne " Executed  "$count"("$max")${SAMELINE}"
   done
-  __collect_endpoint_stats "A1PMS" 02 "PUT" $A1PMS_API_PREFIX"/v2/policies" $status $max
+  __collect_endpoint_stats "A1PMS" 02 "PUT" ${A1PMS_API_PREFIX}${query} ${status} ${max}
+  echo ""
+
+  __log_test_pass
+  return 0
+}
+
+# API Test function: V3 PUT a1policymanagement/v1/policies
+# args: <response-code>  <policy-id>  <template-file> [<count>]
+# args(V2): <response-code> <policy-id> <template-file> [<count>]
+# (Function for test scripts)
+a1pms_api_put_policy_v3() {
+  __log_test_start $@
+
+  if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+    __print_err "<response-code> <policy-id> <template-file> [<count>]" $@
+    return 1
+  fi
+
+  count=0
+  max=1
+  pid=$2
+  temp=$3
+
+  if [ $# -eq 4 ]; then
+    max=$4
+  fi
+
+  while [ $count -lt $max ]; do
+    query="/v1/policies/$UUID$pid"
+    file="./tmp/.p_v3.json"
+    let update_value=$pid+300
+    data=$(sed 's/XXX/'${update_value}'/g' $temp)
+    inputJson="$data"
+    echo $inputJson >$file
+    res="$(__do_curl_to_api A1PMS PUT $query $file)"
+    status=${res:${#res}-3}
+    echo -ne " Executing "$count"("$max")${SAMELINE}"
+    if [ $status -ne $1 ]; then
+      echo " Executed "$count"?("$max")"
+      __log_test_fail_status_code $1 $status
+      return 1
+    fi
+    let pid=$pid+1
+    let count=$count+1
+    echo -ne " Executed  "$count"("$max")${SAMELINE}"
+  done
+  __collect_endpoint_stats "A1PMS" 02 "PUT" ${A1PMS_API_PREFIX}${query} ${status} ${max}
+  echo ""
+
+  __log_test_pass
+  return 0
+}
+
+# API Test function: V£ POST a1policymanagement/v1/policies
+# args: <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <template-file> [<count>]
+# args(V2): <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]
+# (Function for test scripts)
+a1pms_api_post_policy_v3() {
+  __log_test_start $@
+
+  if [ $# -lt 8 ] || [ $# -gt 9 ]; then
+    __print_err "<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]" $@
+    return 1
+  fi
+
+  count=0
+  max=1
+  serv=$2
+  ric=$3
+  pt=$4
+  pid=$5
+  trans=$6
+  noti=$7
+  temp=$8
+  if [ $# -eq 9 ]; then
+    max=$9
+  fi
+
+  while [ $count -lt $max ]; do
+    query="/v1/policies"
+
+    inputJson="\"nearRtRicId\":\"$ric\""
+    if [ $pt != "NOTYPE" ]; then
+      inputJson=$inputJson", \"policyTypeId\":\"$pt\""
+    else
+      inputJson=$inputJson", \"policyTypeId\":\"\""
+    fi
+    if [ $serv != "NOSERVICE" ]; then
+      inputJson=$inputJson", \"serviceId\":\"$serv\""
+    fi
+    if [ $noti != "NONOTIFYURL" ]; then
+      inputJson=$inputJson", \"statusNotificationUri\":\"$noti\""
+    fi
+    if [ $trans != "NOTRANSIENT" ]; then
+      inputJson=$inputJson", \"transient\":\"$trans\""
+    fi
+    file="./tmp/.p.json"
+    data=$(sed 's/XXX/'${pid}'/g' $temp)
+    inputJson=$inputJson", \"policyObject\":$data"
+    inputJson=$inputJson", \"policyId\":\"$UUID$pid\""
+    inputJson="{$inputJson}"
+    echo $inputJson >$file
+    res="$(__do_curl_to_api A1PMS POST $query $file)"
+    status=${res:${#res}-3}
+    echo -ne " Executing "$count"("$max")${SAMELINE}"
+    if [ $status -ne $1 ]; then
+      echo " Executed "$count"?("$max")"
+      __log_test_fail_status_code $1 $status
+      return 1
+    fi
+    let pid=$pid+1
+    let count=$count+1
+    echo -ne " Executed  "$count"("$max")${SAMELINE}"
+  done
+  __collect_endpoint_stats "A1PMS" 02 "PUT" ${A1PMS_API_PREFIX}${A1PMS_VERSION} ${status} ${max}
   echo ""
 
   __log_test_pass
@@ -1483,24 +1617,26 @@ a1pms_api_delete_policy() {
   while [ $count -lt $max ]; do
     if [ "$A1PMS_VERSION" == "V2" ]; then
       query="/v2/policies/"$UUID$pid
+    elif [ "$A1PMS_VERSION" == "V3" ]; then
+      query="/v1/policies/"$UUID$pid
     else
       query="/policy?id="$UUID$pid
     fi
     res="$(__do_curl_to_api A1PMS DELETE $query)"
     status=${res:${#res}-3}
-    echo -ne " Executing "$count"("$max")${SAMELINE}"
+    echo -ne " Executing "${count}"("${max}")${SAMELINE}"
 
     if [ $status -ne $1 ]; then
-      echo " Executed "$count"?("$max")"
+      echo " Executed "${count}"?("${max}")"
       __log_test_fail_status_code $1 $status
       return 1
     fi
 
     let pid=$pid+1
     let count=$count+1
-    echo -ne " Executed  "$count"("$max")${SAMELINE}"
+    echo -ne " Executed  "${count}"("${max}")${SAMELINE}"
   done
-  __collect_endpoint_stats "A1PMS" 03 "DELETE" $A1PMS_API_PREFIX"/v2/policies/{policy_id}" $status $max
+  __collect_endpoint_stats "A1PMS" 03 "DELETE" ${A1PMS_API_PREFIX}${query} ${status} ${max}
   echo ""
 
   __log_test_pass
@@ -1983,13 +2119,84 @@ a1pms_api_get_policy_ids() {
   return 0
 }
 
-# API Test function: V2 GET /v2/policy-types/{policyTypeId}
+# API Test function: V3 GET a1policymanagement/v1/policies
+# args: <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)
+# (Function for test scripts)
+a1pms_api_get_all_policies_v3() {
+  __log_test_start $@
+
+  if [ $# -lt 4 ]; then
+    __print_err "<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)" $@
+    return 1
+  fi
+
+  queryparams=""
+
+  if [ $2 != "NORIC" ]; then
+    queryparams="?nearRtRicId="$2
+  fi
+
+  if [ $3 != "NOSERVICE" ]; then
+    if [ -z $queryparams ]; then
+      queryparams="?serviceId="$3
+    else
+      queryparams=$queryparams"&serviceId="$3
+    fi
+  fi
+  if [ $4 != "NOTYPE" ]; then
+    if [ -z $queryparams ]; then
+      queryparams="?policyTypeId="$4
+    else
+      queryparams=$queryparams"&policyTypeId="$4
+    fi
+  fi
+
+  query="/v1/policies"$queryparams
+
+  res="$(__do_curl_to_api A1PMS GET $query)"
+  status=${res:${#res}-3}
+
+  if [ $status -ne $1 ]; then
+    __log_test_fail_status_code $1 $status
+    return 1
+  fi
+
+  if [ $# -gt 4 ]; then
+    body=${res:0:${#res}-3}
+    targetJson="["
+
+    for pid in ${@:5}; do
+      if [ "$targetJson" != "[" ]; then
+        targetJson=$targetJson","
+      fi
+      IFS=':' read -r policy_id ric_id <<<"$pid"
+      if [ $policy_id != "NOID" ]; then
+        targetJson=$targetJson"{ \"policyId\": \"${UUID}${policy_id}\", \"nearRtRicId\": \"$ric_id\" }"
+      fi
+    done
+
+    targetJson=$targetJson"]"
+    echo "TARGET JSON: $targetJson" >>$HTTPLOG
+    res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+    if [ $res -ne 0 ]; then
+      __log_test_fail_body
+      return 1
+    fi
+  fi
+
+  __collect_endpoint_stats "A1PMS" 04 "GET" ${A1PMS_API_PREFIX}${query} ${status}
+  __log_test_pass
+  return 0
+}
+
+# API Test function: V2 GET a1-policy/v2/policy-types/{policyTypeId} and V3 GET a1policymanagement/v1/policytypes/{policyTypeId}
 # args(V2): <response-code> <policy-type-id> [<schema-file>]
 # (Function for test scripts)
 a1pms_api_get_policy_type() {
   __log_test_start $@
 
-  if [ "$A1PMS_VERSION" != "V2" ]; then
+  if [ "$A1PMS_VERSION" != "V2" ] && [ "$A1PMS_VERSION" != "V3" ]; then
     __log_test_fail_not_supported
     return 1
   fi
@@ -1998,7 +2205,12 @@ a1pms_api_get_policy_type() {
     __print_err "<response-code> <policy-type-id> [<schema-file>]" $@
     return 1
   fi
-  query="/v2/policy-types/$2"
+  if [ "$A1PMS_VERSION" == "V2" ]; then
+    query="/v2/policy-types/$2"
+  fi
+  if [ "$A1PMS_VERSION" == "V3" ]; then
+    query="/v1/policytypes/$2"
+  fi
 
   res="$(__do_curl_to_api A1PMS GET $query)"
   status=${res:${#res}-3}
@@ -2013,7 +2225,11 @@ a1pms_api_get_policy_type() {
     body=${res:0:${#res}-3}
 
     targetJson=$(<$3)
-    targetJson="{\"policy_schema\":$targetJson}"
+    if [ "$A1PMS_VERSION" == "V2" ]; then
+      targetJson="{\"policy_schema\":$targetJson}"
+    elif [ "$A1PMS_VERSION" == "V3" ]; then
+      targetJson="$targetJson"
+    fi
     echo "TARGET JSON: $targetJson" >>$HTTPLOG
     res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
@@ -2023,7 +2239,7 @@ a1pms_api_get_policy_type() {
     fi
   fi
 
-  __collect_endpoint_stats "A1PMS" 05 "GET" $A1PMS_API_PREFIX"/v2/policy-types/{policyTypeId}" $status
+  __collect_endpoint_stats "A1PMS" 05 "GET" ${A1PMS_API_PREFIX}${query} ${status}
   __log_test_pass
   return 0
 }
@@ -2290,6 +2506,65 @@ a1pms_api_get_policy_types() {
   return 0
 }
 
+# API Test function:  V3 GET a1policymanagement/v1/policytypes
+# args: <response-code> [<ric-id>|NORIC [<policy-type-id>|EMPTY [<policy-type-id>]*]]
+# (Function for test scripts)
+a1pms_api_get_policy_types_v3() {
+  __log_test_start $@
+
+  if [ $# -lt 1 ]; then
+    __print_err "<response-code> [<ric-id>|NORIC [<policy-type-id>|EMPTY [<policy-type-id>]*]]" $@
+    return 1
+  fi
+
+  if [ $# -eq 1 ]; then
+    query="/v1/policytypes"
+  elif [ $2 == "NORIC" ]; then
+    query="/v1/policytypes"
+  else
+    query="/v1/policytypes?nearRtRicId=$2"
+  fi
+  res="$(__do_curl_to_api A1PMS GET $query)"
+  status=${res:${#res}-3}
+
+  if [ $status -ne $1 ]; then
+    __log_test_fail_status_code $1 $status
+    return 1
+  fi
+
+  if [ $# -gt 2 ]; then
+    body=${res:0:${#res}-3}
+    targetJson="["
+
+    for pid in ${@:3}; do
+      if [ "$targetJson" != "[" ]; then
+        targetJson=$targetJson","
+      fi
+      IFS=':' read -r policy_type_id ric_id <<<"$pid"
+      #			if [ -n "$policy_type_id" ] && [ -n "$ric_id" ]; then
+      if [ $policy_type_id == "EMPTY" ]; then
+        policy_type_id=""
+      fi
+      targetJson=$targetJson"{ \"policyTypeId\": \"$policy_type_id\", \"nearRtRicId\": \"$ric_id\" }"
+      #			fi
+    done
+
+    targetJson=$targetJson"]"
+
+    echo "TARGET JSON: $targetJson" >>$HTTPLOG
+    res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+    if [ $res -ne 0 ]; then
+      __log_test_fail_body
+      return 1
+    fi
+  fi
+
+  __collect_endpoint_stats "A1PMS" 09 "GET" ${A1PMS_API_PREFIX}${query} ${status}
+  __log_test_pass
+  return 0
+}
+
 #########################################################
 #### Test case functions Health check
 #########################################################
@@ -2320,7 +2595,7 @@ a1pms_api_get_status() {
     return 1
   fi
 
-  __collect_endpoint_stats "A1PMS" 10 "GET" ${A1PMS_API_PREFIX}${query} ${status}
+  __collect_endpoint_stats "A1PMS" 10 "GET" $A1PMS_API_PREFIX$query $status
   __log_test_pass
   return 0
 }
@@ -2355,7 +2630,7 @@ a1pms_api_get_status_root() {
 #### Test case functions RIC Repository
 #########################################################
 
-# API Test function: GET /ric and V2 GET /v2/rics/ric
+# API Test function: GET /ric, V2 GET /v2/rics/ric, and V3 GET a1policymanagement/v1/rics/ric
 # args: <reponse-code> <management-element-id> [<ric-id>]
 # (V2) args: <reponse-code> <management-element-id>|NOME <ric-id>|<NORIC> [<string-of-ricinfo>]
 # (V2) example of <string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2,4"
@@ -2408,9 +2683,52 @@ a1pms_api_get_ric() {
         return 1
       fi
     fi
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    if [ $# -lt 3 ]; then
+      __print_err "<reponseCode> <managementElementId>|NOME <ricId>|<NORIC> [stringOfRicInfo>]" $@
+      return 1
+    fi
+    search=""
+    if [ $2 != "NOME" ]; then
+      search="?managedElementId="$2
+    fi
+    if [ $3 != "NORIC" ]; then
+      if [ -z $search ]; then
+        search="?ricId="$3
+      else
+        search=$search"&ricId="$3
+      fi
+    fi
+    query="/v1/rics/ric"$search
+
+    res="$(__do_curl_to_api A1PMS GET $query)"
+    status=${res:${#res}-3}
+
+    if [ $status -ne $1 ]; then
+      __log_test_fail_status_code $1 $status
+      return 1
+    fi
+
+    if [ $# -gt 3 ]; then
+      body=${res:0:${#res}-3}
+      res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "${A1PMS_VERSION}" "$4")
+      if [ $res -ne 0 ]; then
+        __log_test_fail_general "Could not create target ric info json"
+        return 1
+      fi
+
+      targetJson=$(<./tmp/.tmp_rics.json)
+      targetJson=${targetJson:1:${#targetJson}-2} #remove array brackets
+      echo " TARGET JSON: $targetJson" >>$HTTPLOG
+      res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+      if [ $res -ne 0 ]; then
+        __log_test_fail_body
+        return 1
+      fi
+    fi
   else
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-      __print_err "<reponse-code> <management-element-id> [<ric-id>]" $@
+      __print_err "<reponseCode> <managedElementIds> [<ricId>]" $@
       return 1
     fi
 
@@ -2433,12 +2751,12 @@ a1pms_api_get_ric() {
     fi
   fi
 
-  __collect_endpoint_stats "A1PMS" 11 "GET" $A1PMS_API_PREFIX"/v2/rics/ric" $status
+  __collect_endpoint_stats "A1PMS" 11 "GET" ${A1PMS_API_PREFIX}${query} ${status}
   __log_test_pass
   return 0
 }
 
-# API test function: GET /rics and V2 GET /v2/rics
+# API test function: GET /rics, V2 GET /v2/rics, and V3 GET /a1policymanagement/v1/rics
 # args: <reponse-code> <policy-type-id>|NOTYPE [<space-separate-string-of-ricinfo>]
 # example of <space-separate-string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2,4 ricsim_g1_1:me2_........."
 # format of ric-info:  <ric-id>:<list-of-mes>:<list-of-policy-type-ids>
@@ -2455,6 +2773,11 @@ a1pms_api_get_rics() {
     query="/v2/rics"
     if [ $2 != "NOTYPE" ]; then
       query="/v2/rics?policytype_id="$2
+    fi
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    query="/v1/rics"
+    if [ $2 != "NOTYPE" ]; then
+      query=${query}"?policyTypeId="$2
     fi
   else
     query="/rics"
@@ -2473,18 +2796,14 @@ a1pms_api_get_rics() {
 
   if [ $# -gt 2 ]; then
     body=${res:0:${#res}-3}
-    if [ "$A1PMS_VERSION" == "V2" ]; then
-      res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "V2" "$3")
-    else
-      res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "V1" "$3")
-    fi
+    res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "${A1PMS_VERSION}" "$3")
     if [ $res -ne 0 ]; then
       __log_test_fail_general "Could not create target ric info json"
       return 1
     fi
 
     targetJson=$(<./tmp/.tmp_rics.json)
-    if [ "$A1PMS_VERSION" == "V2" ]; then
+    if [ "$A1PMS_VERSION" == "V2" ] || [ "$A1PMS_VERSION" == "V3" ]; then
       targetJson="{\"rics\": $targetJson }"
     fi
     echo "TARGET JSON: $targetJson" >>$HTTPLOG
@@ -2495,7 +2814,7 @@ a1pms_api_get_rics() {
     fi
   fi
 
-  __collect_endpoint_stats "A1PMS" 12 "GET" $A1PMS_API_PREFIX"/v2/rics" $status
+  __collect_endpoint_stats "A1PMS" 12 "GET" ${A1PMS_API_PREFIX}${query} ${status}
   __log_test_pass
   return 0
 }
@@ -2535,12 +2854,12 @@ a1pms_api_put_service() {
     return 1
   fi
 
-  __collect_endpoint_stats "A1PMS" 13 "PUT" ${A1PMS_API_PREFIX}${query} ${status}
+  __collect_endpoint_stats "A1PMS" 13 "PUT" $A1PMS_API_PREFIX$query $status
   __log_test_pass
   return 0
 }
 
-# API test function: GET /services and V2 GET /v2/services
+# API test function: GET /services, V2 GET /v2/services and V3 /a1policymanagement/v1/services
 #args: <response-code> [ (<query-service-name> <target-service-name> <keepalive-timeout> <callbackurl>) | (NOSERVICE <target-service-name> <keepalive-timeout> <callbackurl> [<target-service-name> <keepalive-timeout> <callbackurl>]* )]
 # (Function for test scripts)
 a1pms_api_get_services() {
@@ -2567,9 +2886,13 @@ a1pms_api_get_services() {
 
   if [ "$A1PMS_VERSION" == "V2" ]; then
     query="/v2/services"
-
     if [ $# -gt 1 ] && [ $2 != "NOSERVICE" ]; then
       query="/v2/services?service_id="$2
+    fi
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    query="/v1/services"
+    if [ $# -gt 1 ] && [ $2 != "NOSERVICE" ]; then
+      query="/v1/services?serviceId="$2
     fi
   else
     query="/services"
@@ -2606,6 +2929,8 @@ a1pms_api_get_services() {
       # timeSinceLastActivitySeconds value cannot be checked since value varies
       if [ "$A1PMS_VERSION" == "V2" ]; then
         targetJson=$targetJson"{\"service_id\": \""$servicename"\",\"keep_alive_interval_seconds\": "$timeout",\"time_since_last_activity_seconds\":\"????\",\"callback_url\": \""$callback"\"}"
+      elif [ "$A1PMS_VERSION" == "V3" ]; then
+        targetJson=$targetJson"{\"serviceId\": \""$servicename"\",\"keepAliveIntervalSeconds\": "$timeout",\"timeSinceLastActivitySeconds\":\"????\",\"callbackUrl\": \""$callback"\"}"
       else
         targetJson=$targetJson"{\"serviceName\": \""$servicename"\",\"keepAliveIntervalSeconds\": "$timeout",\"timeSinceLastActivitySeconds\":\"????\",\"callbackUrl\": \""$callback"\"}"
       fi
@@ -2614,6 +2939,10 @@ a1pms_api_get_services() {
     targetJson=$targetJson"]"
     if [ "$A1PMS_VERSION" == "V2" ]; then
       targetJson="{\"service_list\": $targetJson }"
+      URL_for_Collect_End_Point="/v2/services"
+    elif [ "$A1PMS_VERSION" == "V3" ]; then
+      targetJson="{\"serviceList\": $targetJson }"
+      URL_for_Collect_End_Point="/v1/services"
     fi
     echo "TARGET JSON: $targetJson" >>$HTTPLOG
     res=$(python3 ../common/compare_json.py "$targetJson" "$body")
@@ -2623,12 +2952,12 @@ a1pms_api_get_services() {
     fi
   fi
 
-  __collect_endpoint_stats "A1PMS" 14 "GET" $A1PMS_API_PREFIX"/v2/services" $status
+  __collect_endpoint_stats "A1PMS" 14 "GET" $A1PMS_API_PREFIX$URL_for_Collect_End_Point $status
   __log_test_pass
   return 0
 }
 
-# API test function: GET /services V2 GET /v2/services -  (only checking service names)
+# API test function: GET /services, V2 GET /v2/services and V3 /a1policymanagement/v1/services -  (only checking service names)
 # args: <response-code> [<service-name>]*"
 # (Function for test scripts)
 a1pms_api_get_service_ids() {
@@ -2641,6 +2970,8 @@ a1pms_api_get_service_ids() {
 
   if [ "$A1PMS_VERSION" == "V2" ]; then
     query="/v2/services"
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    query="/v1/services"
   else
     query="/services"
   fi
@@ -2660,6 +2991,8 @@ a1pms_api_get_service_ids() {
     fi
     if [ "$A1PMS_VERSION" == "V2" ]; then
       targetJson=$targetJson"{\"callback_url\":\"????\",\"keep_alive_interval_seconds\":\"????\",\"service_id\":\""$rapp"\",\"time_since_last_activity_seconds\":\"????\"}"
+    elif [ "$A1PMS_VERSION" == "V3" ]; then
+      targetJson=$targetJson"{\"callbackUrl\":\"????\",\"keepAliveIntervalSeconds\":\"????\",\"serviceId\":\""$rapp"\",\"timeSinceLastActivitySeconds\":\"????\"}"
     else
       targetJson=$targetJson"{\"callbackUrl\":\"????\",\"keepAliveIntervalSeconds\":\"????\",\"serviceName\":\""$rapp"\",\"timeSinceLastActivitySeconds\":\"????\"}"
     fi
@@ -2668,6 +3001,10 @@ a1pms_api_get_service_ids() {
   targetJson=$targetJson"]"
   if [ "$A1PMS_VERSION" == "V2" ]; then
     targetJson="{\"service_list\": $targetJson }"
+    URL_for_Collect_End_Point="/v2/services"
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    targetJson="{\"serviceList\": $targetJson }"
+    URL_for_Collect_End_Point="/v1/services"
   fi
   echo "TARGET JSON: $targetJson" >>$HTTPLOG
   res=$(python3 ../common/compare_json.py "$targetJson" "$body")
@@ -2677,7 +3014,7 @@ a1pms_api_get_service_ids() {
     return 1
   fi
 
-  __collect_endpoint_stats "A1PMS" 14 "GET" $A1PMS_API_PREFIX"/v2/services" $status
+  __collect_endpoint_stats "A1PMS" 14 "GET" $A1PMS_API_PREFIX$URL_for_Collect_End_Point $status
   __log_test_pass
   return 0
 }
@@ -2693,7 +3030,11 @@ a1pms_api_delete_services() {
     return 1
   fi
   if [ "$A1PMS_VERSION" == "V2" ]; then
-    query="/v2/services/"$2
+    url_part="/v2/services/"
+    query=${url_part}${2}
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    url_part="/v1/services/"
+    query=${url_part}${2}
   else
     query="/services?name="$2
   fi
@@ -2705,7 +3046,7 @@ a1pms_api_delete_services() {
     return 1
   fi
 
-  __collect_endpoint_stats "A1PMS" 15 "DELETE" $A1PMS_API_PREFIX"/v2/services/{serviceId}" $status
+  __collect_endpoint_stats "A1PMS" 15 "DELETE" ${A1PMS_API_PREFIX}${url_part}"{serviceId}" $status
   __log_test_pass
   return 0
 }
@@ -2782,7 +3123,7 @@ a1pms_api_put_configuration() {
     return 1
   fi
 
-  __collect_endpoint_stats "A1PMS" 17 "PUT" ${A1PMS_API_PREFIX}${query} ${status}
+  __collect_endpoint_stats "A1PMS" 17 "PUT" $A1PMS_API_PREFIX$query $status
   __log_test_pass
   return 0
 }
@@ -2793,7 +3134,7 @@ a1pms_api_put_configuration() {
 a1pms_api_get_configuration() {
   __log_test_start $@
 
-  if [ "$A1PMS_VERSION" != "V2" ]; then
+  if [ "$A1PMS_VERSION" != "V2" ] && [ "$A1PMS_VERSION" != "V3" ]; then
     __log_test_fail_not_supported
     return 1
   fi
@@ -2807,7 +3148,12 @@ a1pms_api_get_configuration() {
     return 1
   fi
 
-  query="/v2/configuration"
+  if [ "$A1PMS_VERSION" == "V3" ]; then
+    #The V3 of a1-pms URL is a1policymanagement/v1 and the v2 is a1-policy/v2
+    query="/v1/configuration"
+  else
+    query="/v2/configuration"
+  fi
   res="$(__do_curl_to_api A1PMS GET $query)"
   status=${res:${#res}-3}
 
@@ -2833,7 +3179,11 @@ a1pms_api_get_configuration() {
     fi
   fi
 
-  __collect_endpoint_stats "A1PMS" 18 "GET" $A1PMS_API_PREFIX"/v2/configuration" $status
+  if [ "$A1PMS_VERSION" == "V3" ]; then
+    __collect_endpoint_stats "A1PMS" 18 "GET" $A1PMS_API_PREFIX"/v1/configuration" $status
+  else
+    __collect_endpoint_stats "A1PMS" 18 "GET" $A1PMS_API_PREFIX"/v2/configuration" $status
+  fi
   __log_test_pass
   return 0
 }
