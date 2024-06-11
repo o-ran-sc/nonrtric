@@ -3019,7 +3019,7 @@ a1pms_api_get_service_ids() {
   return 0
 }
 
-# API test function: DELETE /services and V2 DELETE /v2/services/{serviceId}
+# API test function: DELETE /services, V2 DELETE /v2/services/{serviceId} and V3 DELETE a1policymanagement/v1/services/{serviceId}
 # args: <response-code> <service-name>
 # (Function for test scripts)
 a1pms_api_delete_services() {
@@ -3051,7 +3051,7 @@ a1pms_api_delete_services() {
   return 0
 }
 
-# API test function: PUT /services/keepalive and V2 PUT /v2/services/{service_id}/keepalive
+# API test function: PUT /services/keepalive, V2 PUT /v2/services/{service_id}/keepalive and V3 DELETE a1policymanagement/v1/services/{serviceId}
 # args: <response-code> <service-name>
 # (Function for test scripts)
 a1pms_api_put_services_keepalive() {
@@ -3063,19 +3063,26 @@ a1pms_api_put_services_keepalive() {
   fi
   if [ "$A1PMS_VERSION" == "V2" ]; then
     query="/v2/services/$2/keepalive"
+  elif [ "$A1PMS_VERSION" == "V3" ]; then
+    query="/v1/services/$2/keepalive"
   else
     query="/services/keepalive?name="$2
   fi
 
-  res="$(__do_curl_to_api A1PMS PUT $query)"
+  if [ "$A1PMS_VERSION" == "V3" ]; then
+    empty_json_body={}
+    res="$(__do_curl_to_api A1PMS PUT ${query} ${empty_json_body})"
+  else
+    res="$(__do_curl_to_api A1PMS PUT ${query})"
+  fi
   status=${res:${#res}-3}
 
   if [ $status -ne $1 ]; then
-    __log_test_fail_status_code $1 $status
+    __log_test_fail_status_code ${1} ${status}
     return 1
   fi
 
-  __collect_endpoint_stats "A1PMS" 16 "PUT" $A1PMS_API_PREFIX"/v2/services/{service_id}/keepalive" $status
+  __collect_endpoint_stats "A1PMS" 16 "PUT" ${A1PMS_API_PREFIX}${query} ${status}
   __log_test_pass
   return 0
 }
