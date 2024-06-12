@@ -1594,7 +1594,7 @@ a1pms_api_update_policy_parallel() {
   return 1
 }
 
-# API Test function: DELETE /policy and V2 DELETE /v2/policies/{policy_id}
+# API Test function: DELETE /policy, V2 DELETE /v2/policies/{policy_id} and V3 DELETE a1policymanagement/v1/policies/{policy_id}
 # args: <response-code> <policy-id> [count]
 # (Function for test scripts)
 a1pms_api_delete_policy() {
@@ -2823,7 +2823,7 @@ a1pms_api_get_rics() {
 #### API Test case functions Service registry and supervision ####
 ##################################################################
 
-# API test function: PUT /service and V2 PUT /service
+# API test function: PUT /service, V2 PUT /service and V3 PUT a1policymanagement/v1/services
 # args: <response-code>  <service-name> <keepalive-timeout> <callbackurl>
 # (Function for test scripts)
 a1pms_api_put_service() {
@@ -3091,7 +3091,7 @@ a1pms_api_put_services_keepalive() {
 #### API Test case functions Configuration                    ####
 ##################################################################
 
-# API Test function: PUT "/v2/configuration" or "/v1/configuration"
+# API Test function: PUT "/v2/configuration" or V3 PUT "a1policymanagement/v1/configuration"
 # args: <response-code> <config-file>
 # (Function for test scripts)
 a1pms_api_put_configuration() {
@@ -3135,7 +3135,7 @@ a1pms_api_put_configuration() {
   return 0
 }
 
-# API Test function: GET /v2/configuration
+# API Test function: GET /v2/configuration and V3 GET a1policymanagement/v1/configuration
 # args: <response-code> [<config-file>]
 # (Function for test scripts)
 a1pms_api_get_configuration() {
