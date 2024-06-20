@@ -18,6 +18,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "789db2f2_c29200eb",
+        "filename": "test/auto-test/FTC110.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-06-20T12:29:20Z",
+      "side": 1,
+      "message": "Since it does not affect the expected behaviour, I will address this comment in the Jira issue \u0027NONRTRIC-1015\u0027.",
+      "parentUuid": "3a50cfbd_5050be24",
+      "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c7fda37_309f5175",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-06-12T13:40:29Z",
       "side": 1,
       "message": "looks like unnecessary whitespace",
+      "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8bcdbde_beab3b47",
+        "filename": "test/auto-test/FTC110.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-06-20T12:29:20Z",
+      "side": 1,
+      "message": "Since it does not affect the expected behaviour, I will address this comment in the Jira issue \u0027NONRTRIC-1015\u0027.",
+      "parentUuid": "0c7fda37_309f5175",
       "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
@@ -52,6 +88,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f8e5651_5ae97b40",
+        "filename": "test/auto-test/FTC110.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-06-20T12:29:20Z",
+      "side": 1,
+      "message": "Since it does not affect the expected behaviour, I will address this comment in the Jira issue \u0027NONRTRIC-1015\u0027.",
+      "parentUuid": "3f78bfdb_12ab4d14",
+      "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5698cf3_7dcf1045",
@@ -69,6 +123,24 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb0bbe95_abe7f48d",
+        "filename": "test/auto-test/FTC110.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-06-20T12:29:20Z",
+      "side": 1,
+      "message": "Since it does not affect the expected behaviour, I will address this comment in the Jira issue \u0027NONRTRIC-1015\u0027.",
+      "parentUuid": "f5698cf3_7dcf1045",
+      "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "32e7ae5e_05b095a0",
@@ -82,6 +154,24 @@
       "writtenOn": "2024-06-12T13:40:29Z",
       "side": 1,
       "message": "We have $A1PMS_VERSION \u003d\u003d V3, but the query is /v1. \nJust checking if this is what was intended.",
+      "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b916dfce_f036a1be",
+        "filename": "test/common/a1pms_api_functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3067,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-06-20T12:29:20Z",
+      "side": 1,
+      "message": "yes, V3 has the new baseURL \u0027a1policymanagement/v1/",
+      "parentUuid": "32e7ae5e_05b095a0",
       "revId": "7168be36cf75334ac24d3543f7359161d01779f3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
