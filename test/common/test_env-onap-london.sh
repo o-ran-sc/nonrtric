@@ -16,7 +16,7 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ONAP honolulu release
+#Profile for ONAP london release
 TEST_ENV_PROFILE="ONAP-LONDON"
 FLAVOUR="ONAP"
 
