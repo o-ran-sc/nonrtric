@@ -35,7 +35,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-KOHN ONAP-LONDON ONAP-MONTREAL  ORAN-G-RELEASE ORAN-H-RELEASE ORAN-I-RELEASE"
+SUPPORTED_PROFILES="ONAP-KOHN ONAP-LONDON ONAP-MONTREAL ONAP-NEWDELHI ORAN-G-RELEASE ORAN-H-RELEASE ORAN-I-RELEASE ORAN-J-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -284,7 +284,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   fi
 
   check_a1pms_logs
-
+done
   #### TEST COMPLETE ####
 
   store_logs          END
@@ -292,4 +292,3 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   print_result
 
   auto_clean_environment
-done
