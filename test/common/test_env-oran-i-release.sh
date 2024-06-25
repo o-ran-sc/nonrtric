@@ -17,7 +17,7 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ORAN H release
+#Profile for ORAN I release
 TEST_ENV_PROFILE="ORAN-I-RELEASE"
 FLAVOUR="ORAN"
 
