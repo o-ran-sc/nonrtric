@@ -1,8 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,8 +16,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ONAP montreal release
-TEST_ENV_PROFILE="ONAP-MONTREAL"
+#Profile for ONAP new delhi release
+TEST_ENV_PROFILE="ONAP-NEWDELHI"
 FLAVOUR="ONAP"
 
 ########################################
@@ -70,17 +69,17 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # A1PMS image and tags
 A1PMS_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="1.6.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.6.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="1.6.1-STAGING-latest" #Will use snapshot repo
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.6.1"
+A1PMS_IMAGE_TAG_LOCAL="1.7.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.7.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="1.7.0-STAGING-latest" #Will use snapshot repo
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.7.0"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.5.1-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.5.1-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.5.1-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.5.1"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.6.1-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.6.1-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.6.1-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.6.1"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
@@ -107,7 +106,7 @@ RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.2.0"
 
 # Near RT RIC Simulator image and tags - used i release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.6.1"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.7.0"
 
 #MR stub image and tag
 MRSTUB_IMAGE_BASE="mrstub"
@@ -186,10 +185,10 @@ A1PMS_EXTERNAL_SECURE_PORT=8433                            # A1PMS container ext
 A1PMS_INTERNAL_SECURE_PORT=8433                            # A1PMS container internal secure port (container -> container)
 A1PMS_APIS="V1 V2"                                         # Supported northbound api versions
 A1PMS_VERSION="V2"                                         # Tested version of northbound API
-# A1PMS_V3="V3"                                            # To be used this property in further env releases
+A1PMS_V3="V3"                                            # To be used this property in further env releases
 A1PMS_API_PREFIX="/a1-policy"                              # api url prefix, only for V2. Shall contain leading "/"
-# A1PMS_API_PREFIX_V3="/a1policymanagement"                # To be used this property in further env releases
-# A1PMS_V3_FLAG="true"                                       # To be used this property in further env releases
+A1PMS_API_PREFIX_V3="/a1policymanagement"                # To be used this property in further env releases
+A1PMS_V3_FLAG="true"                                       # To be used this property in further env releases
 
 A1PMS_APP_NAME="policymanagementservice"                   # Name for A1PMS container
 A1PMS_DISPLAY_NAME="Policy Management Service"
@@ -200,7 +199,7 @@ A1PMS_CONFIG_KEY="policy-agent"                            # Key for consul conf
 A1PMS_PKG_NAME="org.onap.ccsdk.oran.a1policymanagementservice"  # Java base package name
 A1PMS_ACTUATOR="/actuator/loggers/$A1PMS_PKG_NAME"           # Url for trace/debug
 A1PMS_ALIVE_URL="$A1PMS_API_PREFIX/v2/status"                # Base path for alive check
-# A1PMS_ALIVE_URL_V3=/v1/status                            # To be used this property in further env releases
+A1PMS_ALIVE_URL_V3=/v1/status                            # To be used this property in further env releases
 A1PMS_COMPOSE_DIR="a1pms"                                    # Dir in simulator_group for docker-compose
 A1PMS_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config"     # Path in container for config file
 A1PMS_DATA_MOUNT_PATH="/opt/app/policy-agent/data"         # Path in container for data file
