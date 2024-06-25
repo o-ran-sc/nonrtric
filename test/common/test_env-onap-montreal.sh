@@ -17,7 +17,7 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ONAP honolulu release
+#Profile for ONAP montreal release
 TEST_ENV_PROFILE="ONAP-MONTREAL"
 FLAVOUR="ONAP"
 
@@ -70,10 +70,10 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # A1PMS image and tags
 A1PMS_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="1.6.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.6.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="1.6.1-STAGING-latest" #Will use snapshot repo
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.6.1"
+A1PMS_IMAGE_TAG_LOCAL="1.6.4-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="1.6.4-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="1.6.4-STAGING-latest" #Will use snapshot repo
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="1.6.3"
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
