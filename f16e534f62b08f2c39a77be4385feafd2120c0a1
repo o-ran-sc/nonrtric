@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d6d2812_07cc72f1",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-06-26T09:53:59Z",
+      "side": 1,
+      "message": "new dlhi",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "f16e534f62b08f2c39a77be4385feafd2120c0a1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
