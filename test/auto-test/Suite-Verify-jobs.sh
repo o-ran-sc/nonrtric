@@ -32,3 +32,5 @@ suite_setup
 ##########################################
 
 suite_complete
+
+exit

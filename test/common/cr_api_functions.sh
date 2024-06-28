@@ -444,7 +444,7 @@ cr_delay_callback() {
 cr_api_check_all_sync_events() {
 	__log_test_start $@
 
-	if [ "$A1PMS_VERSION" != "V2" ]; then
+	if [ "$A1PMS_VERSION" != "V2" ] && [ "$A1PMS_VERSION" != "V3" ]; then
 		__log_test_fail_not_supported
 		return 1
 	fi

@@ -2863,15 +2863,15 @@ clean_environment() {
 	if [ $RUNMODE == "KUBE" ]; then
 		__clean_kube
 		if [ $PRE_CLEAN -eq 1 ]; then
-			echo " Cleaning docker resouces to free up resources, may take time..."
-			../common/clean_docker.sh 2>&1 > /dev/null
+			echo " Cleaning kubernetes resources to free up resources, may take time..."
+			../common/clean_kube.sh $KUBECONF 2>&1 > /dev/null
 			echo ""
 		fi
 	else
 		__clean_containers
 		if [ $PRE_CLEAN -eq 1 ]; then
-			echo " Cleaning kubernetes resouces to free up resources, may take time..."
-			../common/clean_kube.sh $KUBECONF 2>&1 > /dev/null
+			echo " Cleaning docker resources to free up resources, may take time..."
+			../common/clean_docker.sh 2>&1 > /dev/null
 			echo ""
 		fi
 	fi
@@ -3055,7 +3055,7 @@ __check_service_start() {
 				#If response is too long, truncate
 				result="...response text too long, omitted"
 			fi
-			echo -ne " Waiting for {ENTITY} $BOLD${appname}$EBOLD service status on ${3}, result: $result${SAMELINE}"
+			echo -ne " Waiting for ${ENTITY} $BOLD${appname}$EBOLD service status on ${url}, result: $result${SAMELINE}"
 	   		echo -ne " The ${ENTITY} $BOLD${appname}$EBOLD$GREEN is alive$EGREEN, responds to service status:$GREEN $result $EGREEN on ${url} after $(($SECONDS-$TSTART)) seconds"
 	   		a1pmsst=true
 	   		break

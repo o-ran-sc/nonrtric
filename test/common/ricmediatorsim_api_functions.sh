@@ -2,6 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -433,7 +434,7 @@ ricmediatorsim_put_policy_type() {
 		return 1
 	fi
 	host=$(__find_ricmediatorsim_host $2)
-    curlString="curl -X PUT -skw %{http_code} "$host"/a1-p/policytypes/"$3" -H Content-Type:application/json --data-binary @"$4
+    curlString="curl -X PUT -skw %{http_code} "$host"/A1-P/v2/policytypes/"$3" -H Content-Type:application/json --data-binary @"$4
 	__execute_curl_to_ricmediatorsim $1 "$curlString"
 	return $?
 }
@@ -448,7 +449,7 @@ ricmediatorsim_delete_policy_type() {
 		return 1
 	fi
 	host=$(__find_ricmediatorsim_host $2)
-    curlString="curl -X DELETE -skw %{http_code} "$host"/a1-p/policytypes/"$3
+    curlString="curl -X DELETE -skw %{http_code} "$host"/A1-P/v2/policytypes/"$3
     __execute_curl_to_ricmediatorsim $1 "$curlString"
 	return $?
 }

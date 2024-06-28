@@ -2,6 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=" "
 CONDITIONALLY_IGNORED_IMAGES=""
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON  ORAN-F-RELEASE ORAN-G-RELEASE ORAN-H-RELEASE"
+SUPPORTED_PROFILES="ONAP-KOHN ONAP-LONDON ONAP-MONTREAL  ORAN-G-RELEASE ORAN-H-RELEASE ORAN-I-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -127,9 +128,14 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
         controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000
-
-        VAL='NOT_ENFORCED'
-        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "OTHER_REASON"
+        if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-L] ]]; then
+          VAL='NOT IN EFFECT'
+          VAL2="false"
+        else
+          VAL='NOT_ENFORCED'
+          VAL2="OTHER_REASON"
+        fi
+        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "$VAL2"
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
 
         RESP=202
