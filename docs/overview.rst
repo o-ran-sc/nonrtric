@@ -25,7 +25,7 @@ The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp 
 
 Find detailed description of the NONRTRIC project see the `O-RAN SC NONRTRIC Project Wiki <nonrtricwiki_>`_.
 
-NONRTRIC Components
+NONRTRIC components
 -------------------
 
 These are the components that make up the Non-RT-RIC:
@@ -49,6 +49,7 @@ These are the components that make up the Non-RT-RIC:
 
   * "Helloworld" O-RU Fronthaul Recovery use case.  (:doc:`Documentation site <orufhrecovery:index>`).
   * "Helloworld" O-DU Slice Assurance use case.  (:doc:`Documentation site <ransliceassurance:index>`).
+
 
 Non-RT-RIC Control Panel / NONRTRIC Dashboard
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -209,10 +210,10 @@ Implementation:
 Initial Kubernetes Helm Chart LCM Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Onboard, start, stop, and modify Non-RT-RIC App microservices as Helm Charts.
-*A building block for coming releases as the RAPP concept matures*.
+Onboard, start, stop, and modify Non-RT-RIC App ÂµServices as Helm Charts.
+*A building block for coming releases as the R-APP concept matures*.
 
-- Interfaces that accepts Non-RT-RIC App microservices Helm Charts.
+- Interfaces that accepts Non-RT-RIC App ÂµServices Helm Charts.
 - Support basic LCM operations.
 - Onboard, Start, Stop, Modify, Monitor.
 - Initial version co-developed with v. similar functions in ONAP.

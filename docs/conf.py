@@ -19,21 +19,21 @@ from docs_conf.conf import *
 
 ## Update here to configure which branch is used. 
 #branch configurations
-controlpanelbranch = 'i-release'
-simulatorbranch = 'i-release'
-dmaapmediatorproducerbranch = 'i-release'
-dmaapadapterbranch = 'i-release'
-informationcoordinatorservicebranch = 'i-release'
-rappcataloguebranch = 'i-release'
-rappmanagerbranch = 'i-release'
-helmmanagerbranch = 'i-release'
+controlpanelbranch = 'latest'
+simulatorbranch = 'latest'
+dmaapmediatorproducerbranch = 'latest'
+dmaapadapterbranch = 'latest'
+informationcoordinatorservicebranch = 'latest'
+rappcataloguebranch = 'latest'
+rappmanagerbranch = 'latest'
+helmmanagerbranch = 'latest'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
-authtokenfetchbranch = 'i-release'
-a1policymanagementservicebranch = 'i-release'
-smebranch = 'i-release'
-ranpmbranch = 'i-release'
-onapbranch = 'montreal'
+authtokenfetchbranch = 'latest'
+a1policymanagementservicebranch = 'latest'
+smebranch = 'latest'
+ranpmbranch = 'latest'
+onapbranch = 'latest'
 # Add some useful links available in every page
 rst_epilog = """
 .. _nonrtricwiki: https://wiki.o-ran-sc.org/display/RICNR/

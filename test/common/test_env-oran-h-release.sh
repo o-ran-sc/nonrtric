@@ -2,6 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023-2024 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -131,7 +132,7 @@ RIC_SIM_IMAGE_TAG_REMOTE_RELEASE="2.5.0"
 
 # ORAN Near RT RIC Simulator image and tags
 RICMEDIATOR_SIM_IMAGE_BASE="o-ran-sc/ric-plt-a1"
-RICMEDIATOR_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="3.0.1"
+RICMEDIATOR_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="3.1.1"
 
 # ORAN Near RT RIC Simulator DB image and tags
 RICMEDIATOR_SIM_DB_IMAGE_BASE="o-ran-sc/ric-plt-dbaas"
@@ -288,7 +289,7 @@ A1PMS_DATA_FILE="application_configuration.json"           # Container data file
 A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the container
 A1PMS_FEATURE_LEVEL="NO-DMAAP ADAPTER-CLASS"               # Space separated list of features
 A1PMS_ADAPTER_CLASS=""                                     # Class name set by override file
-A1PMS_ADAPTER_POLICY_NAME=""                               # Policy name set by override file
+A1PMS_ADAPTER_POLICY_TYPE=""                               # Policy type set by override file
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container

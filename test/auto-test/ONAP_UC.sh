@@ -2,6 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW"
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-JAKARTA ONAP-KOHN ONAP-LONDON "
+SUPPORTED_PROFILES="ONAP-KOHN ONAP-LONDON ONAP-MONTREAL"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -282,11 +283,17 @@ for interface in $TESTED_VARIANTS ; do
     done
 
     # Check status OSC
-    VAL='NOT IN EFFECT'
+    if [[ $TEST_ENV_PROFILE =~ ^ORAN-[A-H] ]] || [[ $TEST_ENV_PROFILE =~ ^ONAP-[A-L] ]]; then
+      VAL='NOT IN EFFECT'
+      VAL2="false"
+    else
+      VAL='NOT_ENFORCED'
+      VAL2="OTHER_REASON"
+    fi
     for ((i=1; i<=$OSC_NUM_RICS; i++))
     do
-        a1pms_api_get_policy_status 200 $((3000+$i)) OSC "$VAL" "false"
-        a1pms_api_get_policy_status 200 $((4000+$i)) OSC "$VAL" "false"
+        a1pms_api_get_policy_status 200 $((3000+$i)) OSC "$VAL" "$VAL2"
+        a1pms_api_get_policy_status 200 $((4000+$i)) OSC "$VAL" "$VAL2"
     done
 
     # Note: Status callback is not tested since this callback (http POST) is made from the

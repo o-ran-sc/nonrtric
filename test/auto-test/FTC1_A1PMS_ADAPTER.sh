@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2020 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023-2024 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW "
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ORAN-H-RELEASE ONAP-LONDON"
+SUPPORTED_PROFILES="ORAN-I-RELEASE ONAP-MONTREAL"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -140,7 +141,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         sim_put_policy_type 201 ricsim_g1_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
-        sim_put_policy_type 201 ricsim_g2_1 $A1PMS_ADAPTER_POLICY_NAME testdata/STD2/sim_qos.json
+        sim_put_policy_type 201 ricsim_g2_1 $A1PMS_ADAPTER_POLICY_TYPE testdata/STD2/sim_qos.json
 
         a1pms_equal json:rics 2 300
 
@@ -176,7 +177,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############## RIC Repository ##############"
         echo "############################################"
 
-        a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:STD_QOS_0_2_0:AVAILABLE ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:$A1PMS_ADAPTER_POLICY_NAME:AVAILABLE"
+        a1pms_api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:STD_QOS_0_2_0:AVAILABLE ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:$A1PMS_ADAPTER_POLICY_TYPE:AVAILABLE"
 
         echo "############################################"
         echo "########### A1 Policy Management ###########"
@@ -187,8 +188,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         a1pms_api_put_policy 201 "serv1" ricsim_g1_1 STD_QOS_0_2_0 5000 true $notificationurl testdata/STD2/pi_qos_template.json
         a1pms_api_put_policy 200 "serv1" ricsim_g1_1 STD_QOS_0_2_0 5000 true $notificationurl testdata/STD2/pi_qos_template.json
 
-        a1pms_api_put_policy 201 "serv1" ricsim_g2_1 $A1PMS_ADAPTER_POLICY_NAME 5100 true $notificationurl testdata/STD2/pi_qos_template.json
-        a1pms_api_put_policy 200 "serv1" ricsim_g2_1 $A1PMS_ADAPTER_POLICY_NAME 5100 true $notificationurl testdata/STD2/pi_qos_template.json
+        a1pms_api_put_policy 201 "serv1" ricsim_g2_1 $A1PMS_ADAPTER_POLICY_TYPE 5100 true $notificationurl testdata/STD2/pi_qos_template.json
+        a1pms_api_put_policy 200 "serv1" ricsim_g2_1 $A1PMS_ADAPTER_POLICY_TYPE 5100 true $notificationurl testdata/STD2/pi_qos_template.json
 
         a1pms_equal json:policies 2
 

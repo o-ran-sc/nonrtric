@@ -42,6 +42,11 @@ try:
         param_me='managed_element_ids'
         param_policy_type='policytype_ids'
         param_state='state'
+    elif (api_version == "V3"):
+        param_ric='ricId'
+        param_me='managedElementIds'
+        param_policy_type='policyTypeIds'
+        param_state='state'
     else:
         param_ric='ricName'
         param_me='managedElementIds'
