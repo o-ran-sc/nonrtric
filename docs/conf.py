@@ -1,6 +1,6 @@
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2019-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,26 +20,26 @@ from docs_conf.conf import *
 ## Update here to configure which branch is used. 
 #branch configurations
 controlpanelbranch = 'latest'
-simulatorbranch = 'latest'
+simulatorbranch = 'j-release'
 dmaapmediatorproducerbranch = 'latest'
-dmaapadapterbranch = 'latest'
+dmaapadapterbranch = 'j-release'
 informationcoordinatorservicebranch = 'latest'
-rappcataloguebranch = 'latest'
-rappmanagerbranch = 'latest'
+rappcataloguebranch = 'j-release'
+rappmanagerbranch = 'j-release'
 helmmanagerbranch = 'latest'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
 authtokenfetchbranch = 'latest'
-a1policymanagementservicebranch = 'latest'
-smebranch = 'latest'
+a1policymanagementservicebranch = 'j-release'
+smebranch = 'j-release'
 ranpmbranch = 'latest'
 onapbranch = 'latest'
 # Add some useful links available in every page
 rst_epilog = """
 .. _nonrtricwiki: https://wiki.o-ran-sc.org/display/RICNR/
-.. _nonrtricwikidevguide: https://wiki.o-ran-sc.org/display/RICNR/Release+I
-.. _nonrtricwikik8s: https://wiki.o-ran-sc.org/display/RICNR/Release+I+-+Run+in+Kubernetes
-.. _nonrtricwikidocker: https://wiki.o-ran-sc.org/display/RICNR/Release+I+-+Run+in+Docker
+.. _nonrtricwikidevguide: https://wiki.o-ran-sc.org/display/RICNR/Release+J
+.. _nonrtricwikik8s: https://wiki.o-ran-sc.org/display/RICNR/Release+J+-+Run+in+Kubernetes
+.. _nonrtricwikidocker: https://wiki.o-ran-sc.org/display/RICNR/Release+J+-+Run+in+Docker
 """
 ## 
 
