@@ -271,6 +271,48 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   #Wait for service expiry
   a1pms_equal json:policies 0 120
 
+  if [ "$A1PMS_VERSION" == "V2" ]; then
+    a1pms_api_put_service 201 "service-1" 0 "$CR_SERVICE_APP_PATH_0/service-1"
+    a1pms_api_put_service 201 "service-2" 0 "$CR_SERVICE_APP_PATH_0/service-2"
+    a1pms_api_put_policy 201 "service-1" ricsim_g1_1 1 5001 true $notificationurl testdata/OSC/pi1_template.json
+    a1pms_api_put_policy 201 "service-1" ricsim_g1_1 1 5002 false $notificationurl testdata/OSC/pi1_template.json
+    a1pms_api_put_policy 201 "service-2" ricsim_g1_1 1 6001 true $notificationurl testdata/OSC/pi1_template.json
+    a1pms_api_put_policy 201 "service-2" ricsim_g1_1 1 6002 false $notificationurl testdata/OSC/pi1_template.json
+    a1pms_api_put_policy 201 " " ricsim_g1_1 1 5003 true $notificationurl testdata/OSC/pi1_template.json
+    a1pms_api_put_policy 201 " " ricsim_g1_1 1 6003 false $notificationurl testdata/OSC/pi1_template.json
+    a1pms_equal json:policies 6 120
+    a1pms_api_get_services 200 "service-1" "service-1" 0 "$CR_SERVICE_APP_PATH_0/service-1"
+    a1pms_api_get_services 200 "service-2" "service-2" 0 "$CR_SERVICE_APP_PATH_0/service-2"
+    a1pms_api_delete_services 204 "service-1"
+    a1pms_equal json:policies 4 120
+    a1pms_api_delete_services 404 "service-1"
+    a1pms_api_get_services 200 "service-2" "service-2" 0 "$CR_SERVICE_APP_PATH_0/service-2"
+    a1pms_api_delete_services 204 "service-2"
+    a1pms_api_delete_services 404 "service-2"
+    sim_post_delete_instances 200 ricsim_g1_1
+  fi
+
+    if [ "$A1PMS_VERSION" == "V3" ]; then
+      a1pms_api_put_service 201 "service-1" 0 "$CR_SERVICE_APP_PATH_0/service-1"
+      a1pms_api_put_service 201 "service-2" 0 "$CR_SERVICE_APP_PATH_0/service-2"
+      a1pms_api_post_policy_v3 201 "service-1" ricsim_g1_1 1 5001 true $notificationurl testdata/OSC/pi1_template.json
+      a1pms_api_post_policy_v3 201 "service-1" ricsim_g1_1 1 5002 false $notificationurl testdata/OSC/pi1_template.json
+      a1pms_api_post_policy_v3 201 "service-2" ricsim_g1_1 1 6001 true $notificationurl testdata/OSC/pi1_template.json
+      a1pms_api_post_policy_v3 201 "service-2" ricsim_g1_1 1 6002 false $notificationurl testdata/OSC/pi1_template.json
+      a1pms_api_post_policy_v3 201 " " ricsim_g1_1 1 5003 true $notificationurl testdata/OSC/pi1_template.json
+      a1pms_api_post_policy_v3 201 " " ricsim_g1_1 1 6003 false $notificationurl testdata/OSC/pi1_template.json
+      a1pms_equal json:policies 6 120
+      a1pms_api_get_services 200 "service-1" "service-1" 0 "$CR_SERVICE_APP_PATH_0/service-1"
+      a1pms_api_get_services 200 "service-2" "service-2" 0 "$CR_SERVICE_APP_PATH_0/service-2"
+      a1pms_api_delete_services 204 "service-1"
+      a1pms_equal json:policies 4 120
+      a1pms_api_delete_services 404 "service-1"
+      a1pms_api_get_services 200 "service-2" "service-2" 0 "$CR_SERVICE_APP_PATH_0/service-2"
+      a1pms_api_delete_services 204 "service-2"
+      a1pms_api_delete_services 404 "service-2"
+      sim_post_delete_instances 200 ricsim_g1_1
+    fi
+
   sim_equal ricsim_g1_1 num_instances 0
   sim_equal ricsim_g2_1 num_instances 0
   sim_equal ricsim_g3_1 num_instances 0
