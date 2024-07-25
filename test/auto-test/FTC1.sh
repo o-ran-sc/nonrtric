@@ -204,7 +204,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
           a1pms_equal json:rics 3 300
 
           if [ "$A1PMS_VERSION" == "V3" ]; then
-            a1pms_equal json:policytypes 3 120
+            a1pms_equal json:policy-types 3 120
           else
             a1pms_equal json:policy-types 3 120
             a1pms_equal json:policy-instances 0

@@ -142,7 +142,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   #Check the number of schemas and the individual schemas in STD
   if [ "$A1PMS_VERSION" == "V3" ]; then
     total_policy_type_entries=$((STD_NUM_RICS * total_policy_types))
-    a1pms_equal json:policytypes ${total_policy_type_entries} 120
+    a1pms_equal json:policy-types ${total_policy_type_entries} 120
   else
     a1pms_equal json:policy-types ${total_policy_types} 120
   fi
@@ -150,7 +150,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   for ((i=1; i<=$STD_NUM_RICS; i++))
   do
     if [ "$A1PMS_VERSION" == "V3" ]; then
-      a1pms_equal json:policytypes?nearRtRicId=$RIC_SIM_PREFIX"_g3_"$i ${total_policy_types} 120
+      a1pms_equal json:policy-types?nearRtRicId=$RIC_SIM_PREFIX"_g3_"$i ${total_policy_types} 120
     else
       a1pms_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i ${total_policy_types} 120
     fi
@@ -166,7 +166,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   #Check the number of types
   if [ "$A1PMS_VERSION" == "V3" ]; then
     total_policy_type_entries=$((STD_NUM_RICS * total_policy_types))
-    a1pms_equal json:policytypes ${total_policy_type_entries} 300
+    a1pms_equal json:policy-types ${total_policy_type_entries} 300
   else
     a1pms_equal json:policy-types ${total_policy_types} 300
   fi
