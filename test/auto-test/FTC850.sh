@@ -176,7 +176,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
             if [ "$A1PMS_VERSION" == "V2" ]; then
               a1pms_equal json:policy-types 1 300  #Wait for the a1pms to refresh types from the simulator
             elif [ "$A1PMS_VERSION" == "V3" ]; then
-              a1pms_equal json:policytypes 20 300
+              a1pms_equal json:policy-types 20 300
             fi
 
             a1pms_api_put_service 201 "serv1" 600 "$CR_SERVICE_APP_PATH_0/1"
@@ -187,7 +187,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
               if [ "$A1PMS_VERSION" == "V2" ]; then
                 a1pms_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
               elif [ "$A1PMS_VERSION" == "V3" ]; then
-                a1pms_equal json:policytypes?nearRtRicId=ricsim_g1_$i 1 120
+                a1pms_equal json:policy-types?nearRtRicId=ricsim_g1_$i 1 120
               fi
             done
 
