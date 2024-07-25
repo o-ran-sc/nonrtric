@@ -300,7 +300,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
           if [ "$A1PMS_VERSION" == "V2" ]; then
             a1pms_equal json:policy-types 5 120  #Wait for the a1pms to refresh types from the simulator
           elif [ "$A1PMS_VERSION" == "V3" ]; then
-            a1pms_equal json:policytypes 5 120  #Wait for the a1pms to refresh types from the simulator
+            a1pms_equal json:policy-types 5 120  #Wait for the a1pms to refresh types from the simulator
           fi
 
           a1pms_equal json:policies 0

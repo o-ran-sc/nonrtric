@@ -867,7 +867,7 @@ a1pms_api_get_policies() {
 
 }
 
-# API Test function: GET /policy, V2 GET /v2/policies/{policy_id} and V3 GET a1policymanagement/v1/policies/{policy_id}
+# API Test function: GET /policy, V2 GET /v2/policies/{policy_id} and V3 GET a1-policy-management/v1/policies/{policy_id}
 # args: <response-code>  <policy-id> [<template-file>]
 # args(V2): <response-code> <policy-id> [ <template-file> <service-name> <ric-id> <policytype-id>|NOTYPE <transient> <notification-url>|NOURL ]
 # (Function for test scripts)
@@ -1060,7 +1060,7 @@ a1pms_api_put_policy() {
   return 0
 }
 
-# API Test function: V3 PUT a1policymanagement/v1/policies
+# API Test function: V3 PUT a1-policy-management/v1/policies
 # args: <response-code>  <policy-id>  <template-file> [<count>]
 # args(V2): <response-code> <policy-id> <template-file> [<count>]
 # (Function for test scripts)
@@ -1107,7 +1107,7 @@ a1pms_api_put_policy_v3() {
   return 0
 }
 
-# API Test function: V£ POST a1policymanagement/v1/policies
+# API Test function: V3 POST a1-policy-management/v1/policies
 # args: <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <template-file> [<count>]
 # args(V2): <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]
 # (Function for test scripts)
@@ -1596,7 +1596,7 @@ a1pms_api_update_policy_parallel() {
   return 1
 }
 
-# API Test function: DELETE /policy, V2 DELETE /v2/policies/{policy_id} and V3 DELETE a1policymanagement/v1/policies/{policy_id}
+# API Test function: DELETE /policy, V2 DELETE /v2/policies/{policy_id} and V3 DELETE a1-policy-management/v1/policies/{policy_id}
 # args: <response-code> <policy-id> [count]
 # (Function for test scripts)
 a1pms_api_delete_policy() {
@@ -1794,7 +1794,7 @@ a1pms_api_delete_policy_parallel() {
   return 1
 }
 
-# API Test function: V3 DELETE a1policymanagement/v1/policies/{policy_id}, to run in i parallel for a number of rics
+# API Test function: V3 DELETE a1-policy-management/v1/policies/{policy_id}, to run in i parallel for a number of rics
 # args: <responseCode> <numberOfRics> <PolicyIdsFilePath> <countPerRic> <numberOfThreads>
 # (Function for test scripts)
 a1pms_api_delete_policy_parallel_v3() {
@@ -1951,7 +1951,7 @@ a1pms_api_get_policy_parallel() {
   return 1
 }
 
-# API Test function: V3 GET a1policymanagement/v1/policies/{policy_id}, to run in i parallel for a number of rics
+# API Test function: V3 GET a1-policy-management/v1/policies/{policy_id}, to run in i parallel for a number of rics
 # args: <response-code> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>
 # (Function for test scripts)
 a1pms_api_get_policy_parallel_v3() {
@@ -2121,7 +2121,7 @@ a1pms_api_get_policy_ids() {
   return 0
 }
 
-# API Test function: V3 GET a1policymanagement/v1/policies
+# API Test function: V3 GET a1-policy-management/v1/policies
 # args: <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)
 # (Function for test scripts)
 a1pms_api_get_all_policies_v3() {
@@ -2192,7 +2192,7 @@ a1pms_api_get_all_policies_v3() {
   return 0
 }
 
-# API Test function: V2 GET a1-policy/v2/policy-types/{policyTypeId} and V3 GET a1policymanagement/v1/policytypes/{policyTypeId}
+# API Test function: V2 GET a1-policy/v2/policy-types/{policyTypeId} and V3 GET a1-policy-management/v1/policy-types/{policyTypeId}
 # args(V2): <response-code> <policy-type-id> [<schema-file>]
 # (Function for test scripts)
 a1pms_api_get_policy_type() {
@@ -2211,7 +2211,7 @@ a1pms_api_get_policy_type() {
     query="/v2/policy-types/$2"
   fi
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    query="/v1/policytypes/$2"
+    query="/v1/policy-types/$2"
   fi
 
   res="$(__do_curl_to_api A1PMS GET $query)"
@@ -2508,7 +2508,7 @@ a1pms_api_get_policy_types() {
   return 0
 }
 
-# API Test function:  V3 GET a1policymanagement/v1/policytypes
+# API Test function:  V3 GET a1-policy-management/v1/policy-types
 # args: <response-code> [<ric-id>|NORIC [<policy-type-id>|EMPTY [<policy-type-id>]*]]
 # (Function for test scripts)
 a1pms_api_get_policy_types_v3() {
@@ -2520,11 +2520,11 @@ a1pms_api_get_policy_types_v3() {
   fi
 
   if [ $# -eq 1 ]; then
-    query="/v1/policytypes"
+    query="/v1/policy-types"
   elif [ $2 == "NORIC" ]; then
-    query="/v1/policytypes"
+    query="/v1/policy-types"
   else
-    query="/v1/policytypes?nearRtRicId=$2"
+    query="/v1/policy-types?nearRtRicId=$2"
   fi
   res="$(__do_curl_to_api A1PMS GET $query)"
   status=${res:${#res}-3}
@@ -2632,7 +2632,7 @@ a1pms_api_get_status_root() {
 #### Test case functions RIC Repository
 #########################################################
 
-# API Test function: GET /ric, V2 GET /v2/rics/ric, and V3 GET a1policymanagement/v1/rics/ric
+# API Test function: GET /ric, V2 GET /v2/rics/ric, and V3 GET a1-policy-management/v1/rics/ric
 # args: <reponse-code> <management-element-id> [<ric-id>]
 # (V2) args: <reponse-code> <management-element-id>|NOME <ric-id>|<NORIC> [<string-of-ricinfo>]
 # (V2) example of <string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2,4"
@@ -2758,7 +2758,7 @@ a1pms_api_get_ric() {
   return 0
 }
 
-# API test function: GET /rics, V2 GET /v2/rics, and V3 GET /a1policymanagement/v1/rics
+# API test function: GET /rics, V2 GET /v2/rics, and V3 GET /a1-policy-management/v1/rics
 # args: <reponse-code> <policy-type-id>|NOTYPE [<space-separate-string-of-ricinfo>]
 # example of <space-separate-string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2,4 ricsim_g1_1:me2_........."
 # format of ric-info:  <ric-id>:<list-of-mes>:<list-of-policy-type-ids>
@@ -2825,7 +2825,7 @@ a1pms_api_get_rics() {
 #### API Test case functions Service registry and supervision ####
 ##################################################################
 
-# API test function: PUT /service, V2 PUT /service and V3 PUT a1policymanagement/v1/services
+# API test function: PUT /service, V2 PUT /service and V3 PUT a1-policy-management/v1/services
 # args: <response-code>  <service-name> <keepalive-timeout> <callbackurl>
 # (Function for test scripts)
 a1pms_api_put_service() {
@@ -2861,7 +2861,7 @@ a1pms_api_put_service() {
   return 0
 }
 
-# API test function: GET /services, V2 GET /v2/services and V3 /a1policymanagement/v1/services
+# API test function: GET /services, V2 GET /v2/services and V3 /a1-policy-management/v1/services
 #args: <response-code> [ (<query-service-name> <target-service-name> <keepalive-timeout> <callbackurl>) | (NOSERVICE <target-service-name> <keepalive-timeout> <callbackurl> [<target-service-name> <keepalive-timeout> <callbackurl>]* )]
 # (Function for test scripts)
 a1pms_api_get_services() {
@@ -2959,7 +2959,7 @@ a1pms_api_get_services() {
   return 0
 }
 
-# API test function: GET /services, V2 GET /v2/services and V3 /a1policymanagement/v1/services -  (only checking service names)
+# API test function: GET /services, V2 GET /v2/services and V3 /a1-policy-management/v1/services -  (only checking service names)
 # args: <response-code> [<service-name>]*"
 # (Function for test scripts)
 a1pms_api_get_service_ids() {
@@ -3021,7 +3021,7 @@ a1pms_api_get_service_ids() {
   return 0
 }
 
-# API test function: DELETE /services, V2 DELETE /v2/services/{serviceId} and V3 DELETE a1policymanagement/v1/services/{serviceId}
+# API test function: DELETE /services, V2 DELETE /v2/services/{serviceId} and V3 DELETE a1-policy-management/v1/services/{serviceId}
 # args: <response-code> <service-name>
 # (Function for test scripts)
 a1pms_api_delete_services() {
@@ -3053,7 +3053,7 @@ a1pms_api_delete_services() {
   return 0
 }
 
-# API test function: PUT /services/keepalive, V2 PUT /v2/services/{service_id}/keepalive and V3 DELETE a1policymanagement/v1/services/{serviceId}
+# API test function: PUT /services/keepalive, V2 PUT /v2/services/{service_id}/keepalive and V3 DELETE a1-policy-management/v1/services/{serviceId}
 # args: <response-code> <service-name>
 # (Function for test scripts)
 a1pms_api_put_services_keepalive() {
@@ -3093,7 +3093,7 @@ a1pms_api_put_services_keepalive() {
 #### API Test case functions Configuration                    ####
 ##################################################################
 
-# API Test function: PUT "/v2/configuration" or V3 PUT "a1policymanagement/v1/configuration"
+# API Test function: PUT "/v2/configuration" or V3 PUT "a1-policy-management/v1/configuration"
 # args: <response-code> <config-file>
 # (Function for test scripts)
 a1pms_api_put_configuration() {
@@ -3121,7 +3121,7 @@ a1pms_api_put_configuration() {
   if [ "$A1PMS_VERSION" == "V2" ]; then
     query="/v2/configuration"
   elif [ "$A1PMS_VERSION" == "V3" ]; then
-    #V3 has baseurl changes 'a1-policy/v2' to 'a1policymanagement/v1'
+    #V3 has baseurl changes 'a1-policy/v2' to 'a1-policy-management/v1'
     query="/v1/configuration"
   fi
   res="$(__do_curl_to_api A1PMS PUT $query $file)"
@@ -3137,7 +3137,7 @@ a1pms_api_put_configuration() {
   return 0
 }
 
-# API Test function: GET /v2/configuration and V3 GET a1policymanagement/v1/configuration
+# API Test function: GET /v2/configuration and V3 GET a1-policy-management/v1/configuration
 # args: <response-code> [<config-file>]
 # (Function for test scripts)
 a1pms_api_get_configuration() {
@@ -3158,7 +3158,7 @@ a1pms_api_get_configuration() {
   fi
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    #The V3 of a1-pms URL is a1policymanagement/v1 and the v2 is a1-policy/v2
+    #The V3 of a1-pms URL is a1-policy-management/v1 and the v2 is a1-policy/v2
     query="/v1/configuration"
   else
     query="/v2/configuration"
