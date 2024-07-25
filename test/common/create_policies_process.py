@@ -47,7 +47,8 @@ try:
     uuid=str(sys.argv[5])
     start=int(sys.argv[6])
     httpproxy="NOPROXY"
-    if ("/v2/" in baseurl) or ("a1policymanagement/v1/" in baseurl):
+    api_prefix_v3=os.getenv('A1PMS_API_PREFIX_V3', '')
+    if ("/v2/" in baseurl) or (api_prefix_v3 + "/v1/" in baseurl):
         if len(sys.argv) != 16:
             print("1Expected 15 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid service type transient notification-url templatepath count pids pid_id proxy")
             print (sys.argv[1:])
@@ -125,7 +126,7 @@ try:
                             else:
                                 resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90, proxies=proxydict)
 
-                        elif ("a1policymanagement/v1/" in baseurl):
+                        elif (api_prefix_v3 + '/v1' in baseurl):
                             url=baseurl
 
                             data={}
