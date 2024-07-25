@@ -128,7 +128,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
 
   sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_equal json:policytypes 7 300
+    a1pms_equal json:policy-types 7 300
   else
     a1pms_equal json:policy-types 3 300
   fi
