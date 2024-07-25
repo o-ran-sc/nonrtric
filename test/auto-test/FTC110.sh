@@ -217,7 +217,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   notificationurl=$CR_SERVICE_APP_PATH_0"/test"
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_equal json:policytypes 3 120
+    a1pms_equal json:policy-types 3 120
     a1pms_api_post_policy_v3 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
     a1pms_api_post_policy_v3 201 "service10" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
