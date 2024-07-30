@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b20c002_1347c9fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-07-30T14:23:15Z",
+      "side": 1,
+      "message": "Could go ahead and create OSLO \u0026 K-Release env files",
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbd61331_78c6b68b",
+        "filename": "test/auto-test/FTC1.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-07-30T14:23:15Z",
+      "side": 1,
+      "message": "Sghould we remove Kohn?",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 29
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f949148_a6ce24d6",
+        "filename": "test/auto-test/FTC3000.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-07-30T14:23:15Z",
+      "side": 1,
+      "message": "Remove G release?",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 34
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2831dff3_a516f97f",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-07-30T14:23:15Z",
+      "side": 1,
+      "message": "Should be 1.7.1-SNAPSHOT? - but that doesn\u0027t exist yet. No branch for new delhi. \nWill be 1.7.2-SNAPSHOT after new delhi bug-release",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 37
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b51fef1_380f301f",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-07-30T14:23:15Z",
+      "side": 1,
+      "message": "not released yet. Soon. But currently 1.7.0",
+      "range": {
+        "startLine": 75,
+        "startChar": 31,
+        "endLine": 75,
+        "endChar": 38
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
