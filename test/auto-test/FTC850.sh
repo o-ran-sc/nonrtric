@@ -196,7 +196,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
             start_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using $__httpx and V$version policymanagementservice"
 
             if [ "$A1PMS_VERSION" == "V3" ]; then
-              a1pms_api_post_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
+              a1pms_api_post_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
             else
               a1pms_api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
             fi

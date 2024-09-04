@@ -64,6 +64,10 @@ app:
   # Location of the component configuration file. The file will only be used if the Consul database is not used;
   # configuration from the Consul will override the file.
   filepath: /opt/app/policy-agent/data/application_configuration.json
+  # Postgres database usage is enabled using the below parameter.
+  # If this is enabled, the application will use postgres database for storage.
+  # This overrides the s3(s3.bucket) or file store(vardata-directory) configuration if enabled.
+  database-enabled: false
   webclient:
     # Configuration of the trust store used for the HTTP client (outgoing requests)
     # The file location and the password for the truststore is only relevant if trust-store-used == true
