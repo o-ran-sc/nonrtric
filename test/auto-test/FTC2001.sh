@@ -178,9 +178,9 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   do
       sim_generate_policy_uuid
       if [ "$A1PMS_VERSION" == "V3" ]; then
-        a1pms_api_post_policy_v3 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+        a1pms_api_post_policy_v3 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT demo-testdata/STD2/pi1_template.json 1
         sim_generate_policy_uuid
-        a1pms_api_post_policy_v3 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+        a1pms_api_post_policy_v3 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT demo-testdata/STD2/pi1_template.json 1
       else
         a1pms_api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
         sim_generate_policy_uuid
