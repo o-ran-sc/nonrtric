@@ -1415,7 +1415,7 @@ a1pms_api_put_policy_parallel() {
 a1pms_api_post_policy_parallel() {
   __log_test_start $@
 
-  if [ $# -ne 11 ]; then
+  if [ $# -ne 10 ]; then
     __print_err "These all arguments needed <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <notification-url>|NOURL <template-file> <count-per-ric> <number-of-threads>" $@
     return 1
   fi
@@ -1433,8 +1433,6 @@ a1pms_api_post_policy_parallel() {
   start_id=$1
   shift
   transient=$1
-  shift
-  noti=$1
   shift
   template=$1
   shift
@@ -1467,7 +1465,7 @@ a1pms_api_post_policy_parallel() {
       uuid="NOUUID"
     fi
     echo "" >"./tmp/.pid${i}.res.txt"
-    echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $serv $type $transient $noti $template $count $pids $i $httpproxy >"./tmp/.pid${i}.txt"
+    echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $serv $type $transient "noValue" $template $count $pids $i $httpproxy >"./tmp/.pid${i}.txt"
     echo $i
   done | xargs -n 1 -I{} -P $pids bash -c '{
 		arg=$(echo {})
