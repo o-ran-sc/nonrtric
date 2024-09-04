@@ -491,13 +491,13 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
 
             a1pms_api_get_policy_types_v3 404 dummy-ric
 
-            a1pms_api_post_policy_v3 201 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT NONOTIFYURL testdata/OSC/pi1_template.json
+            a1pms_api_post_policy_v3 201 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json
 
-            a1pms_api_post_policy_v3 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT NONOTIFYURL testdata/OSC/pi1_template.json
+            a1pms_api_post_policy_v3 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
 
-            a1pms_api_post_policy_v3 201 NOSERVICE ricsim_g2_1 NOTYPE 5100 NOTRANSIENT NONOTIFYURL testdata/STD/pi1_template.json
+            a1pms_api_post_policy_v3 201 NOSERVICE ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
 
-            a1pms_api_post_policy_v3 201 NOSERVICE ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT NONOTIFYURL testdata/STD2/pi_qos2_template.json
+            a1pms_api_post_policy_v3 201 NOSERVICE ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT testdata/STD2/pi_qos2_template.json
           fi
 
           a1pms_api_put_service 201 "service10" 3600 "$CR_SERVICE_APP_PATH_0/1"

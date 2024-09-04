@@ -142,7 +142,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   a1pms_api_put_service 201 "service1" 3600 "$CR_SERVICE_APP_PATH_0/1"
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_api_post_policy_v3 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
+    a1pms_api_post_policy_v3 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json 1
   else
     a1pms_api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
   fi
@@ -156,7 +156,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   fi
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_api_post_policy_v3 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
+    a1pms_api_post_policy_v3 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
   else
     a1pms_api_put_policy 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
   fi
@@ -167,7 +167,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   use_a1pms_rest_http
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_api_post_policy_v3 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
+    a1pms_api_post_policy_v3 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/pi1_template.json 1
   else
     a1pms_api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
   fi
@@ -182,7 +182,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   fi
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_api_post_policy_v3 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
+    a1pms_api_post_policy_v3 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
   else
     a1pms_api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
   fi
@@ -192,7 +192,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   use_a1pms_rest_http
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_api_post_policy_v3 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true $notificationurl testdata/STD2/pi_qos_template.json 1
+    a1pms_api_post_policy_v3 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true testdata/STD2/pi_qos_template.json 1
   else
     a1pms_api_put_policy 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true $notificationurl testdata/STD2/pi_qos_template.json 1
   fi
@@ -206,7 +206,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   fi
 
   if [ "$A1PMS_VERSION" == "V3" ]; then
-    a1pms_api_post_policy_v3 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos_template.json 1
+    a1pms_api_post_policy_v3 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 NOTRANSIENT testdata/STD2/pi_qos_template.json 1
   else
     a1pms_api_put_policy 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos_template.json 1
   fi
