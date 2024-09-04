@@ -1114,8 +1114,8 @@ a1pms_api_put_policy_v3() {
 a1pms_api_post_policy_v3() {
   __log_test_start $@
 
-  if [ $# -lt 8 ] || [ $# -gt 9 ]; then
-    __print_err "<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]" $@
+  if [ $# -lt 7 ] || [ $# -gt 8 ]; then
+    __print_err "<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT  <template-file> [<count>]" $@
     return 1
   fi
 
@@ -1126,10 +1126,9 @@ a1pms_api_post_policy_v3() {
   pt=$4
   pid=$5
   trans=$6
-  noti=$7
-  temp=$8
-  if [ $# -eq 9 ]; then
-    max=$9
+  temp=$7
+  if [ $# -eq 8 ]; then
+    max=$8
   fi
 
   while [ $count -lt $max ]; do
@@ -1143,9 +1142,6 @@ a1pms_api_post_policy_v3() {
     fi
     if [ $serv != "NOSERVICE" ]; then
       inputJson=$inputJson", \"serviceId\":\"$serv\""
-    fi
-    if [ $noti != "NONOTIFYURL" ]; then
-      inputJson=$inputJson", \"statusNotificationUri\":\"$noti\""
     fi
     if [ $trans != "NOTRANSIENT" ]; then
       inputJson=$inputJson", \"transient\":\"$trans\""
@@ -1415,7 +1411,7 @@ a1pms_api_put_policy_parallel() {
 a1pms_api_post_policy_parallel() {
   __log_test_start $@
 
-  if [ $# -ne 11 ]; then
+  if [ $# -ne 10 ]; then
     __print_err "These all arguments needed <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <notification-url>|NOURL <template-file> <count-per-ric> <number-of-threads>" $@
     return 1
   fi
@@ -1433,8 +1429,6 @@ a1pms_api_post_policy_parallel() {
   start_id=$1
   shift
   transient=$1
-  shift
-  noti=$1
   shift
   template=$1
   shift
@@ -1467,7 +1461,7 @@ a1pms_api_post_policy_parallel() {
       uuid="NOUUID"
     fi
     echo "" >"./tmp/.pid${i}.res.txt"
-    echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $serv $type $transient $noti $template $count $pids $i $httpproxy >"./tmp/.pid${i}.txt"
+    echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $serv $type $transient "noValue" $template $count $pids $i $httpproxy >"./tmp/.pid${i}.txt"
     echo $i
   done | xargs -n 1 -I{} -P $pids bash -c '{
 		arg=$(echo {})
