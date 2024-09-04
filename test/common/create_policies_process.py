@@ -138,8 +138,6 @@ try:
                                 data["policyTypeId"]=pt
                             else:
                                 data["policyTypeId"]=""
-                            if (noti != "NOURL"):
-                                data["statusNotificationUri"]=noti
                             data["policyObject"]=json.loads(payload)
 
                             url_out=url
