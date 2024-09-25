@@ -1,0 +1,75 @@
+services:
+  informationcoordinator:
+    image: ${REGISTRY}o-ran-sc/nonrtric-plt-informationcoordinatorservice:1.6.0
+    container_name: informationcoordinatorservice
+    ports:
+      - "8083:8083"
+
+  kafka-producer:
+    image: ${LOCAL}o-ran-sc/nonrtric-simple-icsproducer:latest
+    container_name: kafka-producer
+    environment:
+      - SPRING_KAFKA_SERVER=broker:9092
+    ports:
+      - "8080:8080"
+    depends_on:
+      - broker
+
+  kafka-consumer:
+    image: ${LOCAL}o-ran-sc/nonrtric-simple-icsconsumer:latest
+    container_name: kafka-consumer
+    environment:
+      - SPRING_KAFKA_SERVER=broker:9092
+    ports:
+      - "9090:9090"
+    depends_on:
+      - broker
+
+  broker:
+    image: confluentinc/cp-kafka:7.7.0
+    hostname: broker
+    container_name: broker
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://broker:9092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://broker:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+  # curl-client:
+  #   image: curlimages/curl:latest
+  #   container_name: curl-client
+  #   command: ["tail", "-f", "/dev/null"]
+  #   networks:
+  #     - kafka
+
+  # redpanda-console:
+  #   container_name: redpanda-console
+  #   image: docker.redpanda.com/redpandadata/console:v2.4.5
+  #   entrypoint: /bin/sh
+  #   command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
+  #   environment:
+  #     CONFIG_FILEPATH: /tmp/config.yml
+  #     CONSOLE_CONFIG_FILE: |
+  #       kafka:
+  #         brokers: ["broker:9092"]
+  #   ports:
+  #     - 8888:8080
+  #   networks:
+  #     - kafka
