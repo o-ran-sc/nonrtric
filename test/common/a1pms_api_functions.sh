@@ -347,7 +347,9 @@ start_a1pms() {
       fi
     else
       echo " No files in mounted dir or dir does not exists"
-      mkdir db
+      # The 'db' directory is created with full permissions (777) and is not removed at the end of the script.
+      mkdir -m 777 db
+      echo "Creating directory under $SIM_GROUP/a1pms/$A1PMS_HOST_MNT_DIR/ with 777 permission. This directory will need to be manually removed when tests complete."
     fi
     cd $curdir
 
