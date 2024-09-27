@@ -347,7 +347,7 @@ start_a1pms() {
       fi
     else
       echo " No files in mounted dir or dir does not exists"
-      mkdir db
+      mkdir -m 777 db
     fi
     cd $curdir
 
