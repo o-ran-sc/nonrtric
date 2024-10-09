@@ -121,6 +121,7 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
   #Check a1pms alive
   a1pms_api_get_status 200
 
+
   #Print simulator interface version
   sim_print ricsim_g1_1 interface
   sim_print ricsim_g2_1 interface
