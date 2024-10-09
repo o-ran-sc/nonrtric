@@ -118,8 +118,11 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
 
   sleep_wait 120 "Let A1PMS configuration take effect"
 
+  docker logs policymanagementservice
   #Check a1pms alive
   a1pms_api_get_status 200
+
+  docker logs policymanagementservice
 
   #Print simulator interface version
   sim_print ricsim_g1_1 interface
