@@ -57,6 +57,10 @@ app:
   vardata-directory: /var/policy-management-service
   # path to json schema for config validation
   config-file-schema-path: /application_configuration_schema.json
+  # Postgres database usage is enabled using the below parameter.
+  # If this is enabled, the application will use postgres database for storage.
+  # This overrides the s3(s3.bucket) or file store(vardata-directory) configuration if enabled.
+  database-enabled: false
   webclient:
     # Configuration of the trust store used for the HTTP client (outgoing requests)
     # The file location and the password for the truststore is only relevant if trust-store-used == true
