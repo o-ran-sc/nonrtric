@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a855b57_aff25bcc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-10-10T16:04:04Z",
+      "side": 1,
+      "message": "Can\u0027t jenkins-verify in sandbox until after parent reviews are merged",
+      "revId": "7daf16eba74cbc087c11f7c85aa876d8529ef7af",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
