@@ -87,6 +87,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e4e5f62_b66b6722",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-10-11T10:10:36Z",
+      "side": 1,
+      "message": "Will verify after the new release.",
+      "parentUuid": "2831dff3_a516f97f",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 37
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b51fef1_380f301f",
@@ -100,6 +124,30 @@
       "writtenOn": "2024-07-30T14:23:15Z",
       "side": 1,
       "message": "not released yet. Soon. But currently 1.7.0",
+      "range": {
+        "startLine": 75,
+        "startChar": 31,
+        "endLine": 75,
+        "endChar": 38
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6aeafc1e_8453179a",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-10-11T10:10:36Z",
+      "side": 1,
+      "message": "no longer valid? - after new release",
+      "parentUuid": "8b51fef1_380f301f",
       "range": {
         "startLine": 75,
         "startChar": 31,
