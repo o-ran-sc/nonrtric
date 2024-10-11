@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.demo</groupId>
     <artifactId>kafka-consumer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>kafka-consumer</name>
     <description>Demo project for Spring Boot and kafka consumer</description>
 
@@ -80,7 +80,7 @@
                                     <build>
                                         <cleanup>try</cleanup>
                                         <contextDir>${project.basedir}</contextDir>
-                                        <dockerFile>Dockerfile</dockerFile>
+                                        <dockerFile>DockerfileSimple</dockerFile>
                                         <args>
                                             <JAR>${project.build.finalName}.jar</JAR>
                                         </args>
@@ -108,7 +108,7 @@
                                     </name>
                                     <build>
                                         <contextDir>${project.basedir}</contextDir>
-                                        <dockerFile>Dockerfile</dockerFile>
+                                        <dockerFile>DockerfileSimple</dockerFile>
                                         <args>
                                             <JAR>${project.build.finalName}.jar</JAR>
                                         </args>
