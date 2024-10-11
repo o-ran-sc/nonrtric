@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.demo</groupId>
     <artifactId>kafka-consumer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>kafka-consumer</name>
     <description>Demo project for Spring Boot and kafka consumer</description>
 
@@ -58,7 +58,14 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.45.0</version>
@@ -75,12 +82,12 @@
                             <images>
                                 <image>
                                     <name>
-                                        o-ran-sc/nonrtric-simple-icsconsumer:latest
+                                        o-ran-sc/nonrtric-sample-simple-icsconsumer:latest
                                     </name>
                                     <build>
                                         <cleanup>try</cleanup>
                                         <contextDir>${project.basedir}</contextDir>
-                                        <dockerFile>Dockerfile</dockerFile>
+                                        <dockerFile>DockerfileSimple</dockerFile>
                                         <args>
                                             <JAR>${project.build.finalName}.jar</JAR>
                                         </args>
@@ -104,25 +111,27 @@
                             <images>
                                 <image>
                                     <name>
-                                        o-ran-sc/nonrtric-simple-icsconsumer:latest
+                                        o-ran-sc/nonrtric-sample-simple-icsconsumer:latest
                                     </name>
                                     <build>
                                         <contextDir>${project.basedir}</contextDir>
-                                        <dockerFile>Dockerfile</dockerFile>
+                                        <dockerFile>DockerfileSimple</dockerFile>
                                         <args>
                                             <JAR>${project.build.finalName}.jar</JAR>
                                         </args>
                                         <tags>
                                             <tag>${project.version}</tag>
                                             <tag>latest</tag>
-                                        </tags>
-                                    </build>
-                                </image>
-                            </images>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+                                                </tags>
+                                            </build>
+                                        </image>
+                                    </images>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
