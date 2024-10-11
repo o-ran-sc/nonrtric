@@ -6,7 +6,7 @@ services:
       - "8083:8083"
 
   kafka-producer:
-    image: ${REGISTRY}o-ran-sc/nonrtric-simple-icsproducer:latest
+    image: ${REGISTRY}o-ran-sc/nonrtric-simple-icsproducer:0.0.1
     container_name: kafka-producer
     environment:
       - SPRING_KAFKA_SERVER=broker:9092
@@ -16,7 +16,7 @@ services:
       - broker
 
   kafka-consumer:
-    image: ${REGISTRY}o-ran-sc/nonrtric-simple-icsconsumer:latest
+    image: ${REGISTRY}o-ran-sc/nonrtric-simple-icsconsumer:0.0.1
     container_name: kafka-consumer
     environment:
       - SPRING_KAFKA_SERVER=broker:9092
@@ -51,25 +51,3 @@ services:
       # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
-
-  # curl-client:
-  #   image: curlimages/curl:latest
-  #   container_name: curl-client
-  #   command: ["tail", "-f", "/dev/null"]
-  #   networks:
-  #     - kafka
-
-  # redpanda-console:
-  #   container_name: redpanda-console
-  #   image: docker.redpanda.com/redpandadata/console:v2.4.5
-  #   entrypoint: /bin/sh
-  #   command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
-  #   environment:
-  #     CONFIG_FILEPATH: /tmp/config.yml
-  #     CONSOLE_CONFIG_FILE: |
-  #       kafka:
-  #         brokers: ["broker:9092"]
-  #   ports:
-  #     - 8888:8080
-  #   networks:
-  #     - kafka
