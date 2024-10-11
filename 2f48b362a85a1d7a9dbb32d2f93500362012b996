@@ -16,6 +16,23 @@
       "message": "Temporary commented the test script",
       "revId": "2f48b362a85a1d7a9dbb32d2f93500362012b996",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cea90478_cb9deed3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-10-11T14:52:06Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "2f48b362a85a1d7a9dbb32d2f93500362012b996",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
