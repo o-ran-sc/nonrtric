@@ -16,6 +16,23 @@
       "message": "Can\u0027t jenkins-verify until after child \u0026 parent reviews are merged",
       "revId": "51b20fd9d3b27a8ee872bceff30be7cd1066d80e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "710173d2_887be3b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2024-10-11T09:41:31Z",
+      "side": 1,
+      "message": "Will verify again later",
+      "revId": "51b20fd9d3b27a8ee872bceff30be7cd1066d80e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
