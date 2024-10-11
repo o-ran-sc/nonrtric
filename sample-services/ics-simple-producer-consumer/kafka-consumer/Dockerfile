@@ -1,3 +1,4 @@
+
 #==================================================================================
 #   Copyright (C) 2024: OpenInfra Foundation Europe
 #
@@ -16,15 +17,24 @@
 #   This source code is part of the near-RT RIC (RAN Intelligent Controller)
 #   platform project (RICP).
 #==================================================================================
+# Use Maven image with OpenJDK 17 for the build stage
+FROM maven:3.8.5-openjdk-17 AS maven_build
+# Copy Maven project files
+COPY pom.xml /tmp/
+COPY src /tmp/src/
+# Set working directory
+WORKDIR /tmp/
+# Build the Maven project
+RUN mvn package
+# Use a separate image with OpenJDK 17 for the runtime stage
 FROM openjdk:17-jdk-slim
-
+# Expose port 9090
 EXPOSE 9090
-
 ARG SPRING_KAFKA_SERVER
 ENV SPRING_KAFKA_SERVER=${SPRING_KAFKA_SERVER}
-
+# Set the working directory
 WORKDIR /app
-
-COPY target/kafka-consumer-0.0.1-SNAPSHOT.jar /app/consumer-0.0.1.jar
-
+# Copy the JAR file from the maven_build stage to the runtime stage
+COPY --from=maven_build /tmp/target/kafka-consumer-0.0.1.jar /app/consumer-0.0.1.jar
+# Command to run the application
 CMD ["java", "-jar", "consumer-0.0.1.jar"]
