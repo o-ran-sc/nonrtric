@@ -195,4 +195,12 @@ for container in "${containers[@]}"; do
   fi
 done
 echo "SUCCESS"
+docker stop kafka-zkless
+docker stop informationcoordinatorservice
+docker stop kafka-producer
+docker stop kafka-consumer
+docker rm kafka-zkless
+docker rm informationcoordinatorservice
+docker rm kafka-producer
+docker rm kafka-consumer
 exit 0
