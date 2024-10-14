@@ -195,4 +195,5 @@ for container in "${containers[@]}"; do
   fi
 done
 echo "SUCCESS"
+docker compose down
 exit 0
