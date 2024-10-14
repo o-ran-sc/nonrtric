@@ -4,9 +4,9 @@ services:
     container_name: informationcoordinatorservice
     ports:
       - "8083:8083"
-
+#For kafka-producer and kafka-consumer images are also available in nexus registry(change LOCAL to STAGING)
   kafka-producer:
-    image: ${REGISTRY}o-ran-sc/nonrtric-sample-simple-icsproducer:0.0.1
+    image: ${LOCAL}o-ran-sc/nonrtric-sample-simple-icsproducer:0.0.1
     container_name: kafka-producer
     environment:
       - SPRING_KAFKA_SERVER=broker:9092
@@ -16,7 +16,7 @@ services:
       - broker
 
   kafka-consumer:
-    image: ${REGISTRY}o-ran-sc/nonrtric-sample-simple-icsconsumer:0.0.1
+    image: ${LOCAL}o-ran-sc/nonrtric-sample-simple-icsconsumer:0.0.1
     container_name: kafka-consumer
     environment:
       - SPRING_KAFKA_SERVER=broker:9092
