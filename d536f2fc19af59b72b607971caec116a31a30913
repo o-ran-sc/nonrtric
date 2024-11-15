@@ -58,6 +58,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fe7a6cc_e4e17aac",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-11-15T15:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afba9983_ed4ffc6e",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 38
+      },
+      "revId": "d536f2fc19af59b72b607971caec116a31a30913",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e34d0cec_54d19ab5",
@@ -71,6 +95,30 @@
       "writtenOn": "2024-10-11T10:09:12Z",
       "side": 1,
       "message": "releaseing again so needs an update",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 38
+      },
+      "revId": "d536f2fc19af59b72b607971caec116a31a30913",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86ebaca8_9e414029",
+        "filename": "test/common/test_env-oran-j-release.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-11-15T15:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e34d0cec_54d19ab5",
       "range": {
         "startLine": 63,
         "startChar": 0,

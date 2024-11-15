@@ -41,6 +41,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30c98df3_b41f5317",
+        "filename": "test/auto-test/FTC1.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-11-15T15:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbd61331_78c6b68b",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 29
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f949148_a6ce24d6",
@@ -54,6 +78,30 @@
       "writtenOn": "2024-07-30T14:23:15Z",
       "side": 1,
       "message": "Remove G release?",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 34
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7518a1b_fef1ae06",
+        "filename": "test/auto-test/FTC3000.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-11-15T15:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f949148_a6ce24d6",
       "range": {
         "startLine": 38,
         "startChar": 20,
@@ -111,6 +159,30 @@
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ac9d735_692b1366",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-11-15T15:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2831dff3_a516f97f",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 37
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b51fef1_380f301f",
@@ -147,6 +219,30 @@
       "writtenOn": "2024-10-11T10:10:36Z",
       "side": 1,
       "message": "no longer valid? - after new release",
+      "parentUuid": "8b51fef1_380f301f",
+      "range": {
+        "startLine": 75,
+        "startChar": 31,
+        "endLine": 75,
+        "endChar": 38
+      },
+      "revId": "0a993fc2575888e8f1d2ee9fdb1de74bb3029249",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a0ff299_7f3f68c0",
+        "filename": "test/common/test_env-onap-newdelhi.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002240
+      },
+      "writtenOn": "2024-11-15T15:45:00Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "8b51fef1_380f301f",
       "range": {
         "startLine": 75,
