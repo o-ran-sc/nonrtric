@@ -101,6 +101,8 @@ cr_api_check_all_sync_events 200 0 ric-registration ricsim_g2_2
 check_a1pms_logs
 
 # Remove one RIC and check
+container_id=$(docker rm -f $(docker ps -aq --filter "name=ricsim-g2-2"))
+echo "Removing Container: ricsim-g2-2, ID: $container_id"
 start_ric_simulators ricsim_g2 1  STD_1.1.3
 
 prepare_a1pms_config      NOSDNC  ".a1pms_config.json"
