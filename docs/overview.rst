@@ -114,7 +114,7 @@ Maintains (persistent) cache of RAN's A1 Policy information.
 Implementation:
 
 - Implemented as a Java Spring Boot application.
-- Wiki: `A1 Policy Management Service in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ .
+- Wiki: `A1 Policy Management Service in ONAP <https://lf-onap.atlassian.net/wiki/spaces/DW/pages/16444961/O-RAN+A1+Policies+in+ONAP>`_ .
 - Repo: *nonrtric/plt/a1policymanagementservice*.
 - Documentation at the :doc:`A1 Policy Management Service documentation site <a1policymanagementservice:index>`.
 
@@ -133,7 +133,7 @@ Mediation point for A1 interface termination in SMO/NONRTRIC.
 Implementation:
 
 - Repo: *nonrtric/plt/sdnca1controller*
-- Wiki: `A1 Adapter/Controller Functions in ONAP <https://wiki.onap.org/pages/viewpage.action?pageId=84672221>`_ .
+- Wiki: `A1 Adapter/Controller Functions in ONAP <https://lf-onap.atlassian.net/wiki/spaces/DW/pages/16444961/O-RAN+A1+Policies+in+ONAP>`_ .
 
 A1 Interface / Near-RT-RIC Simulator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
