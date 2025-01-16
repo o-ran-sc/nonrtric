@@ -85,6 +85,9 @@ otel:
   sdk:
     disabled: ${ONAP_SDK_DISABLED:true}
     south: ${ONAP_TRACING_SOUTHBOUND:true}
+  instrumentation:
+    spring-webflux:
+      enabled: ${ONAP_TRACING_NORTHBOUND:true}
   tracing:
     sampler:
       jaeger_remote:

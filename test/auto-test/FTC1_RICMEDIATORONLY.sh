@@ -32,7 +32,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW "
 
 # Supported test environment profiles
-SUPPORTED_PROFILES="ORAN-I-RELEASE ORAN-J-RELEASE"
+SUPPORTED_PROFILES="ORAN-I-RELEASE ORAN-J-RELEASE ORAN-K-RELEASE"
 # Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
@@ -55,11 +55,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "### Testing a1pms: $interface using $__httpx"
         echo "#####################################################################"
         echo "#####################################################################"
-        
+
         clean_environment
-        
+
         start_kube_proxy
-        
+
         use_a1pms_rest_http
         use_ricmediator_simulator_http
 
@@ -71,7 +71,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         use_cr_http
         use_ricmediator_simulator_http
         use_a1pms_rest_http
-        
+
         start_ricmediator_simulators ricsim_g4 1  NONE
         start_cr 1
         start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/$CONTROL_PANEL_CONFIG_FILE
@@ -127,7 +127,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         a1pms_equal json:policies 0
         a1pms_equal json:policy-instances 0
         cr_equal 0 received_callbacks 1
-        
+
         check_a1pms_logs
     done
 done
