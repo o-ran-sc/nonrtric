@@ -56,12 +56,6 @@ Note that onap test uses components from onap combined with released oran compon
 In general, the test scripts support the current ongoing release as well as two previous releases.
 
 
-ORAN G-RELEASE
-=========
->```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-g-release.sh  --use-release-image SDNC```
-
->```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-g-release.sh  --use-release-image SDNC```
-
 ORAN H-RELEASE
 =========
 >```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-h-release.sh  --use-release-image SDNC```
@@ -74,20 +68,11 @@ ORAN I-RELEASE
 
 >```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-i-release.sh --use-release-image SDNC```
 
-
-ONAP KOHN
-=============
->```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-kohn.sh```
-
->```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-kohn.sh```
-
-
 ONAP LONDON
 =============
 >```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-london.sh```
 
 >```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-london.sh```
-
 
 ONAP MONTREAL
 =============
