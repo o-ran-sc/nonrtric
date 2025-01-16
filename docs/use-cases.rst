@@ -1,6 +1,6 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. Copyright (C) 2021 Nordix
+.. Copyright (C) 2021-2025 Nordix
 
 Use Cases
 #########
@@ -23,7 +23,7 @@ O-RU Front-Haul Recovery
 
 This use case is a non-real-world closed-loop use case to demonstrate automated recovery when the front-haul connection between an O-DU and O-RU is reset.
 An application in the NONRTRIC senses the fault from the O-RU (O1-FM) and initiates a NETCONF reset operation (O1-CM) using the OAM controller.
-More details about the use case can be found on the O-RAN SC wiki: `RSAC <https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/15075523/Control+Loops+for+O-RU+Fronthaul+Recovery+usecase+G+Release>`_ and `OAM <https://wiki.o-ran-sc.org/display/OAM/Closed+loop+use+case>`_.
+More details about the use case can be found on the O-RAN SC wiki: `RSAC <https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/15075523/Control+Loops+for+O-RU+Fronthaul+Recovery+usecase+G+Release>`_ and `OAM <https://lf-o-ran-sc.atlassian.net/wiki/spaces/OAM/pages/14680350/Closed+loop+use+case>`_.
 
 Non-RT RIC provides multiple implementation versions of the recovery part of the use case. One in the form of a python
 script, one utilizing the ONAP Policy Framework, and one Go version that utilizes Information Coordination Service (ICS).
@@ -50,7 +50,7 @@ There is a `docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;
 in the nonrtric repo for bringing up the complete standalone version of ONAP Policy Framework.
 
 The detailed instructions for deploying and running this policy are provided in
-the `wiki <https://wiki.o-ran-sc.org/display/RICNR/O-RU+Fronthaul+Recovery+usecase>`_.
+the `wiki <https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/15074820/O-RU+Fronthaul+Recovery+usecase>`_.
 
 ICS Consumer Solution
 +++++++++++++++++++++
