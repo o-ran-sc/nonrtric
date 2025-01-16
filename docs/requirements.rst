@@ -1,13 +1,13 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
-.. Copyright (C) 2021 Nordix
+.. Copyright (C) 2021-2025 Nordix
 
 Requirements for the Non-RT RIC project
 =======================================
 
 Find detailed description of what Non-RT RIC is on this `page`_.
 
-.. _page: https://wiki.o-ran-sc.org/display/RICNR/
+.. _page: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/overview
 
 The NONRTRIC project (and the O-RAN Non-RealTime RIC function) can be considered from a number of different viewpoints. This page presents some of these views:
 

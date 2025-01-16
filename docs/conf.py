@@ -1,5 +1,5 @@
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2019-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2019-2025 Nordix Foundation. All rights reserved.
 #  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,10 +36,10 @@ ranpmbranch = 'latest'
 onapbranch = 'latest'
 # Add some useful links available in every page
 rst_epilog = """
-.. _nonrtricwiki: https://wiki.o-ran-sc.org/display/RICNR/
-.. _nonrtricwikidevguide: https://wiki.o-ran-sc.org/display/RICNR/Release+J
-.. _nonrtricwikik8s: https://wiki.o-ran-sc.org/display/RICNR/Release+J+-+Run+in+Kubernetes
-.. _nonrtricwikidocker: https://wiki.o-ran-sc.org/display/RICNR/Release+J+-+Run+in+Docker
+.. _nonrtricwiki: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/overview
+.. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802434/Release+K
+.. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802787/Release+K+-+Run+in+Kubernetes
+.. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802677/Release+K+-+Run+in+Docker
 """
 ## 
 

@@ -4,7 +4,7 @@ The O-RAN SC Non-RT RIC provides support for non-real-time intelligent radio res
 
 Please see the documentation in the docs/ folder
 
-For more information about the Non-RT RIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC Non-RT RIC project")
+For more information about the Non-RT RIC project please see the [project website](https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/overview "O-RAN-SC Non-RT RIC project")
 
 ## License
 
