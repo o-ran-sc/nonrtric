@@ -39,6 +39,30 @@
       },
       "revId": "d8b9c94c5cbb016617b97051247ec7ba370fd4cd",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "087cc270_37afdfb2",
+        "filename": "test/simulator-group/a1pms/application2.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2025-01-16T15:22:25Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "72152e6f_a99193e8",
+      "range": {
+        "startLine": 3,
+        "startChar": 16,
+        "endLine": 3,
+        "endChar": 25
+      },
+      "revId": "d8b9c94c5cbb016617b97051247ec7ba370fd4cd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
