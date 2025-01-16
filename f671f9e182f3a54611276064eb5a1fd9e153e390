@@ -16,6 +16,29 @@
       "message": "https://github.com/onap/ccsdk-oran/actions/workflows/gerrit-oran-functional-test-case-verify.yaml\n\nPolicy Management Service (local image): onap/ccsdk-oran-a1policymanagementservice:2.0.0-SNAPSHOT  does not exist in local registry, need to be built (or manually pulled)",
       "revId": "f671f9e182f3a54611276064eb5a1fd9e153e390",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34d74e19_7e89080a",
+        "filename": "test/common/onap_ftc_job_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002638
+      },
+      "writtenOn": "2025-01-16T14:45:57Z",
+      "side": 1,
+      "message": "update year",
+      "range": {
+        "startLine": 4,
+        "startChar": 17,
+        "endLine": 4,
+        "endChar": 21
+      },
+      "revId": "f671f9e182f3a54611276064eb5a1fd9e153e390",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
