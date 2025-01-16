@@ -25,7 +25,7 @@ PULL_IMAGE_TYPE="remote-remove"
 RUN_MODE="docker"
 IMAGE_VERSION="release"
 ENV_FLAG="--env-file"
-ENV_FILE="../common/test_env-oran-h-release.sh"
+ENV_FILE="../common/test_env-oran-k-release.sh"
 
 # Check if jq is installed, and install it if not
 if ! command -v jq &> /dev/null; then
