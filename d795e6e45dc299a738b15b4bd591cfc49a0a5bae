@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d04d2f0_02da5e20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002638
+      },
+      "writtenOn": "2025-01-16T14:43:32Z",
+      "side": 1,
+      "message": "Update license year in bash scripts",
+      "revId": "d795e6e45dc299a738b15b4bd591cfc49a0a5bae",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
