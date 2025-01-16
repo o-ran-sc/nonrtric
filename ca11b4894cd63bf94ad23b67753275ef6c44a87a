@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02e20117_1ac814fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2025-01-16T12:55:23Z",
+      "side": 1,
+      "message": "tested with \nnonrtric/test/auto-test$ ./FTC1.sh remote-remove docker release --env-file ../common/test_env-onap-olso.sh",
+      "revId": "ca11b4894cd63bf94ad23b67753275ef6c44a87a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
