@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2024-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -69,9 +69,9 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # A1PMS image and tags
 A1PMS_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="2.0.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.0.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="2.0.0-SNAPSHOT-latest" #Will use snapshot repo
+A1PMS_IMAGE_TAG_LOCAL="2.1.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="2.1.0-SNAPSHOT-latest" #Will use snapshot repo
 A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.0.0"
 
 # SDNC A1 Controller remote image and tag
