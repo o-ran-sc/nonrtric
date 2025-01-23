@@ -2561,6 +2561,63 @@ a1pms_api_get_policy_types_v3() {
   return 0
 }
 
+# API Test function: GET /policies/{{policyId}}/status
+# args: <response-code> <policy-id> [STD2 <enforce-status>|EMPTY [<reason>|EMPTY]]
+# (Function for test scripts)
+a1pms_api_get_policy_status_v3() {
+  __log_test_start $@
+
+  if [ $# -lt 2 ] || [ $# -gt 6 ]; then
+    __print_err "<response-code> <policy-id> [STD2 <enforce-status>|EMPTY [<reason>|EMPTY]]" $@
+    return 1
+  fi
+
+  targetJson=""
+  if [ $# -eq 2 ]; then
+    :
+  elif [ "$3" == "STD2" ]; then
+    if [ $4 == "EMPTY" ]; then
+      targetJson="{\"enforceStatus\":\"\""
+    else
+      targetJson="{\"enforceStatus\":\"$4\""
+    fi
+    if [ $# -eq 5 ]; then
+      if [ $5 == "EMPTY" ]; then
+        targetJson=$targetJson",\"enforceReason\":\"\""
+      else
+        targetJson=$targetJson",\"enforceReason\":\"$5\""
+      fi
+    fi
+    targetJson=$targetJson"}"
+  else
+    __print_err "<response-code> <policy-id> [STD2 <enforce-status>|EMPTY [<reason>|EMPTY]]" $@
+    return 1
+  fi
+
+  query="/v1/policies/$UUID$2/status"
+
+  res="$(__do_curl_to_api A1PMS GET $query)"
+  status=${res:${#res}-3}
+
+  if [ $status -ne $1 ]; then
+    __log_test_fail_status_code $1 $status
+    return 1
+  fi
+  if [ $# -gt 2 ]; then
+    echo "TARGET JSON: $targetJson" >>$HTTPLOG
+    body=${res:0:${#res}-3}
+    res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+    if [ $res -ne 0 ]; then
+      __log_test_fail_body
+      return 1
+    fi
+  fi
+  __collect_endpoint_stats "A1PMS" 08 "GET" $A1PMS_API_PREFIX"/v1/policies/{policyId}/status" $status
+  __log_test_pass
+  return 0
+}
+
 #########################################################
 #### Test case functions Health check
 #########################################################
