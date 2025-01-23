@@ -252,6 +252,10 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
             a1pms_api_put_policy_v3 200 5200 testdata/STD2/pi_qos_template.json
             a1pms_api_post_policy_v3 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
             a1pms_api_put_policy_v3 200 5100 testdata/STD/pi1_template.json
+            # Check Default policy status STD2, and then set a custom status
+            a1pms_api_get_policy_status_v3 200 5200 STD2 "NOT_ENFORCED" "OTHER_REASON"
+            sim_put_policy_status 200 ricsim_g3_1 5200 "ENFORCED" "SCOPE_NOT_APPLICABLE"
+            a1pms_api_get_policy_status_v3 200 5200 STD2 "ENFORCED" "SCOPE_NOT_APPLICABLE"
           else
             a1pms_api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
             a1pms_api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
