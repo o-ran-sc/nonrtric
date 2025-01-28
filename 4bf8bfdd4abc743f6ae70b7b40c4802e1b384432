@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c02b7ba3_676d3420",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2025-01-28T16:39:44Z",
+      "side": 1,
+      "message": "Tested with short suite with sdnc-image:3.0.2",
+      "revId": "4bf8bfdd4abc743f6ae70b7b40c4802e1b384432",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
