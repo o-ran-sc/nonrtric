@@ -91,7 +91,7 @@ NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE="1.2.0"
 
 # SDNC A1 Controller image and tags - Note using released honolulu ONAP image
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="2.6.1"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE_ONAP="3.0.2"
 #No local image for ONAP SDNC, remote release image always used
 
 # ORAN SDNC adapter kept as reference
@@ -411,18 +411,18 @@ SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller co
 SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
 SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
 SDNC_USER="admin"                                        # SDNC username
-SDNC_PWD="admin"                                         # SNDC PWD
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
-#SDNC_API_URL="/rests/operations/A1-ADAPTER-API:"         # Base url path for SNDC API (for upgraded sdnc)
-SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
-SDNC_ALIVE_URL="/apidoc/explorer/index.html"                       # Base url path for SNDC API docs (for alive check)
+SDNC_API_URL="/rests/operations/A1-ADAPTER-API:"         # Base url path for SNDC API (for upgraded sdnc)
+#SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"     # Base url path for SNDC API
+SDNC_ALIVE_URL="/openapi/explorer/index.html"            # Base url path for SNDC API docs (for alive check)(for upgraded sdnc)
+#SDNC_ALIVE_URL="/apidoc/explorer/index.html"            # Base url path for SNDC API docs (for alive check)
 SDNC_COMPOSE_DIR="sdnc"
 SDNC_COMPOSE_FILE="docker-compose-2.yml"
 SDNC_KUBE_APP_FILE="app2.yaml"
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
-#SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
-SDNC_RESPONSE_JSON_KEY="output"                          # Key name for output json in replies from sdnc
-SDNC_FEATURE_LEVEL="NO_NB_HTTPS"                                    # Space separated list of features
+SDNC_RESPONSE_JSON_KEY="A1-ADAPTER-API:output"           # Key name for output json in replies from sdnc (for upgraded sdnc)
+#SDNC_RESPONSE_JSON_KEY="output"                         # Key name for output json in replies from sdnc
+SDNC_FEATURE_LEVEL="NO_NB_HTTPS"                         # Space separated list of features
 
 RAPP_CAT_APP_NAME="rappcatalogueservice"                 # Name for the RAPP Catalogue
 RAPP_CAT_DISPLAY_NAME="RAPP Catalogue"

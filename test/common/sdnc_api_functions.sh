@@ -151,9 +151,11 @@ __sdnc_set_protocoll() {
 	## Access to SDNC
 
 	SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME":"$2  # docker access, container->container and script->container via proxy
+	SDNC_SERVICE_PATH_USER=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME":"$2  # docker access with user and password
 	SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME":"$2$SDNC_API_URL
 	if [ $RUNMODE == "KUBE" ]; then
 		SDNC_SERVICE_PATH=$1"://"$SDNC_APP_NAME.$KUBE_SDNC_NAMESPACE":"$3 # kube access, pod->svc and script->svc via proxy
+		SDNC_SERVICE_PATH_USER=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.$KUBE_SDNC_NAMESPACE":"$3 # kube access with username and password
 		SDNC_SERVICE_API_PATH=$1"://"$SDNC_USER":"$SDNC_PWD"@"$SDNC_APP_NAME.$KUBE_SDNC_NAMESPACE":"$3$SDNC_API_URL
 	fi
 	echo ""
@@ -242,7 +244,7 @@ start_sdnc() {
 
 		fi
 
-		__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH$SDNC_ALIVE_URL
+		__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH_USER$SDNC_ALIVE_URL
 	else
 
 		__check_included_image 'SDNC'
@@ -256,7 +258,7 @@ start_sdnc() {
 
 		__start_container $SDNC_COMPOSE_DIR $SDNC_COMPOSE_FILE NODOCKERARGS 1 $SDNC_APP_NAME
 
-		__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH$SDNC_ALIVE_URL
+		__check_service_start $SDNC_APP_NAME $SDNC_SERVICE_PATH_USER$SDNC_ALIVE_URL
 	fi
     echo ""
     return 0
