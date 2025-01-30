@@ -34,6 +34,23 @@
       "parentUuid": "e82e3423_1aef3f93",
       "revId": "24e12e312a221599c9f9f7ca6afc4258e4864da4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "714175cf_a9f29725",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2025-01-30T14:41:09Z",
+      "side": 1,
+      "message": "I think this is ready now. \n\nDo we need to cherry pick back to Oslo? (This call did not exist in Oslo version)",
+      "revId": "24e12e312a221599c9f9f7ca6afc4258e4864da4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
