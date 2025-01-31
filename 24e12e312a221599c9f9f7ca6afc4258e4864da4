@@ -51,6 +51,23 @@
       "message": "I think this is ready now. \n\nDo we need to cherry pick back to Oslo? (This call did not exist in Oslo version)",
       "revId": "24e12e312a221599c9f9f7ca6afc4258e4864da4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc5c7384_b0744d80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002433
+      },
+      "writtenOn": "2025-01-31T10:13:56Z",
+      "side": 1,
+      "message": "John if we plan to cherry-pick this change then yes\nhttps://gerrit.onap.org/r/c/ccsdk/oran/+/139967",
+      "revId": "24e12e312a221599c9f9f7ca6afc4258e4864da4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
