@@ -1,5 +1,6 @@
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
+#  Modifications Copyright 2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -39,6 +40,7 @@ services:
       - DUPLICATE_CHECK=1
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+      - ./config/nginx.conf:/usr/src/app/nginx.conf:ro
     labels:
       - "a1sim=app"
       - "nrttest_app=RICSIM"
