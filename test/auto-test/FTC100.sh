@@ -2,7 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Modifications Copyright (C) 2023-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -498,6 +498,10 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
             a1pms_api_post_policy_v3 201 NOSERVICE ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
 
             a1pms_api_post_policy_v3 201 NOSERVICE ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT testdata/STD2/pi_qos2_template.json
+
+            # Test for schema validation at create - should fail
+            a1pms_api_post_policy_v3 400 NOSERVICE ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT testdata/STD2/pi_qos2_bad_template.json
+
           fi
 
           a1pms_api_put_service 201 "service10" 3600 "$CR_SERVICE_APP_PATH_0/1"
@@ -638,6 +642,9 @@ for version in $(seq 2 $VERSIONS_TO_RUN); do
             a1pms_api_put_policy_v3 200 5100 testdata/STD/pi1_template.json
 
             a1pms_api_put_policy_v3 200 5200 testdata/STD2/pi_qos2_template.json
+
+            # Test for schema validation at update - should fail
+            a1pms_api_put_policy_v3 400 5200 testdata/STD2/pi_qos2_bad_template.json
 
             if [[ $interface != *"DMAAP"* ]]; then
             	a1pms_api_put_policy_v3 400 2000 testdata/OSC/pi_bad_template.json
