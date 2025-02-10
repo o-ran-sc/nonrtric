@@ -1,0 +1,15 @@
+{
+  "scope": {
+    "qosId": "qosXXX",
+    "randomField": "bad"
+  },
+  "qosObjectives": {
+    "priorityLevel": "XXX",
+    "priorityLev": "XXX",
+    "qosId": "qosXXX",
+    "non": "compliant"
+  },
+  "incorrectObject": {
+    "isCompliant": "no"
+  }
+}

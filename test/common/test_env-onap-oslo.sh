@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2024-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -209,6 +209,7 @@ A1PMS_CONTAINER_MNT_DIR="/var/policy-management-service"   # Mounted dir in the 
 A1PMS_FEATURE_LEVEL="NO-DMAAP ADAPTER-CLASS"               # Space separated list of features
 A1PMS_ADAPTER_CLASS=""                                     # Class name set by override file
 A1PMS_ADAPTER_POLICY_NAME=""                               # Policy name set by override file
+A1PMS_VALIDATE_INSTANCE_SCHEMA="true"                      # Whether or not to perform schema validation on policy instance objects
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Enrichment Coordinator Service"        # Display name for ICS container

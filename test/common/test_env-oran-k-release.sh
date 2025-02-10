@@ -295,6 +295,7 @@ A1PMS_ADAPTER_CLASS=""                                     # Class name set by o
 A1PMS_ADAPTER_POLICY_TYPE=""                               # Policy type set by override file
 A1PMS_NOSDNC_ADAPTER_CLASS=""                              # Class name set by override file
 A1PMS_SDNC_ADAPTER_CLASS=""                                # Class name set by override file
+A1PMS_VALIDATE_INSTANCE_SCHEMA="true"                      # Whether or not to perform schema validation on policy instance objects
 
 ICS_APP_NAME="informationservice"                        # Name for ICS container
 ICS_DISPLAY_NAME="Information Coordinator Service"       # Display name for ICS container
