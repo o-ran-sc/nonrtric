@@ -2,7 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2021-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2024 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2024-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -2741,18 +2741,27 @@ a1pms_api_get_ric() {
       __print_err "<reponseCode> <managementElementId>|NOME <ricId>|<NORIC> [stringOfRicInfo>]" $@
       return 1
     fi
+
     search=""
-    if [ $2 != "NOME" ]; then
-      search="?managedElementId="$2
-    fi
+
     if [ $3 != "NORIC" ]; then
-      if [ -z $search ]; then
-        search="?ricId="$3
+
+      if [ $2 != "NOME" ]; then
+        search="/"$3"?managedElementId="$2
       else
-        search=$search"&ricId="$3
+        search="/"$3
       fi
+    elif [ $# -gt 3 ]; then
+      search="/${4%%:*}"
+    else
+      search="/test"
     fi
-    query="/v1/rics/ric"$search
+
+#    if [ $3 = "NORIC" ] && [ $# -lt 4 ]; then
+#      search="/test"
+#    fi
+
+    query="/v1/rics"$search
 
     res="$(__do_curl_to_api A1PMS GET $query)"
     status=${res:${#res}-3}
