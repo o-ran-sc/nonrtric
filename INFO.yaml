@@ -10,9 +10,12 @@ project_lead: &oran_nonrtric_ptl
     company: 'Ericsson Software Technology'
     timezone: 'Europe/Dublin'
 primary_contact: *oran_nonrtric_ptl
+repositories:
+    - 'nonrtric'
+# yamllint disable rule:line-length
 issue_tracking:
     type: 'jira'
-    url: 'https://jira.o-ran-sc.org/projects/NONRTRIC'
+    url: 'https://lf-o-ran-sc.atlassian.net/jira/software/c/projects/NONRTRIC/issues'
     key: 'NONRTRIC'
 mailing_list:
     type: 'groups.io'
@@ -24,25 +27,23 @@ realtime_discussion:
 meetings:
     - type: 'zoom'
       agenda: ''
-      url: 'https://wiki.o-ran-sc.org/display/RICNR/Meetings'
+      url: 'https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/15073287/Meetings'
       server: 'n/a'
       channel: 'n/a'
       repeats: 'weekly'
-      time: 'Mondays, 13:00 UTC'
-repositories:
-    - 'nonrtric'
+      time: 'Tuesdays, 15:00/16:00 UTC'
 committers:
     - <<: *oran_nonrtric_ptl
-    - name: 'Patrik Buhr'
-      email: 'patrik.buhr@est.tech'
+    - name: 'Aravindhan Ayyanathan'
+      email: 'aravindhan.a@est.tech'
       company: 'Ericsson Software Technology'
-      id: 'PatrikBuhr'
-      timezone: 'Sweden/Stockholm'
-    - name: 'Bjorn Magnusson'
-      email: 'bjorn.magnusson@est.tech'
+      id: 'aravind.est'
+      timezone: 'Europe/Dublin'
+    - name: 'Saul Gill'
+      email: ' saul.gill@est.tech'
       company: 'Ericsson Software Technology'
-      id: 'BjornMagnussonXA'
-      timezone: 'Sweden/Stockholm'
+      id: 'saul.gill'
+      timezone: 'Europe/Dublin'
 tsc:
-    # yamllint disable-line rule:line-length
     approval: 'https://wiki.o-ran-sc.org/display/TOC/2019+08+07'
+# yamllint enable rule:line-length
