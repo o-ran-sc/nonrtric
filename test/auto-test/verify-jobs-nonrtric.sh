@@ -2,7 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2023-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ PULL_IMAGE_TYPE="remote-remove"
 RUN_MODE="docker"
 IMAGE_VERSION="release"
 ENV_FLAG="--env-file"
-ENV_FILE="../common/test_env-oran-k-release.sh"
+ENV_FILE="../common/test_env-oran-l-release.sh"
 
 # Check if jq is installed, and install it if not
 if ! command -v jq &> /dev/null; then
