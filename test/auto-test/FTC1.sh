@@ -2,7 +2,7 @@
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2023-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ KUBE_PRESTARTED_IMAGES=""
 CONDITIONALLY_IGNORED_IMAGES="NGW "
 
 #Supported test environment profiles
-SUPPORTED_PROFILES="ONAP-LONDON ONAP-MONTREAL ONAP-NEWDELHI ONAP-OSLO ORAN-H-RELEASE ORAN-I-RELEASE ORAN-J-RELEASE ORAN-K-RELEASE"
+SUPPORTED_PROFILES="ONAP-LONDON ONAP-MONTREAL ONAP-NEWDELHI ONAP-OSLO ONAP-PARIS ORAN-H-RELEASE ORAN-I-RELEASE ORAN-J-RELEASE ORAN-K-RELEASE"
 #Supported run modes
 SUPPORTED_RUNMODES="DOCKER KUBE"
 
