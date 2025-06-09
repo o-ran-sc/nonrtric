@@ -1,6 +1,6 @@
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020-2023 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2023-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ If temporary changes are needed to the settings in a profile file, use an overri
 
 A test script, for example FTC1, is executed from the cmd line using the script filename and one or more parameters:
 
- >```./FTC1.sh remote docker --env-file ../common/test_env-oran-i-release.sh```
+ >```./FTC1.sh remote docker --env-file ../common/test_env-oran-l-release.sh```
 
 Note that this script will use the staging images. Once the release images are available,add the parameter "release" to run with released images.
 
@@ -56,29 +56,29 @@ Note that onap test uses components from onap combined with released oran compon
 In general, the test scripts support the current ongoing release as well as two previous releases.
 
 
-ORAN H-RELEASE
+ORAN K-RELEASE
 =========
->```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-h-release.sh  --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-oran-k-release.sh  --use-release-image SDNC```
 
->```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-h-release.sh  --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-oran-k-release.sh  --use-release-image SDNC```
 
-ORAN I-RELEASE
+ORAN L-RELEASE
 =========
->```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-i-release.sh --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-l-release.sh --use-release-image SDNC```
 
->```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-i-release.sh --use-release-image SDNC```
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-l-release.sh --use-release-image SDNC```
 
-ONAP LONDON
+ONAP OSLO
 =============
->```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-london.sh```
+>```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-oslo.sh```
 
->```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-london.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  release  --env-file ../common/test_env-onap-oslo.sh```
 
-ONAP MONTREAL
+ONAP PARIS
 =============
->```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-onap-montreal.sh```
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-onap-paris.sh```
 
->```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-onap-montreal.sh```
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-onap-paris.sh```
 
 
 ## Useful features
