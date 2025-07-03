@@ -72,7 +72,7 @@ jobs:
   call-prescan-sonarcloud:
     needs: notify
     # yamllint disable-line rule:line-length
-    uses: lfit/releng-reusable-workflows/.github/workflows/composed-prescan-sonar-cloud.yaml@fix-sonar-workflow
+    uses: lfit/releng-reusable-workflows/.github/workflows/composed-prescan-sonar-cloud.yaml@8c3cf221da0e47955647647c9a254c1f807081ce # v0.2.18
     with:
       GERRIT_BRANCH: ${{ inputs.GERRIT_BRANCH }}
       GERRIT_CHANGE_ID: ${{ inputs.GERRIT_CHANGE_ID }}
