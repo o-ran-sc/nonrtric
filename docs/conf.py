@@ -1,6 +1,6 @@
 #  ============LICENSE_START===============================================
-#  Copyright (C) 2019-2025 Nordix Foundation. All rights reserved.
-#  Copyright (C) 2023 OpenInfra Foundation Europe. All rights reserved.
+#  Copyright (C) 2019-2023 Nordix Foundation. All rights reserved.
+#  Copyright (C) 2023-2025 OpenInfra Foundation Europe. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,26 +20,26 @@ from docs_conf.conf import *
 ## Update here to configure which branch is used. 
 #branch configurations
 controlpanelbranch = 'latest'
-simulatorbranch = 'latest'
+simulatorbranch = 'l-release'
 dmaapmediatorproducerbranch = 'latest'
 dmaapadapterbranch = 'latest'
 informationcoordinatorservicebranch = 'latest'
 rappcataloguebranch = 'latest'
-rappmanagerbranch = 'latest'
+rappmanagerbranch = 'l-release'
 helmmanagerbranch = 'latest'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
 authtokenfetchbranch = 'latest'
-a1policymanagementservicebranch = 'latest'
-smebranch = 'latest'
+a1policymanagementservicebranch = 'l-release'
+smebranch = 'l-release'
 ranpmbranch = 'latest'
 onapbranch = 'latest'
 # Add some useful links available in every page
 rst_epilog = """
 .. _nonrtricwiki: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/overview
-.. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802434/Release+K
-.. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802787/Release+K+-+Run+in+Kubernetes
-.. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802677/Release+K+-+Run+in+Docker
+.. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/446758914/Release+L
+.. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/446759372/Release+L+-+Run+in+Kubernetes
+.. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/446759174/Release+L+-+Run+in+Docker
 """
 ## 
 
