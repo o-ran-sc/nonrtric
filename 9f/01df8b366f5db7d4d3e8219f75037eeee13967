@@ -1,0 +1,8 @@
+Verified+1: ORAN Required GHA <releng+oran.required.gha@linuxfoundation.org>
+Verified+1: John Keeney <john.keeney@est.tech>
+Code-Review+2: John Keeney <john.keeney@est.tech>
+Submitted-by: John Keeney <john.keeney@est.tech>
+Submitted-at: Tue, 15 Jul 2025 08:59:08 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/nonrtric/+/14689
+Project: nonrtric
+Branch: refs/heads/l-release
