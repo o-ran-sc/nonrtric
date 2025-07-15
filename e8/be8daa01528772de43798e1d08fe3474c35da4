@@ -1,0 +1,9 @@
+Verified+1: ORAN Required GHA <releng+oran.required.gha@linuxfoundation.org>
+Verified+1: John Keeney <john.keeney@est.tech>
+Code-Review+2: John Keeney <john.keeney@est.tech>
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Submitted-by: John Keeney <john.keeney@est.tech>
+Submitted-at: Tue, 15 Jul 2025 09:09:12 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/nonrtric/+/14717
+Project: nonrtric
+Branch: refs/heads/master
