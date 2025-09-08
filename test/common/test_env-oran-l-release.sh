@@ -69,8 +69,8 @@ A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.10.0"
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
 ICS_IMAGE_TAG_LOCAL="1.7.0-SNAPSHOT"
 ICS_IMAGE_TAG_REMOTE_SNAPSHOT="1.7.0-SNAPSHOT"
-ICS_IMAGE_TAG_REMOTE="1.6.0"
-ICS_IMAGE_TAG_REMOTE_RELEASE="1.6.0"
+ICS_IMAGE_TAG_REMOTE="1.6.1"
+ICS_IMAGE_TAG_REMOTE_RELEASE="1.6.1"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 #Control Panel image and tags

@@ -44,7 +44,7 @@ docker run -d \
   --name informationcoordinatorservice \
   -p 8083:8083 \
   -v ./application.yaml:/opt/app/information-coordinator-service/config/application.yaml \
-  nexus3.o-ran-sc.org:10001/o-ran-sc/nonrtric-plt-informationcoordinatorservice:1.6.0
+  nexus3.o-ran-sc.org:10001/o-ran-sc/nonrtric-plt-informationcoordinatorservice:1.6.1
 
 # Start Producer
 docker run -d \
