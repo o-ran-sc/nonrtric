@@ -46,7 +46,7 @@ services:
       - my-network
 
   informationcoordinator:
-    image: nexus3.o-ran-sc.org:10001/o-ran-sc/nonrtric-plt-informationcoordinatorservice:1.6.0
+    image: nexus3.o-ran-sc.org:10001/o-ran-sc/nonrtric-plt-informationcoordinatorservice:1.6.1
     container_name: informationcoordinatorservice
     ports:
       - "8083:8083"

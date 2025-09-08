@@ -88,7 +88,7 @@ SDNC_DB_IMAGE_TAG_REMOTE_PROXY="10.5"
 
 # ICS image and tag - using i release
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
-ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.6.0"
+ICS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.6.1"
 #Note: Update var ICS_FEATURE_LEVEL if image version is changed
 
 # Control Panel image and tag - using i release
