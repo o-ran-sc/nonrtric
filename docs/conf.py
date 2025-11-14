@@ -18,7 +18,7 @@
 from docs_conf.conf import *
 
 ## Update here to configure which branch is used. 
-#branch configurations
+# branch configurations
 controlpanelbranch = 'latest'
 simulatorbranch = 'latest'
 dmaapmediatorproducerbranch = 'latest'

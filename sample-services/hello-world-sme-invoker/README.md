@@ -1,4 +1,10 @@
-# Hello World Sme Invoker Service
+# Hello World Sme Invoker Service  (Experimental O-RAN-SC Module)
+
+![Status: Not for Production](https://img.shields.io/badge/status-not--for--production-red)
+![Status: Experimental](https://img.shields.io/badge/CVE%20Support-none-lightgrey)
+
+> [!WARNING]
+> This repository is pre-spec and not intended for production use. No CVE remediation or production guarantees apply.
 
 This repository contains a Spring Boot application serving as Hello World SME invoker application.
 The application can be built and run using the provided script - ``hello-world-sme-invoker-build-start.sh``.
