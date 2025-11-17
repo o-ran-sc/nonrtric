@@ -1,6 +1,6 @@
 
 #==================================================================================
-#   Copyright (C) 2024: OpenInfra Foundation Europe
+#   Copyright (C) 2024-2025: OpenInfra Foundation Europe
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #   platform project (RICP).
 #==================================================================================
 # Use Maven image with OpenJDK 17 for the build stage
-FROM maven:3.8.5-openjdk-17 AS maven_build
+FROM nexus3.o-ran-sc.org:10001/maven:3.8.5-openjdk-17 AS maven_build
 # Copy Maven project files
 COPY pom.xml /tmp/
 COPY src /tmp/src/
@@ -27,7 +27,7 @@ WORKDIR /tmp/
 # Build the Maven project
 RUN mvn package
 # Use a separate image with OpenJDK 17 for the runtime stage
-FROM openjdk:17-jdk-slim
+FROM nexus3.o-ran-sc.org:10001/amazoncorretto:17.0.17
 # Expose port 9090
 EXPOSE 9090
 ARG SPRING_KAFKA_SERVER
