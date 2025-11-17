@@ -1,5 +1,5 @@
 #==================================================================================
-#   Copyright (C) 2024: OpenInfra Foundation Europe
+#   Copyright (C) 2024-2025: OpenInfra Foundation Europe
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 #   This source code is part of the near-RT RIC (RAN Intelligent Controller)
 #   platform project (RICP).
 #==================================================================================
-FROM openjdk:17-jdk-slim
+FROM nexus3.o-ran-sc.org:10001/amazoncorretto:17.0.17
 
 EXPOSE 8080
 
