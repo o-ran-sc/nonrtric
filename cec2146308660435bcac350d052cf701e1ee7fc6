@@ -16,6 +16,23 @@
       "message": "created a no-op change in doc to trigger a github action",
       "revId": "cec2146308660435bcac350d052cf701e1ee7fc6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8c12701_e66e7749",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002638
+      },
+      "writtenOn": "2025-11-18T09:11:49Z",
+      "side": 1,
+      "message": "ERROR: failed to solve: openjdk:17-jdk-slim: docker.io/library/openjdk:17-jdk-slim: not found",
+      "revId": "cec2146308660435bcac350d052cf701e1ee7fc6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
