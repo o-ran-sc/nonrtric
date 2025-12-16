@@ -1,7 +1,7 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
 .. Copyright (C) 2021-2025 Nordix Foundation. All rights Reserved
-.. Copyright (C) 2023 OpenInfra Foundation Europe. All Rights Reserved
+.. Copyright (C) 2023-2025 OpenInfra Foundation Europe. All Rights Reserved
 
 Installation Guide
 ==================
@@ -48,4 +48,4 @@ command to start the components:
            -f ics/docker-compose.yaml
 
 The example above is just an example to start some of the components.
-For more information on running and configuring the functions can be found in the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`_" folder, and on the `wiki page <https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/86802677/Release+K+-+Run+in+Docker>`_
+For more information on running and configuring the functions can be found in the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`_" folder, and on the `wiki page <nonrtricwikidocker_>`_
