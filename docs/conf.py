@@ -38,9 +38,9 @@ onapbranch = 'latest'
 # Add some useful links available in every page
 rst_epilog = """
 .. _nonrtricwiki: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/overview
-.. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/446758914/Release+L
-.. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/446759372/Release+L+-+Run+in+Kubernetes
-.. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/446759174/Release+L+-+Run+in+Docker
+.. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903234/Release+M
+.. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903652/Release+M+-+Run+in+Kubernetes
+.. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903494/Release+M+-+Run+in+Docker
 """
 ## 
 

@@ -1,7 +1,7 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
 .. Copyright (C) 2021-2023 Nordix Foundation. All rights Reserved
-.. Copyright (C) 2023 OpenInfra Foundation Europe. All Rights Reserved
+.. Copyright (C) 2023-2025 OpenInfra Foundation Europe. All Rights Reserved
 
 .. |archpic| image:: ./images/nonrtric-architecture-I.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
@@ -44,6 +44,7 @@ These are the components that make up the Non-RT-RIC:
 * `Authentication Support <#authentication-support-keycloak>`_.
 * `RApp Manager Service <#rapp-manager-service>`__.  (:doc:`Documentation site <rappmanager:index>`).
 * `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`__   (:doc:`Documentation site <ranpm:index>`).
+* :doc:`Topology Exposure & Inventory (TEIV) <teiv:index>`.
 * `Test Framework <#non-rt-ric-test-framework>`_.
 * `Use Cases: <#non-rt-ric-use-cases>`_
 
