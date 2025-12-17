@@ -68,6 +68,12 @@ ORAN L-RELEASE
 
 >```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-l-release.sh --use-release-image SDNC```
 
+ORAN M-RELEASE
+=========
+>```./PM_EI_DEMO.sh remote-remove  docker  --env-file ../common/test_env-oran-m-release.sh --use-release-image SDNC```
+
+>```./PM_EI_DEMO.sh remote-remove  kube  --env-file ../common/test_env-oran-m-release.sh --use-release-image SDNC```
+
 ONAP OSLO
 =============
 >```./PM_EI_DEMO.sh remote-remove  docker  release  --env-file ../common/test_env-onap-oslo.sh```
