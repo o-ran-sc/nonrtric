@@ -20,20 +20,20 @@ from docs_conf.conf import *
 ## Update here to configure which branch is used. 
 # branch configurations
 controlpanelbranch = 'latest'
-simulatorbranch = 'latest'
+simulatorbranch = 'l-release'
 dmaapmediatorproducerbranch = 'latest'
-dmaapadapterbranch = 'latest'
-informationcoordinatorservicebranch = 'latest'
+dmaapadapterbranch = 'j-release'
+informationcoordinatorservicebranch = 'j-release'
 rappcataloguebranch = 'latest'
-rappmanagerbranch = 'latest'
+rappmanagerbranch = 'm-release'
 helmmanagerbranch = 'latest'
 ransliceassurancebranch = 'latest'
 orufhrecoverybranch = 'latest'
 authtokenfetchbranch = 'latest'
-a1policymanagementservicebranch = 'latest'
-smebranch = 'latest'
-ranpmbranch = 'latest'
-teivbranch = 'latest'
+a1policymanagementservicebranch = 'm-release'
+smebranch = 'l-release'
+ranpmbranch = 'l-release'
+teivbranch = 'm-release'
 onapbranch = 'latest'
 # Add some useful links available in every page
 rst_epilog = """
@@ -41,6 +41,7 @@ rst_epilog = """
 .. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903234/Release+M
 .. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903652/Release+M+-+Run+in+Kubernetes
 .. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903494/Release+M+-+Run+in+Docker
+.. _itdepsmowiki: https://lf-o-ran-sc.atlassian.net/wiki/spaces/IAT/pages/383713307/SMO+Lite+-+An+Integrated+Open-Source+SMO+Deployment
 """
 ## 
 
