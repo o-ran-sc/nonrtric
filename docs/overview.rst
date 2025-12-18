@@ -3,23 +3,22 @@
 .. Copyright (C) 2021-2023 Nordix Foundation. All rights Reserved
 .. Copyright (C) 2023-2025 OpenInfra Foundation Europe. All Rights Reserved
 
-.. |archpic| image:: ./images/nonrtric-architecture-I.png
+.. |archpic| image:: ./images/nonrtric-architecture-M.png
   :alt: Image: O-RAN SC - NONRTRIC Overall Architecture
 
 Summary
 -------
 
-The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automation function described by the O-RAN Alliance for non-real-time intelligent management of RAN (Radio Access Network) functions.
+The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automation function described by the O-RAN Alliance for non-real-time intelligent management of RAN (Radio Access Network) functions. It forms part of the integrated Service Management & Orchestration (SMO) layer in the O-RAN Architecture. 
 
-The primary goal of the Non-RealTime RIC is to support non-real-time radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of near-RealTime RIC functions in the RAN to achieve higher-level non-real-time objectives.
+The primary goal of the Non-RealTime RIC is to support non-real-time radio-network (RAN) resource management, higher layer optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of near-RealTime RIC functions in the RAN to achieve higher-level non-real-time objectives.
 
-Non-RealTime RIC functions include service and policy management and RAN analytics for the RAN.
 The Non-RealTime RIC platform hosts and coordinates rApps (Non-RT RIC applications) to perform Non-RealTime RIC tasks.
 The Non-RealTime RIC also hosts the new R1 interface (between rApps and SMO/Non-RealTime-RIC services).
 
-The O-RAN-SC (OSC) NONRTRIC project provides concepts, architecture and reference implementations as defined and described by the `O-RAN Alliance <https://www.o-ran.org>`_ architecture.
+The O-RAN-SC (OSC) NONRTRIC project provides concepts, architecture and early reference implementations as defined and described by the `O-RAN Alliance <https://www.o-ran.org>`_ architecture.
 The OSC NONRTRIC implementation communicates with near-RealTime RIC elements in the RAN via the A1 interface. Using the A1 interface the NONRTRIC will facilitate the provision of policies for individual UEs or groups of UEs; monitor and provide basic feedback on policy state from near-RealTime RICs; provide enrichment information as required by near-RealTime RICs; and facilitate ML model training, distribution and inference in cooperation with the near-RealTime RICs.
-The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp and underlying SMo by way of the R1 Interface. 
+The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp and underlying SMO by way of the R1 Interface. 
 
 |archpic|
 
@@ -28,28 +27,28 @@ Find detailed description of the NONRTRIC project see the `O-RAN SC NONRTRIC Pro
 NONRTRIC components
 -------------------
 
-These are the components that make up the Non-RT-RIC:
 
-* `Non-RT-RIC Control Panel <#non-rt-ric-control-panel-nonrtric-dashboard>`_.  (:doc:`Documentation site <controlpanel:index>`).
-* `Information Coordinator Service <#information-coordination-service>`_.  (:doc:`Documentation site <informationcoordinatorservice:index>`).
-* `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_.  (:doc:`Documentation site <a1policymanagementservice:index>`).
-* `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_.
-* `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_.  (:doc:`Documentation site <simulator:index>`).
-* `Non-RT-RIC (Spring Cloud) Service Gateway <#spring-cloud-service-gateway>`_.
-* `Non-RT-RIC Service Exposure Security Architecture Prototyping <#service-exposure-security-architecture-prototyping>`_.  (:doc:`Documentation site <service-exposure/se-overview/>`). 
-* `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_.  (:doc:`Documentation site adapter <dmaapadapter:index>`),  (:doc:`Documentation site mediator <dmaapmediatorproducer:index>`).
-* `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_.  (:doc:`Documentation site <rappcatalogue:index>`).
-* `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_.  (:doc:`Documentation site <helmmanager:index>`).
-* `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_.  (:doc:`Documentation site <sme:index>`).
+* `Integrated SMO Deployment <itdepsmowiki_>`_.
+* `Non-RT-RIC Control Panel <#non-rt-ric-control-panel-nonrtric-dashboard>`_. (:doc:`Docs <controlpanel:index>`).
+* `Information Coordinator Service <#information-coordination-service>`_. (:doc:`Docs <informationcoordinatorservice:index>`).
+* `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. (:doc:`Docs <a1policymanagementservice:index>`). 
+* `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_. *(Inactive in OSC / Active in ONAP)*
+* `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_. (:doc:`Docs <simulator:index>`).
+* `Non-RT-RIC (Spring Cloud) Service Gateway <#spring-cloud-service-gateway>`_. *(inactive)*
+* `Non-RT-RIC Service Exposure Security Architecture Prototyping <#service-exposure-security-architecture-prototyping>`_. (:doc:`Docs <service-exposure/se-overview/>`). *(inactive)*
+* `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_. (:doc:`Docs: Adapter <dmaapadapter:index>`),  (:doc:`Docs: Mediator <dmaapmediatorproducer:index>`). *(inactive)*
+* `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. (:doc:`Docs <rappcatalogue:index>`). *(inactive / deprecated)*
+* `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. (:doc:`Docs <helmmanager:index>`). *(inactive / deprecated)*
+* `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_. (:doc:`Docs <sme:index>`).
 * `Authentication Support <#authentication-support-keycloak>`_.
-* `RApp Manager Service <#rapp-manager-service>`__.  (:doc:`Documentation site <rappmanager:index>`).
-* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`__   (:doc:`Documentation site <ranpm:index>`).
+* `RApp Manager Service <#rapp-manager-service>`_.  (:doc:`Docs <rappmanager:index>`).
+* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`_. (:doc:`Docs <ranpm:index>`).
 * :doc:`Topology Exposure & Inventory (TEIV) <teiv:index>`.
 * `Test Framework <#non-rt-ric-test-framework>`_.
-* `Use Cases: <#non-rt-ric-use-cases>`_
+* `Older Use Cases: <#non-rt-ric-use-cases>`_
 
-  * "Helloworld" O-RU Fronthaul Recovery use case.  (:doc:`Documentation site <orufhrecovery:index>`).
-  * "Helloworld" O-DU Slice Assurance use case.  (:doc:`Documentation site <ransliceassurance:index>`).
+  * "Helloworld" O-RU Fronthaul Recovery use case.  (:doc:`Docs <orufhrecovery:index>`).
+  * "Helloworld" O-DU Slice Assurance use case.  (:doc:`Docs <ransliceassurance:index>`).
 
 
 Non-RT-RIC Control Panel / NONRTRIC Dashboard
@@ -112,7 +111,7 @@ Maintains (persistent) cache of RAN's A1 Policy information.
 - Converged ONAP & O-RAN-SC A1 Adapter/Controller functions in ONAP SDNC/CCSDK (Optionally deploy without A1 Adapter to connect direct to near-RT-RICs).
 - Support for different Southbound connectors per near-RT-RIC - e.g. different A1 versions, different near-RT-RIC version, different A1 adapter/controllers supports different or proprietary A1 controllers/EMSs.
 
-Implementation:
+Implementation: *(inactive in OSC, active in ONAP)*
 
 - Implemented as a Java Spring Boot application.
 - Wiki: `A1 Policy Management Service in ONAP <https://lf-onap.atlassian.net/wiki/spaces/DW/pages/16444961/O-RAN+A1+Policies+in+ONAP>`_ .
@@ -131,7 +130,7 @@ Mediation point for A1 interface termination in SMO/NONRTRIC.
 - SLI Mapping logic supported.
 - Can be included in an any controller based on ONAP CCSDK.
 
-Implementation:
+Implementation: *(inactive in OSC, active in ONAP)*
 
 - Repo: *nonrtric/plt/sdnca1controller*
 - Wiki: `A1 Adapter/Controller Functions in ONAP <https://lf-onap.atlassian.net/wiki/spaces/DW/pages/16444961/O-RAN+A1+Policies+in+ONAP>`_ .
@@ -160,7 +159,7 @@ Support Apps to use A1 Services.
 - Exposes A1 Policy Management Service & Information Coordinator Service.
 - Additional predicates can be added in code or preferably in the Gateway yaml configuration.
 
-Implementation:
+Implementation: *(inactive)*
 
 - Implemented as a Java Spring Cloud application.
 - Repo: *portal/nonrtric-controlpanel*.
@@ -175,6 +174,7 @@ A building block for coming releases as the R1 Interface concept matures .
 - Support dynamic registration and exposure of service interfaces to Non-RT-RIC applications (& NONRTRIC Control panel).
 - The architecture and components are defined in :doc:`Non-RT RIC Security Architecture Prototyping (Documentation site) <service-exposure/se-overview/>`. 
 - Works with the CAPIF `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>` functions.
+- *(inactive)*
 
 
 DMaaP Information Producer Adapters (Kafka)
@@ -188,10 +188,10 @@ Information jobs defined using ICS then allow information consumers to retrieve 
 
 There are two alternative implementations to allow Information Consumers to consume DMaaP or Kafka events as coordinated Information Jobs.
 
-Implementation:
+Implementation: 
 
-- Implementation in Java Spring (DMaaP Adapter), repo: *nonrtric/plt/dmaapadapter*, see :doc:`DMaaP Adapter documentation site <dmaapadapter:index>`.
-- Implementation in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see :doc:`DMaaP Mediator Producer documentation site <dmaapmediatorproducer:index>`.
+- Implementation in Java Spring (DMaaP Adapter), repo: *nonrtric/plt/dmaapadapter*, see :doc:`DMaaP Adapter documentation site <dmaapadapter:index>`. *(inactive)*
+- Implementation in Go (DMaaP Mediator Producer), repo: *nonrtric/plt/dmaapmediatorproducer*, see :doc:`DMaaP Mediator Producer documentation site <dmaapmediatorproducer:index>`. *(inactive & deprecated)*
 
 Initial App Catalogue
 ~~~~~~~~~~~~~~~~~~~~~
@@ -202,7 +202,7 @@ Register for Non-RT-RIC Apps.
 - Limited functionality/integration for now.
 - *More work required in coming releases as the rApp concept matures*.
 
-Implementation:
+Implementation: *(inactive & deprecated)*
 
 - Implemented as a Java Spring Boot application and in Python.
 - Repo: *nonrtric/plt/rappcatalogue*
@@ -220,7 +220,7 @@ Onboard, start, stop, and modify Non-RT-RIC App ÂµServices as Helm Charts.
 - Initial version co-developed with v. similar functions in ONAP.
 - *Limited functionality/integration for now*.
 
-Implementation:
+Implementation: *(inactive & deprecated)*
 
 - Implemented as a Java Spring Boot application.
 - Repo: *nonrtric/plt/helmmanager*
@@ -308,16 +308,19 @@ Non-RT-RIC Test Framework
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A full test environment with extensive test cases/scripts can be found in the ``test`` directory in the *nonrtric* source code.
+*(inactive & deprecated)*
 
 Non-RT-RIC Use Cases
 ~~~~~~~~~~~~~~~~~~~~
+
+Some early use-cases to demonstrate the NONRTRIC & SMO functions. This work is now deprecated in favour of the sample rApps that form part of the RApp Manager work above.  
 
 "Helloworld" O-RU Fronthaul Recovery use case
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A very simplified closed-loop rApp use case to re-establish front-haul connections between O-DUs and O-RUs if they fail. Not intended to to be 'real-world'.
 
-Implementation:
+Implementation: *(inactive & deprecated)*
 
 - One version implemented in Python, one in Go as an Information Coordination Service Consumer, and one as an apex policy.
 - Repo: *nonrtric/rapp/orufhrecovery*
@@ -328,7 +331,7 @@ Implementation:
 
 A very simplified closed-loop rApp use case to re-prioritize a RAN slice's radio resource allocation priority if sufficient throughput cannot be maintained. Not intended to to be 'real-world'.
 
-Implementation:
+Implementation: *(inactive & deprecated)*
 
 - One version implemented in Go as a micro service, one in Go as an Information Coordination Service Consumer.
 - Repo: *nonrtric/rapp/ransliceassurance*

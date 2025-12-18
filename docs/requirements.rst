@@ -1,6 +1,7 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
-.. Copyright (C) 2021-2025 Nordix
+.. Copyright (C) 2021-2023 Nordix Foundation. All rights Reserved
+.. Copyright (C) 2023-2025 OpenInfra Foundation Europe. All Rights Reserved
 
 Requirements for the Non-RT RIC project
 =======================================
@@ -28,7 +29,7 @@ The NONRTRIC project (and the O-RAN Non-RealTime RIC function) can be considered
 * Acts as model-training host
 * May act as model-inference host (others: Near-RT RICs, “E2 nodes”)
 * Dynamically coordinate ML/AI model lifecycle management (e.g. re-train, re-deploy, etc)
-* Models are (always?) deployed over O1 interface
+* *This work is now progressed in the* `OSC AIMLFW project <https://lf-o-ran-sc.atlassian.net/wiki/spaces/AIMLFEW/overview>`_.
 
 **Scope 4: Enrichment Data Coordinator**
 
@@ -37,12 +38,12 @@ The NONRTRIC project (and the O-RAN Non-RealTime RIC function) can be considered
 
 **Scope 5: rApp Host & rApp Coordinator**
 
-* rApps may act as, or form part of, NONRTRIC- or SMO-level applications
-* rApps, via rApp host function, may consume many other services - some from the NONRTRIC platform, some from the SMO platform, and some from other rApps
 * Dynamically coordinate rApp lifecycle management
+* rApps may act as, or form part of, NONRTRIC- or SMO-level applications
+* rApps, via rApp host function, may produce or consume data or services to/from other rApps or SMO services 
 
 **Scope 6: Provide R1 interface for rApps**
 
-* rApps may only consume services over the R1 interface (from NONRTRIC platform, or from SMO platform, or from other rApps)
-* Platform services and services optionally provided by rApps must be exposed over the R1 Interface
-* These services may be "standardized" R1 services or R1 extensions (some may be proprietary)
+* rApps may only consume or produce data or services over the R1 interface (to/from NONRTRIC platform, or to/from SMO platform, or to/from other rApps)
+* Exposure & consumption of data or services over R1 must be carefully coordinated by NONRTRIC Platform functions
+* Services or data produced or consumed may be "standardized" R1 services or R1 extensions (while other may be proprietary)

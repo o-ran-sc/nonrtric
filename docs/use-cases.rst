@@ -1,14 +1,18 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. Copyright (C) 2021-2025 Nordix
+.. Copyright (C) 2021-2023 Nordix Foundation. All rights Reserved
+.. Copyright (C) 2023-2025 OpenInfra Foundation Europe. All Rights Reserved
 
 Use Cases
 #########
 
-To support the use cases defined for the Non-RT RIC, there are implementations provided in the Non RT-RIC project.
+**Deprecated**
 
-Health Check
-------------
+Some early use-cases to demonstrate NONRTRIC & SMO functions. 
+This work is now deprecated in favour of the sample rApps that form part of the new :doc:`Non-RT RIC rApp Manager <rappmanager:index>`. 
+
+Health Check (Deprecated)
+-------------------------
 
 The Health Check use case for the Non-RT RIC is a python script that regularly creates, reads, updates, and deletes a
 policy in all Near-RT RICs that support the type used by the script. A self refreshing web page provides a view of
@@ -18,8 +22,8 @@ For more information about it, see the README file in `repo <https://gerrit.o-ra
 
 .. image:: ./images/healthcheck.png
 
-O-RU Front-Haul Recovery
-------------------------
+O-RU Front-Haul Recovery (Deprecated)
+-------------------------------------
 
 This use case is a non-real-world closed-loop use case to demonstrate automated recovery when the front-haul connection between an O-DU and O-RU is reset.
 An application in the NONRTRIC senses the fault from the O-RU (O1-FM) and initiates a NETCONF reset operation (O1-CM) using the OAM controller.
@@ -57,8 +61,8 @@ ICS Consumer Solution
 
 The ICS Consumer solution is implemented in Go and instead of polling MR itself, it registers as a consumer of the "STD_Fault_Messages" job in ICS.
 
-O-DU Slice Assurance
---------------------
+O-DU Slice Assurance (Deprecated)
+---------------------------------
 
 A very simplified closed-loop rApp use case to re-prioritize a RAN slice's radio resource allocation priority if sufficient throughput cannot be maintained. Not intended to to be 'real-world'.
 

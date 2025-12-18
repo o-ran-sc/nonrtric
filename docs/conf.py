@@ -41,6 +41,7 @@ rst_epilog = """
 .. _nonrtricwikidevguide: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903234/Release+M
 .. _nonrtricwikik8s: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903652/Release+M+-+Run+in+Kubernetes
 .. _nonrtricwikidocker: https://lf-o-ran-sc.atlassian.net/wiki/spaces/RICNR/pages/679903494/Release+M+-+Run+in+Docker
+.. _itdepsmowiki: https://lf-o-ran-sc.atlassian.net/wiki/spaces/IAT/pages/383713307/SMO+Lite+-+An+Integrated+Open-Source+SMO+Deployment
 """
 ## 
 
