@@ -20,14 +20,8 @@ Install with Helm in Kubernetes
 The easiest and preferred way to install NONRTRIC functions is using Kubernetes, with installation instructions provided in Helm Charts. 
 Full details of how to install NONRTRIC functions are provided in `Deploy NONRTRIC in Kubernetes <nonrtricwikik8s_>`_.
 
-Helm charts and an example recipe are provided in the `it/dep repo <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_,
-under "nonrtric". By modifying the variables named "installXXX" in the beginning of the example recipe file, which
-components that will be installed can be controlled. Then the components can be installed and started by running the
-following command:
-
-      .. code-block:: bash
-
-        bin/deploy-nonrtric -f nonrtric/RECIPE_EXAMPLE/example_recipe.yaml
+Helm charts and several example recipes are provided in the `it/dep repo <https://gerrit.o-ran-sc.org/r/admin/repos/it/dep>`_,
+in the 'smo-install' directory to selectively deploy NONRTRIC and SMO functions as part of an `Integrated SMO Deployment <itdepsmowiki_>`_ . 
 
 Install with Docker
 +++++++++++++++++++
@@ -49,3 +43,5 @@ command to start the components:
 
 The example above is just an example to start some of the components.
 For more information on running and configuring the functions can be found in the README file in the "`docker-compose <https://gerrit.o-ran-sc.org/r/gitweb?p=nonrtric.git;a=tree;f=docker-compose>`_" folder, and on the `wiki page <nonrtricwikidocker_>`_
+
+However, the 'Helm in Kubernetes' approach above is the preferred method to install SMO & NONRTRIC functions.  
