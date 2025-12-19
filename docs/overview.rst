@@ -9,7 +9,11 @@
 Summary
 -------
 
+<<<<<<< PATCH SET (2832bc Update RTD documentation after M-Release again (2 - m-releas)
+The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automation function described by the O-RAN Alliance for non-real-time intelligent management of RAN (Radio Access Network) functions. It forms part of the integrated Service Management & Orchestration (SMO) layer in the O-RAN Architecture.
+=======
 The Non-RealTime RIC (RAN Intelligent Controller) is an Orchestration and Automation function described by the O-RAN Alliance for non-real-time intelligent management of RAN (Radio Access Network) functions. It forms part of the integrated Service Management & Orchestration (SMO) layer in the O-RAN Architecture. 
+>>>>>>> BASE      (1efdcc Update RTD documentation after M-Release again (m-release br)
 
 The primary goal of the Non-RealTime RIC is to support non-real-time radio-network (RAN) resource management, higher layer optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of near-RealTime RIC functions in the RAN to achieve higher-level non-real-time objectives.
 
@@ -18,7 +22,11 @@ The Non-RealTime RIC also hosts the new R1 interface (between rApps and SMO/Non-
 
 The O-RAN-SC (OSC) NONRTRIC project provides concepts, architecture and early reference implementations as defined and described by the `O-RAN Alliance <https://www.o-ran.org>`_ architecture.
 The OSC NONRTRIC implementation communicates with near-RealTime RIC elements in the RAN via the A1 interface. Using the A1 interface the NONRTRIC will facilitate the provision of policies for individual UEs or groups of UEs; monitor and provide basic feedback on policy state from near-RealTime RICs; provide enrichment information as required by near-RealTime RICs; and facilitate ML model training, distribution and inference in cooperation with the near-RealTime RICs.
+<<<<<<< PATCH SET (2832bc Update RTD documentation after M-Release again (2 - m-releas)
+The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp and underlying SMO by way of the R1 Interface.
+=======
 The OSC NONRTRIC hosts rApps, and coordinates all interactions between the rApp and underlying SMO by way of the R1 Interface. 
+>>>>>>> BASE      (1efdcc Update RTD documentation after M-Release again (m-release br)
 
 |archpic|
 
@@ -30,6 +38,18 @@ NONRTRIC components
 
 * `Integrated SMO Deployment <itdepsmowiki_>`_.
 * `Non-RT-RIC Control Panel <#non-rt-ric-control-panel-nonrtric-dashboard>`_. (:doc:`Docs <controlpanel:index>`).
+<<<<<<< PATCH SET (2832bc Update RTD documentation after M-Release again (2 - m-releas)
+* `Information Coordinator Service <#information-coordination-service-dme>`_. (:doc:`Docs <informationcoordinatorservice:index>`).
+* `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. (:doc:`Docs <a1policymanagementservice:index>`).
+* `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_. *(Inactive in OSC / Active in ONAP)*
+* `Near-RT RIC A1 Simulator <#a1-interface-near-rt-ric-simulator>`_. (:doc:`Docs <simulator:index>`).
+* `Non-RT-RIC (Spring Cloud) Service Gateway <#service-gateway-spring-cloud>`_. *(inactive)*
+* `Non-RT-RIC Service Exposure Security Architecture Prototyping <#service-exposure-security-architecture-prototyping>`_. (:doc:`Docs <service-exposure/se-overview/>`). *(inactive)*
+* `DMaaP/Kafka Information Producer Adapters <#dmaap-information-producer-adapters-kafka>`_. (:doc:`Docs: Adapter <dmaapadapter:index>`),  (:doc:`Docs: Mediator <dmaapmediatorproducer:index>`). *(inactive)*
+* `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. (:doc:`Docs <rappcatalogue:index>`). *(inactive / deprecated)*
+* `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. (:doc:`Docs <helmmanager:index>`). *(inactive / deprecated)*
+* `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-sme>`_. (:doc:`Docs <sme:index>`).
+=======
 * `Information Coordinator Service <#information-coordination-service>`_. (:doc:`Docs <informationcoordinatorservice:index>`).
 * `A1 Policy Management Service <#a1-policy-management-service-from-onap-ccsdk>`_. (:doc:`Docs <a1policymanagementservice:index>`). 
 * `A1 Policy Controller / Adapter <#a1-sdnc-controller-a1-adapter-controller-plugin>`_. *(Inactive in OSC / Active in ONAP)*
@@ -40,9 +60,15 @@ NONRTRIC components
 * `Initial Non-RT-RIC App Catalogue <#initial-app-catalogue>`_. (:doc:`Docs <rappcatalogue:index>`). *(inactive / deprecated)*
 * `Initial K8S Helm Chart LCM Manager <#initial-kubernetes-helm-chart-lcm-manager>`_. (:doc:`Docs <helmmanager:index>`). *(inactive / deprecated)*
 * `Service Management & Exposure (SME) (CAPIF) <#service-management-and-exposure-capif>`_. (:doc:`Docs <sme:index>`).
+>>>>>>> BASE      (1efdcc Update RTD documentation after M-Release again (m-release br)
 * `Authentication Support <#authentication-support-keycloak>`_.
+<<<<<<< PATCH SET (2832bc Update RTD documentation after M-Release again (2 - m-releas)
+* `RApp Manager Service <#rapp-management-service>`_.  (:doc:`Docs <rappmanager:index>`).
+* `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-file-based-pm>`_. (:doc:`Docs <ranpm:index>`).
+=======
 * `RApp Manager Service <#rapp-manager-service>`_.  (:doc:`Docs <rappmanager:index>`).
 * `RAN Performance Monitoring Functions (File-based PM) <#ran-performance-monitoring-functions-file-based-pm>`_. (:doc:`Docs <ranpm:index>`).
+>>>>>>> BASE      (1efdcc Update RTD documentation after M-Release again (m-release br)
 * :doc:`Topology Exposure & Inventory (TEIV) <teiv:index>`.
 * `Test Framework <#non-rt-ric-test-framework>`_.
 * `Older Use Cases: <#non-rt-ric-use-cases>`_
@@ -68,8 +94,8 @@ Implementation:
 - Repo: *portal/nonrtric-controlpanel*
 - Documentation at the :doc:`NONRTRIC-Portal documentation site <controlpanel:index>`.
 
-Information Coordination Service
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Information Coordination Service (DME)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ICS is a data subscription service which decouples data producers from data consumers. A data consumer can create a data subscription (Information Job) without any knowledge of its data producers (one subscription may involve several data producers). A data producer has the ability to produce one or several types of data (Information Type). One type of data can be produced by zero to many producers.
 
@@ -151,19 +177,22 @@ Implementation:
 - Repo: *sim/a1-interface*.
 - Documentation at the :doc:`A1 Simulator documentation site <simulator:index>`.
 
-(Spring Cloud) Service Gateway
+Service Gateway (Spring Cloud)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Support Apps to use A1 Services.
 
 - `Spring Cloud Gateway <https://cloud.spring.io/spring-cloud-gateway>`_ provides the library to build a basic API gateway.
 - Exposes A1 Policy Management Service & Information Coordinator Service.
 - Additional predicates can be added in code or preferably in the Gateway yaml configuration.
+- *See also work below on Service Management & Exposure for more comprehensive approaches*
 
 Implementation: *(inactive)*
 
 - Implemented as a Java Spring Cloud application.
 - Repo: *portal/nonrtric-controlpanel*.
 
+<<<<<<< PATCH SET (2832bc Update RTD documentation after M-Release again (2 - m-releas)
+=======
 
 Service Exposure Security Architecture Prototyping
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,6 +206,7 @@ A building block for coming releases as the R1 Interface concept matures .
 - *(inactive)*
 
 
+>>>>>>> BASE      (1efdcc Update RTD documentation after M-Release again (m-release br)
 DMaaP Information Producer Adapters (Kafka)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -200,7 +230,7 @@ Register for Non-RT-RIC Apps.
 
 - Non-RT-RIC Apps can be registered / queried.
 - Limited functionality/integration for now.
-- *More work required in coming releases as the rApp concept matures*.
+- *This work is now superseded by the catalogue capabilities of the new rApp Manager function*.
 
 Implementation: *(inactive & deprecated)*
 
@@ -226,10 +256,20 @@ Implementation: *(inactive & deprecated)*
 - Repo: *nonrtric/plt/helmmanager*
 - Documentation at the :doc:`Helm Manager documentation site <helmmanager:index>`.
 
-Service Management and Exposure (CAPIF)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Service Management and Exposure (SME)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An initial implementation of the CAPIF Core service. It implements the following CAPIF APIs:
+The OSC Service Manager server provides a solution to register & discover services.
+
+- Includes automatic Service Exposure Gateway (Kong) for registered services.
+- Supports the 3GPP CAPIF APIs for Service Management & Exposure (SME), and aligns well with O-RAN Alliance R1-SME specifications.
+
+Implementation:
+- Implemented as a Java Spring Boot application.
+- Repo: *nonrtric/plt/sme*
+- Documentation at the :doc:`Service Management & Exposure (SME) documentation site <sme:index>`.
+
+This work also includes a standalone initial implementation of the CAPIF Core services to underpin the Service Manager function. It implements the following CAPIF APIs:
 
 - API Provider Management
 - Publish Service
@@ -243,6 +283,18 @@ Implementation:
 - Implemented in Go
 - Repo: *nonrtric/plt/sme*
 - Documentation at the :doc:`Service Management & Exposure (SME) documentation site <sme:index>`.
+
+Service Exposure Security Architecture Prototyping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support Apps to use NONRTRIC, SMO and other App interfaces.
+A building block for coming releases as the R1 Interface concept matures.
+
+- Support dynamic registration and exposure of service interfaces to Non-RT-RIC applications (& NONRTRIC Control panel).
+- The architecture and components are defined in :doc:`Non-RT RIC Security Architecture Prototyping (Documentation site) <service-exposure/se-overview/>`.
+- Works with the CAPIF `Service Management & Exposure (SME) <#service-management-and-exposure>`_. :doc:`Documentation site <sme:index>` functions.
+- Demonstrates how to move beyond the existing SME functions to achieve a secure overall service exposure platform
+- *(inactive)*
 
 Authentication Support (Keycloak)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -272,14 +324,14 @@ The auth-token-fetch is configured by the following environment variables.
 * AUTH_SERVICE_URL - the URL to the authentication service (Keycloak)
 * REFRESH_MARGIN_SECONDS - how long in advance before the authorization token expires it is refreshed
 
-RApp Manager Service
-~~~~~~~~~~~~~~~~~~~~
+RApp Management Service
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Early version of a service to manage rApps and rApp instances. 
+Early version of an rApp Manager service to manage rApps and rApp instances.
 
-- Manages the entire lifecycle and state of rApp and thie instances
-- Integrated with NONRTRIC Data Management & Exposure functions (ICS)
-- Integrates with NONRTRIC Service registration and discovery functions (SME CAPIF)
+- Manages the entire lifecycle and state of rApp and thier instances
+- Integrated with NONRTRIC Data Management & Exposure functions (DME / ICS)
+- Integrates with NONRTRIC Service registration and discovery functions (SME)
 - Also add new ONAP ACM participants to handle rApp composition elements
 
 Implementation:
@@ -288,8 +340,8 @@ Implementation:
 - Repo: *nonrtric/plt/rappmanager*
 - Documentation at the :doc:`Non-RT RIC rApp Manager documentation site <rappmanager:index>`.
 
-RAN Performance Monitoring Functions (File-based PM)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RAN Performance Monitoring (File-based PM)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Functions to collect/parse/filter/store/forward file-based & event-based RAN PM data:
 
@@ -313,7 +365,11 @@ A full test environment with extensive test cases/scripts can be found in the ``
 Non-RT-RIC Use Cases
 ~~~~~~~~~~~~~~~~~~~~
 
+<<<<<<< PATCH SET (2832bc Update RTD documentation after M-Release again (2 - m-releas)
+Some early use-cases to demonstrate the NONRTRIC & SMO functions. This work is now deprecated in favour of the sample rApps that form part of the RApp Manager work above.
+=======
 Some early use-cases to demonstrate the NONRTRIC & SMO functions. This work is now deprecated in favour of the sample rApps that form part of the RApp Manager work above.  
+>>>>>>> BASE      (1efdcc Update RTD documentation after M-Release again (m-release br)
 
 "Helloworld" O-RU Fronthaul Recovery use case
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
