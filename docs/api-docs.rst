@@ -12,7 +12,6 @@ API-Docs
 
 Descriptions of the APIs to the Non-RT RIC functions can be found in the repos for the functions.
 
-* Helm Manager :doc:`API Docs <helmmanager:api-docs>`.
 * A1 Policy Management Service :doc:`API Docs <onapa1policymanagementservice:offeredapis/offeredapis>`.
 * Information Coordinator Service :doc:`API Docs <informationcoordinatorservice:api-docs>`.
 * rApp Catalogue :doc:`API Docs <rappcatalogue:api-docs>`.
@@ -20,7 +19,6 @@ Descriptions of the APIs to the Non-RT RIC functions can be found in the repos f
 * RAN PM toolchain :doc:`API Docs <ranpm:overview>`.
 * Topology Exposure & Inventory (SMO-TEIV)  :doc:`API Docs <teiv:api-documentation>`.
 * rApp Manager Service :doc:`API Docs <rappmanager:api-docs>`.
-* Control Panel  :doc:`API Docs <controlpanel:overview>`.
 * Near-RT-RIC / A1 Simulator  :doc:`API Docs <simulator:overview>`.
 * DMaaP Mediator Producer (Go)  :doc:`API Docs <dmaapmediatorproducer:api-docs>`.
 * DMaaP Adapter Producer (Java)  :doc:`API Docs <dmaapadapter:api-docs>`.
