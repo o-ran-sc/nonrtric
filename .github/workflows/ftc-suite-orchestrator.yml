@@ -12,6 +12,7 @@ on:
           - '../common/test_env-oran-m-release.sh'
           - '../common/test_env-oran-l-release.sh'
           - '../common/test_env-oran-k-release.sh'
+          - '../common/test_env-onap-quebec.sh'
           - '../common/test_env-onap-paris.sh'
           - '../common/test_env-onap-oslo.sh'
           - '../common/test_env-onap-montreal.sh'
@@ -128,4 +129,5 @@ jobs:
         if [ $FAILED_COUNT -gt 0 ]; then
           echo "⚠️ Some workflows failed to trigger. Check GitHub token permissions."
           exit 1
+
         fi
