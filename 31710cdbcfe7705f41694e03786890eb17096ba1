@@ -1,5 +1,115 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8a4736e_edc0c47f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2026-03-04T16:28:58Z",
+      "side": 1,
+      "message": "Oops - some snapshot/local versions need an uptick still",
+      "revId": "31710cdbcfe7705f41694e03786890eb17096ba1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9c824af_5e16103f",
+        "filename": "test/common/onap_ftc_job_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2026-03-04T16:28:58Z",
+      "side": 1,
+      "message": "Needs to be 2.3.0-SNAPSHOT\nThis is the current RABAT version (Mar 2026 master - local build)",
+      "range": {
+        "startLine": 72,
+        "startChar": 23,
+        "endLine": 72,
+        "endChar": 37
+      },
+      "revId": "31710cdbcfe7705f41694e03786890eb17096ba1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8255c57_15081a95",
+        "filename": "test/common/onap_ftc_job_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2026-03-04T16:28:58Z",
+      "side": 1,
+      "message": "Needs to be 2.3.0-SNAPSHOT\nThis is the current RABAT version",
+      "range": {
+        "startLine": 73,
+        "startChar": 33,
+        "endLine": 73,
+        "endChar": 47
+      },
+      "revId": "31710cdbcfe7705f41694e03786890eb17096ba1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7db3676_975c421e",
+        "filename": "test/common/onap_ftc_job_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2026-03-04T16:28:58Z",
+      "side": 1,
+      "message": "Needs to be 2.3.0-SNAPSHOT-latest        \nThis is the current RABAT version",
+      "range": {
+        "startLine": 74,
+        "startChar": 24,
+        "endLine": 74,
+        "endChar": 45
+      },
+      "revId": "31710cdbcfe7705f41694e03786890eb17096ba1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9d04384_d4c39ad9",
+        "filename": "test/common/onap_ftc_job_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2026-03-04T16:28:58Z",
+      "side": 1,
+      "message": "No change needed. Stays 2.2.0 (Quebec release)",
+      "range": {
+        "startLine": 75,
+        "startChar": 32,
+        "endLine": 75,
+        "endChar": 37
+      },
+      "revId": "31710cdbcfe7705f41694e03786890eb17096ba1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
