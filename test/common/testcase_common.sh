@@ -2979,8 +2979,10 @@ __start_container() {
 
 	if [ "$compose_args" == "NODOCKERARGS" ]; then
 		$docker_compose_cmd -f $compose_file up -d &> .dockererr
+		echo !! > .lastdockercomposecommand
 		if [ $? -ne 0 ]; then
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
+			cat .lastdockercomposecommand
 			cat .dockererr
 			echo -e $RED"Stopping script...."$ERED
 			exit 1
@@ -2989,6 +2991,7 @@ __start_container() {
 		$docker_compose_cmd -f $compose_file up -d $compose_args &> .dockererr
 		if [ $? -ne 0 ]; then
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
+			cat .lastdockercomposecommand
 			cat .dockererr
 			echo -e $RED"Stopping script...."$ERED
 			exit 1
