@@ -97,7 +97,7 @@ CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.5.0"
 
 # Gateway image and tags - used i release
 NRT_GATEWAY_IMAGE_BASE="o-ran-sc/nonrtric-gateway"
-NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.3.0"
+NRT_GATEWAY_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.3.1"
 
 # RAPP Catalogue image and tags - used i release
 RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-plt-rappcatalogue"
