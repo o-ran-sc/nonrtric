@@ -57,9 +57,9 @@ fi
 
 echo "Current directory: "
 pwd
+echo "Should be in directory:  ${TEST_DIRECTORY}"
 echo "Contents of current directory: "
 ls -la
-cd "$TEST_DIRECTORY"
 
 sudo chmod 775 "$TEST_SCRIPT"
 "$TEST_SCRIPT" $PULL_IMAGE_TYPE $RUN_MODE $IMAGE_VERSION $ENV_FLAG $ENV_FILE $A1PMS_LOCAL_IMAGE_FLAG $LOCAL_IMAGE_FLAG $DELETE_CONTAINERS_FLAG
