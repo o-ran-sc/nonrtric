@@ -453,7 +453,7 @@ __collect_endpoint_stats() {
 	if [ $# -gt 5 ]; then
 		ENDPOINT_COUNT=$6
 	fi
-	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/endpoint_$ATC_$1_$2".log"
+	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/endpoint_${ATC}_${1}_${2}".log"
 	ENDPOINT_POS=0
 	ENDPOINT_NEG=0
 	if [ -f $ENDPOINT_STAT_FILE ]; then
@@ -477,7 +477,7 @@ __collect_endpoint_stats_image_info() {
 	if [ $COLLECT_ENDPOINT_STATS -eq 0 ]; then
 		return
 	fi
-	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/imageinfo_$ATC_$1".log"
+	ENDPOINT_STAT_FILE=$TESTLOGS/$ATC/imageinfo_${ATC}_${1}".log"
 	echo $A1PMS_IMAGE > $ENDPOINT_STAT_FILE
 }
 
@@ -3191,7 +3191,7 @@ store_logs() {
 # returns: <returned response (without respose code)>  or "<no-response-from-server>" or "<not found, <http-code>>""
 # returns: The return code is 0 for ok and 1 for not ok
 __do_curl() {
-	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
+	echo ${TIMESTAMP} " : " ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	proxyflag=""
 	if [ ! -z "$KUBE_PROXY_PATH" ]; then
 		if [ $KUBE_PROXY_HTTPX == "http" ]; then
@@ -3249,7 +3249,7 @@ __do_curl() {
 # returns: <returned response (without respose code)>  or "<no-response-from-server>" or "<not found, <http-code>>""
 # returns: The return code is 0 for ok and 1 for not ok
 __do_curl_no_proxy() {
-	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
+	echo ${TIMESTAMP} " : " ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	curlString="curl -skw %{http_code} $@"
 	echo " CMD: $curlString" >> $HTTPLOG
 	res=$($curlString)

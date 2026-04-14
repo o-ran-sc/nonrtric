@@ -328,7 +328,7 @@ check_sdnc_logs() {
 # response: <json-body><3-digit-response-code>
 # (Not for test scripts)
 __do_curl_to_controller() {
-    echo " (${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+    echo " (${BASH_LINENO[0]}): ${TIMESTAMP} " : " ${FUNCNAME[0]}" $@ >> $HTTPLOG
     if [ $# -ne 2 ] && [ $# -ne 3 ]; then
 		((RES_CONF_FAIL++))
         echo "-Incorrect number of parameters to __do_curl_to_controller " $@ >> $HTTPLOG

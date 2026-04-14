@@ -360,7 +360,7 @@ nearsim_generate_policy_uuid() {
 # Execute a curl cmd towards a ricsimulator and check the response code.
 # args: <expected-response-code> <curl-cmd-string>
 __execute_curl_to_ricmediatorsim() {
-	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
+	echo  ${TIMESTAMP} " : " ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	proxyflag=""
 	if [ ! -z "$KUBE_PROXY_PATH" ]; then
 		if [ $KUBE_PROXY_HTTPX == "http" ]; then

@@ -64,7 +64,7 @@ function httpclientrequest(clientrequest, clientresponse) {
   var crproto=clientrequest.headers['x-forwarded-proto'];
 
   if (debug) {
-    console.log("crurl: "+crurl)
+    console.log(new Date().toISOString()); console.log("crurl: "+crurl)
     console.log("crhost: "+crhost)
     console.log("crproto: "+crproto)
   }
@@ -116,7 +116,7 @@ function httpclientrequest(clientrequest, clientresponse) {
   proxyrequest.on('error', function (error) {
     clientresponse.writeHead(500);
     stats['http-requests-failed']++;
-    console.log(error);
+    console.log(new Date().toISOString()); console.log(error);
     clientresponse.write("<h1>500 Error</h1>\r\n" + "<p>Error was <pre>" + error + "</pre></p>\r\n" + "</body></html>\r\n");
     clientresponse.end();
   });
@@ -135,7 +135,7 @@ function addhttpsconnect(httpserver) {
     function (request, socketrequest, bodyhead) {
 
       if (debug) {
-        console.log("Received 'connect' for: "+request['url'])
+        console.log(new Date().toISOString()); console.log("Received 'connect' for: "+request['url'])
       }
       stats['https-requests-initiated']++;
       // Extract destination information
@@ -175,13 +175,13 @@ function addhttpsconnect(httpserver) {
 
       proxysocket.on('error', function (err) {
         stats['https-requests-failed']++;
-        console.log(err);
+        console.log(new Date().toISOString()); console.log(err);
         socketrequest.write("HTTP/" + httpversion + " 500 Connection error\r\n\r\n");
         socketrequest.end();
       });
       socketrequest.on('error', function (err) {
         stats['https-requests-failed']++;
-        console.log(err);
+        console.log(new Date().toISOString()); console.log(err);
         proxysocket.end();
       });
     }
@@ -213,7 +213,7 @@ function main() {
         return
       }
     }
-    console.log(stats)
+    console.log(new Date().toISOString()); console.log(stats)
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(JSON.stringify(stats))
     res.end();
@@ -227,13 +227,13 @@ function main() {
 
   //Handle heatlhcheck requests
   aliveserver.listen(aliveport, () => {
-    console.log('alive server on: '+aliveport);
+    console.log(new Date().toISOString()); console.log('alive server on: '+aliveport);
     console.log(' example: curl localhost:'+aliveport)
   });
 
   //Handle heatlhcheck requests
   aliveserverhttps.listen(aliveporthttps, () => {
-    console.log('alive server on: '+aliveporthttps);
+    console.log(new Date().toISOString()); console.log('alive server on: '+aliveporthttps);
     console.log(' example: curl -k https://localhost:'+aliveporthttps)
   });
 
@@ -241,7 +241,7 @@ function main() {
 
   // The proxy server
   const proxyserver  = http.createServer(httpclientrequest).listen(proxyport);
-  console.log('http/https proxy for http proxy calls on port ' + proxyport);
+  console.log(new Date().toISOString()); console.log('http/https proxy for http proxy calls on port ' + proxyport);
   console.log(' example: curl --proxy http://localhost:8080 http://100.110.120.130:1234')
   console.log(' example: curl -k --proxy http//localhost:8080 https://100.110.120.130:5678')
 
@@ -249,7 +249,7 @@ function main() {
   addhttpsconnect(proxyserver);
 
   const proxyserverhttps = https.createServer(httpsoptions, httpclientrequest).listen(proxyporthttps);
-  console.log('http/https proxy for https proxy calls on port ' + proxyporthttps);
+  console.log(new Date().toISOString()); console.log('http/https proxy for https proxy calls on port ' + proxyporthttps);
   console.log(' example: curl --proxy-insecure --proxy https://localhost:8433 http://100.110.120.130:1234')
   console.log(' example: curl -k --proxy-insecure --proxy https://localhost:8433 https://100.110.120.130:5678')
 
@@ -260,7 +260,7 @@ function main() {
 
 //Handle ctrl c when running in interactive mode
 process.on('SIGINT', () => {
-  console.info("Interrupted")
+  console.log(new Date().toISOString()); console.info("Interrupted")
   process.exit(0)
 })
 

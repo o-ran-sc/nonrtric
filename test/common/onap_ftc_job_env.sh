@@ -16,8 +16,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ONAP quebec release
-TEST_ENV_PROFILE="ONAP-QUEBEC"
+#Profile for ONAP rabat release
+TEST_ENV_PROFILE="ONAP-RABAT"
 FLAVOUR="ONAP"
 
 ########################################

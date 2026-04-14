@@ -26,6 +26,10 @@ import logging
 import socket
 from threading import RLock
 from hashlib import md5
+import builtins
+
+def print(*args, **kwargs):
+    builtins.print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"), *args, **kwargs)
 
 # Disable all logging of GET on reading counters and db
 class AjaxFilter(logging.Filter):
