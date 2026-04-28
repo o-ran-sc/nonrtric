@@ -1,13 +1,4 @@
-tox
-Sphinx
-doc8
-docutils < 0.17
-setuptools
-six
-sphinx_rtd_theme
-sphinxcontrib-needs
-sphinxcontrib-swaggerdoc
-sphinx_bootstrap_theme
-sphinxcontrib-redoc
+sphinx>=7,<10
+sphinx-rtd-theme
+sphinxcontrib-httpdomain
 lfdocs-conf
-urllib3~=1.26.15
