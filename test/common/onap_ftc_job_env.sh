@@ -16,8 +16,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ONAP rabat release
-TEST_ENV_PROFILE="ONAP-RABAT"
+#Profile for ONAP master versions for auto-testing in ONAP Github GHA test
+TEST_ENV_PROFILE="ONAP-MASTER"
 FLAVOUR="ONAP"
 
 ########################################
@@ -69,10 +69,10 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 
 # A1PMS image and tags
 A1PMS_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="2.3.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.3.1-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="2.3.1-SNAPSHOT-latest" #Will use snapshot repo
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.2.0"   
+A1PMS_IMAGE_TAG_LOCAL="2.4.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.4.0-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="2.4.0-SNAPSHOT-latest" #Will use snapshot repo
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.3.1"   
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"

@@ -54,6 +54,7 @@ Note that oran tests only include components from oran (exception is the onap sd
 Note that onap test uses components from onap combined with released oran components available at that onap release (e.g. Montreal contains onap images from Montreal and oran images (released images from i-release).
 
 In general, the test scripts support the current ongoing release as well as two previous releases.
+For Example: 
 
 
 ORAN K-RELEASE

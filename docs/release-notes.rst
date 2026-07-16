@@ -1,7 +1,7 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
 .. Copyright (C) 2021-2023 Nordix. All rights reserved.
-.. Copyright (C) 2023-2025 OpenInfra Foundation Europe. All rights reserved.
+.. Copyright (C) 2023-2026 OpenInfra Foundation Europe. All rights reserved.
 
 =============
 Release-Notes
@@ -21,14 +21,14 @@ Functions, previously here, but now with their own repos have their own release 
 * :doc:`Near-RT RIC A1 Simulator <simulator:release-notes>`.
 * DMaaP/Kafka Information Producer Adapters. :doc:`DMaaP Adapter <dmaapadapter:release-notes>`. :doc:`DMaaP Mediator Producer <dmaapmediatorproducer:release-notes>`.
 * :doc:`Non-RT-RIC Control Panel <controlpanel:release-notes>`.
-* :doc:`Non-RT-RIC App Catalogue <rappcatalogue:release-notes>`.
-* :doc:`K8S Helm Chart LCM Manager <helmmanager:release-notes>`.
+* :doc:`Non-RT-RIC App Catalogue <rappcatalogue:release-notes>`. (Deprecated)
+* :doc:`K8S Helm Chart LCM Manager <helmmanager:release-notes>`. (Deprecated)
 * :doc:`Topology Exposure & Inventory (TEIV) <teiv:release-notes>`.
 * Use Cases: 
 
   * (See also rApp Manager)
-  * :doc:`"Helloworld" O-RU Fronthaul Recovery use case <orufhrecovery:release-notes>`.
-  * :doc:`"Helloworld" O-DU Slice Assurance use case <ransliceassurance:release-notes>`.
+  * :doc:`"Helloworld" O-RU Fronthaul Recovery use case <orufhrecovery:release-notes>`. (Deprecated)
+  * :doc:`"Helloworld" O-DU Slice Assurance use case <ransliceassurance:release-notes>`. (Deprecated)
 
 Release-Notes (Only for the 'nonrtric' repo)
 ============================================
@@ -274,6 +274,20 @@ M Release
 +-----------------------------+---------------------------------------------------+
 | **Note**                    | No new images released from this repo for         |
 |                             |     the M Release.                                |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+
+N Release
+---------
++-----------------------------+---------------------------------------------------+
+| **Project**                 | Non-RT RIC                                        |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Repo/commit-ID**          | nonrtric                                          |
+|                             |                                                   |
++-----------------------------+---------------------------------------------------+
+| **Note**                    | No new images released from this repo for         |
+|                             |     the N Release.                                |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
 

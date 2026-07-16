@@ -17,6 +17,8 @@
 #  ============LICENSE_END=================================================
 #
 
+# This script is also called by ONAP Github GHA test
+
 TEST_DIRECTORY="test/auto-test"
 TEST_SCRIPT="./onap-suite-verify-jobs.sh"
 DOCKER_COMPOSE_VERSION="v2.21.0"

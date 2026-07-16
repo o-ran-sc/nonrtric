@@ -16,8 +16,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ORAN M release
-TEST_ENV_PROFILE="ORAN-M-RELEASE"
+#Profile for ORAN N release
+TEST_ENV_PROFILE="ORAN-N-RELEASE"
 FLAVOUR="ORAN"
 
 ########################################
@@ -60,10 +60,10 @@ NEXUS_RELEASE_REPO_ORAN=$NEXUS_RELEASE_REPO
 
 # A1PMS base image and tags
 A1PMS_IMAGE_BASE="o-ran-sc/nonrtric-plt-a1policymanagementservice"
-A1PMS_IMAGE_TAG_LOCAL="2.11.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.11.0-SNAPSHOT"
-A1PMS_IMAGE_TAG_REMOTE="2.11.0"
-A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.11.0"
+A1PMS_IMAGE_TAG_LOCAL="2.13.1-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE_SNAPSHOT="2.13.1-SNAPSHOT"
+A1PMS_IMAGE_TAG_REMOTE="2.13.1"
+A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.13.0"
 
 # ICS image and tags
 ICS_IMAGE_BASE="o-ran-sc/nonrtric-plt-informationcoordinatorservice"
