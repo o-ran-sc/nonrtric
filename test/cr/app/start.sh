@@ -19,5 +19,5 @@
 #start nginx
 nginx -c /usr/src/app/nginx.conf
 
-#start mrstub
-python3 -u cr.py
+#start cr
+gunicorn --workers 1 --threads 10 --bind [::]:2222 cr:app
