@@ -77,10 +77,13 @@ A1PMS_IMAGE_TAG_REMOTE_RELEASE="2.3.1"   #rabat release
 
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="3.2-SNAPSHOT" ###CHECK THIS
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="3.2-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="3.2-STAGING-latest"  #Will use snapshot repo
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="3.2.0"
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="3.3-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="3.2.5-STAGING-latest" # ONAP ccsdk doesn't do '-SNAPSHOT' versions anymore, but staging is done daily
+#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="3.3.0-STAGING-latest"  # Staging 3.2.0-4 & 3.3.x fails for now 
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE=$SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT  # Will use snapshot version for default staging remote 
+#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="3.2.0" #quebec  release 3.2.0 - fails 
+#SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="3.2.4" #quebec  release 3.2.4 - fails?   (no rabat 3.3.x yet) 
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="3.0.2" #honolulu?  release 3.0.2 - works  
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
